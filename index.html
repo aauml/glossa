@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{var s=localStorage.getItem('lecturas-text-size')||'md';document.documentElement.setAttribute('data-text-size',s);}catch(e){}})();</script>
 <title>Lecturas · A Personal Reader</title>
 <meta name="description" content="A personal reading collection. Annotated readings of podcasts, videos, and articles worth slowing down for.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -108,6 +109,32 @@
     .article-card-topics li:not(:last-child)::after { margin: 0 8px; }
     .article-card-meta { font-size: 11px; }
   }
+
+  /* Reader text-size toggle */
+  :root { --reader-scale: 1; }
+  html[data-text-size="sm"] { --reader-scale: 0.88; }
+  html[data-text-size="md"] { --reader-scale: 1; }
+  html[data-text-size="lg"] { --reader-scale: 1.15; }
+  body { font-size: calc(19px * var(--reader-scale)); }
+  .article p { font-size: calc(19px * var(--reader-scale)); }
+  .article p.lede { font-size: calc(22px * var(--reader-scale)); }
+  .qa-text { font-size: calc(19px * var(--reader-scale)); }
+  .context-box p { font-size: calc(17px * var(--reader-scale)); }
+  .article-card-dek { font-size: calc(19px * var(--reader-scale)); }
+  @media (max-width: 640px) {
+    body { font-size: calc(17px * var(--reader-scale)); }
+    .article p { font-size: calc(17px * var(--reader-scale)); }
+    .article p.lede { font-size: calc(19px * var(--reader-scale)); }
+    .qa-text { font-size: calc(17px * var(--reader-scale)); }
+  }
+  .text-size-switch { display: inline-flex; align-items: baseline; gap: 4px; font-family: 'IBM Plex Sans', sans-serif; }
+  .text-size-switch button { background: none; border: none; cursor: pointer; padding: 0 4px; color: var(--muted); font-family: inherit; font-weight: 600; line-height: 1; letter-spacing: 0; }
+  .text-size-switch button[data-size="sm"] { font-size: 10px; }
+  .text-size-switch button[data-size="md"] { font-size: 12px; }
+  .text-size-switch button[data-size="lg"] { font-size: 15px; }
+  .text-size-switch button.active { color: var(--accent); }
+  .text-size-switch button:hover { color: var(--ink); }
+  .masthead-meta-sep { color: var(--muted); margin: 0 4px; opacity: 0.6; }
 </style>
 </head>
 <body>
@@ -115,7 +142,10 @@
 <header class="masthead">
   <div class="masthead-inner">
     <span class="masthead-brand">Lecturas</span>
-    <span class="masthead-meta">A personal reader · 2026</span>
+    <span class="masthead-meta"><span class="masthead-meta-text">A personal reader · 2026</span>
+      <span class="masthead-meta-sep">·</span>
+      <span class="text-size-switch" role="group" aria-label="Text size"><button data-size="sm" type="button" aria-label="Small">A</button><button data-size="md" type="button" aria-label="Medium">A</button><button data-size="lg" type="button" aria-label="Large">A</button></span>
+    </span>
   </div>
 </header>
 
@@ -191,5 +221,14 @@
   <p class="footer-text">A personal annotated-reading project — not affiliated with the original publishers, podcasters, or interviewees. Pieces are guided adaptations created for slower, more careful reading; quotes are edited for clarity from publicly available material.</p>
 </footer>
 
+<script>
+(function(){
+  var btns=document.querySelectorAll('.text-size-switch button');
+  function paint(s){btns.forEach(function(b){b.classList.toggle('active',b.dataset.size===s);});}
+  var cur=localStorage.getItem('lecturas-text-size')||'md';
+  paint(cur);
+  btns.forEach(function(b){b.addEventListener('click',function(){var s=b.dataset.size;document.documentElement.setAttribute('data-text-size',s);try{localStorage.setItem('lecturas-text-size',s);}catch(e){}paint(s);});});
+})();
+</script>
 </body>
 </html>

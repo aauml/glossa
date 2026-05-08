@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{var s=localStorage.getItem('lecturas-text-size')||'md';document.documentElement.setAttribute('data-text-size',s);}catch(e){}})();</script>
 <meta name="color-scheme" content="light dark">
 <title>The Cycle Ray Dalio Says America Is Inside</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -441,6 +442,47 @@
     .article p.lede { font-size: 19px; }
     .article p.lede::first-letter { font-size: 70px; }
   }
+
+  /* Mobile: SVG exhibits scroll horizontally instead of shrinking text below legibility */
+  @media (max-width: 640px) {
+    .exhibit { margin-left: -22px; margin-right: -22px; }
+    .exhibit-frame {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-left: 22px;
+      padding-right: 22px;
+      scrollbar-width: thin;
+    }
+    .exhibit-frame svg { min-width: 560px; display: block; }
+    .exhibit-label, .exhibit-title, .exhibit-subtitle, .exhibit-source { padding-left: 0; padding-right: 0; }
+    .exhibit-source { font-size: 12px; }
+  }
+
+  /* Reader text-size toggle */
+  :root { --reader-scale: 1; }
+  html[data-text-size="sm"] { --reader-scale: 0.88; }
+  html[data-text-size="md"] { --reader-scale: 1; }
+  html[data-text-size="lg"] { --reader-scale: 1.15; }
+  body { font-size: calc(19px * var(--reader-scale)); }
+  .article p { font-size: calc(19px * var(--reader-scale)); }
+  .article p.lede { font-size: calc(22px * var(--reader-scale)); }
+  .qa-text { font-size: calc(19px * var(--reader-scale)); }
+  .context-box p { font-size: calc(17px * var(--reader-scale)); }
+  .article-card-dek { font-size: calc(19px * var(--reader-scale)); }
+  @media (max-width: 640px) {
+    body { font-size: calc(17px * var(--reader-scale)); }
+    .article p { font-size: calc(17px * var(--reader-scale)); }
+    .article p.lede { font-size: calc(19px * var(--reader-scale)); }
+    .qa-text { font-size: calc(17px * var(--reader-scale)); }
+  }
+  .text-size-switch { display: inline-flex; align-items: baseline; gap: 4px; font-family: 'IBM Plex Sans', sans-serif; }
+  .text-size-switch button { background: none; border: none; cursor: pointer; padding: 0 4px; color: var(--muted); font-family: inherit; font-weight: 600; line-height: 1; letter-spacing: 0; }
+  .text-size-switch button[data-size="sm"] { font-size: 10px; }
+  .text-size-switch button[data-size="md"] { font-size: 12px; }
+  .text-size-switch button[data-size="lg"] { font-size: 15px; }
+  .text-size-switch button.active { color: var(--accent); }
+  .text-size-switch button:hover { color: var(--ink); }
+  .masthead-meta-sep { color: var(--muted); margin: 0 4px; opacity: 0.6; }
 </style>
 </head>
 <body>
@@ -455,6 +497,8 @@
         <a href="../es/" class="lang-link">ES</a>
       </span>
       <span class="masthead-meta-text">No. 01 · From The New York Times, <em>Interesting Times</em></span>
+      <span class="masthead-meta-sep">·</span>
+      <span class="text-size-switch" role="group" aria-label="Text size"><button data-size="sm" type="button" aria-label="Small">A</button><button data-size="md" type="button" aria-label="Medium">A</button><button data-size="lg" type="button" aria-label="Large">A</button></span>
     </span>
   </div>
 </header>
@@ -997,5 +1041,14 @@
   <p><strong>§ 05 — What now.</strong> Stagflation vs. depression, the Japan comparison, AI as wildcard, Plato's "benevolent despot," and the closing exchange about whether America still has the fundamentals.</p>
 </aside>
 
+<script>
+(function(){
+  var btns=document.querySelectorAll('.text-size-switch button');
+  function paint(s){btns.forEach(function(b){b.classList.toggle('active',b.dataset.size===s);});}
+  var cur=localStorage.getItem('lecturas-text-size')||'md';
+  paint(cur);
+  btns.forEach(function(b){b.addEventListener('click',function(){var s=b.dataset.size;document.documentElement.setAttribute('data-text-size',s);try{localStorage.setItem('lecturas-text-size',s);}catch(e){}paint(s);});});
+})();
+</script>
 </body>
 </html>
