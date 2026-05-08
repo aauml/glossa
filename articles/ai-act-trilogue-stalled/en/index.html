@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twelve hours in Brussels · Lecturas</title>
+<meta name="description" content="A guided reading of the EU AI Act trilogue breakdown of 28–29 April 2026, and what the August deadline means for the Digital Omnibus reform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4EDE0;
+    --surface: #ECE2D0;
+    --surface-dark: #E2D6BD;
+    --ink: #1A1A1A;
+    --ink-soft: #2A2A2A;
+    --muted: #5C5C5C;
+    --rule: #1A1A1A;
+    --accent: #7A1F1F;
+    --accent-soft: #A14848;
+    --gold: #B8860B;
+    --highlight: #FAF4E8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Spectral', Georgia, serif; font-weight: 400; line-height: 1.6; font-size: 19px; }
+
+  .masthead { border-bottom: 1px solid var(--ink); padding: 18px 0; background: var(--bg); }
+  .masthead-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink); font-weight: 500; }
+  .masthead-section { color: var(--accent); font-weight: 600; text-decoration: none; transition: color 0.15s ease; }
+  .masthead-section:hover { color: var(--ink); }
+  .masthead-meta { color: var(--muted); letter-spacing: 0.12em; display: inline-flex; align-items: center; gap: 16px; }
+
+  .lang-switch { display: inline-flex; align-items: center; gap: 7px; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.18em; font-weight: 600; }
+  .lang-active { color: var(--accent); }
+  .lang-sep { color: var(--muted); opacity: 0.5; }
+  .lang-link { color: var(--muted); text-decoration: none; transition: color 0.15s ease; }
+  .lang-link:hover { color: var(--ink); }
+  @media (max-width: 640px) { .masthead-meta { gap: 10px; } .masthead-meta-text { display: none; } }
+
+  .hero { max-width: 1100px; margin: 0 auto; padding: 80px 32px 60px; border-bottom: 1px solid var(--ink); }
+  .hero-kicker { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); font-weight: 600; margin-bottom: 22px; }
+  .hero-headline { font-family: 'Spectral', serif; font-weight: 700; font-size: clamp(40px, 6.2vw, 72px); line-height: 1.05; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 28px; max-width: 900px; }
+  .hero-headline em { font-style: italic; font-weight: 500; }
+  .hero-dek { font-family: 'Spectral', serif; font-weight: 300; font-style: italic; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.4; color: var(--ink-soft); max-width: 760px; margin-bottom: 36px; }
+  .hero-meta { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 14px; }
+  .hero-meta-bar { width: 28px; height: 1px; background: var(--accent); }
+
+  .article { max-width: 720px; margin: 0 auto; padding: 60px 32px 100px; }
+  .article p { margin-bottom: 1.4em; font-size: 19px; line-height: 1.7; }
+  .article p.lede { font-size: 22px; line-height: 1.55; color: var(--ink); }
+  .article p.lede::first-letter { float: left; font-family: 'Spectral', serif; font-size: 88px; line-height: 0.85; font-weight: 700; padding: 6px 12px 0 0; color: var(--accent); }
+
+  .section-divider { margin: 56px 0 40px; text-align: center; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--muted); font-weight: 500; position: relative; }
+  .section-divider::before, .section-divider::after { content: ''; display: inline-block; width: 60px; height: 1px; background: var(--ink-soft); vertical-align: middle; margin: 0 18px; }
+  .section-number { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; display: block; }
+  h2.section-title { font-family: 'Spectral', serif; font-weight: 700; font-size: clamp(32px, 4vw, 44px); line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 16px; max-width: 640px; }
+  h2.section-title em { font-style: italic; font-weight: 500; }
+  .section-standfirst { font-family: 'Spectral', serif; font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.5; color: var(--ink-soft); margin-bottom: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--ink); }
+
+  .context-box { background: var(--surface); border-left: 3px solid var(--accent); padding: 26px 30px 22px; margin: 38px 0; font-family: 'Spectral', serif; }
+  .context-box-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.25em; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+  .context-box p { font-size: 17px; line-height: 1.6; margin-bottom: 0.9em; color: var(--ink-soft); }
+  .context-box p:last-child { margin-bottom: 0; }
+  .context-box strong { color: var(--ink); font-weight: 600; }
+
+  .inline-note { background: transparent; border-top: 1px solid var(--ink-soft); border-bottom: 1px solid var(--ink-soft); padding: 14px 0 14px; margin: 28px 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.55; color: var(--muted); font-weight: 400; }
+  .inline-note strong { color: var(--ink); font-weight: 600; }
+
+  .exhibit { margin: 56px -100px; background: var(--bg); padding: 0; }
+  @media (max-width: 980px) { .exhibit { margin: 56px 0; } }
+  .exhibit-frame { border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 28px 36px 32px; background: var(--bg); }
+  .exhibit-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3em; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+  .exhibit-title { font-family: 'Spectral', serif; font-weight: 600; font-size: 22px; line-height: 1.25; color: var(--ink); margin-bottom: 4px; }
+  .exhibit-subtitle { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); font-weight: 400; margin-bottom: 24px; letter-spacing: 0.01em; }
+  .exhibit-svg-wrapper { width: 100%; margin: 12px 0 18px; }
+  .exhibit-svg-wrapper svg { width: 100%; height: auto; display: block; }
+  .exhibit-source { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--muted); border-top: 1px solid var(--ink-soft); padding-top: 12px; margin-top: 14px; letter-spacing: 0.04em; }
+  .exhibit-source strong { color: var(--ink); font-weight: 500; }
+
+  @media (max-width: 640px) {
+    body { font-size: 17px; }
+    .hero { padding: 50px 22px 40px; }
+    .article { padding: 40px 22px 60px; }
+    .article p { font-size: 17px; }
+    .exhibit-frame { padding: 22px 18px 26px; }
+    .context-box { padding: 22px 22px 18px; margin: 30px 0; }
+    .article p.lede { font-size: 19px; }
+    .article p.lede::first-letter { font-size: 70px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="masthead-section" href="../../../">← Lecturas</a>
+    <span class="masthead-meta">
+      <span class="lang-switch">
+        <span class="lang-active">EN</span>
+        <span class="lang-sep">·</span>
+        <a href="../es/" class="lang-link">ES</a>
+      </span>
+    </span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-kicker">The news, annotated</div>
+  <h1 class="hero-headline">Twelve hours in <em>Brussels</em></h1>
+  <p class="hero-dek">The trilogue on the EU AI Act's Digital Omnibus reform broke down before dawn on 29 April. The substantive question — whether sectoral regulations should pre-empt the AI Act's horizontal logic — is not new. The pressure of the August deadline is.</p>
+  <div class="hero-meta">
+    <span class="hero-meta-bar"></span>
+    <span>Based on reporting by Jedidiah Bracy for the IAPP · 29 April 2026</span>
+  </div>
+</section>
+
+<article class="article">
+
+  <p class="lede">The news, in plain terms: on the night of Tuesday 28 April, negotiators from the European Parliament and the Council of the European Union sat down in Brussels to try to agree on a common position for the trilogue talks that will reform the EU AI Act. They negotiated for twelve hours. Around two in the morning on Wednesday they gave up. They will resume in two weeks.</p>
+
+  <p>This sounds procedural. It is procedural. The question is whether the procedure can finish before 2 August 2026 — the date on which a substantial set of obligations under the original AI Act was always scheduled to take effect for high-risk systems, and which the European Commission's reform package had been intended to push out to December 2027. If the reform does not pass in time, the original deadline holds. Companies that built compliance programmes around the postponed timeline would need to compress sixteen months of work into roughly thirteen weeks.</p>
+
+  <p>This piece is shorter than the previous two issues of Lecturas, because the source is shorter and tighter. The job here is less about extracting an argument from a long conversation and more about translating a procedural news item into something a non-specialist can hold in their head — including what the Annex I vs Annex III split actually means, and why a fight about moving items from "Section A" to "Section B" is in fact a fight about the architecture of European AI regulation.</p>
+
+  <!-- SECTION 1 -->
+  <div class="section-divider">Part one</div>
+
+  <span class="section-number">§ 01 — What happened</span>
+  <h2 class="section-title">A trilogue, and why it <em>broke</em></h2>
+  <p class="section-standfirst">The Digital Omnibus on AI is the European Commission's package of proposed reforms to the AI Act, published on 19 November 2025. Both Parliament and Council had previously aligned on its core postponements. The 28 April session was supposed to translate that alignment into a shared formal negotiating position. It didn't.</p>
+
+  <p>The Commission's omnibus would postpone two compliance dates. The first: the date on which the AI Act's obligations bite for high-risk systems classified under Annex III — currently 2 August 2026 — would move to 2 December 2027, a sixteen-month extension. The second: the date for AI systems embedded in regulated products under Annex I would move to 2 August 2028. The Council and Parliament both, on the record, supported these postponements going in.</p>
+
+  <p>What broke down was a different question. According to MLex's reporting on the room, the fault line ran through the European Parliament's push to move sectoral legislation from Annex I Section A to Section B. The Council, broadly, resisted. Around two in the morning the Cypriot presidency — Cyprus currently chairs the rotating Council presidency, which means a Cypriot official was running the negotiation from the Council side — concluded that no agreement was reachable that night. Talks will resume in roughly two weeks.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Background — What is a trilogue?</div>
+    <p>A <strong>trilogue</strong> is the closed-door negotiation between three EU institutions — the Parliament, the Council (representing member states), and the Commission (which proposes laws) — through which most EU legislation is finalised. Trilogues are not formal procedure; they are the political compromise stage where the actual deal gets cut. They typically run under intense time pressure and frequently go all night.</p>
+    <p>When a trilogue "breaks down," it usually means the parties couldn't agree to enter the formal text-stage negotiation in their next planned slot — not that the negotiations are over. Reconvening within two to three weeks is normal. What is unusual here is the deadline pressure: the August date the omnibus is meant to postpone is itself less than thirteen weeks away from the next scheduled round.</p>
+  </div>
+
+  <!-- EXHIBIT 1 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 01</div>
+      <div class="exhibit-title">The deadlines, original and proposed</div>
+      <div class="exhibit-subtitle">Original AI Act timeline vs Digital Omnibus postponement vs the gap if reform doesn't pass</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <text x="40" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">DATE</text>
+          <text x="280" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">ORIGINAL AI ACT</text>
+          <text x="540" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">DIGITAL OMNIBUS PROPOSAL</text>
+          <line x1="40" y1="48" x2="760" y2="48" stroke="#1A1A1A" stroke-width="1.2"/>
+
+          <g font-family="'Spectral', serif" font-size="14" fill="#1A1A1A">
+            <text x="40" y="80" font-weight="600">Aug 2024</text>
+            <text x="280" y="80">AI Act enters into force</text>
+            <text x="540" y="80" font-style="italic" fill="#5C5C5C">no change</text>
+            <line x1="40" y1="96" x2="760" y2="96" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="120" font-weight="600">Aug 2025</text>
+            <text x="280" y="120">GPAI obligations take effect</text>
+            <text x="540" y="120" font-style="italic" fill="#5C5C5C">no change</text>
+            <line x1="40" y1="136" x2="760" y2="136" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="170" font-weight="700" fill="#7A1F1F">2 Aug 2026</text>
+            <text x="280" y="170" font-weight="600">High-risk Annex III deadline</text>
+            <text x="280" y="188" font-style="italic" font-size="12" fill="#5C5C5C">if reform fails: this still applies</text>
+            <text x="540" y="170" font-style="italic" fill="#5C5C5C">→ moves to 2 Dec 2027</text>
+
+            <line x1="40" y1="208" x2="760" y2="208" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="232">2 Dec 2027</text>
+            <text x="280" y="232" font-style="italic" fill="#5C5C5C">—</text>
+            <text x="540" y="232">Postponed Annex III deadline</text>
+
+            <line x1="40" y1="252" x2="760" y2="252" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="276">2 Aug 2028</text>
+            <text x="280" y="276" font-style="italic" fill="#5C5C5C">Annex I (in-product) deadline</text>
+            <text x="540" y="276">Postponed Annex I deadline</text>
+          </g>
+
+          <line x1="40" y1="306" x2="760" y2="306" stroke="#1A1A1A" stroke-width="1.2"/>
+
+          <g transform="translate(40, 326)">
+            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">TODAY · 7 MAY 2026</text>
+            <text x="0" y="20" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#1A1A1A">~13 weeks remain to the original Annex III deadline. Trilogue resumes in two weeks.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Sources:</strong> Original deadlines from Regulation (EU) 2024/1689. Proposed postponements from the European Commission's Digital Omnibus on AI, 19 November 2025. Status of negotiations as of 29 April 2026, per IAPP and Reuters reporting.</div>
+    </div>
+  </figure>
+
+  <!-- SECTION 2 -->
+  <div class="section-divider">Part two</div>
+
+  <span class="section-number">§ 02 — Annex I, Annex III, Section A, Section B</span>
+  <h2 class="section-title">A fight about <em>architecture</em>, not timing</h2>
+  <p class="section-standfirst">The deadlines were settled. What broke is a structural disagreement about which AI systems should be governed by the AI Act's horizontal rules and which should defer to the sectoral regulators that already exist for the products those systems are built into.</p>
+
+  <p>Here is the simplest version of what each annex governs.</p>
+
+  <p><strong>Annex III</strong> is a list of standalone high-risk AI use cases — biometric identification, AI in employment decisions, AI in education, AI in critical infrastructure, AI in law enforcement, AI in administration of justice and democratic processes. These are governed primarily by the AI Act's horizontal framework: the same rules apply across sectors, regardless of what industry the system is deployed in.</p>
+
+  <p><strong>Annex I</strong> is different. It covers AI systems embedded in products that are <em>already</em> regulated by EU sectoral law — medical devices under the Medical Device Regulation, toys under the Toy Safety Directive, machinery under the Machinery Regulation, vehicles under their own type-approval rules, lifts, pressure equipment, civil aviation. These get governed by a combination of those existing sectoral regimes and AI Act obligations layered on top.</p>
+
+  <p>Within Annex I there are two sub-lists, Section A and Section B. The current architecture puts most regulated products in Section A, where AI Act obligations apply directly alongside the sectoral rules. Parliament's reform position, broadly, would move significant categories into Section B, where the sectoral regulator would handle the AI dimension and the Act would step back. Council, broadly, wants fewer categories moved.</p>
+
+  <p>This is a genuine policy disagreement, not a technicality. It maps onto two competing visions of what an AI regulation should be.</p>
+
+  <!-- EXHIBIT 2 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 02</div>
+      <div class="exhibit-title">The Annex split, in plain English</div>
+      <div class="exhibit-subtitle">What the AI Act treats as horizontal high-risk vs what it lays on top of existing sectoral law</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <g transform="translate(40, 30)">
+            <rect x="0" y="0" width="340" height="200" fill="#FAF4E8" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">ANNEX III</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="18" font-weight="700" fill="#1A1A1A">Standalone high-risk uses</text>
+            <text x="20" y="80" font-family="'Spectral', serif" font-size="13" font-style="italic" fill="#5C5C5C">governed by AI Act horizontal rules</text>
+
+            <g font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#1A1A1A">
+              <text x="20" y="108">· biometric identification</text>
+              <text x="20" y="128">· employment &amp; HR decisions</text>
+              <text x="20" y="148">· education &amp; vocational training</text>
+              <text x="20" y="168">· critical infrastructure</text>
+              <text x="20" y="188">· law enforcement, justice, migration</text>
+            </g>
+          </g>
+
+          <g transform="translate(420, 30)">
+            <rect x="0" y="0" width="340" height="200" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">ANNEX I</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="18" font-weight="700" fill="#1A1A1A">AI embedded in regulated products</text>
+            <text x="20" y="80" font-family="'Spectral', serif" font-size="13" font-style="italic" fill="#5C5C5C">already covered by sectoral law</text>
+
+            <g font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#1A1A1A">
+              <text x="20" y="108">· medical devices (MDR)</text>
+              <text x="20" y="128">· toys (Toy Safety Directive)</text>
+              <text x="20" y="148">· machinery, lifts, pressure equipment</text>
+              <text x="20" y="168">· vehicles (type-approval)</text>
+              <text x="20" y="188">· civil aviation, marine equipment</text>
+            </g>
+          </g>
+
+          <g transform="translate(420, 250)">
+            <line x1="0" y1="0" x2="340" y2="0" stroke="#1A1A1A" stroke-width="0.6"/>
+
+            <g transform="translate(0, 20)">
+              <text font-family="'IBM Plex Mono', monospace" font-size="10" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">SECTION A</text>
+              <text x="0" y="20" font-family="'Spectral', serif" font-size="13" font-weight="600" fill="#1A1A1A">AI Act applies directly</text>
+              <text x="0" y="40" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">parallel compliance with</text>
+              <text x="0" y="56" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">sectoral &amp; AI Act regimes</text>
+            </g>
+
+            <g transform="translate(180, 20)">
+              <text font-family="'IBM Plex Mono', monospace" font-size="10" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">SECTION B</text>
+              <text x="0" y="20" font-family="'Spectral', serif" font-size="13" font-weight="600" fill="#1A1A1A">Sectoral regulator handles</text>
+              <text x="0" y="40" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">AI obligations folded into</text>
+              <text x="0" y="56" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">existing assessment regime</text>
+            </g>
+          </g>
+
+          <g transform="translate(40, 280)">
+            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">THE FIGHT</text>
+            <text x="0" y="22" font-family="'Spectral', serif" font-size="14" fill="#1A1A1A" font-weight="600">Move how many categories from A to B?</text>
+            <text x="0" y="48" font-family="'Spectral', serif" font-size="13" fill="#5C5C5C">Parliament: more</text>
+            <text x="0" y="68" font-family="'Spectral', serif" font-size="13" fill="#5C5C5C">Council: fewer</text>
+          </g>
+
+          <g transform="translate(40, 400)">
+            <line x1="0" y1="0" x2="720" y2="0" stroke="#1A1A1A" stroke-width="0.4" opacity="0.4"/>
+            <text x="0" y="20" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#5C5C5C">Moving categories from A to B reduces parallel compliance burden</text>
+            <text x="0" y="38" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#5C5C5C">but fragments the AI Act's claim to be one horizontal framework.</text>
+            <text x="0" y="60" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#5C5C5C">That trade-off is what the negotiators couldn't agree on.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Diagram by the editor, based on Regulation (EU) 2024/1689 (Annexes I and III), the Digital Omnibus on AI proposal of 19 November 2025, and reporting by IAPP, MLex, Politico, and Euractiv on the negotiating positions of the Parliament and Council as of late April 2026.</div>
+    </div>
+  </figure>
+
+  <p>The pro-simplification reading — closer to Parliament's lead, with German conservative and industrial backing — is that AI risk in regulated products is best handled by existing sectoral expertise. A pacemaker is a medical device first and an AI system second; the medical device regulator already knows how to assess it, and adding parallel AI Act obligations creates duplication without adding safety. The Italian MEP who leads Parliament's AI file, Brando Benifei, has acknowledged that a wholesale sectoral shift would shatter the AI Act's horizontal coherence into a dozen separate compliance logics — but has signalled openness to alternatives short of that.</p>
+
+  <p>The pro-horizontal reading — closer to the Council's median position, and to civil society and Green objections — is that having a horizontal AI Act with widening sectoral exceptions undermines the point of having a horizontal AI Act in the first place. The architecture was supposed to be a single coherent framework. Carving out more Section B exceptions returns Europe to the fragmented patchwork it tried to escape.</p>
+
+  <p>These are not symmetric framings. They are competing readings of the same legal instrument.</p>
+
+  <!-- SECTION 3 -->
+  <div class="section-divider">Part three</div>
+
+  <span class="section-number">§ 03 — Who is pushing for what</span>
+  <h2 class="section-title">A coalition, <em>not a single dissenter</em></h2>
+  <p class="section-standfirst">The reporting around the breakdown describes alignments rather than personalities. The most contested word in the coverage is the Greens' description of the EPP–right cooperation as a "coup" — rhetorical, but pointing at a real mechanism.</p>
+
+  <p>The German chancellor, Friedrich Merz, has pushed publicly for stronger deregulation of industrial AI on the ground that products already covered by sectoral law should not need a second AI Act compliance regime. Siemens, the German industrial conglomerate, has been a vocal corporate proponent of the same position. The European People's Party — the centre-right grouping that includes Merz's CDU — has aligned with this position in Parliament. The pan-European industry federation Digital Europe estimates that aggressive simplification could avoid up to €31 billion in compliance costs, and has framed the trilogue delay as the democratic process working as intended.</p>
+
+  <p>The opposing coalition includes the Greens (whose Dutch shadow rapporteur, Kim van Sparrentak, used the word "coup" to describe what she saw as EPP coordination with parties further right), parts of the centre-left S&amp;D group, civil society organisations, and former AI Act negotiators including Laura Caroli — who served as Benifei's policy advisor through the original AI Act file and has warned publicly that the current delay risks torpedoing both the omnibus reform itself and the European AI standardisation ecosystem that the Commission has been investing in for years. The Cypriot presidency of the Council sits in the chair, structurally non-aligned but under pressure to deliver an agreement on its watch.</p>
+
+  <!-- EXHIBIT 3 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 03</div>
+      <div class="exhibit-title">Where the actors stand</div>
+      <div class="exhibit-subtitle">Pro-simplification, pro-horizontal-architecture, and the procedural chair, as of 29 April 2026</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <g transform="translate(40, 40)">
+            <rect x="0" y="0" width="340" height="280" fill="#FAF4E8" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">PRO-SIMPLIFICATION</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="15" font-style="italic" fill="#5C5C5C">"move more from A to B"</text>
+
+            <g font-family="'Spectral', serif" font-size="14" fill="#1A1A1A">
+              <text x="20" y="98" font-weight="600">EPP</text>
+              <text x="20" y="116" font-size="12" font-style="italic" fill="#5C5C5C">centre-right group, Parliament's largest</text>
+
+              <text x="20" y="148" font-weight="600">German government</text>
+              <text x="20" y="166" font-size="12" font-style="italic" fill="#5C5C5C">Chancellor Merz, CDU/CSU coalition</text>
+
+              <text x="20" y="198" font-weight="600">Industry</text>
+              <text x="20" y="216" font-size="12" font-style="italic" fill="#5C5C5C">Siemens, Digital Europe federation</text>
+
+              <text x="20" y="248" font-weight="600">EPP rapporteur</text>
+              <text x="20" y="266" font-size="12" font-style="italic" fill="#5C5C5C">Arba Kokalari (Sweden)</text>
+            </g>
+          </g>
+
+          <g transform="translate(420, 40)">
+            <rect x="0" y="0" width="340" height="280" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">PRO-HORIZONTAL ARCHITECTURE</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="15" font-style="italic" fill="#5C5C5C">"keep the framework coherent"</text>
+
+            <g font-family="'Spectral', serif" font-size="14" fill="#1A1A1A">
+              <text x="20" y="98" font-weight="600">Greens / EFA</text>
+              <text x="20" y="116" font-size="12" font-style="italic" fill="#5C5C5C">Kim van Sparrentak (Netherlands)</text>
+
+              <text x="20" y="148" font-weight="600">Council median position</text>
+              <text x="20" y="166" font-size="12" font-style="italic" fill="#5C5C5C">though Council is internally split</text>
+
+              <text x="20" y="198" font-weight="600">Civil society</text>
+              <text x="20" y="216" font-size="12" font-style="italic" fill="#5C5C5C">consumer groups, digital rights NGOs</text>
+
+              <text x="20" y="248" font-weight="600">Former negotiators</text>
+              <text x="20" y="266" font-size="12" font-style="italic" fill="#5C5C5C">Laura Caroli, Benifei's adviser on original Act</text>
+            </g>
+          </g>
+
+          <g transform="translate(40, 340)">
+            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="700">PROCEDURALLY IN THE CHAIR</text>
+            <text x="200" y="0" font-family="'Spectral', serif" font-style="italic" font-size="14" fill="#1A1A1A">Cypriot presidency of the Council; Parliament lead negotiator Brando Benifei (S&amp;D, Italy)</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Position alignments based on IAPP, Reuters, Politico Europe, and Euractiv reporting from 28 April – 1 May 2026. Group affiliations as of the current European Parliament term. Cyprus holds the rotating Council presidency for the first half of 2026.</div>
+    </div>
+  </figure>
+
+  <!-- SECTION 4 -->
+  <div class="section-divider">Part four</div>
+
+  <span class="section-number">§ 04 — The August deadline</span>
+  <h2 class="section-title">The deadline is the <em>leverage</em></h2>
+  <p class="section-standfirst">The whole shape of the negotiation is set by the calendar. If the omnibus does not pass in time, the original Annex III deadline holds, and a substantial set of obligations bites on 2 August.</p>
+
+  <p>On 2 August 2026, the original obligations under the AI Act for high-risk systems classified under Annex III take effect: full compliance with risk management systems, data governance requirements, transparency obligations, human oversight provisions, conformity assessments, and post-market monitoring. The Commission's omnibus would have postponed all of this to December 2027. If the omnibus does not pass, providers and deployers of Annex III systems active in the EU market need to be in compliance — or out of the market — by 2 August.</p>
+
+  <p>The arithmetic is unforgiving. EU legislative procedure, even at maximum political urgency, requires a finalised trilogue agreement, a Parliament plenary vote, a formal Council adoption, and publication in the Official Journal. The next trilogue round is roughly two weeks away. From there, even an aggressive timetable to formal adoption realistically requires at least four to six weeks. That puts a best-case adoption date in late June or early July — tight but possible. A failure of the next trilogue round, or a third one, pushes the realistic adoption window past 2 August entirely.</p>
+
+  <div class="inline-note">
+    <strong>What companies are doing in the meantime.</strong> Reporting on industry response describes a bifurcated stance: large multinationals with substantial EU exposure are continuing dual-track work — preparing for the original August deadline as a hedge while lobbying for the postponement — while smaller European firms with thinner compliance teams are increasingly visibly stranded between the two scenarios. The €31 billion compliance-cost figure cited by Digital Europe is, by its own admission, an aggregate over the postponement period rather than a one-off; the relevant figure for any single firm depends entirely on which annex its products fall under.
+  </div>
+
+  <!-- CODA -->
+  <div class="section-divider">Coda</div>
+
+  <p>Three things to watch. First: whether the Council's negotiating position softens on the Section A→B question, which would be a substantive win for Parliament's pro-reform faction and a structural concession on the horizontal logic of the AI Act. Second: whether the Commission proposes any kind of emergency simplification — a targeted enforcement-discretion instrument, a delegated act, a recital-only clarification — that doesn't require full omnibus adoption. Third: how member states with significant AI Act exposure manage the political costs of either outcome. Germany's domestic position has shifted under Merz; France's has, so far, not.</p>
+
+  <p>The piece of this story least visible from the news cycle is what it says about the AI Act's coherence as a legislative project. The Act was sold as a horizontal framework that would set the global standard for AI governance. The push to move significant categories of high-risk systems out of that framework and into sectoral regimes is not a technical adjustment. It is a structural retreat from the framework's original ambition. Whether that retreat is being driven by genuine learning about what works, or by industrial lobbying using a deadline as leverage, is the real question — and one trilogue, even a twelve-hour one, was never going to settle it.</p>
+
+</article>
+
+</body>
+</html>

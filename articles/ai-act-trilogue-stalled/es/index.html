@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doce horas en Bruselas · Lecturas</title>
+<meta name="description" content="Una lectura guiada del bloqueo del trílogo sobre el Reglamento de IA de la UE del 28-29 de abril de 2026, y de lo que el plazo de agosto significa para la reforma del Ómnibus Digital.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4EDE0;
+    --surface: #ECE2D0;
+    --surface-dark: #E2D6BD;
+    --ink: #1A1A1A;
+    --ink-soft: #2A2A2A;
+    --muted: #5C5C5C;
+    --rule: #1A1A1A;
+    --accent: #7A1F1F;
+    --accent-soft: #A14848;
+    --gold: #B8860B;
+    --highlight: #FAF4E8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Spectral', Georgia, serif; font-weight: 400; line-height: 1.6; font-size: 19px; }
+
+  .masthead { border-bottom: 1px solid var(--ink); padding: 18px 0; background: var(--bg); }
+  .masthead-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink); font-weight: 500; }
+  .masthead-section { color: var(--accent); font-weight: 600; text-decoration: none; transition: color 0.15s ease; }
+  .masthead-section:hover { color: var(--ink); }
+  .masthead-meta { color: var(--muted); letter-spacing: 0.12em; display: inline-flex; align-items: center; gap: 16px; }
+
+  .lang-switch { display: inline-flex; align-items: center; gap: 7px; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.18em; font-weight: 600; }
+  .lang-active { color: var(--accent); }
+  .lang-sep { color: var(--muted); opacity: 0.5; }
+  .lang-link { color: var(--muted); text-decoration: none; transition: color 0.15s ease; }
+  .lang-link:hover { color: var(--ink); }
+  @media (max-width: 640px) { .masthead-meta { gap: 10px; } .masthead-meta-text { display: none; } }
+
+  .hero { max-width: 1100px; margin: 0 auto; padding: 80px 32px 60px; border-bottom: 1px solid var(--ink); }
+  .hero-kicker { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); font-weight: 600; margin-bottom: 22px; }
+  .hero-headline { font-family: 'Spectral', serif; font-weight: 700; font-size: clamp(40px, 6.2vw, 72px); line-height: 1.05; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 28px; max-width: 900px; }
+  .hero-headline em { font-style: italic; font-weight: 500; }
+  .hero-dek { font-family: 'Spectral', serif; font-weight: 300; font-style: italic; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.4; color: var(--ink-soft); max-width: 760px; margin-bottom: 36px; }
+  .hero-meta { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 14px; }
+  .hero-meta-bar { width: 28px; height: 1px; background: var(--accent); }
+
+  .article { max-width: 720px; margin: 0 auto; padding: 60px 32px 100px; }
+  .article p { margin-bottom: 1.4em; font-size: 19px; line-height: 1.7; }
+  .article p.lede { font-size: 22px; line-height: 1.55; color: var(--ink); }
+  .article p.lede::first-letter { float: left; font-family: 'Spectral', serif; font-size: 88px; line-height: 0.85; font-weight: 700; padding: 6px 12px 0 0; color: var(--accent); }
+
+  .section-divider { margin: 56px 0 40px; text-align: center; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--muted); font-weight: 500; position: relative; }
+  .section-divider::before, .section-divider::after { content: ''; display: inline-block; width: 60px; height: 1px; background: var(--ink-soft); vertical-align: middle; margin: 0 18px; }
+  .section-number { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; display: block; }
+  h2.section-title { font-family: 'Spectral', serif; font-weight: 700; font-size: clamp(32px, 4vw, 44px); line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 16px; max-width: 640px; }
+  h2.section-title em { font-style: italic; font-weight: 500; }
+  .section-standfirst { font-family: 'Spectral', serif; font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.5; color: var(--ink-soft); margin-bottom: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--ink); }
+
+  .context-box { background: var(--surface); border-left: 3px solid var(--accent); padding: 26px 30px 22px; margin: 38px 0; font-family: 'Spectral', serif; }
+  .context-box-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.25em; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+  .context-box p { font-size: 17px; line-height: 1.6; margin-bottom: 0.9em; color: var(--ink-soft); }
+  .context-box p:last-child { margin-bottom: 0; }
+  .context-box strong { color: var(--ink); font-weight: 600; }
+
+  .inline-note { background: transparent; border-top: 1px solid var(--ink-soft); border-bottom: 1px solid var(--ink-soft); padding: 14px 0 14px; margin: 28px 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.55; color: var(--muted); font-weight: 400; }
+  .inline-note strong { color: var(--ink); font-weight: 600; }
+
+  .exhibit { margin: 56px -100px; background: var(--bg); padding: 0; }
+  @media (max-width: 980px) { .exhibit { margin: 56px 0; } }
+  .exhibit-frame { border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 28px 36px 32px; background: var(--bg); }
+  .exhibit-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3em; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+  .exhibit-title { font-family: 'Spectral', serif; font-weight: 600; font-size: 22px; line-height: 1.25; color: var(--ink); margin-bottom: 4px; }
+  .exhibit-subtitle { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); font-weight: 400; margin-bottom: 24px; letter-spacing: 0.01em; }
+  .exhibit-svg-wrapper { width: 100%; margin: 12px 0 18px; }
+  .exhibit-svg-wrapper svg { width: 100%; height: auto; display: block; }
+  .exhibit-source { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--muted); border-top: 1px solid var(--ink-soft); padding-top: 12px; margin-top: 14px; letter-spacing: 0.04em; }
+  .exhibit-source strong { color: var(--ink); font-weight: 500; }
+
+  @media (max-width: 640px) {
+    body { font-size: 17px; }
+    .hero { padding: 50px 22px 40px; }
+    .article { padding: 40px 22px 60px; }
+    .article p { font-size: 17px; }
+    .exhibit-frame { padding: 22px 18px 26px; }
+    .context-box { padding: 22px 22px 18px; margin: 30px 0; }
+    .article p.lede { font-size: 19px; }
+    .article p.lede::first-letter { font-size: 70px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="masthead-section" href="../../../">← Lecturas</a>
+    <span class="masthead-meta">
+      <span class="lang-switch">
+        <a href="../en/" class="lang-link">EN</a>
+        <span class="lang-sep">·</span>
+        <span class="lang-active">ES</span>
+      </span>
+    </span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-kicker">La noticia, anotada</div>
+  <h1 class="hero-headline">Doce horas en <em>Bruselas</em></h1>
+  <p class="hero-dek">El trílogo sobre la reforma del Reglamento de IA de la UE — el llamado Ómnibus Digital — se rompió antes del amanecer del 29 de abril. La cuestión de fondo — si la regulación sectorial debe imponerse a la lógica horizontal del Reglamento de IA — no es nueva. La presión del plazo de agosto, sí.</p>
+  <div class="hero-meta">
+    <span class="hero-meta-bar"></span>
+    <span>A partir de la cobertura de Jedidiah Bracy en la IAPP · 29 de abril de 2026</span>
+  </div>
+</section>
+
+<article class="article">
+
+  <p class="lede">La noticia, en términos llanos: la noche del martes 28 de abril, los negociadores del Parlamento Europeo y del Consejo de la Unión Europea se sentaron en Bruselas para intentar acordar una posición común para las negociaciones del trílogo que reformará el Reglamento de IA de la UE. Negociaron durante doce horas. Hacia las dos de la madrugada del miércoles dieron por terminado el intento. Volverán a reunirse en dos semanas.</p>
+
+  <p>Suena a procedimiento. Es procedimiento. La cuestión es si el procedimiento podrá completarse antes del 2 de agosto de 2026 — la fecha en que un conjunto sustancial de obligaciones del Reglamento de IA original siempre estuvo previsto que entrara en vigor para los sistemas de alto riesgo, y que el paquete de reforma de la Comisión Europea pretendía aplazar hasta diciembre de 2027. Si la reforma no se aprueba a tiempo, se mantiene el plazo original. Las empresas que diseñaron sus programas de cumplimiento sobre la base del calendario aplazado tendrían que comprimir dieciséis meses de trabajo en aproximadamente trece semanas.</p>
+
+  <p>Esta pieza es más breve que las dos anteriores de Lecturas, porque la fuente es más breve y compacta. La tarea aquí no es tanto extraer un argumento de una conversación larga como traducir una noticia procedimental a algo que un lector no especializado pueda sostener en la cabeza — incluido qué significa de verdad la división entre Anexo I y Anexo III, y por qué una pelea por trasladar elementos de la «Sección A» a la «Sección B» es, de hecho, una pelea sobre la arquitectura de la regulación europea de la IA.</p>
+
+  <!-- SECCIÓN 1 -->
+  <div class="section-divider">Parte uno</div>
+
+  <span class="section-number">§ 01 — Lo que pasó</span>
+  <h2 class="section-title">Un trílogo, y por qué se <em>rompió</em></h2>
+  <p class="section-standfirst">El Ómnibus Digital sobre IA es el paquete de reformas al Reglamento de IA propuesto por la Comisión Europea, publicado el 19 de noviembre de 2025. Tanto el Parlamento como el Consejo se habían alineado previamente sobre sus aplazamientos centrales. La sesión del 28 de abril debía traducir esa alineación en una posición negociadora formal compartida. No lo hizo.</p>
+
+  <p>El ómnibus de la Comisión aplazaría dos fechas de cumplimiento. La primera: la fecha en que las obligaciones del Reglamento de IA empiezan a aplicarse a los sistemas de alto riesgo clasificados en el Anexo III — actualmente el 2 de agosto de 2026 — pasaría al 2 de diciembre de 2027, una prórroga de dieciséis meses. La segunda: la fecha para los sistemas de IA integrados en productos regulados conforme al Anexo I se trasladaría al 2 de agosto de 2028. El Consejo y el Parlamento, en sus posiciones públicas previas, apoyaban ambos aplazamientos al entrar a la sala.</p>
+
+  <p>Lo que se rompió fue una cuestión distinta. Según la cobertura de MLex sobre lo ocurrido en la sala, la línea de fractura recorría el empuje del Parlamento Europeo para trasladar legislación sectorial de la Sección A del Anexo I a la Sección B. El Consejo, en términos generales, se resistió. Hacia las dos de la madrugada, la presidencia chipriota — Chipre ostenta actualmente la presidencia rotatoria del Consejo, lo que significa que un funcionario chipriota llevaba la negociación por el lado del Consejo — concluyó que esa noche no era posible alcanzar un acuerdo. Las conversaciones se reanudarán en aproximadamente dos semanas.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Antecedentes — ¿Qué es un trílogo?</div>
+    <p>Un <strong>trílogo</strong> es la negociación a puerta cerrada entre tres instituciones de la UE — el Parlamento, el Consejo (que representa a los Estados miembros) y la Comisión (que propone las leyes) — a través de la cual se cierra la mayor parte de la legislación europea. Los trílogos no son procedimiento formal; son la fase de compromiso político en la que se cierra el acuerdo real. Suelen desarrollarse bajo intensa presión temporal y, con frecuencia, se prolongan toda la noche.</p>
+    <p>Cuando un trílogo «se rompe», normalmente significa que las partes no consiguieron acordar entrar en la fase formal de negociación de texto en su siguiente franja prevista — no que las negociaciones hayan terminado. Volver a reunirse en dos o tres semanas es lo habitual. Lo inusual aquí es la presión del calendario: la fecha de agosto que el ómnibus pretende aplazar está, ella misma, a menos de trece semanas de la siguiente ronda prevista.</p>
+  </div>
+
+  <!-- ILUSTRACIÓN 1 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Ilustración 01</div>
+      <div class="exhibit-title">Los plazos: original y propuesto</div>
+      <div class="exhibit-subtitle">Calendario original del Reglamento de IA frente al aplazamiento del Ómnibus Digital, y la brecha si la reforma no se aprueba</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <text x="40" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">FECHA</text>
+          <text x="280" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">REGLAMENTO ORIGINAL</text>
+          <text x="540" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">PROPUESTA DEL ÓMNIBUS</text>
+          <line x1="40" y1="48" x2="760" y2="48" stroke="#1A1A1A" stroke-width="1.2"/>
+
+          <g font-family="'Spectral', serif" font-size="14" fill="#1A1A1A">
+            <text x="40" y="80" font-weight="600">Ago 2024</text>
+            <text x="280" y="80">Reglamento de IA entra en vigor</text>
+            <text x="540" y="80" font-style="italic" fill="#5C5C5C">sin cambios</text>
+            <line x1="40" y1="96" x2="760" y2="96" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="120" font-weight="600">Ago 2025</text>
+            <text x="280" y="120">Obligaciones GPAI en vigor</text>
+            <text x="540" y="120" font-style="italic" fill="#5C5C5C">sin cambios</text>
+            <line x1="40" y1="136" x2="760" y2="136" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="170" font-weight="700" fill="#7A1F1F">2 ago 2026</text>
+            <text x="280" y="170" font-weight="600">Plazo de Anexo III alto riesgo</text>
+            <text x="280" y="188" font-style="italic" font-size="12" fill="#5C5C5C">si la reforma falla: sigue aplicándose</text>
+            <text x="540" y="170" font-style="italic" fill="#5C5C5C">→ pasa al 2 dic 2027</text>
+
+            <line x1="40" y1="208" x2="760" y2="208" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="232">2 dic 2027</text>
+            <text x="280" y="232" font-style="italic" fill="#5C5C5C">—</text>
+            <text x="540" y="232">Plazo de Anexo III aplazado</text>
+
+            <line x1="40" y1="252" x2="760" y2="252" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="276">2 ago 2028</text>
+            <text x="280" y="276" font-style="italic" fill="#5C5C5C">Plazo Anexo I (productos)</text>
+            <text x="540" y="276">Plazo de Anexo I aplazado</text>
+          </g>
+
+          <line x1="40" y1="306" x2="760" y2="306" stroke="#1A1A1A" stroke-width="1.2"/>
+
+          <g transform="translate(40, 326)">
+            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">HOY · 7 DE MAYO DE 2026</text>
+            <text x="0" y="20" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#1A1A1A">Quedan ~13 semanas hasta el plazo original del Anexo III. El trílogo se reanuda en dos semanas.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Fuentes:</strong> Plazos originales del Reglamento (UE) 2024/1689. Aplazamientos propuestos en el Ómnibus Digital sobre IA de la Comisión Europea, 19 de noviembre de 2025. Estado de las negociaciones a 29 de abril de 2026, según la IAPP y Reuters.</div>
+    </div>
+  </figure>
+
+  <!-- SECCIÓN 2 -->
+  <div class="section-divider">Parte dos</div>
+
+  <span class="section-number">§ 02 — Anexo I, Anexo III, Sección A, Sección B</span>
+  <h2 class="section-title">Una pelea sobre <em>arquitectura</em>, no sobre plazos</h2>
+  <p class="section-standfirst">Los plazos estaban resueltos. Lo que se rompió es un desacuerdo estructural sobre qué sistemas de IA deben gobernarse por las reglas horizontales del Reglamento de IA y cuáles deben deferirse a los reguladores sectoriales que ya existen para los productos en los que esos sistemas se incorporan.</p>
+
+  <p>Esta es la versión más sencilla de lo que rige cada anexo.</p>
+
+  <p>El <strong>Anexo III</strong> es una lista de casos de uso de IA autónomos de alto riesgo — identificación biométrica, IA en decisiones de empleo, IA en educación, IA en infraestructuras críticas, IA en aplicación de la ley, IA en administración de justicia y procesos democráticos. Estos se rigen principalmente por el marco horizontal del Reglamento de IA: las mismas reglas se aplican en todos los sectores, con independencia del sector en que el sistema se despliegue.</p>
+
+  <p>El <strong>Anexo I</strong> es distinto. Cubre los sistemas de IA integrados en productos que <em>ya</em> están regulados por la legislación sectorial de la UE — productos sanitarios bajo el Reglamento de Productos Sanitarios, juguetes bajo la Directiva sobre seguridad de los juguetes, maquinaria bajo el Reglamento de Máquinas, vehículos bajo sus propias normas de homologación, ascensores, equipos a presión, aviación civil. Estos quedan gobernados por una combinación de esos regímenes sectoriales preexistentes y las obligaciones del Reglamento de IA superpuestas.</p>
+
+  <p>Dentro del Anexo I existen dos sublistas, la Sección A y la Sección B. La arquitectura actual sitúa la mayoría de los productos regulados en la Sección A, donde las obligaciones del Reglamento de IA se aplican directamente junto a las normas sectoriales. La posición reformista del Parlamento, en términos generales, trasladaría categorías significativas a la Sección B, donde el regulador sectorial gestionaría la dimensión de IA y el Reglamento de IA se haría a un lado. El Consejo, en términos generales, quiere mover menos categorías.</p>
+
+  <p>Es un desacuerdo de política genuino, no una cuestión técnica. Mapea sobre dos visiones contrapuestas de lo que un reglamento de IA debería ser.</p>
+
+  <!-- ILUSTRACIÓN 2 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Ilustración 02</div>
+      <div class="exhibit-title">La división de los anexos, en lenguaje claro</div>
+      <div class="exhibit-subtitle">Lo que el Reglamento trata como alto riesgo horizontal frente a lo que superpone a la legislación sectorial existente</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <g transform="translate(40, 30)">
+            <rect x="0" y="0" width="340" height="200" fill="#FAF4E8" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">ANEXO III</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="18" font-weight="700" fill="#1A1A1A">Usos autónomos de alto riesgo</text>
+            <text x="20" y="80" font-family="'Spectral', serif" font-size="13" font-style="italic" fill="#5C5C5C">regidos por las reglas horizontales del Reglamento</text>
+
+            <g font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#1A1A1A">
+              <text x="20" y="108">· identificación biométrica</text>
+              <text x="20" y="128">· decisiones de empleo y RR. HH.</text>
+              <text x="20" y="148">· educación y formación profesional</text>
+              <text x="20" y="168">· infraestructuras críticas</text>
+              <text x="20" y="188">· orden público, justicia, migración</text>
+            </g>
+          </g>
+
+          <g transform="translate(420, 30)">
+            <rect x="0" y="0" width="340" height="200" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">ANEXO I</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="18" font-weight="700" fill="#1A1A1A">IA integrada en productos regulados</text>
+            <text x="20" y="80" font-family="'Spectral', serif" font-size="13" font-style="italic" fill="#5C5C5C">ya cubiertos por legislación sectorial</text>
+
+            <g font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#1A1A1A">
+              <text x="20" y="108">· productos sanitarios (RPS)</text>
+              <text x="20" y="128">· juguetes (Directiva de seguridad)</text>
+              <text x="20" y="148">· maquinaria, ascensores, equipos a presión</text>
+              <text x="20" y="168">· vehículos (homologación)</text>
+              <text x="20" y="188">· aviación civil, equipos marinos</text>
+            </g>
+          </g>
+
+          <g transform="translate(420, 250)">
+            <line x1="0" y1="0" x2="340" y2="0" stroke="#1A1A1A" stroke-width="0.6"/>
+
+            <g transform="translate(0, 20)">
+              <text font-family="'IBM Plex Mono', monospace" font-size="10" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">SECCIÓN A</text>
+              <text x="0" y="20" font-family="'Spectral', serif" font-size="13" font-weight="600" fill="#1A1A1A">El Reglamento se aplica directamente</text>
+              <text x="0" y="40" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">cumplimiento paralelo con</text>
+              <text x="0" y="56" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">los regímenes sectorial y de IA</text>
+            </g>
+
+            <g transform="translate(180, 20)">
+              <text font-family="'IBM Plex Mono', monospace" font-size="10" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">SECCIÓN B</text>
+              <text x="0" y="20" font-family="'Spectral', serif" font-size="13" font-weight="600" fill="#1A1A1A">El regulador sectorial asume</text>
+              <text x="0" y="40" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">obligaciones de IA absorbidas en</text>
+              <text x="0" y="56" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">la evaluación sectorial existente</text>
+            </g>
+          </g>
+
+          <g transform="translate(40, 280)">
+            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">LA PELEA</text>
+            <text x="0" y="22" font-family="'Spectral', serif" font-size="14" fill="#1A1A1A" font-weight="600">¿Cuántas categorías mover de A a B?</text>
+            <text x="0" y="48" font-family="'Spectral', serif" font-size="13" fill="#5C5C5C">Parlamento: más</text>
+            <text x="0" y="68" font-family="'Spectral', serif" font-size="13" fill="#5C5C5C">Consejo: menos</text>
+          </g>
+
+          <g transform="translate(40, 400)">
+            <line x1="0" y1="0" x2="720" y2="0" stroke="#1A1A1A" stroke-width="0.4" opacity="0.4"/>
+            <text x="0" y="20" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#5C5C5C">Mover categorías de A a B reduce la carga de cumplimiento paralelo</text>
+            <text x="0" y="38" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#5C5C5C">pero fragmenta la pretensión del Reglamento de ser un único marco horizontal.</text>
+            <text x="0" y="60" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#5C5C5C">En ese intercambio fue donde los negociadores no se pusieron de acuerdo.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Fuente:</strong> Diagrama del editor, basado en el Reglamento (UE) 2024/1689 (Anexos I y III), la propuesta del Ómnibus Digital sobre IA del 19 de noviembre de 2025, y la cobertura de la IAPP, MLex, Politico y Euractiv sobre las posiciones negociadoras del Parlamento y el Consejo a finales de abril de 2026.</div>
+    </div>
+  </figure>
+
+  <p>La lectura prosimplificación — más cercana al liderazgo del Parlamento, con respaldo conservador alemán e industrial — es que el riesgo de IA en productos regulados se gestiona mejor con la pericia sectorial existente. Un marcapasos es primero un producto sanitario y después un sistema de IA; el regulador de productos sanitarios ya sabe cómo evaluarlo, y añadir obligaciones paralelas del Reglamento de IA crea duplicidad sin añadir seguridad. El eurodiputado italiano que lleva el expediente de IA en el Parlamento, Brando Benifei, ha reconocido que un giro sectorial completo haría añicos la coherencia horizontal del Reglamento en una docena de lógicas de cumplimiento separadas — pero ha mostrado disposición a explorar alternativas que se queden por debajo de eso.</p>
+
+  <p>La lectura prohorizontal — más cercana a la posición mediana del Consejo, y a las objeciones de la sociedad civil y de los Verdes — es que tener un Reglamento de IA horizontal con excepciones sectoriales que se ensanchan socava el sentido mismo de tener un Reglamento de IA horizontal. La arquitectura debía ser un único marco coherente. Tallar más excepciones de Sección B devuelve a Europa al mosaico fragmentado del que intentaba escapar.</p>
+
+  <p>No son encuadres simétricos. Son lecturas en competencia del mismo instrumento jurídico.</p>
+
+  <!-- SECCIÓN 3 -->
+  <div class="section-divider">Parte tres</div>
+
+  <span class="section-number">§ 03 — Quién empuja en cada dirección</span>
+  <h2 class="section-title">Una coalición, <em>no un disidente único</em></h2>
+  <p class="section-standfirst">La cobertura del bloqueo describe alineaciones más que personalidades. La palabra más controvertida en la cobertura es la descripción que hacen los Verdes de la cooperación PPE-derecha como un «golpe» — retórica, pero que apunta a un mecanismo real.</p>
+
+  <p>El canciller alemán, Friedrich Merz, ha presionado públicamente por una mayor desregulación de la IA industrial argumentando que los productos ya cubiertos por la legislación sectorial no deberían necesitar un segundo régimen de cumplimiento bajo el Reglamento de IA. Siemens, el conglomerado industrial alemán, ha sido un proponente corporativo vocal de la misma posición. El Partido Popular Europeo — el grupo de centroderecha al que pertenece la CDU de Merz — se ha alineado con esta posición en el Parlamento. La federación industrial paneuropea Digital Europe estima que una simplificación agresiva podría evitar hasta 31.000 millones de euros en costes de cumplimiento, y ha enmarcado el retraso del trílogo como la prueba de que el proceso democrático funciona como debe.</p>
+
+  <p>La coalición opuesta incluye a los Verdes (cuya ponente alternativa neerlandesa, Kim van Sparrentak, usó la palabra «golpe» para describir lo que vio como una coordinación del PPE con partidos más a la derecha), a partes del grupo socialdemócrata S&amp;D, a organizaciones de la sociedad civil y a antiguas negociadoras del Reglamento de IA, entre ellas Laura Caroli — quien fue asesora de políticas de Benifei en el expediente original del Reglamento y ha advertido públicamente que el retraso actual amenaza con torpedear tanto la propia reforma del Ómnibus como el ecosistema europeo de normalización en IA en el que la Comisión lleva años invirtiendo. La presidencia chipriota del Consejo se sitúa en la silla, estructuralmente no alineada pero bajo presión por entregar un acuerdo durante su turno.</p>
+
+  <!-- ILUSTRACIÓN 3 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Ilustración 03</div>
+      <div class="exhibit-title">Dónde se sitúa cada actor</div>
+      <div class="exhibit-subtitle">Pro-simplificación, pro-arquitectura horizontal, y la silla procedimental, a 29 de abril de 2026</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <g transform="translate(40, 40)">
+            <rect x="0" y="0" width="340" height="280" fill="#FAF4E8" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">PRO-SIMPLIFICACIÓN</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="15" font-style="italic" fill="#5C5C5C">«mover más de A a B»</text>
+
+            <g font-family="'Spectral', serif" font-size="14" fill="#1A1A1A">
+              <text x="20" y="98" font-weight="600">PPE</text>
+              <text x="20" y="116" font-size="12" font-style="italic" fill="#5C5C5C">grupo de centroderecha, mayoritario</text>
+
+              <text x="20" y="148" font-weight="600">Gobierno alemán</text>
+              <text x="20" y="166" font-size="12" font-style="italic" fill="#5C5C5C">canciller Merz, coalición CDU/CSU</text>
+
+              <text x="20" y="198" font-weight="600">Industria</text>
+              <text x="20" y="216" font-size="12" font-style="italic" fill="#5C5C5C">Siemens, federación Digital Europe</text>
+
+              <text x="20" y="248" font-weight="600">Coponente PPE</text>
+              <text x="20" y="266" font-size="12" font-style="italic" fill="#5C5C5C">Arba Kokalari (Suecia)</text>
+            </g>
+          </g>
+
+          <g transform="translate(420, 40)">
+            <rect x="0" y="0" width="340" height="280" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">PRO-ARQUITECTURA HORIZONTAL</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="15" font-style="italic" fill="#5C5C5C">«preservar la coherencia del marco»</text>
+
+            <g font-family="'Spectral', serif" font-size="14" fill="#1A1A1A">
+              <text x="20" y="98" font-weight="600">Verdes / ALE</text>
+              <text x="20" y="116" font-size="12" font-style="italic" fill="#5C5C5C">Kim van Sparrentak (Países Bajos)</text>
+
+              <text x="20" y="148" font-weight="600">Posición mediana del Consejo</text>
+              <text x="20" y="166" font-size="12" font-style="italic" fill="#5C5C5C">aunque el Consejo está internamente dividido</text>
+
+              <text x="20" y="198" font-weight="600">Sociedad civil</text>
+              <text x="20" y="216" font-size="12" font-style="italic" fill="#5C5C5C">organizaciones de consumidores, derechos digitales</text>
+
+              <text x="20" y="248" font-weight="600">Antiguos negociadores</text>
+              <text x="20" y="266" font-size="12" font-style="italic" fill="#5C5C5C">Laura Caroli, asesora de Benifei en el Reglamento original</text>
+            </g>
+          </g>
+
+          <g transform="translate(40, 340)">
+            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="700">EN LA SILLA PROCEDIMENTAL</text>
+            <text x="220" y="0" font-family="'Spectral', serif" font-style="italic" font-size="14" fill="#1A1A1A">Presidencia chipriota del Consejo; ponente del Parlamento Brando Benifei (S&amp;D, Italia)</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Fuente:</strong> Alineación de posiciones a partir de la cobertura de la IAPP, Reuters, Politico Europe y Euractiv del 28 de abril al 1 de mayo de 2026. Afiliaciones de grupo conforme a la actual legislatura del Parlamento Europeo. Chipre ostenta la presidencia rotatoria del Consejo durante el primer semestre de 2026.</div>
+    </div>
+  </figure>
+
+  <!-- SECCIÓN 4 -->
+  <div class="section-divider">Parte cuatro</div>
+
+  <span class="section-number">§ 04 — El plazo de agosto</span>
+  <h2 class="section-title">El plazo es el <em>apalancamiento</em></h2>
+  <p class="section-standfirst">Toda la forma de la negociación la marca el calendario. Si el ómnibus no se aprueba a tiempo, el plazo original del Anexo III se mantiene, y un conjunto sustancial de obligaciones empieza a aplicarse el 2 de agosto.</p>
+
+  <p>El 2 de agosto de 2026 entran en vigor las obligaciones originales del Reglamento de IA para los sistemas de alto riesgo del Anexo III: cumplimiento pleno con sistemas de gestión de riesgos, requisitos de gobernanza de datos, obligaciones de transparencia, disposiciones sobre supervisión humana, evaluaciones de la conformidad y vigilancia poscomercialización. El ómnibus de la Comisión habría aplazado todo esto hasta diciembre de 2027. Si el ómnibus no se aprueba, los proveedores y los responsables del despliegue de sistemas del Anexo III activos en el mercado de la UE deberán estar en cumplimiento — o fuera del mercado — antes del 2 de agosto.</p>
+
+  <p>La aritmética es implacable. El procedimiento legislativo de la UE, incluso a máxima urgencia política, exige un acuerdo finalizado en trílogo, una votación del pleno del Parlamento, una adopción formal del Consejo y la publicación en el Diario Oficial. La siguiente ronda de trílogo está aproximadamente a dos semanas. Desde ahí, incluso un calendario agresivo hasta la adopción formal requiere de manera realista al menos cuatro a seis semanas. Eso sitúa la fecha óptima de adopción a finales de junio o principios de julio — apretado, pero posible. Un fracaso de la siguiente ronda, o una tercera, empuja la ventana realista de adopción más allá del 2 de agosto.</p>
+
+  <div class="inline-note">
+    <strong>Lo que las empresas hacen mientras tanto.</strong> La cobertura sobre la respuesta del sector describe una postura bifurcada: las grandes multinacionales con exposición sustancial en la UE siguen un trabajo a doble vía — preparándose para el plazo original de agosto como cobertura mientras presionan por el aplazamiento — mientras que las firmas europeas más pequeñas con equipos de cumplimiento más delgados están cada vez más visiblemente atrapadas entre los dos escenarios. La cifra de 31.000 millones de euros de coste de cumplimiento que cita Digital Europe es, según la propia federación reconoce, un agregado a lo largo del periodo de aplazamiento, no un coste único; la cifra relevante para una empresa concreta depende enteramente del anexo en el que caigan sus productos.
+  </div>
+
+  <!-- CODA -->
+  <div class="section-divider">Coda</div>
+
+  <p>Tres cosas que vigilar. Primera: si la posición negociadora del Consejo se ablanda en la cuestión Sección A→B, lo que sería una victoria sustantiva para la facción reformista del Parlamento y una concesión estructural en la lógica horizontal del Reglamento de IA. Segunda: si la Comisión propone alguna forma de simplificación de emergencia — un instrumento puntual de discreción sancionadora, un acto delegado, una clarificación en considerandos — que no requiera la adopción plena del ómnibus. Tercera: cómo gestionan los Estados miembros con exposición significativa al Reglamento de IA los costes políticos de cualquiera de los dos resultados. La posición interna alemana se ha desplazado bajo Merz; la francesa, hasta ahora, no.</p>
+
+  <p>El elemento de esta historia menos visible desde el ciclo informativo es lo que dice sobre la coherencia del Reglamento de IA como proyecto legislativo. El Reglamento se vendió como un marco horizontal que fijaría el estándar global para la gobernanza de la IA. El empuje por trasladar categorías significativas de sistemas de alto riesgo fuera de ese marco, hacia regímenes sectoriales, no es un ajuste técnico. Es un repliegue estructural respecto de la ambición original del marco. Si ese repliegue lo impulsa un aprendizaje genuino sobre lo que funciona, o un cabildeo industrial que utiliza un plazo como palanca, es la pregunta de fondo — y un trílogo, ni siquiera uno de doce horas, iba a resolverla nunca.</p>
+
+</article>
+
+</body>
+</html>
