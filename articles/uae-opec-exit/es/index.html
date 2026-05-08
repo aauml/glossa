@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{var s=localStorage.getItem('lecturas-text-size')||'md';document.documentElement.setAttribute('data-text-size',s);}catch(e){}})();</script>
+<title>Cincuenta y ocho años y un oleoducto · Lecturas</title>
+<meta name="description" content="A guided reading of the DOJ's intervention against Colorado's algorithmic-discrimination law (SB24-205), and what the federal complaint argues about Equal Protection, the Brussels Effect, and the architecture of American AI regulation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4EDE0;
+    --surface: #ECE2D0;
+    --surface-dark: #E2D6BD;
+    --ink: #1A1A1A;
+    --ink-soft: #2A2A2A;
+    --muted: #5C5C5C;
+    --rule: #1A1A1A;
+    --accent: #7A1F1F;
+    --accent-soft: #A14848;
+    --gold: #B8860B;
+    --highlight: #FAF4E8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Spectral', Georgia, serif; font-weight: 400; line-height: 1.6; font-size: 19px; }
+
+  .masthead { border-bottom: 1px solid var(--ink); padding: 18px 0; background: var(--bg); }
+  .masthead-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink); font-weight: 500; }
+  .masthead-section { color: var(--accent); font-weight: 600; text-decoration: none; transition: color 0.15s ease; }
+  .masthead-section:hover { color: var(--ink); }
+  .masthead-meta { color: var(--muted); letter-spacing: 0.12em; display: inline-flex; align-items: center; gap: 16px; }
+
+  .lang-switch { display: inline-flex; align-items: center; gap: 7px; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.18em; font-weight: 600; }
+  .lang-active { color: var(--accent); }
+  .lang-sep { color: var(--muted); opacity: 0.5; }
+  .lang-link { color: var(--muted); text-decoration: none; transition: color 0.15s ease; }
+  .lang-link:hover { color: var(--ink); }
+  @media (max-width: 640px) { .masthead-meta { gap: 10px; } .masthead-meta-text { display: none; } }
+
+  .hero { max-width: 1100px; margin: 0 auto; padding: 80px 32px 60px; border-bottom: 1px solid var(--ink); }
+  .hero-kicker { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); font-weight: 600; margin-bottom: 22px; }
+  .hero-headline { font-family: 'Spectral', serif; font-weight: 700; font-size: clamp(40px, 6.2vw, 72px); line-height: 1.05; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 28px; max-width: 900px; }
+  .hero-headline em { font-style: italic; font-weight: 500; }
+  .hero-dek { font-family: 'Spectral', serif; font-weight: 300; font-style: italic; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.4; color: var(--ink-soft); max-width: 760px; margin-bottom: 36px; }
+  .hero-meta { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 14px; }
+  .hero-meta-bar { width: 28px; height: 1px; background: var(--accent); }
+
+  .article { max-width: 720px; margin: 0 auto; padding: 60px 32px 100px; }
+  .article p { margin-bottom: 1.4em; font-size: 19px; line-height: 1.7; }
+  .article p.lede { font-size: 22px; line-height: 1.55; color: var(--ink); }
+  .article p.lede::first-letter { float: left; font-family: 'Spectral', serif; font-size: 88px; line-height: 0.85; font-weight: 700; padding: 6px 12px 0 0; color: var(--accent); }
+
+  .callback {
+    display: block;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    border-top: 1px solid var(--ink-soft);
+    border-bottom: 1px solid var(--ink-soft);
+    padding: 12px 0;
+    margin: 32px 0 36px;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .callback:hover { color: var(--accent); }
+  .callback strong { color: var(--accent); font-weight: 600; }
+
+  .section-divider { margin: 56px 0 40px; text-align: center; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--muted); font-weight: 500; position: relative; }
+  .section-divider::before, .section-divider::after { content: ''; display: inline-block; width: 60px; height: 1px; background: var(--ink-soft); vertical-align: middle; margin: 0 18px; }
+  .section-number { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; display: block; }
+  h2.section-title { font-family: 'Spectral', serif; font-weight: 700; font-size: clamp(32px, 4vw, 44px); line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 16px; max-width: 640px; }
+  h2.section-title em { font-style: italic; font-weight: 500; }
+  .section-standfirst { font-family: 'Spectral', serif; font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.5; color: var(--ink-soft); margin-bottom: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--ink); }
+
+  .context-box { background: var(--surface); border-left: 3px solid var(--accent); padding: 26px 30px 22px; margin: 38px 0; font-family: 'Spectral', serif; }
+  .context-box-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.25em; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+  .context-box p { font-size: 17px; line-height: 1.6; margin-bottom: 0.9em; color: var(--ink-soft); }
+  .context-box p:last-child { margin-bottom: 0; }
+  .context-box strong { color: var(--ink); font-weight: 600; }
+
+  .inline-note { background: transparent; border-top: 1px solid var(--ink-soft); border-bottom: 1px solid var(--ink-soft); padding: 14px 0 14px; margin: 28px 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.55; color: var(--muted); font-weight: 400; }
+  .inline-note strong { color: var(--ink); font-weight: 600; }
+
+  .pull-quote { margin: 50px -40px; padding: 32px 40px 28px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); font-family: 'Spectral', serif; font-style: italic; font-weight: 400; font-size: clamp(24px, 3vw, 32px); line-height: 1.3; color: var(--ink); text-align: left; letter-spacing: -0.005em; }
+  .pull-quote-attribution { display: block; font-style: normal; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); margin-top: 18px; font-weight: 600; }
+
+  .exhibit { margin: 56px -100px; background: var(--bg); padding: 0; }
+  @media (max-width: 980px) { .exhibit { margin: 56px 0; } .pull-quote { margin: 50px 0; padding: 32px 0 28px; } }
+  .exhibit-frame { border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 28px 36px 32px; background: var(--bg); }
+  .exhibit-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3em; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+  .exhibit-title { font-family: 'Spectral', serif; font-weight: 600; font-size: 22px; line-height: 1.25; color: var(--ink); margin-bottom: 4px; }
+  .exhibit-subtitle { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); font-weight: 400; margin-bottom: 24px; letter-spacing: 0.01em; }
+  .exhibit-svg-wrapper { width: 100%; margin: 12px 0 18px; }
+  .exhibit-svg-wrapper svg { width: 100%; height: auto; display: block; }
+  .exhibit-source { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--muted); border-top: 1px solid var(--ink-soft); padding-top: 12px; margin-top: 14px; letter-spacing: 0.04em; }
+  .exhibit-source strong { color: var(--ink); font-weight: 500; }
+
+  @media (max-width: 640px) {
+    body { font-size: 17px; }
+    .hero { padding: 50px 22px 40px; }
+    .article { padding: 40px 22px 60px; }
+    .article p { font-size: 17px; }
+    .pull-quote { font-size: 22px; padding: 26px 0 22px; }
+    .exhibit-frame { padding: 22px 18px 26px; }
+    .context-box { padding: 22px 22px 18px; margin: 30px 0; }
+    .article p.lede { font-size: 19px; }
+    .article p.lede::first-letter { font-size: 70px; }
+  }
+  /* Reader text-size toggle */
+  :root { --reader-scale: 1; }
+  html[data-text-size="sm"] { --reader-scale: 0.88; }
+  html[data-text-size="md"] { --reader-scale: 1; }
+  html[data-text-size="lg"] { --reader-scale: 1.18; }
+  body { font-size: calc(19px * var(--reader-scale)); }
+  .article p { font-size: calc(19px * var(--reader-scale)); }
+  .article p.lede { font-size: calc(22px * var(--reader-scale)); }
+  .qa-text { font-size: calc(19px * var(--reader-scale)); }
+  .context-box p { font-size: calc(17px * var(--reader-scale)); }
+  .article-card-dek { font-size: calc(19px * var(--reader-scale)); }
+  .hero-headline { font-size: calc(clamp(36px, 5.6vw, 64px) * var(--reader-scale)); }
+  .hero-dek { font-size: calc(clamp(19px, 2.1vw, 24px) * var(--reader-scale)); }
+  h2.section-title { font-size: calc(clamp(28px, 3.6vw, 38px) * var(--reader-scale)); }
+  .section-standfirst { font-size: calc(20px * var(--reader-scale)); }
+  .pull-quote { font-size: calc(clamp(22px, 2.8vw, 28px) * var(--reader-scale)); }
+  @media (max-width: 640px) {
+    body { font-size: calc(17px * var(--reader-scale)); }
+    .article p { font-size: calc(17px * var(--reader-scale)); }
+    .article p.lede { font-size: calc(19px * var(--reader-scale)); }
+    .qa-text { font-size: calc(17px * var(--reader-scale)); }
+  }
+  /* Mobile: SVG exhibits scroll horizontally */
+  @media (max-width: 640px) {
+    .exhibit { margin-left: -22px; margin-right: -22px; }
+    .exhibit-frame { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-left: 22px; padding-right: 22px; scrollbar-width: thin; }
+    .exhibit-frame svg { min-width: 560px; display: block; }
+    .exhibit-label, .exhibit-title, .exhibit-subtitle, .exhibit-source { padding-left: 0; padding-right: 0; }
+    .exhibit-source { font-size: 12px; }
+  }
+  /* Toggle UI */
+  .text-size-switch { display: inline-flex; align-items: baseline; gap: 2px; font-family: 'IBM Plex Sans', sans-serif; }
+  .text-size-switch button { background: none; border: none; cursor: pointer; padding: 6px 8px; color: var(--muted); font-family: inherit; font-weight: 600; line-height: 1; letter-spacing: 0; min-width: 28px; min-height: 28px; }
+  .text-size-switch button[data-size="sm"] { font-size: 11px; }
+  .text-size-switch button[data-size="md"] { font-size: 13px; }
+  .text-size-switch button[data-size="lg"] { font-size: 17px; }
+  .text-size-switch button.active { color: var(--accent); }
+  .text-size-switch button:hover { color: var(--ink); }
+  .masthead-meta-sep { color: var(--muted); margin: 0 4px; opacity: 0.6; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="masthead-section" href="../../../">← Lecturas</a>
+    <span class="masthead-meta">
+      <span class="lang-switch">
+        <a href="../en/" class="lang-link">EN</a>
+        <span class="lang-sep">·</span>
+        <span class="lang-active">ES</span>
+      </span>
+      <span class="masthead-meta-sep">·</span>
+      <span class="masthead-meta-text">N.º 05 · Del Financial Times</span>
+      <span class="masthead-meta-sep">·</span>
+      <span class="text-size-switch">
+        <button data-size="sm">A</button>
+        <button data-size="md">A</button>
+        <button data-size="lg">A</button>
+      </span>
+    </span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-kicker">El artículo, anotado</div>
+  <h1 class="hero-headline">Cincuenta y ocho años y un <em>oleoducto</em></h1>
+  <p class="hero-dek">El Financial Times desentraña por qué los EAU realmente abandonaron la OPEP: una historia de cuotas que ya no encajaban, una alianza con Riad que se fracturó por Yemen y el oleoducto de 400 kilómetros que hizo posible la salida.</p>
+  <div class="hero-meta">
+    <span>Financial Times</span>
+    <span class="hero-meta-bar"></span>
+    <span>Mayo 2026</span>
+  </div>
+</section>
+
+<article class="article">
+
+  <p class="lede">El 1 de mayo de 2026, los Emiratos Árabes Unidos pusieron fin a sus cincuenta y ocho años de membresía en la Organización de Países Exportadores de Petróleo. La salida del tercer mayor productor de la OPEP — un país que bombea 3,5 millones de barriles diarios, con capacidad para alcanzar cinco millones el año próximo — no fue un arrebato ni un farol. Fue una decisión que venía gestándose durante años, acelerada por una guerra, una alianza rota y una pieza de infraestructura que recorre 400 kilómetros de desierto desde los campos petrolíferos de Abu Dabi hasta el puerto de Fuyaira en el golfo de Omán. El Financial Times la trata como la deserción más significativa que ha enfrentado el cártel desde su fundación en 1960. El título del artículo plantea la pregunta sin rodeos. La respuesta resulta ser tres historias superpuestas.</p>
+
+  <a class="callback" href="../../escobar-new-triangle/es/"><strong>Continúa los temas del N.º 02</strong> · El estrecho de Ormuz, la <em>Operation Epic Fury</em> y la reconfiguración geopolítica del golfo Pérsico, vistos ahora desde la perspectiva de quién se beneficia económicamente de la crisis.</a>
+
+  <!-- SECTION 01 -->
+  <div class="section-divider">Parte uno</div>
+
+  <span class="section-number">§ 01 — La trampa de las cuotas</span>
+  <h2 class="section-title">Un país que podía producir <em>cinco</em> pero al que le decían que bombeara tres</h2>
+  <p class="section-standfirst">El argumento comercial para abandonar la OPEP era sencillo: Abu Dabi había invertido 150.000 millones de dólares en construir una capacidad que no tenía permiso para utilizar.</p>
+
+  <p>El mandato fundacional de la OPEP en 1960 era coordinar la política petrolera, lo que en la práctica significaba fijar precios del petróleo mediante la gestión de la oferta. Cuando el cártel controlaba el cuarenta por ciento de la producción mundial, el sesenta por ciento del petróleo comercializado y el ochenta por ciento de las reservas probadas, el mecanismo funcionaba. Para 2026, esas cifras habían caído al treinta y tres, cuarenta y seis y setenta y tres por ciento respectivamente. El instrumento era el mismo — cuotas de producción asignadas por Estado miembro — pero el mundo había cambiado. Estados Unidos se había convertido en el mayor productor de petróleo del mundo. Noruega, Brasil, Guyana y Canadá habían añadido millones de barriles a la oferta global. La capacidad de la OPEP para mover los precios dependía de que sus miembros aceptaran recortes, y los EAU venían aceptando recortes que ya no podían permitirse.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Antecedentes — ¿Qué es ADNOC?</div>
+    <p>La <strong>Abu Dhabi National Oil Company (ADNOC)</strong> es la compañía petrolera estatal de los EAU y el motor económico de la federación. Controla prácticamente todas las operaciones petroleras de Abu Dabi, tanto de exploración como de refino, y es una de las mayores empresas de hidrocarburos del mundo. Su director ejecutivo, Sultan Al Jaber, ocupa simultáneamente el cargo de ministro de Industria y Tecnología Avanzada de los EAU y presidió la COP28 en Dubái en 2023.</p>
+    <p>ADNOC ha invertido agresivamente en la expansión de su capacidad, destinando 150.000 millones de dólares entre 2023 y 2027. A mediados de 2024 informó de una capacidad máxima sostenible de 4,85 millones de barriles diarios, frente a 4,65 millones anteriores; sin embargo, su cuota OPEP limitaba la producción real a aproximadamente 3,2 millones.</p>
+  </div>
+
+  <p>La brecha entre lo que ADNOC podía producir y lo que la OPEP le permitía producir se había convertido en la frustración definitoria. Con 4,85 millones de barriles diarios de capacidad y una cuota en torno a 3,2 millones, los EAU tenían aproximadamente 1,6 millones de barriles diarios de valor varado — cada día, indefinidamente, mientras siguieran siendo miembros. El FT plantea esto como el núcleo comercial de la salida: Abu Dabi había puesto el dinero, construido los pozos, y ahora quería vender el petróleo.</p>
+
+  <!-- EXHIBIT 01 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 01</div>
+      <div class="exhibit-title">La brecha</div>
+      <div class="exhibit-subtitle">Capacidad de producción petrolera de los EAU vs. cuota OPEP, en millones de barriles diarios</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <!-- Background -->
+          <rect x="0" y="0" width="800" height="380" fill="#F4EDE0"/>
+
+          <!-- Y-axis labels -->
+          <g font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" text-anchor="end">
+            <text x="95" y="68">5.0</text>
+            <text x="95" y="128">4.0</text>
+            <text x="95" y="188">3.0</text>
+            <text x="95" y="248">2.0</text>
+            <text x="95" y="308">1.0</text>
+          </g>
+
+          <!-- Grid lines -->
+          <g stroke="#C8C2B5" stroke-width="0.5">
+            <line x1="110" y1="64" x2="720" y2="64"/>
+            <line x1="110" y1="124" x2="720" y2="124"/>
+            <line x1="110" y1="184" x2="720" y2="184"/>
+            <line x1="110" y1="244" x2="720" y2="244"/>
+            <line x1="110" y1="304" x2="720" y2="304"/>
+          </g>
+
+          <!-- Bars -->
+          <!-- OPEC Quota: 3.2M = 192px from baseline at 304 → top at 112 -->
+          <rect x="200" y="116" width="120" height="188" fill="#1A1A1A" rx="2"/>
+          <text x="260" y="104" font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#1A1A1A" text-anchor="middle" font-weight="700">3.2M</text>
+          <text x="260" y="330" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" text-anchor="middle" letter-spacing="0.12em" font-weight="600">CUOTA OPEP</text>
+
+          <!-- Current capacity: 4.85M = 291px from baseline → top at 13 -->
+          <rect x="380" y="16" width="120" height="288" fill="#7A1F1F" rx="2"/>
+          <text x="440" y="10" font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#7A1F1F" text-anchor="middle" font-weight="700">4.85M</text>
+          <text x="440" y="330" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" text-anchor="middle" letter-spacing="0.12em" font-weight="600">CAPACIDAD</text>
+
+          <!-- 2027 target: 5.0M = 300px → top at 4 -->
+          <rect x="560" y="4" width="120" height="300" fill="none" stroke="#7A1F1F" stroke-width="2" stroke-dasharray="6,4" rx="2"/>
+          <text x="620" y="358" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#7A1F1F" text-anchor="middle" letter-spacing="0.12em" font-weight="600">OBJETIVO 2027</text>
+          <text x="620" y="26" font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#7A1F1F" text-anchor="middle" font-weight="700">5.0M</text>
+
+          <!-- Gap annotation -->
+          <line x1="330" y1="116" x2="370" y2="116" stroke="#7A1F1F" stroke-width="1"/>
+          <line x1="330" y1="16" x2="370" y2="16" stroke="#7A1F1F" stroke-width="1"/>
+          <line x1="350" y1="16" x2="350" y2="116" stroke="#7A1F1F" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="350" y="72" font-family="'Spectral', serif" font-size="14" fill="#7A1F1F" text-anchor="middle" font-style="italic">1.65M bpd</text>
+          <text x="350" y="88" font-family="'Spectral', serif" font-size="12" fill="#5C5C5C" text-anchor="middle" font-style="italic">varado</text>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> ADNOC capacity figures from S&P Global and EIA; OPEC quota from the OPEC+ production accord through Q2 2026.</div>
+    </div>
+  </figure>
+
+  <p>Otros miembros habían salido antes — Indonesia en 2016, Qatar en 2019, Ecuador en 2020, Angola en 2024 — pero ninguno tenía la combinación de volumen, capacidad excedentaria y peso geopolítico de los EAU. Según varios analistas, los EAU eran el verdadero productor de oscilación de la OPEP: el único miembro junto a Arabia Saudí con capacidad excedentaria significativa, y posiblemente el único cuya capacidad excedentaria era real y no aspiracional. Su partida elimina del cártel precisamente la flexibilidad que hacía creíble la gestión coordinada de la oferta.</p>
+
+  <!-- SECTION 02 -->
+  <div class="section-divider">Parte dos</div>
+
+  <span class="section-number">§ 02 — La fractura</span>
+  <h2 class="section-title">Cuando Abu Dabi y <em>Riad</em> dejaron de hablar</h2>
+  <p class="section-standfirst">El argumento comercial era necesario pero no suficiente. Lo que hizo posible el momento fue el colapso de la relación regional más importante de los EAU.</p>
+
+  <p>Tanto el FT como el Council on Foreign Relations trazan la misma secuencia. A finales de 2025, los EAU respaldaron una toma de poder por parte del Consejo de Transición del Sur, un grupo separatista yemení, a expensas de los socios alineados con Arabia Saudí. Arabia Saudí respondió con ataques aéreos contra aliados emiratíes y equipo militar en el puerto de Mukala. Después llegó el reconocimiento israelí de Somalilandia, que los saudíes percibieron como desestabilizador y del que sospecharon complicidad emiratí. Lo que siguió fue una guerra de dos meses — librada en gran medida en redes sociales y a través de campañas de cabildeo en Washington — en la que cada parte argumentaba que la otra era responsable de la ruptura.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Antecedentes — ¿Qué es el Consejo de Transición del Sur?</div>
+    <p>El <strong>Consejo de Transición del Sur (CTS)</strong> es un movimiento separatista yemení que busca la independencia del sur de Yemen, el territorio que fue un Estado independiente hasta la unificación en 1990. Respaldado por los EAU desde 2017, el CTS controla Adén y gran parte del sur. Su relación con Arabia Saudí — que lidera la coalición que combate al movimiento hutí en el norte de Yemen — ha sido tensa, ya que los objetivos del CTS chocan con los esfuerzos saudíes por mantener un Yemen unificado y aliado.</p>
+  </div>
+
+  <p>La estrecha coordinación entre Abu Dabi y Riad que los responsables políticos estadounidenses habían llegado a tratar como una constante regional era, como señala Steven Cook del CFR, «lo contrario de la norma». Los Estados más pequeños del Golfo han resistido históricamente los intentos saudíes de dominar la región. La alineación inusualmente estrecha de finales de los años 2010 y principios de los 2020 — construida en torno a los Acuerdos de Abraham, la hostilidad compartida hacia Irán y la política petrolera coordinada — era la excepción. Para cuando comenzó la guerra con Irán a finales de febrero de 2026, la excepción había terminado.</p>
+
+  <!-- EXHIBIT 02 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 02</div>
+      <div class="exhibit-title">El desmoronamiento</div>
+      <div class="exhibit-subtitle">Eventos clave en la ruptura de la relación saudí-emiratí, 2025–2026</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <rect x="0" y="0" width="800" height="420" fill="#F4EDE0"/>
+
+          <!-- Timeline axis -->
+          <line x1="80" y1="200" x2="720" y2="200" stroke="#1A1A1A" stroke-width="1.5"/>
+          <polygon points="720,200 708,194 708,206" fill="#1A1A1A"/>
+
+          <!-- Date markers -->
+          <g font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" font-weight="600" letter-spacing="0.12em" text-anchor="middle">
+            <!-- Late 2025 -->
+            <line x1="140" y1="190" x2="140" y2="210" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="140" y="228">FIN DE 2025</text>
+
+            <!-- Dec 2025 -->
+            <line x1="280" y1="190" x2="280" y2="210" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="280" y="228">DIC 2025</text>
+
+            <!-- Jan 2026 -->
+            <line x1="400" y1="190" x2="400" y2="210" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="400" y="228">ENE 2026</text>
+
+            <!-- Feb 28 -->
+            <line x1="520" y1="190" x2="520" y2="210" stroke="#7A1F1F" stroke-width="1.5"/>
+            <text x="520" y="228" fill="#7A1F1F">FEB 28</text>
+
+            <!-- May 1 -->
+            <line x1="660" y1="190" x2="660" y2="210" stroke="#7A1F1F" stroke-width="1.5"/>
+            <text x="660" y="228" fill="#7A1F1F">MAY 1</text>
+          </g>
+
+          <!-- Events above timeline -->
+          <g font-family="'Spectral', serif" font-size="13" fill="#1A1A1A">
+            <line x1="140" y1="190" x2="140" y2="120" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="140" y="108" text-anchor="middle" font-style="italic">EAU respaldan al CTS</text>
+            <text x="140" y="92" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">toma de poder en Yemen</text>
+
+            <line x1="280" y1="190" x2="280" y2="60" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="280" y="48" text-anchor="middle" font-style="italic">Ataques aéreos saudíes contra</text>
+            <text x="280" y="32" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">aliados emiratíes en Mukala</text>
+
+            <line x1="400" y1="190" x2="400" y2="120" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="400" y="108" text-anchor="middle" font-style="italic">Reconocimiento de Somalilandia</text>
+            <text x="400" y="92" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">agrava la desconfianza</text>
+          </g>
+
+          <!-- Events below timeline -->
+          <g font-family="'Spectral', serif" font-size="13" fill="#1A1A1A">
+            <line x1="520" y1="210" x2="520" y2="300" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="520" y="316" text-anchor="middle" font-weight="600" fill="#7A1F1F" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.12em">OPERATION EPIC FURY</text>
+            <text x="520" y="336" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">Solidaridad breve, luego</text>
+            <text x="520" y="352" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">divergencia diplomática</text>
+
+            <line x1="660" y1="210" x2="660" y2="290" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="660" y="306" text-anchor="middle" font-weight="600" fill="#7A1F1F" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.12em">EAU ABANDONAN LA OPEP</text>
+            <text x="660" y="326" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">58 años de membresía terminan</text>
+          </g>
+
+          <!-- Annotation -->
+          <g transform="translate(80, 380)" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C">
+            <text x="0" y="0" font-weight="600" fill="#7A1F1F" letter-spacing="0.18em">LECTURA DEL CFR</text>
+            <text x="140" y="0" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#1A1A1A">«El deterioro de la relación bilateral presentó una oportunidad.»</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Cronología reconstruida a partir del Financial Times, el Council on Foreign Relations (Steven A. Cook) y reportajes de Al Jazeera sobre la ruptura EAU-Arabia Saudí.</div>
+    </div>
+  </figure>
+
+  <p>La guerra con Irán aceleró la ruptura sin causarla. Cuando drones y misiles iraníes golpearon ambos países en los primeros días de la <em>Operation Epic Fury</em>, el príncipe heredero Mohammed bin Salmán y el presidente emiratí Sheikh Mohamed bin Zayed expresaron solidaridad. Duró semanas. Arabia Saudí se unió entonces a Pakistán, Egipto y Turquía en la búsqueda de una vía de salida diplomática. Los EAU, habiendo absorbido una parte desproporcionada del fuego iraní — aproximadamente 2.820 de los 6.000 drones y misiles lanzados contra Estados del Golfo durante los cuarenta y un días de hostilidades activas — querían garantías de que Irán no pudiera amenazar su seguridad de nuevo. Concluyeron que Riad estaba dispuesta a conformarse con menos. La confianza que se había reconsolidado brevemente bajo el fuego se evaporó.</p>
+
+  <p>El argumento del FT, que el CFR comparte, es que los emiratíes venían estudiando la opción de abandonar la OPEP desde la salida de Qatar en 2019. Lo que la fractura con Arabia Saudí proporcionó no fue el motivo sino el momento. Con la relación bilateral ya en ruinas, el coste político de desafiar a Riad en materia de política de producción — es decir, en aquello que más le importa a Arabia Saudí — cayó prácticamente a cero.</p>
+
+  <!-- SECTION 03 -->
+  <div class="section-divider">Parte tres</div>
+
+  <span class="section-number">§ 03 — El oleoducto</span>
+  <h2 class="section-title">Cuatrocientos kilómetros hasta <em>Fuyaira</em></h2>
+  <p class="section-standfirst">El oleoducto Habshan-Fuyaira no solo esquiva a la OPEP. Esquiva el estrecho de Ormuz.</p>
+
+  <p>Hay una razón por la que los EAU pudieron abandonar la OPEP en plena guerra que ha cerrado el punto de estrangulamiento petrolero más importante del planeta, y esa razón es un oleoducto completado en 2012 al que casi nadie prestaba atención en aquel momento. El Abu Dhabi Crude Oil Pipeline — conocido como ADCOP, u oleoducto Habshan-Fuyaira — recorre 400 kilómetros desde los campos petrolíferos terrestres de Habshan, en el suroeste de Abu Dabi, hasta el puerto de Fuyaira en el golfo de Omán. Fue construido por China Petroleum Engineering, encargado por la International Petroleum Investment Company y diseñado exactamente para el escenario que ahora se despliega: un mundo en el que el estrecho de Ormuz no está disponible.</p>
+
+  <div class="pull-quote">
+    «Los EAU están en una posición económica única para alejarse de la OPEP.»
+    <span class="pull-quote-attribution">— Análisis tras la salida</span>
+  </div>
+
+  <!-- EXHIBIT 03 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 03</div>
+      <div class="exhibit-title">El desvío</div>
+      <div class="exhibit-subtitle">El oleoducto Habshan-Fuyaira y el estrecho de Ormuz</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <rect x="0" y="0" width="800" height="500" fill="#F4EDE0"/>
+
+          <!-- Persian Gulf (simplified shape) -->
+          <path d="M 100,120 C 200,80 350,60 450,100 C 500,120 520,180 500,220 C 480,260 430,300 380,320 C 350,330 300,340 280,350 L 250,340 C 240,320 260,280 290,260 C 320,240 340,200 330,170 C 320,140 280,120 240,120 C 200,120 150,130 100,120 Z" fill="#E2D6BD" stroke="#C8C2B5" stroke-width="1"/>
+
+          <!-- Gulf of Oman -->
+          <path d="M 380,320 C 420,340 480,370 560,380 C 620,390 700,380 750,360 L 750,420 C 700,440 600,450 520,440 C 440,430 380,400 350,370 Z" fill="#E2D6BD" stroke="#C8C2B5" stroke-width="1"/>
+
+          <!-- Strait of Hormuz label -->
+          <text x="420" y="310" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#7A1F1F" font-weight="600" letter-spacing="0.15em" transform="rotate(-20, 420, 310)">ESTRECHO DE ORMUZ</text>
+          <!-- X mark for closed -->
+          <g transform="translate(400, 330)">
+            <line x1="-8" y1="-8" x2="8" y2="8" stroke="#7A1F1F" stroke-width="3"/>
+            <line x1="8" y1="-8" x2="-8" y2="8" stroke="#7A1F1F" stroke-width="3"/>
+          </g>
+          <text x="400" y="360" font-family="'IBM Plex Sans', sans-serif" font-size="9" fill="#7A1F1F" text-anchor="middle" font-weight="600" letter-spacing="0.1em">CERRADO</text>
+
+          <!-- UAE land mass (simplified) -->
+          <path d="M 200,220 L 320,180 L 420,200 L 500,240 L 530,300 L 560,370 L 500,360 L 420,340 L 350,330 L 280,350 L 240,340 L 200,280 Z" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="0.8"/>
+          <text x="370" y="280" font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#1A1A1A" font-weight="600" letter-spacing="0.15em">UAE</text>
+
+          <!-- Saudi Arabia label -->
+          <text x="130" y="260" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" letter-spacing="0.12em">SAUDI</text>
+          <text x="130" y="276" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" letter-spacing="0.12em">ARABIA</text>
+
+          <!-- Iran label -->
+          <text x="460" y="90" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" letter-spacing="0.12em">IRAN</text>
+
+          <!-- Oman label -->
+          <text x="580" y="420" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" letter-spacing="0.12em">OMAN</text>
+
+          <!-- Habshan point -->
+          <circle cx="280" cy="260" r="6" fill="#7A1F1F"/>
+          <text x="280" y="250" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#7A1F1F" text-anchor="middle" font-weight="600">HABSHAN</text>
+
+          <!-- Fujairah point -->
+          <circle cx="540" cy="355" r="6" fill="#7A1F1F"/>
+          <text x="555" y="345" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#7A1F1F" font-weight="600">FUYAIRA</text>
+
+          <!-- Pipeline -->
+          <path d="M 280,260 C 340,270 420,300 480,330 Q 510,345 540,355" fill="none" stroke="#7A1F1F" stroke-width="3" stroke-dasharray="8,4"/>
+
+          <!-- Pipeline label -->
+          <text x="390" y="270" font-family="'Spectral', serif" font-size="13" fill="#7A1F1F" font-style="italic" transform="rotate(15, 390, 270)">Oleoducto ADCOP</text>
+          <text x="390" y="288" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" transform="rotate(15, 390, 288)">400 km · 1,8 M bpd de capacidad</text>
+
+          <!-- Tanker routes through Hormuz (X'd out) -->
+          <path d="M 350,220 C 380,260 400,300 420,330 C 440,350 480,370 540,380" fill="none" stroke="#5C5C5C" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+
+          <!-- Legend -->
+          <g transform="translate(60, 460)">
+            <line x1="0" y1="0" x2="30" y2="0" stroke="#7A1F1F" stroke-width="3" stroke-dasharray="8,4"/>
+            <text x="40" y="4" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C">Oleoducto Habshan–Fuyaira (esquiva Ormuz)</text>
+            <line x1="400" y1="0" x2="430" y2="0" stroke="#5C5C5C" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+            <text x="440" y="4" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C">Antigua ruta de petroleros (cerrada)</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Ruta y capacidad del oleoducto según la evaluación de la AIE sobre el estrecho de Ormuz y Wikipedia; estimaciones de caudal actual de Kpler vía Reuters.</div>
+    </div>
+  </figure>
+
+  <p>La capacidad nominal del oleoducto es de 1,5 millones de barriles diarios, con una capacidad real reportada cercana a 1,8 millones. Antes de la guerra, los EAU ya canalizaban aproximadamente 1,1 millones de barriles a través de Fuyaira, dejando margen para hasta 700.000 barriles adicionales si el estrecho se veía interrumpido. El estrecho lleva ya más de nueve semanas efectivamente cerrado. Fuyaira se ha convertido no solo en la principal terminal exportadora de los EAU, sino en uno de los centros de abastecimiento más estratégicamente importantes del mundo — junto a Singapur y Róterdam — gestionando almacenamiento de crudo, repostaje de buques y exportaciones a India y el este de Asia.</p>
+
+  <p>El oleoducto también explica la geografía de la guerra. Irán atacó directamente la terminal de Fuyaira, junto con el oleoducto Este-Oeste de Arabia Saudí hacia Yanbu. El mensaje era claro: Teherán no permitiría que los Estados del Golfo esquivasen el estrecho sin pagar un precio. Pero el oleoducto es subterráneo, disperso y más difícil de destruir que una refinería o un puerto. ADNOC anunció el 4 de mayo — tres días después de la salida — que estaba acelerando 55.000 millones de dólares en adjudicaciones de proyectos para los próximos dos años, incluyendo una ampliación de la capacidad del oleoducto y nueva infraestructura exportadora en Fuyaira.</p>
+
+  <!-- SECTION 04 -->
+  <div class="section-divider">Parte cuatro</div>
+
+  <span class="section-number">§ 04 — La lectura de Washington</span>
+  <h2 class="section-title">Por qué Trump lo llamó <em>genial</em></h2>
+  <p class="section-standfirst">La salida de los EAU sirve a los intereses estadounidenses en al menos cuatro frentes, y Washington ni siquiera tuvo que pedirla.</p>
+
+  <p>La reacción de Donald Trump fue directa. «Creo que es genial», dijo, «y en última instancia bueno para bajar el precio de la gasolina». La Casa Blanca tenía varias razones para estar satisfecha más allá de los precios del combustible. Los EAU siempre fueron la piedra angular de la política de Trump en Oriente Medio, construida en torno a los Acuerdos de Abraham — los pactos de normalización entre Estados árabes e Israel. Los Emiratos firmaron el primer acuerdo importante en septiembre de 2020, y pese a los informes generalizados, nunca rompieron completamente las relaciones diplomáticas con Israel tras el 7 de octubre de 2023. Unos EAU libres de la OPEP, dispuestos a bombear más, más alineados con Washington y operando un oleoducto que esquiva Ormuz, eran exactamente el tipo de socio que la administración quería.</p>
+
+  <!-- EXHIBIT 04 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 04</div>
+      <div class="exhibit-title">Cuatro frentes</div>
+      <div class="exhibit-subtitle">Cómo la salida de los EAU de la OPEP sirve a los intereses estratégicos de EE. UU.</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <rect x="0" y="0" width="800" height="320" fill="#F4EDE0"/>
+
+          <!-- Four columns -->
+          <g font-family="'IBM Plex Sans', sans-serif">
+            <!-- Col 1 -->
+            <rect x="40" y="30" width="160" height="240" rx="4" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+            <rect x="40" y="30" width="160" height="40" rx="4" fill="#1A1A1A"/>
+            <text x="120" y="56" fill="#F4EDE0" font-size="11" text-anchor="middle" font-weight="600" letter-spacing="0.12em">OFERTA DE PETRÓLEO</text>
+            <text x="120" y="100" fill="#1A1A1A" font-size="36" text-anchor="middle" font-weight="700">+1.5M</text>
+            <text x="120" y="120" fill="#5C5C5C" font-size="11" text-anchor="middle" letter-spacing="0.08em">BPD PARA 2027</text>
+            <text x="120" y="155" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">Nuevos barriles en el mercado</text>
+            <text x="120" y="175" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">alivian la presión de precios</text>
+
+            <!-- Col 2 -->
+            <rect x="220" y="30" width="160" height="240" rx="4" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+            <rect x="220" y="30" width="160" height="40" rx="4" fill="#7A1F1F"/>
+            <text x="300" y="56" fill="#F4EDE0" font-size="11" text-anchor="middle" font-weight="600" letter-spacing="0.12em">PRESIÓN SOBRE IRÁN</text>
+            <text x="300" y="105" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">Más oferta</text>
+            <text x="300" y="125" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">presiona la economía</text>
+            <text x="300" y="145" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">petrolera de Irán</text>
+            <text x="300" y="180" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">Un acuerdo de paz se</text>
+            <text x="300" y="200" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">vuelve más probable</text>
+
+            <!-- Col 3 -->
+            <rect x="400" y="30" width="160" height="240" rx="4" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+            <rect x="400" y="30" width="160" height="40" rx="4" fill="#1A1A1A"/>
+            <text x="480" y="56" fill="#F4EDE0" font-size="11" text-anchor="middle" font-weight="600" letter-spacing="0.12em">PRESIÓN SOBRE RUSIA</text>
+            <text x="480" y="105" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">La cohesión OPEP+</text>
+            <text x="480" y="125" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">weakens; Moscow's</text>
+            <text x="480" y="145" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">de Moscú se desvanece</text>
+            <text x="480" y="180" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">Financiar la guerra se</text>
+            <text x="480" y="200" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">vuelve más difícil</text>
+
+            <!-- Col 4 -->
+            <rect x="580" y="30" width="170" height="240" rx="4" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+            <rect x="580" y="30" width="170" height="40" rx="4" fill="#7A1F1F"/>
+            <text x="665" y="56" fill="#F4EDE0" font-size="11" text-anchor="middle" font-weight="600" letter-spacing="0.12em">DOMÉSTICO</text>
+            <text x="665" y="105" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">Precios de gasolina más bajos</text>
+            <text x="665" y="125" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">a tiempo para las elecciones</text>
+            <text x="665" y="145" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">de medio mandato de noviembre</text>
+            <text x="665" y="180" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">El crudo WTI actualmente</text>
+            <text x="665" y="200" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">por encima de 100 $/barril</text>
+          </g>
+
+          <!-- Bottom annotation -->
+          <text x="400" y="300" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" text-anchor="middle" font-weight="500" letter-spacing="0.08em">ADICIONAL: La relación petrolera EAU–India da a Washington influencia en el Indo-Pacífico.</text>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Evaluación estratégica sintetizada a partir del Financial Times, análisis de OilPrice.com (Simon Watkins) y análisis del CFR (Steven A. Cook).</div>
+    </div>
+  </figure>
+
+  <p>También estaba el ángulo indio. Los EAU disfrutan de una relación petrolera inusualmente estrecha con India — un país crónicamente deficitario en oferta doméstica y esencial en la estrategia de Washington de utilizar Nueva Delhi como contrapeso de Pekín en el Indo-Pacífico. Más petróleo emiratí fluyendo libremente hacia India, fuera de las restricciones de la OPEP, profundiza esa dependencia de maneras que Washington considera útiles.</p>
+
+  <p>Y luego está la dimensión OPEP+. Rusia se unió a la estructura OPEP a finales de 2016, creando el cártel ampliado conocido como OPEP+, al que Washington siempre había mirado con suspicacia. La partida de los EAU debilita no solo a la OPEP sino al eje saudí-ruso que sostenía la OPEP+. Con los EAU fuera y Venezuela posiblemente siguiéndoles — el gobierno de Maduro fue depuesto el 3 de enero de 2026, y la nueva administración ya ha señalado apertura hacia las petroleras estadounidenses — la capacidad de Moscú de utilizar la coordinación de producción petrolera como instrumento geopolítico se está reduciendo rápidamente.</p>
+
+  <!-- SECTION 05 -->
+  <div class="section-divider">Parte cinco</div>
+
+  <span class="section-number">§ 05 — Lo que queda</span>
+  <h2 class="section-title">Once miembros y una <em>pregunta</em></h2>
+  <p class="section-standfirst">La OPEP no ha muerto. Pero el cártel que coordinó el embargo petrolero de 1973 ahora posee un tercio de la producción mundial y ha perdido a su productor de oscilación.</p>
+
+  <!-- EXHIBIT 05 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 05</div>
+      <div class="exhibit-title">Las salidas</div>
+      <div class="exhibit-subtitle">Miembros que han abandonado la OPEP y qué significó cada salida</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <rect x="0" y="0" width="800" height="320" fill="#F4EDE0"/>
+
+          <!-- Table header -->
+          <rect x="40" y="30" width="720" height="36" fill="#1A1A1A"/>
+          <g font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#F4EDE0" font-weight="600" letter-spacing="0.12em">
+            <text x="60" y="52">PAÍS</text>
+            <text x="240" y="52">AÑO</text>
+            <text x="350" y="52">PRODUCCIÓN</text>
+            <text x="520" y="52">SIGNIFICADO</text>
+          </g>
+
+          <!-- Rows -->
+          <g font-family="'Spectral', serif" font-size="15" fill="#1A1A1A">
+            <!-- Indonesia -->
+            <line x1="40" y1="100" x2="760" y2="100" stroke="#C8C2B5" stroke-width="0.5"/>
+            <text x="60" y="90">Indonesia</text>
+            <text x="240" y="90" font-family="'IBM Plex Sans', sans-serif" font-size="13">2016</text>
+            <text x="350" y="90" font-size="14">~0.7M bpd</text>
+            <text x="520" y="90" font-size="14" fill="#5C5C5C">Importador neto; salida simbólica</text>
+
+            <!-- Qatar -->
+            <line x1="40" y1="140" x2="760" y2="140" stroke="#C8C2B5" stroke-width="0.5"/>
+            <text x="60" y="130">Qatar</text>
+            <text x="240" y="130" font-family="'IBM Plex Sans', sans-serif" font-size="13">2019</text>
+            <text x="350" y="130" font-size="14">~0.6M bpd</text>
+            <text x="520" y="130" font-size="14" fill="#5C5C5C">Pequeño productor; centrado en GNL</text>
+
+            <!-- Ecuador -->
+            <line x1="40" y1="180" x2="760" y2="180" stroke="#C8C2B5" stroke-width="0.5"/>
+            <text x="60" y="170">Ecuador</text>
+            <text x="240" y="170" font-family="'IBM Plex Sans', sans-serif" font-size="13">2020</text>
+            <text x="350" y="170" font-size="14">~0.5M bpd</text>
+            <text x="520" y="170" font-size="14" fill="#5C5C5C">Crisis económica; necesitaba ingresos</text>
+
+            <!-- Angola -->
+            <line x1="40" y1="220" x2="760" y2="220" stroke="#C8C2B5" stroke-width="0.5"/>
+            <text x="60" y="210">Angola</text>
+            <text x="240" y="210" font-family="'IBM Plex Sans', sans-serif" font-size="13">2024</text>
+            <text x="350" y="210" font-size="14">~1.1M bpd</text>
+            <text x="520" y="210" font-size="14" fill="#5C5C5C">Disputa de cuotas; producción declinante</text>
+
+            <!-- UAE — highlighted -->
+            <rect x="40" y="230" width="720" height="44" fill="#7A1F1F" opacity="0.08"/>
+            <line x1="40" y1="270" x2="760" y2="270" stroke="#7A1F1F" stroke-width="1"/>
+            <text x="60" y="260" font-weight="600" fill="#7A1F1F">UAE</text>
+            <text x="240" y="260" font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#7A1F1F" font-weight="700">2026</text>
+            <text x="350" y="260" font-size="14" fill="#7A1F1F" font-weight="600">~3.5M bpd</text>
+            <text x="520" y="260" font-size="14" fill="#7A1F1F" font-weight="500">Productor de oscilación; capacidad excedentaria; peso geopolítico</text>
+          </g>
+
+          <!-- Bottom note -->
+          <text x="400" y="305" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" text-anchor="middle" font-style="italic">Combinadas: las cuatro salidas anteriores sumaban ~2,9 M bpd. Solo los EAU: 3,5 M bpd.</text>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Cifras de producción de la EIA, el OPEC Monthly Oil Market Report y OilPrice.com.</div>
+    </div>
+  </figure>
+
+  <p>Los once miembros restantes — Argelia, la República del Congo, Guinea Ecuatorial, Gabón, Irán, Irak, Kuwait, Libia, Nigeria, Arabia Saudí y Venezuela — siguen representando un tercio de la producción mundial de crudo y casi tres cuartas partes de las reservas probadas. No son cifras triviales. Pero la capacidad del cártel para gestionar precios depende de su capacidad para recortar y mantener. La salida de los EAU elimina al único miembro además de Arabia Saudí con capacidad excedentaria significativa y creíble. Si la propia capacidad excedentaria de Arabia Saudí es tan cuestionable como sugieren algunos analistas, el poder de fijación de precios de la OPEP descansa ahora únicamente en la disciplina — y la disciplina, entre once países con presiones fiscales divergentes, es aquello en lo que peor se desempeñan los cárteles.</p>
+
+  <p>El FT plantea pero no resuelve la cuestión de la sucesión. ¿Podrían seguirles otros miembros? La salida de Qatar en 2019 fue geopolíticamente motivada — una respuesta al bloqueo liderado por Arabia Saudí — y sentó un precedente pero no inició una cascada. La salida de los EAU es diferente: se está enmarcando, tanto por Abu Dabi como por los mercados, como económicamente racional. Si los EAU pueden demostrar que abandonar la OPEP produce mayores ingresos, mejores retornos de inversión y mayor autonomía estratégica, el argumento para quedarse se vuelve más difícil de sostener. Irak, con sus crónicos problemas de sobreproducción, y Nigeria, con su producción en caída, son los candidatos mencionados con más frecuencia. Ninguno es probable que se mueva pronto. Pero el precedente está establecido.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Antecedentes — ¿Qué pasó con la cuota de mercado de la OPEP?</div>
+    <p>Cuando la OPEP fue fundada en 1960, sus cinco miembros originales (Irán, Irak, Kuwait, Arabia Saudí y Venezuela) controlaban aproximadamente el 40 % de la producción mundial de crudo y el 60 % del petróleo comercializado internacionalmente. La revolución del esquisto en Estados Unidos, la perforación en aguas profundas en Brasil y Guyana, y la expansión de la producción de Rusia, Noruega y Canadá han erosionado constantemente esa dominancia. La cuota de la OPEP en la producción mundial se sitúa ahora en aproximadamente el 33 %, y el grupo OPEP+ más amplio (que incluye a Rusia y otros nueve aliados no miembros) ha tenido dificultades para mantener la cohesión.</p>
+  </div>
+
+  <!-- CODA -->
+  <div class="section-divider">Coda</div>
+
+  <p>Tres historias, entonces, apiladas dentro de una sola salida. La trampa de las cuotas: un país que construyó la capacidad y al que le dijeron que no podía utilizarla. La fractura: una relación bilateral rota por Yemen, Somalilandia y lecturas divergentes sobre cómo debería terminar una guerra. El oleoducto: una pieza de infraestructura, encargada cuando Ormuz era un riesgo teórico, que se convirtió en un activo estratégico cuando Ormuz se volvió uno real.</p>
+
+  <p>El FT trata la lógica comercial como primaria y la geopolítica como habilitadora. El CFR trata la geopolítica como primaria y la lógica comercial como necesaria pero no suficiente. Ambos probablemente tengan razón. Lo que ninguno dice del todo, pero lo que la cronología hace visible, es que el oleoducto es lo que conecta las dos historias. Sin él, los EAU podrían abandonar la OPEP y seguir varados. Con él, los EAU pueden abandonar la OPEP, seguir exportando en plena guerra y utilizar la capacidad excedentaria para convertirse exactamente en el tipo de socio — flexible, prooccidental, independiente en infraestructura — que Washington necesita en una región que está intentando reorganizar.</p>
+
+  <p>El lector que ha seguido esta colección desde la pieza sobre Dalio reconocerá el patrón. Los imperios se tensan. Las instituciones construidas para una era — Suez, Bretton Woods, la OPEP — pierden su control en la siguiente. La pregunta nunca es si la institución sobrevive. Es quién se mueve primero y qué ha construido para aterrizar.</p>
+
+</article>
+
+<script>
+(function(){
+  var btns=document.querySelectorAll('.text-size-switch button');
+  function paint(s){btns.forEach(function(b){b.classList.toggle('active',b.dataset.size===s);});}
+  var cur=localStorage.getItem('lecturas-text-size')||'md';
+  paint(cur);
+  btns.forEach(function(b){b.addEventListener('click',function(){var s=b.dataset.size;document.documentElement.setAttribute('data-text-size',s);try{localStorage.setItem('lecturas-text-size',s);}catch(e){}paint(s);});});
+})();
+</script>
+</body>
+</html>

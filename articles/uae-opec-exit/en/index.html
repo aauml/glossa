@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{var s=localStorage.getItem('lecturas-text-size')||'md';document.documentElement.setAttribute('data-text-size',s);}catch(e){}})();</script>
+<title>Fifty-eight years and one pipeline · Lecturas</title>
+<meta name="description" content="A guided reading of the DOJ's intervention against Colorado's algorithmic-discrimination law (SB24-205), and what the federal complaint argues about Equal Protection, the Brussels Effect, and the architecture of American AI regulation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F4EDE0;
+    --surface: #ECE2D0;
+    --surface-dark: #E2D6BD;
+    --ink: #1A1A1A;
+    --ink-soft: #2A2A2A;
+    --muted: #5C5C5C;
+    --rule: #1A1A1A;
+    --accent: #7A1F1F;
+    --accent-soft: #A14848;
+    --gold: #B8860B;
+    --highlight: #FAF4E8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Spectral', Georgia, serif; font-weight: 400; line-height: 1.6; font-size: 19px; }
+
+  .masthead { border-bottom: 1px solid var(--ink); padding: 18px 0; background: var(--bg); }
+  .masthead-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink); font-weight: 500; }
+  .masthead-section { color: var(--accent); font-weight: 600; text-decoration: none; transition: color 0.15s ease; }
+  .masthead-section:hover { color: var(--ink); }
+  .masthead-meta { color: var(--muted); letter-spacing: 0.12em; display: inline-flex; align-items: center; gap: 16px; }
+
+  .lang-switch { display: inline-flex; align-items: center; gap: 7px; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.18em; font-weight: 600; }
+  .lang-active { color: var(--accent); }
+  .lang-sep { color: var(--muted); opacity: 0.5; }
+  .lang-link { color: var(--muted); text-decoration: none; transition: color 0.15s ease; }
+  .lang-link:hover { color: var(--ink); }
+  @media (max-width: 640px) { .masthead-meta { gap: 10px; } .masthead-meta-text { display: none; } }
+
+  .hero { max-width: 1100px; margin: 0 auto; padding: 80px 32px 60px; border-bottom: 1px solid var(--ink); }
+  .hero-kicker { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); font-weight: 600; margin-bottom: 22px; }
+  .hero-headline { font-family: 'Spectral', serif; font-weight: 700; font-size: clamp(40px, 6.2vw, 72px); line-height: 1.05; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 28px; max-width: 900px; }
+  .hero-headline em { font-style: italic; font-weight: 500; }
+  .hero-dek { font-family: 'Spectral', serif; font-weight: 300; font-style: italic; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.4; color: var(--ink-soft); max-width: 760px; margin-bottom: 36px; }
+  .hero-meta { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 14px; }
+  .hero-meta-bar { width: 28px; height: 1px; background: var(--accent); }
+
+  .article { max-width: 720px; margin: 0 auto; padding: 60px 32px 100px; }
+  .article p { margin-bottom: 1.4em; font-size: 19px; line-height: 1.7; }
+  .article p.lede { font-size: 22px; line-height: 1.55; color: var(--ink); }
+  .article p.lede::first-letter { float: left; font-family: 'Spectral', serif; font-size: 88px; line-height: 0.85; font-weight: 700; padding: 6px 12px 0 0; color: var(--accent); }
+
+  .callback {
+    display: block;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    border-top: 1px solid var(--ink-soft);
+    border-bottom: 1px solid var(--ink-soft);
+    padding: 12px 0;
+    margin: 32px 0 36px;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .callback:hover { color: var(--accent); }
+  .callback strong { color: var(--accent); font-weight: 600; }
+
+  .section-divider { margin: 56px 0 40px; text-align: center; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--muted); font-weight: 500; position: relative; }
+  .section-divider::before, .section-divider::after { content: ''; display: inline-block; width: 60px; height: 1px; background: var(--ink-soft); vertical-align: middle; margin: 0 18px; }
+  .section-number { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; display: block; }
+  h2.section-title { font-family: 'Spectral', serif; font-weight: 700; font-size: clamp(32px, 4vw, 44px); line-height: 1.15; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 16px; max-width: 640px; }
+  h2.section-title em { font-style: italic; font-weight: 500; }
+  .section-standfirst { font-family: 'Spectral', serif; font-style: italic; font-weight: 400; font-size: 21px; line-height: 1.5; color: var(--ink-soft); margin-bottom: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--ink); }
+
+  .context-box { background: var(--surface); border-left: 3px solid var(--accent); padding: 26px 30px 22px; margin: 38px 0; font-family: 'Spectral', serif; }
+  .context-box-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.25em; color: var(--accent); font-weight: 600; margin-bottom: 12px; }
+  .context-box p { font-size: 17px; line-height: 1.6; margin-bottom: 0.9em; color: var(--ink-soft); }
+  .context-box p:last-child { margin-bottom: 0; }
+  .context-box strong { color: var(--ink); font-weight: 600; }
+
+  .inline-note { background: transparent; border-top: 1px solid var(--ink-soft); border-bottom: 1px solid var(--ink-soft); padding: 14px 0 14px; margin: 28px 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.55; color: var(--muted); font-weight: 400; }
+  .inline-note strong { color: var(--ink); font-weight: 600; }
+
+  .pull-quote { margin: 50px -40px; padding: 32px 40px 28px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); font-family: 'Spectral', serif; font-style: italic; font-weight: 400; font-size: clamp(24px, 3vw, 32px); line-height: 1.3; color: var(--ink); text-align: left; letter-spacing: -0.005em; }
+  .pull-quote-attribution { display: block; font-style: normal; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); margin-top: 18px; font-weight: 600; }
+
+  .exhibit { margin: 56px -100px; background: var(--bg); padding: 0; }
+  @media (max-width: 980px) { .exhibit { margin: 56px 0; } .pull-quote { margin: 50px 0; padding: 32px 0 28px; } }
+  .exhibit-frame { border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 28px 36px 32px; background: var(--bg); }
+  .exhibit-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3em; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+  .exhibit-title { font-family: 'Spectral', serif; font-weight: 600; font-size: 22px; line-height: 1.25; color: var(--ink); margin-bottom: 4px; }
+  .exhibit-subtitle { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); font-weight: 400; margin-bottom: 24px; letter-spacing: 0.01em; }
+  .exhibit-svg-wrapper { width: 100%; margin: 12px 0 18px; }
+  .exhibit-svg-wrapper svg { width: 100%; height: auto; display: block; }
+  .exhibit-source { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--muted); border-top: 1px solid var(--ink-soft); padding-top: 12px; margin-top: 14px; letter-spacing: 0.04em; }
+  .exhibit-source strong { color: var(--ink); font-weight: 500; }
+
+  @media (max-width: 640px) {
+    body { font-size: 17px; }
+    .hero { padding: 50px 22px 40px; }
+    .article { padding: 40px 22px 60px; }
+    .article p { font-size: 17px; }
+    .pull-quote { font-size: 22px; padding: 26px 0 22px; }
+    .exhibit-frame { padding: 22px 18px 26px; }
+    .context-box { padding: 22px 22px 18px; margin: 30px 0; }
+    .article p.lede { font-size: 19px; }
+    .article p.lede::first-letter { font-size: 70px; }
+  }
+  /* Reader text-size toggle */
+  :root { --reader-scale: 1; }
+  html[data-text-size="sm"] { --reader-scale: 0.88; }
+  html[data-text-size="md"] { --reader-scale: 1; }
+  html[data-text-size="lg"] { --reader-scale: 1.18; }
+  body { font-size: calc(19px * var(--reader-scale)); }
+  .article p { font-size: calc(19px * var(--reader-scale)); }
+  .article p.lede { font-size: calc(22px * var(--reader-scale)); }
+  .qa-text { font-size: calc(19px * var(--reader-scale)); }
+  .context-box p { font-size: calc(17px * var(--reader-scale)); }
+  .article-card-dek { font-size: calc(19px * var(--reader-scale)); }
+  .hero-headline { font-size: calc(clamp(36px, 5.6vw, 64px) * var(--reader-scale)); }
+  .hero-dek { font-size: calc(clamp(19px, 2.1vw, 24px) * var(--reader-scale)); }
+  h2.section-title { font-size: calc(clamp(28px, 3.6vw, 38px) * var(--reader-scale)); }
+  .section-standfirst { font-size: calc(20px * var(--reader-scale)); }
+  .pull-quote { font-size: calc(clamp(22px, 2.8vw, 28px) * var(--reader-scale)); }
+  @media (max-width: 640px) {
+    body { font-size: calc(17px * var(--reader-scale)); }
+    .article p { font-size: calc(17px * var(--reader-scale)); }
+    .article p.lede { font-size: calc(19px * var(--reader-scale)); }
+    .qa-text { font-size: calc(17px * var(--reader-scale)); }
+  }
+  /* Mobile: SVG exhibits scroll horizontally */
+  @media (max-width: 640px) {
+    .exhibit { margin-left: -22px; margin-right: -22px; }
+    .exhibit-frame { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-left: 22px; padding-right: 22px; scrollbar-width: thin; }
+    .exhibit-frame svg { min-width: 560px; display: block; }
+    .exhibit-label, .exhibit-title, .exhibit-subtitle, .exhibit-source { padding-left: 0; padding-right: 0; }
+    .exhibit-source { font-size: 12px; }
+  }
+  /* Toggle UI */
+  .text-size-switch { display: inline-flex; align-items: baseline; gap: 2px; font-family: 'IBM Plex Sans', sans-serif; }
+  .text-size-switch button { background: none; border: none; cursor: pointer; padding: 6px 8px; color: var(--muted); font-family: inherit; font-weight: 600; line-height: 1; letter-spacing: 0; min-width: 28px; min-height: 28px; }
+  .text-size-switch button[data-size="sm"] { font-size: 11px; }
+  .text-size-switch button[data-size="md"] { font-size: 13px; }
+  .text-size-switch button[data-size="lg"] { font-size: 17px; }
+  .text-size-switch button.active { color: var(--accent); }
+  .text-size-switch button:hover { color: var(--ink); }
+  .masthead-meta-sep { color: var(--muted); margin: 0 4px; opacity: 0.6; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="masthead-section" href="../../../">← Lecturas</a>
+    <span class="masthead-meta">
+      <span class="lang-switch">
+        <span class="lang-active">EN</span>
+        <span class="lang-sep">·</span>
+        <a href="../es/" class="lang-link">ES</a>
+      </span>
+      <span class="masthead-meta-sep">·</span>
+      <span class="masthead-meta-text">N° 05 · From the Financial Times</span>
+      <span class="masthead-meta-sep">·</span>
+      <span class="text-size-switch">
+        <button data-size="sm">A</button>
+        <button data-size="md">A</button>
+        <button data-size="lg">A</button>
+      </span>
+    </span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-kicker">The article, annotated</div>
+  <h1 class="hero-headline">Fifty-eight years and one <em>pipeline</em></h1>
+  <p class="hero-dek">The Financial Times unpacks why the UAE really left OPEC — a story about quotas that no longer fit, a partnership with Riyadh that fractured over Yemen, and the 400-kilometer pipeline that made walking away possible.</p>
+  <div class="hero-meta">
+    <span>Financial Times</span>
+    <span class="hero-meta-bar"></span>
+    <span>May 2026</span>
+  </div>
+</section>
+
+<article class="article">
+
+  <p class="lede">On May 1, 2026, the United Arab Emirates ended its fifty-eight-year membership in the Organization of the Petroleum Exporting Countries. The departure of OPEC's third-largest producer — a country pumping 3.5 million barrels a day, with capacity to reach five million by next year — was not a tantrum or a bluff. It was a decision years in the making, accelerated by a war, a broken alliance, and a piece of infrastructure that runs 400 kilometers through the desert from the oil fields of Abu Dhabi to the port of Fujairah on the Gulf of Oman. The Financial Times treats it as the most significant defection the cartel has faced since its founding in 1960. The article's title asks the question plainly. The answer turns out to be three stories layered on top of each other.</p>
+
+  <a class="callback" href="../../escobar-new-triangle/en/"><strong>Continues themes from N° 02</strong> · The Strait of Hormuz, Operation Epic Fury, and the geopolitical reshuffling of the Persian Gulf — now viewed through the lens of who benefits economically from the crisis.</a>
+
+  <!-- SECTION 01 -->
+  <div class="section-divider">Part one</div>
+
+  <span class="section-number">§ 01 — The quota trap</span>
+  <h2 class="section-title">A country that could produce <em>five</em> but was told to pump three</h2>
+  <p class="section-standfirst">The commercial case for leaving OPEC was straightforward: Abu Dhabi had invested $150 billion to build capacity it was not permitted to use.</p>
+
+  <p>OPEC's founding mandate in 1960 was to coordinate petroleum policy — which in practice meant fixing oil prices by managing supply. When the cartel had forty percent of global production, sixty percent of traded oil, and eighty percent of proven reserves, this worked. By 2026, those numbers had fallen to thirty-three, forty-six, and seventy-three percent respectively. The instrument was the same — production quotas, allocated by member state — but the world had changed. The United States had become the world's largest oil producer. Norway, Brazil, Guyana, and Canada had added millions of barrels to global supply. OPEC's ability to move prices depended on members accepting cuts, and the UAE had been accepting cuts it could no longer afford.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Background — What is ADNOC?</div>
+    <p>The <strong>Abu Dhabi National Oil Company (ADNOC)</strong> is the state oil company of the UAE and the federation's economic engine. It controls virtually all of Abu Dhabi's upstream and downstream oil operations and is one of the world's largest hydrocarbon companies. Its CEO, Sultan Al Jaber, simultaneously serves as UAE Minister of Industry and Advanced Technology and chaired COP28 in Dubai in 2023.</p>
+    <p>ADNOC has invested aggressively in capacity expansion, spending $150 billion between 2023 and 2027. By mid-2024 it reported maximum sustainable capacity of 4.85 million barrels per day, up from 4.65 million — yet its OPEC quota constrained actual production to roughly 3.2 million.</p>
+  </div>
+
+  <p>The gap between what ADNOC could produce and what OPEC allowed it to produce had become the defining frustration. At 4.85 million barrels per day of capacity and a quota hovering around 3.2 million, the UAE was sitting on roughly 1.6 million barrels per day of stranded value — every day, indefinitely, for as long as it remained a member. The FT frames this as the commercial core of the exit: Abu Dhabi had spent the money, built the wells, and now wanted to sell the oil.</p>
+
+  <!-- EXHIBIT 01 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 01</div>
+      <div class="exhibit-title">The gap</div>
+      <div class="exhibit-subtitle">UAE oil production capacity vs. OPEC quota, in millions of barrels per day</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <!-- Background -->
+          <rect x="0" y="0" width="800" height="380" fill="#F4EDE0"/>
+
+          <!-- Y-axis labels -->
+          <g font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" text-anchor="end">
+            <text x="95" y="68">5.0</text>
+            <text x="95" y="128">4.0</text>
+            <text x="95" y="188">3.0</text>
+            <text x="95" y="248">2.0</text>
+            <text x="95" y="308">1.0</text>
+          </g>
+
+          <!-- Grid lines -->
+          <g stroke="#C8C2B5" stroke-width="0.5">
+            <line x1="110" y1="64" x2="720" y2="64"/>
+            <line x1="110" y1="124" x2="720" y2="124"/>
+            <line x1="110" y1="184" x2="720" y2="184"/>
+            <line x1="110" y1="244" x2="720" y2="244"/>
+            <line x1="110" y1="304" x2="720" y2="304"/>
+          </g>
+
+          <!-- Bars -->
+          <!-- OPEC Quota: 3.2M = 192px from baseline at 304 → top at 112 -->
+          <rect x="200" y="116" width="120" height="188" fill="#1A1A1A" rx="2"/>
+          <text x="260" y="104" font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#1A1A1A" text-anchor="middle" font-weight="700">3.2M</text>
+          <text x="260" y="330" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" text-anchor="middle" letter-spacing="0.12em" font-weight="600">OPEC QUOTA</text>
+
+          <!-- Current capacity: 4.85M = 291px from baseline → top at 13 -->
+          <rect x="380" y="16" width="120" height="288" fill="#7A1F1F" rx="2"/>
+          <text x="440" y="10" font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#7A1F1F" text-anchor="middle" font-weight="700">4.85M</text>
+          <text x="440" y="330" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" text-anchor="middle" letter-spacing="0.12em" font-weight="600">CAPACITY</text>
+
+          <!-- 2027 target: 5.0M = 300px → top at 4 -->
+          <rect x="560" y="4" width="120" height="300" fill="none" stroke="#7A1F1F" stroke-width="2" stroke-dasharray="6,4" rx="2"/>
+          <text x="620" y="358" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#7A1F1F" text-anchor="middle" letter-spacing="0.12em" font-weight="600">2027 TARGET</text>
+          <text x="620" y="26" font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#7A1F1F" text-anchor="middle" font-weight="700">5.0M</text>
+
+          <!-- Gap annotation -->
+          <line x1="330" y1="116" x2="370" y2="116" stroke="#7A1F1F" stroke-width="1"/>
+          <line x1="330" y1="16" x2="370" y2="16" stroke="#7A1F1F" stroke-width="1"/>
+          <line x1="350" y1="16" x2="350" y2="116" stroke="#7A1F1F" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="350" y="72" font-family="'Spectral', serif" font-size="14" fill="#7A1F1F" text-anchor="middle" font-style="italic">1.65M bpd</text>
+          <text x="350" y="88" font-family="'Spectral', serif" font-size="12" fill="#5C5C5C" text-anchor="middle" font-style="italic">stranded</text>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> ADNOC capacity figures from S&P Global and EIA; OPEC quota from the OPEC+ production accord through Q2 2026.</div>
+    </div>
+  </figure>
+
+  <p>Other members had left before — Indonesia in 2016, Qatar in 2019, Ecuador in 2020, Angola in 2024 — but none carried the UAE's combination of volume, spare capacity, and geopolitical weight. The UAE was, by several analysts' accounts, OPEC's true swing producer: the only member besides Saudi Arabia with significant spare capacity, and arguably the only one whose spare capacity was real rather than aspirational. Its departure removes from the cartel the very flexibility that made coordinated supply management credible.</p>
+
+  <!-- SECTION 02 -->
+  <div class="section-divider">Part two</div>
+
+  <span class="section-number">§ 02 — The fracture</span>
+  <h2 class="section-title">When Abu Dhabi and <em>Riyadh</em> stopped talking</h2>
+  <p class="section-standfirst">The commercial case was necessary but not sufficient. What made the timing possible was the collapse of the UAE's most important regional relationship.</p>
+
+  <p>The FT and the Council on Foreign Relations both trace the same sequence. In late 2025, the UAE backed a power grab by the Southern Transitional Council, a Yemeni separatist group, at the expense of Saudi-aligned partners. Saudi Arabia responded with airstrikes on Emirati allies and military equipment at the Port of Mukalla. Then came Israel's recognition of Somaliland, which the Saudis perceived as destabilizing and suspected Emirati complicity in arranging. What followed was a two-month war of words — conducted largely over social media and through competing lobbying campaigns in Washington — as each side argued that the other was responsible for the breakdown.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Background — What is the Southern Transitional Council?</div>
+    <p>The <strong>Southern Transitional Council (STC)</strong> is a Yemeni separatist movement seeking independence for southern Yemen, the territory that was a separate state until unification in 1990. Backed by the UAE since 2017, the STC controls Aden and much of the south. Its relationship with Saudi Arabia — which leads the coalition fighting the Houthi movement in northern Yemen — has been tense since the STC's goals conflict with Saudi efforts to maintain a unified, allied Yemen.</p>
+  </div>
+
+  <p>The close coordination between Abu Dhabi and Riyadh that American policymakers had come to treat as a regional constant was, as the CFR's Steven Cook puts it, "not the norm." Smaller Gulf states have historically resisted Saudi efforts at regional dominance. The unusually tight alignment of the late 2010s and early 2020s — built around the Abraham Accords, shared hostility toward Iran, and coordinated oil policy — was the exception. By the time the war with Iran began in late February 2026, the exception was over.</p>
+
+  <!-- EXHIBIT 02 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 02</div>
+      <div class="exhibit-title">The unraveling</div>
+      <div class="exhibit-subtitle">Key events in the Saudi-UAE relationship breakdown, 2025–2026</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <rect x="0" y="0" width="800" height="420" fill="#F4EDE0"/>
+
+          <!-- Timeline axis -->
+          <line x1="80" y1="200" x2="720" y2="200" stroke="#1A1A1A" stroke-width="1.5"/>
+          <polygon points="720,200 708,194 708,206" fill="#1A1A1A"/>
+
+          <!-- Date markers -->
+          <g font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" font-weight="600" letter-spacing="0.12em" text-anchor="middle">
+            <!-- Late 2025 -->
+            <line x1="140" y1="190" x2="140" y2="210" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="140" y="228">LATE 2025</text>
+
+            <!-- Dec 2025 -->
+            <line x1="280" y1="190" x2="280" y2="210" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="280" y="228">DEC 2025</text>
+
+            <!-- Jan 2026 -->
+            <line x1="400" y1="190" x2="400" y2="210" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="400" y="228">JAN 2026</text>
+
+            <!-- Feb 28 -->
+            <line x1="520" y1="190" x2="520" y2="210" stroke="#7A1F1F" stroke-width="1.5"/>
+            <text x="520" y="228" fill="#7A1F1F">FEB 28</text>
+
+            <!-- May 1 -->
+            <line x1="660" y1="190" x2="660" y2="210" stroke="#7A1F1F" stroke-width="1.5"/>
+            <text x="660" y="228" fill="#7A1F1F">MAY 1</text>
+          </g>
+
+          <!-- Events above timeline -->
+          <g font-family="'Spectral', serif" font-size="13" fill="#1A1A1A">
+            <line x1="140" y1="190" x2="140" y2="120" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="140" y="108" text-anchor="middle" font-style="italic">UAE backs STC</text>
+            <text x="140" y="92" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">power grab in Yemen</text>
+
+            <line x1="280" y1="190" x2="280" y2="60" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="280" y="48" text-anchor="middle" font-style="italic">Saudi airstrikes on</text>
+            <text x="280" y="32" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">UAE allies at Mukalla</text>
+
+            <line x1="400" y1="190" x2="400" y2="120" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="400" y="108" text-anchor="middle" font-style="italic">Somaliland recognition</text>
+            <text x="400" y="92" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">deepens distrust</text>
+          </g>
+
+          <!-- Events below timeline -->
+          <g font-family="'Spectral', serif" font-size="13" fill="#1A1A1A">
+            <line x1="520" y1="210" x2="520" y2="300" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="520" y="316" text-anchor="middle" font-weight="600" fill="#7A1F1F" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.12em">OPERATION EPIC FURY</text>
+            <text x="520" y="336" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">Brief solidarity, then</text>
+            <text x="520" y="352" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">divergence on diplomacy</text>
+
+            <line x1="660" y1="210" x2="660" y2="290" stroke="#7A1F1F" stroke-width="0.8"/>
+            <text x="660" y="306" text-anchor="middle" font-weight="600" fill="#7A1F1F" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.12em">UAE EXITS OPEC</text>
+            <text x="660" y="326" text-anchor="middle" font-style="italic" font-size="12" fill="#5C5C5C">58 years of membership end</text>
+          </g>
+
+          <!-- Annotation -->
+          <g transform="translate(80, 380)" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C">
+            <text x="0" y="0" font-weight="600" fill="#7A1F1F" letter-spacing="0.18em">CFR READING</text>
+            <text x="140" y="0" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#1A1A1A">"The deterioration of the bilateral relationship presented an opportunity."</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Timeline reconstructed from the Financial Times, the Council on Foreign Relations (Steven A. Cook), and Al Jazeera reporting on the UAE-Saudi rift.</div>
+    </div>
+  </figure>
+
+  <p>The Iran war accelerated the split without causing it. When Iranian drones and missiles struck both countries in the opening days of Operation Epic Fury, Crown Prince Mohammed bin Salman and UAE President Sheikh Mohamed bin Zayed expressed solidarity. It lasted weeks. Saudi Arabia then joined Pakistan, Egypt, and Turkey in seeking a diplomatic off-ramp. The UAE, having absorbed a disproportionate share of Iranian fire — roughly 2,820 of the 6,000 drones and missiles launched at Gulf states during the forty-one days of active hostilities — wanted guarantees that Iran could not threaten its security again. It concluded that Riyadh was willing to settle for less. The trust that had briefly reconsolidated under fire evaporated.</p>
+
+  <p>The FT's argument, which the CFR echoes, is that the Emiratis had been studying the option of leaving OPEC since Qatar's departure in 2019. What the Saudi fracture provided was not the motive but the moment. With the bilateral relationship already in ruins, the political cost of defying Riyadh on production policy — which is to say, on the thing Saudi Arabia cares about most — dropped to near zero.</p>
+
+  <!-- SECTION 03 -->
+  <div class="section-divider">Part three</div>
+
+  <span class="section-number">§ 03 — The pipeline</span>
+  <h2 class="section-title">Four hundred kilometers to <em>Fujairah</em></h2>
+  <p class="section-standfirst">The Habshan-Fujairah pipeline does not just bypass OPEC. It bypasses the Strait of Hormuz.</p>
+
+  <p>There is a reason the UAE could leave OPEC in the middle of a war that has closed the most important oil chokepoint on earth, and that reason is a pipeline completed in 2012 that almost nobody was paying attention to at the time. The Abu Dhabi Crude Oil Pipeline — known as ADCOP, or the Habshan-Fujairah pipeline — runs 400 kilometers from the onshore oil fields at Habshan in southwestern Abu Dhabi to the port of Fujairah on the Gulf of Oman. It was built by China Petroleum Engineering, ordered by the International Petroleum Investment Company, and designed for precisely the scenario now unfolding: a world in which the Strait of Hormuz is not available.</p>
+
+  <div class="pull-quote">
+    "The UAE is in a unique economic position to walk away from OPEC."
+    <span class="pull-quote-attribution">— Analysis after the exit</span>
+  </div>
+
+  <!-- EXHIBIT 03 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 03</div>
+      <div class="exhibit-title">The bypass</div>
+      <div class="exhibit-subtitle">The Habshan-Fujairah pipeline and the Strait of Hormuz</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <rect x="0" y="0" width="800" height="500" fill="#F4EDE0"/>
+
+          <!-- Persian Gulf (simplified shape) -->
+          <path d="M 100,120 C 200,80 350,60 450,100 C 500,120 520,180 500,220 C 480,260 430,300 380,320 C 350,330 300,340 280,350 L 250,340 C 240,320 260,280 290,260 C 320,240 340,200 330,170 C 320,140 280,120 240,120 C 200,120 150,130 100,120 Z" fill="#E2D6BD" stroke="#C8C2B5" stroke-width="1"/>
+
+          <!-- Gulf of Oman -->
+          <path d="M 380,320 C 420,340 480,370 560,380 C 620,390 700,380 750,360 L 750,420 C 700,440 600,450 520,440 C 440,430 380,400 350,370 Z" fill="#E2D6BD" stroke="#C8C2B5" stroke-width="1"/>
+
+          <!-- Strait of Hormuz label -->
+          <text x="420" y="310" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#7A1F1F" font-weight="600" letter-spacing="0.15em" transform="rotate(-20, 420, 310)">STRAIT OF HORMUZ</text>
+          <!-- X mark for closed -->
+          <g transform="translate(400, 330)">
+            <line x1="-8" y1="-8" x2="8" y2="8" stroke="#7A1F1F" stroke-width="3"/>
+            <line x1="8" y1="-8" x2="-8" y2="8" stroke="#7A1F1F" stroke-width="3"/>
+          </g>
+          <text x="400" y="360" font-family="'IBM Plex Sans', sans-serif" font-size="9" fill="#7A1F1F" text-anchor="middle" font-weight="600" letter-spacing="0.1em">CLOSED</text>
+
+          <!-- UAE land mass (simplified) -->
+          <path d="M 200,220 L 320,180 L 420,200 L 500,240 L 530,300 L 560,370 L 500,360 L 420,340 L 350,330 L 280,350 L 240,340 L 200,280 Z" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="0.8"/>
+          <text x="370" y="280" font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#1A1A1A" font-weight="600" letter-spacing="0.15em">UAE</text>
+
+          <!-- Saudi Arabia label -->
+          <text x="130" y="260" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" letter-spacing="0.12em">SAUDI</text>
+          <text x="130" y="276" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" letter-spacing="0.12em">ARABIA</text>
+
+          <!-- Iran label -->
+          <text x="460" y="90" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" letter-spacing="0.12em">IRAN</text>
+
+          <!-- Oman label -->
+          <text x="580" y="420" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" font-weight="500" letter-spacing="0.12em">OMAN</text>
+
+          <!-- Habshan point -->
+          <circle cx="280" cy="260" r="6" fill="#7A1F1F"/>
+          <text x="280" y="250" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#7A1F1F" text-anchor="middle" font-weight="600">HABSHAN</text>
+
+          <!-- Fujairah point -->
+          <circle cx="540" cy="355" r="6" fill="#7A1F1F"/>
+          <text x="555" y="345" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#7A1F1F" font-weight="600">FUJAIRAH</text>
+
+          <!-- Pipeline -->
+          <path d="M 280,260 C 340,270 420,300 480,330 Q 510,345 540,355" fill="none" stroke="#7A1F1F" stroke-width="3" stroke-dasharray="8,4"/>
+
+          <!-- Pipeline label -->
+          <text x="390" y="270" font-family="'Spectral', serif" font-size="13" fill="#7A1F1F" font-style="italic" transform="rotate(15, 390, 270)">ADCOP Pipeline</text>
+          <text x="390" y="288" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" transform="rotate(15, 390, 288)">400 km · 1.8M bpd capacity</text>
+
+          <!-- Tanker routes through Hormuz (X'd out) -->
+          <path d="M 350,220 C 380,260 400,300 420,330 C 440,350 480,370 540,380" fill="none" stroke="#5C5C5C" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+
+          <!-- Legend -->
+          <g transform="translate(60, 460)">
+            <line x1="0" y1="0" x2="30" y2="0" stroke="#7A1F1F" stroke-width="3" stroke-dasharray="8,4"/>
+            <text x="40" y="4" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C">Habshan–Fujairah pipeline (bypasses Hormuz)</text>
+            <line x1="400" y1="0" x2="430" y2="0" stroke="#5C5C5C" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+            <text x="440" y="4" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C">Former tanker route (closed)</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Pipeline route and capacity from the IEA Strait of Hormuz assessment and Wikipedia; current throughput estimates from Kpler via Reuters.</div>
+    </div>
+  </figure>
+
+  <p>The pipeline's nameplate capacity is 1.5 million barrels per day, with reported current capacity close to 1.8 million. Before the war, the UAE was already routing roughly 1.1 million barrels through Fujairah, leaving headroom for up to 700,000 additional barrels if the strait were disrupted. The strait has now been effectively closed for over nine weeks. Fujairah has become not just the UAE's primary export terminal but one of the most strategically important bunkering hubs in the world — alongside Singapore and Rotterdam — handling crude storage, ship refueling, and exports to India and East Asia.</p>
+
+  <p>The pipeline also explains the war's geography. Iran struck the Fujairah terminal directly, along with Saudi Arabia's East-West pipeline to Yanbu. The message was clear: Tehran would not allow Gulf states to route around the strait without cost. But the pipeline is underground, dispersed, and harder to destroy than a refinery or a port. ADNOC announced on May 4 — three days after the exit — that it was accelerating $55 billion in project awards over the next two years, including expanded pipeline capacity and new export infrastructure at Fujairah.</p>
+
+  <!-- SECTION 04 -->
+  <div class="section-divider">Part four</div>
+
+  <span class="section-number">§ 04 — Washington's read</span>
+  <h2 class="section-title">Why Trump called it <em>great</em></h2>
+  <p class="section-standfirst">The UAE's exit serves American interests on at least four fronts — and Washington did not even have to ask for it.</p>
+
+  <p>Donald Trump's reaction was blunt. "I think it's great," he said, "and ultimately a good thing for getting the price of gas down." The White House had several reasons to be pleased beyond gasoline prices. The UAE was always the foundation stone of Trump's Middle East policy, built around the Abraham Accords — the normalization deals between Arab states and Israel. The Emirates signed the first major deal in September 2020, and despite widespread reports, never fully severed diplomatic ties with Israel after October 7, 2023. An OPEC-free UAE, willing to pump more, aligned more closely with Washington, and operating a Hormuz bypass pipeline, was precisely the kind of partner the administration wanted.</p>
+
+  <!-- EXHIBIT 04 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 04</div>
+      <div class="exhibit-title">Four fronts</div>
+      <div class="exhibit-subtitle">How the UAE's OPEC exit serves U.S. strategic interests</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <rect x="0" y="0" width="800" height="320" fill="#F4EDE0"/>
+
+          <!-- Four columns -->
+          <g font-family="'IBM Plex Sans', sans-serif">
+            <!-- Col 1 -->
+            <rect x="40" y="30" width="160" height="240" rx="4" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+            <rect x="40" y="30" width="160" height="40" rx="4" fill="#1A1A1A"/>
+            <text x="120" y="56" fill="#F4EDE0" font-size="11" text-anchor="middle" font-weight="600" letter-spacing="0.12em">OIL SUPPLY</text>
+            <text x="120" y="100" fill="#1A1A1A" font-size="36" text-anchor="middle" font-weight="700">+1.5M</text>
+            <text x="120" y="120" fill="#5C5C5C" font-size="11" text-anchor="middle" letter-spacing="0.08em">BPD BY 2027</text>
+            <text x="120" y="155" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">New barrels on market</text>
+            <text x="120" y="175" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">ease price pressure</text>
+
+            <!-- Col 2 -->
+            <rect x="220" y="30" width="160" height="240" rx="4" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+            <rect x="220" y="30" width="160" height="40" rx="4" fill="#7A1F1F"/>
+            <text x="300" y="56" fill="#F4EDE0" font-size="11" text-anchor="middle" font-weight="600" letter-spacing="0.12em">IRAN PRESSURE</text>
+            <text x="300" y="105" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">More supply</text>
+            <text x="300" y="125" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">squeezes Iran's</text>
+            <text x="300" y="145" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">oil-driven economy</text>
+            <text x="300" y="180" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">Peace deal becomes</text>
+            <text x="300" y="200" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">more likely</text>
+
+            <!-- Col 3 -->
+            <rect x="400" y="30" width="160" height="240" rx="4" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+            <rect x="400" y="30" width="160" height="40" rx="4" fill="#1A1A1A"/>
+            <text x="480" y="56" fill="#F4EDE0" font-size="11" text-anchor="middle" font-weight="600" letter-spacing="0.12em">RUSSIA SQUEEZE</text>
+            <text x="480" y="105" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">OPEC+ coherence</text>
+            <text x="480" y="125" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">weakens; Moscow's</text>
+            <text x="480" y="145" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">leverage fades</text>
+            <text x="480" y="180" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">War funding becomes</text>
+            <text x="480" y="200" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">harder to sustain</text>
+
+            <!-- Col 4 -->
+            <rect x="580" y="30" width="170" height="240" rx="4" fill="none" stroke="#1A1A1A" stroke-width="1"/>
+            <rect x="580" y="30" width="170" height="40" rx="4" fill="#7A1F1F"/>
+            <text x="665" y="56" fill="#F4EDE0" font-size="11" text-anchor="middle" font-weight="600" letter-spacing="0.12em">DOMESTIC</text>
+            <text x="665" y="105" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">Lower gasoline prices</text>
+            <text x="665" y="125" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">in time for November</text>
+            <text x="665" y="145" fill="#1A1A1A" font-size="14" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">mid-term elections</text>
+            <text x="665" y="180" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">WTI crude currently</text>
+            <text x="665" y="200" fill="#5C5C5C" font-size="12" text-anchor="middle" font-family="'Spectral', serif" font-style="italic">above $100/barrel</text>
+          </g>
+
+          <!-- Bottom annotation -->
+          <text x="400" y="300" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" text-anchor="middle" font-weight="500" letter-spacing="0.08em">ADDITIONAL: UAE–India oil relationship gives Washington leverage in the Indo-Pacific.</text>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Strategic assessment synthesized from the Financial Times, OilPrice.com analysis (Simon Watkins), and CFR analysis (Steven A. Cook).</div>
+    </div>
+  </figure>
+
+  <p>There was also the India angle. The UAE enjoys an unusually close oil relationship with India — a country chronically short of domestic supply and essential to Washington's strategy of using New Delhi as a counterbalance to Beijing in the Indo-Pacific. More UAE oil flowing freely to India, outside OPEC constraints, deepens that dependency in ways Washington finds useful.</p>
+
+  <p>And then there is the OPEC+ dimension. Russia joined the OPEC structure in late 2016, creating the extended cartel known as OPEC+, which Washington had always viewed with suspicion. The UAE's departure weakens not just OPEC but the Saudi-Russian axis that held OPEC+ together. With the UAE gone and Venezuela possibly following — the Maduro government was removed on January 3, 2026, and the new administration has already signaled openness to U.S. oil companies — Moscow's ability to use oil production coordination as a geopolitical instrument is diminishing rapidly.</p>
+
+  <!-- SECTION 05 -->
+  <div class="section-divider">Part five</div>
+
+  <span class="section-number">§ 05 — What remains</span>
+  <h2 class="section-title">Eleven members and a <em>question</em></h2>
+  <p class="section-standfirst">OPEC is not dead. But the cartel that coordinated the 1973 oil embargo now holds a third of global production and has lost its swing producer.</p>
+
+  <!-- EXHIBIT 05 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 05</div>
+      <div class="exhibit-title">The departures</div>
+      <div class="exhibit-subtitle">Members who have left OPEC, and what it looked like each time</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <rect x="0" y="0" width="800" height="320" fill="#F4EDE0"/>
+
+          <!-- Table header -->
+          <rect x="40" y="30" width="720" height="36" fill="#1A1A1A"/>
+          <g font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#F4EDE0" font-weight="600" letter-spacing="0.12em">
+            <text x="60" y="52">COUNTRY</text>
+            <text x="240" y="52">YEAR</text>
+            <text x="350" y="52">PRODUCTION</text>
+            <text x="520" y="52">SIGNIFICANCE</text>
+          </g>
+
+          <!-- Rows -->
+          <g font-family="'Spectral', serif" font-size="15" fill="#1A1A1A">
+            <!-- Indonesia -->
+            <line x1="40" y1="100" x2="760" y2="100" stroke="#C8C2B5" stroke-width="0.5"/>
+            <text x="60" y="90">Indonesia</text>
+            <text x="240" y="90" font-family="'IBM Plex Sans', sans-serif" font-size="13">2016</text>
+            <text x="350" y="90" font-size="14">~0.7M bpd</text>
+            <text x="520" y="90" font-size="14" fill="#5C5C5C">Net importer; symbolic exit</text>
+
+            <!-- Qatar -->
+            <line x1="40" y1="140" x2="760" y2="140" stroke="#C8C2B5" stroke-width="0.5"/>
+            <text x="60" y="130">Qatar</text>
+            <text x="240" y="130" font-family="'IBM Plex Sans', sans-serif" font-size="13">2019</text>
+            <text x="350" y="130" font-size="14">~0.6M bpd</text>
+            <text x="520" y="130" font-size="14" fill="#5C5C5C">Small producer; focused on LNG</text>
+
+            <!-- Ecuador -->
+            <line x1="40" y1="180" x2="760" y2="180" stroke="#C8C2B5" stroke-width="0.5"/>
+            <text x="60" y="170">Ecuador</text>
+            <text x="240" y="170" font-family="'IBM Plex Sans', sans-serif" font-size="13">2020</text>
+            <text x="350" y="170" font-size="14">~0.5M bpd</text>
+            <text x="520" y="170" font-size="14" fill="#5C5C5C">Economic crisis; needed revenue</text>
+
+            <!-- Angola -->
+            <line x1="40" y1="220" x2="760" y2="220" stroke="#C8C2B5" stroke-width="0.5"/>
+            <text x="60" y="210">Angola</text>
+            <text x="240" y="210" font-family="'IBM Plex Sans', sans-serif" font-size="13">2024</text>
+            <text x="350" y="210" font-size="14">~1.1M bpd</text>
+            <text x="520" y="210" font-size="14" fill="#5C5C5C">Quota dispute; declining output</text>
+
+            <!-- UAE — highlighted -->
+            <rect x="40" y="230" width="720" height="44" fill="#7A1F1F" opacity="0.08"/>
+            <line x1="40" y1="270" x2="760" y2="270" stroke="#7A1F1F" stroke-width="1"/>
+            <text x="60" y="260" font-weight="600" fill="#7A1F1F">UAE</text>
+            <text x="240" y="260" font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#7A1F1F" font-weight="700">2026</text>
+            <text x="350" y="260" font-size="14" fill="#7A1F1F" font-weight="600">~3.5M bpd</text>
+            <text x="520" y="260" font-size="14" fill="#7A1F1F" font-weight="500">Swing producer; spare capacity; geopolitical weight</text>
+          </g>
+
+          <!-- Bottom note -->
+          <text x="400" y="305" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C" text-anchor="middle" font-style="italic">Combined: previous four departures totaled ~2.9M bpd. The UAE alone: 3.5M bpd.</text>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Production figures from the EIA, OPEC Monthly Oil Market Report, and OilPrice.com.</div>
+    </div>
+  </figure>
+
+  <p>The remaining eleven members — Algeria, the Republic of the Congo, Equatorial Guinea, Gabon, Iran, Iraq, Kuwait, Libya, Nigeria, Saudi Arabia, and Venezuela — still account for a third of global crude output and nearly three-quarters of proven reserves. These are not trivial numbers. But the cartel's ability to manage prices depends on its ability to cut and hold. The UAE's departure removes the only member besides Saudi Arabia with significant, credible spare capacity. If Saudi Arabia's own spare capacity is as questionable as some analysts suggest, OPEC's pricing power now rests on discipline alone — and discipline, among eleven countries with divergent fiscal pressures, is the thing cartels are worst at.</p>
+
+  <p>The FT raises but does not resolve the succession question. Could other members follow? Qatar's exit in 2019 was geopolitically motivated — a response to the Saudi-led blockade — and set a precedent but did not start a cascade. The UAE's exit is different: it is being framed, by Abu Dhabi and by the markets, as economically rational. If the UAE can demonstrate that leaving OPEC produces higher revenues, better investment returns, and greater strategic autonomy, the argument for staying in becomes harder to make. Iraq, with its chronic overproduction problems, and Nigeria, with its collapsing output, are the most frequently mentioned candidates. Neither is likely to move soon. But the precedent is set.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Background — What happened to OPEC's share?</div>
+    <p>When OPEC was founded in 1960, its five original members (Iran, Iraq, Kuwait, Saudi Arabia, and Venezuela) controlled roughly 40 % of global crude production and 60 % of internationally traded oil. The U.S. shale revolution, deepwater drilling in Brazil and Guyana, and expanded production from Russia, Norway, and Canada have steadily eroded that dominance. OPEC's share of global production now sits at approximately 33 %, and the broader OPEC+ group (which includes Russia and nine other non-member allies) has itself struggled to maintain cohesion.</p>
+  </div>
+
+  <!-- CODA -->
+  <div class="section-divider">Coda</div>
+
+  <p>Three stories, then, stacked inside one exit. The quota trap: a country that built the capacity and was told it could not use it. The fracture: a bilateral relationship broken by Yemen, Somaliland, and divergent readings of how a war should end. The pipeline: a piece of infrastructure, ordered when Hormuz was a theoretical risk, that became a strategic asset when Hormuz became an actual one.</p>
+
+  <p>The FT treats the commercial logic as primary and the geopolitics as enabling. The CFR treats the geopolitics as primary and the commercial logic as necessary but not sufficient. Both are probably right. What neither quite says, but what the chronology makes visible, is that the pipeline is the thing that connects the two stories. Without it, the UAE could leave OPEC and still be stranded. With it, the UAE can leave OPEC, keep exporting through a war, and use the extra capacity to become exactly the kind of partner — flexible, pro-Western, infrastructure-independent — that Washington needs in a region it is trying to reorganize.</p>
+
+  <p>The reader who has followed this collection from the Dalio piece onward will recognize the pattern. Empires strain. Institutions built for one era — Suez, Bretton Woods, OPEC — lose their grip in the next. The question is never whether the institution survives. It is who moves first, and what they have built to land on.</p>
+
+</article>
+
+<script>
+(function(){
+  var btns=document.querySelectorAll('.text-size-switch button');
+  function paint(s){btns.forEach(function(b){b.classList.toggle('active',b.dataset.size===s);});}
+  var cur=localStorage.getItem('lecturas-text-size')||'md';
+  paint(cur);
+  btns.forEach(function(b){b.addEventListener('click',function(){var s=b.dataset.size;document.documentElement.setAttribute('data-text-size',s);try{localStorage.setItem('lecturas-text-size',s);}catch(e){}paint(s);});});
+})();
+</script>
+</body>
+</html>
