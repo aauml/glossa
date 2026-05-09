@@ -1,0 +1,18 @@
+---
+const { label = 'Document', title, subtitle, source, header = '', body = [], stamp = '' } = Astro.props;
+---
+<figure class="exhibit">
+  <div class="exhibit-frame">
+    <div class="exhibit-label">{label}</div>
+    {title && <div class="exhibit-title">{title}</div>}
+    {subtitle && <div class="exhibit-subtitle">{subtitle}</div>}
+    <div class="exhibit-svg-wrapper">
+      <div style="position: relative; background: #FAF4E8; border: 0.5px solid #C8C2B5; padding: 28px 32px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.7; color: #2A2A2A;">
+        {header && <div style="font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: #7A1F1F; font-weight: 600; margin-bottom: 12px; border-bottom: 0.5px solid #C8C2B5; padding-bottom: 8px;">{header}</div>}
+        {body.map(line => <div>{line}</div>)}
+        {stamp && <div style="position: absolute; right: 28px; bottom: 22px; padding: 6px 14px; border: 1.5px solid #7A1F1F; color: #7A1F1F; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.18em; font-weight: 700; transform: rotate(-6deg);">{stamp}</div>}
+      </div>
+    </div>
+    {source && <div class="exhibit-source" set:html={`<strong>Source.</strong> ${source}`} />}
+  </div>
+</figure>

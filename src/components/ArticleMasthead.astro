@@ -1,7 +1,6 @@
 ---
 import SizeSwitch from './SizeSwitch.astro';
-const { lang, slug, sourceLabel } = Astro.props;
-const otherLang = lang === 'en' ? 'es' : 'en';
+const { lang, slug } = Astro.props;
 ---
 <header class="masthead">
   <div class="masthead-inner">
@@ -12,7 +11,6 @@ const otherLang = lang === 'en' ? 'es' : 'en';
         <span class="lang-sep">·</span>
         {lang === 'es' ? <span class="lang-active">ES</span> : <a href={`/articles/${slug}/es/`} class="lang-link">ES</a>}
       </span>
-      {sourceLabel && <span class="masthead-meta-text">{sourceLabel}</span>}
       <SizeSwitch />
     </span>
   </div>

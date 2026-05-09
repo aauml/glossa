@@ -1,0 +1,31 @@
+---
+const { label = 'Timeline', title, subtitle, source, events = [], yearStart, yearEnd } = Astro.props;
+const startY = yearStart ?? Math.min(...events.map(e => e.year));
+const endY = yearEnd ?? Math.max(...events.map(e => e.year));
+const span = endY - startY || 1;
+const W = 800, H = 240, padX = 60, axisY = 160;
+const x = y => padX + ((y - startY) / span) * (W - padX * 2);
+---
+<figure class="exhibit">
+  <div class="exhibit-frame">
+    <div class="exhibit-label">{label}</div>
+    {title && <div class="exhibit-title">{title}</div>}
+    {subtitle && <div class="exhibit-subtitle">{subtitle}</div>}
+    <div class="exhibit-svg-wrapper">
+      <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <line x1={padX} y1={axisY} x2={W - padX} y2={axisY} stroke="#1A1A1A" stroke-width="0.8"/>
+        {events.map((e, i) => (
+          <g>
+            <circle cx={x(e.year)} cy={axisY} r="4" fill="#7A1F1F"/>
+            <line x1={x(e.year)} y1={axisY - 4} x2={x(e.year)} y2={axisY - 30 - (i % 2) * 26} stroke="#C8C2B5" stroke-width="0.6"/>
+            <text x={x(e.year)} y={axisY - 36 - (i % 2) * 26} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#1A1A1A" font-weight="500">{e.label}</text>
+            <text x={x(e.year)} y={axisY + 22} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C">{e.year}</text>
+          </g>
+        ))}
+        <text x={padX} y={axisY + 50} font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" letter-spacing="0.08em">{startY}</text>
+        <text x={W - padX} y={axisY + 50} text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" letter-spacing="0.08em">{endY}</text>
+      </svg>
+    </div>
+    {source && <div class="exhibit-source" set:html={`<strong>Source.</strong> ${source}`} />}
+  </div>
+</figure>

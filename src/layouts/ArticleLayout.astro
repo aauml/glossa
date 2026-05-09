@@ -5,9 +5,8 @@ const { entry, slug, lang } = Astro.props;
 const { data } = entry;
 ---
 <BaseLayout title={`${data.title} · Lecturas`} description={data.dek}>
-  <ArticleMasthead lang={lang} slug={slug} sourceLabel={data.sourceLabel} />
+  <ArticleMasthead lang={lang} slug={slug} />
   <section class="hero">
-    {data.kicker && <span class="hero-kicker">{data.kicker}</span>}
     <h1 class="hero-headline" set:html={data.titleHTML} />
     <p class="hero-dek" set:html={data.dekHTML || data.dek} />
     <div class="hero-meta">

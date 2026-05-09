@@ -1,0 +1,11 @@
+---
+const { notes = [] } = Astro.props;
+---
+<aside class="footnotes">
+  <div class="footnotes-label">Notas</div>
+  <ol>
+    {notes.map((note, i) => (
+      <li id={`fn-${i + 1}`} set:html={note} />
+    ))}
+  </ol>
+</aside>

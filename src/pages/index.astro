@@ -11,11 +11,11 @@ const enArticles = allArticles
 <CoverLayout>
   <section class="cover">
     <h1 class="cover-wordmark">Lecturas</h1>
-    <p class="cover-tagline">A personal reading collection. Annotated readings of podcasts, videos, and articles worth slowing down for.</p>
+    <p class="cover-tagline">A personal reader. Annotated readings of articles, podcasts, and topics worth slowing down for.</p>
     <div class="cover-meta">
-      <span>A personal reader</span>
+      <span>2026</span>
       <span class="cover-meta-bar"></span>
-      <span>Updated 2026</span>
+      <span>{enArticles.length} {enArticles.length === 1 ? 'piece' : 'pieces'}</span>
     </div>
   </section>
 
@@ -26,6 +26,7 @@ const enArticles = allArticles
         <div class="article-card-meta">
           <span class="article-card-number">{a.data.issue}</span>
           <span class="article-card-date">{a.data.date}</span>
+          {a.data.track && a.data.track !== 'general' && <span class="article-card-track">{a.data.track}</span>}
         </div>
         <h2 class="article-card-title" set:html={a.data.titleHTML} />
         <p class="article-card-dek" set:html={a.data.coverDek} />
@@ -39,6 +40,6 @@ const enArticles = allArticles
 
   <footer class="footer">
     <span>Personal · No ads · No tracking</span>
-    <a href="https://github.com/aauml/lecturas">View on GitHub →</a>
+    <a href="https://github.com/aauml/lecturas">github</a>
   </footer>
 </CoverLayout>

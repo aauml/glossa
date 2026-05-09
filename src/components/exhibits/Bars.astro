@@ -1,0 +1,33 @@
+---
+const { label = 'Comparison', title, subtitle, source, items = [], unit = '' } = Astro.props;
+const max = Math.max(...items.map(i => i.value));
+const W = 800, rowH = 60, padX = 40, labelW = 200, valueW = 120;
+const barX = padX + labelW;
+const barMaxW = W - barX - valueW - padX;
+const H = items.length * rowH + 30;
+---
+<figure class="exhibit">
+  <div class="exhibit-frame">
+    <div class="exhibit-label">{label}</div>
+    {title && <div class="exhibit-title">{title}</div>}
+    {subtitle && <div class="exhibit-subtitle">{subtitle}</div>}
+    <div class="exhibit-svg-wrapper">
+      <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        {items.map((it, i) => {
+          const y = 20 + i * rowH;
+          const w = (it.value / max) * barMaxW;
+          const fill = it.accent ? '#7A1F1F' : '#1A1A1A';
+          return (
+            <g>
+              <text x={padX} y={y + 22} font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#1A1A1A" font-weight="500">{it.label}</text>
+              {it.note && <text x={padX} y={y + 38} font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#5C5C5C">{it.note}</text>}
+              <rect x={barX} y={y + 8} width={w} height="24" fill={fill}/>
+              <text x={barX + w + 10} y={y + 25} font-family="'IBM Plex Sans', sans-serif" font-size="14" fill="#1A1A1A" font-weight="600">{it.display ?? `${it.value}${unit}`}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+    {source && <div class="exhibit-source" set:html={`<strong>Source.</strong> ${source}`} />}
+  </div>
+</figure>

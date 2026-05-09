@@ -1,0 +1,43 @@
+---
+const { label = 'Scorecard', title, subtitle, source, columns = [], rows = [] } = Astro.props;
+const W = 800, headerH = 50, rowH = 44, padX = 32;
+const colCount = columns.length;
+const labelColW = 320;
+const valueColW = (W - labelColW - padX * 2) / colCount;
+const H = headerH + rows.length * rowH + 20;
+---
+<figure class="exhibit">
+  <div class="exhibit-frame">
+    <div class="exhibit-label">{label}</div>
+    {title && <div class="exhibit-title">{title}</div>}
+    {subtitle && <div class="exhibit-subtitle">{subtitle}</div>}
+    <div class="exhibit-svg-wrapper">
+      <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <line x1={padX} y1={headerH} x2={W - padX} y2={headerH} stroke="#1A1A1A" stroke-width="0.8"/>
+        {columns.map((c, ci) => (
+          <text x={padX + labelColW + valueColW * ci + valueColW / 2} y={headerH - 18} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#7A1F1F" font-weight="600" letter-spacing="0.12em">{c}</text>
+        ))}
+        {rows.map((r, ri) => {
+          const y = headerH + ri * rowH + rowH / 2;
+          return (
+            <g>
+              <text x={padX} y={y + 4} font-family="'IBM Plex Sans', sans-serif" font-size="13" fill="#1A1A1A" font-weight="500">{r.label}</text>
+              {r.values.map((v, vi) => {
+                const cx = padX + labelColW + valueColW * vi + valueColW / 2;
+                if (v === true || v === '✓') {
+                  return <text x={cx} y={y + 6} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="18" fill="#1A1A1A" font-weight="600">✓</text>;
+                } else if (v === false || v === '✗') {
+                  return <text x={cx} y={y + 6} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="18" fill="#7A1F1F" font-weight="600">✗</text>;
+                } else {
+                  return <text x={cx} y={y + 4} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="12" fill="#5C5C5C">{v}</text>;
+                }
+              })}
+              {ri < rows.length - 1 && <line x1={padX} y1={headerH + (ri + 1) * rowH} x2={W - padX} y2={headerH + (ri + 1) * rowH} stroke="#C8C2B5" stroke-width="0.5"/>}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+    {source && <div class="exhibit-source" set:html={`<strong>Source.</strong> ${source}`} />}
+  </div>
+</figure>

@@ -16,6 +16,7 @@ const articles = defineCollection({
     sourceLabel: z.string().optional(),
     topics: z.array(z.string()),
     language: z.enum(['en', 'es']),
+    track: z.enum(['general', 'thesis', 'ai-policy', 'finance', 'geopolitics']).optional().default('general'),
     hidden: z.boolean().optional().default(false),
   }),
 });
