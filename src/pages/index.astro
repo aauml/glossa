@@ -5,7 +5,7 @@ import CoverLayout from '../layouts/CoverLayout.astro';
 const allArticles = await getCollection('articles');
 const enArticles = allArticles
   .filter(a => a.data.language === 'en' && !a.data.hidden)
-  .map(a => ({ ...a, slug: a.id.split('/')[0] }))
+  .map(a => ({ ...a, slug: a.id.split('/')[0].replace(/\.mdx$/, '') }))
   .sort((a, b) => b.data.sortDate.localeCompare(a.data.sortDate));
 ---
 <CoverLayout>
