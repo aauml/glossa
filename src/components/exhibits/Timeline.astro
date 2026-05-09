@@ -1,10 +1,59 @@
 ---
 const { label = 'Timeline', title, subtitle, source, events = [], yearStart, yearEnd } = Astro.props;
-const startY = yearStart ?? Math.min(...events.map(e => e.year));
-const endY = yearEnd ?? Math.max(...events.map(e => e.year));
-const span = endY - startY || 1;
-const W = 800, H = 240, padX = 60, axisY = 160;
-const x = y => padX + ((y - startY) / span) * (W - padX * 2);
+
+// Robust position resolver. Accepts:
+//   - numeric year (4-digit int or float) — used directly
+//   - string like "Feb 2025" / "feb. 2025" / "2025" — parsed to numeric
+//   - explicit `pos` field on event — overrides
+const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, sept:8, oct:9, nov:10, dec:11 };
+function parseYear(v) {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  if (typeof v !== 'string') return null;
+  const s = v.toLowerCase().replace(/\./g, '').trim();
+  const m = s.match(/^([a-z]+)?\s*(\d{4})$/) || s.match(/^(\d{4})\s*([a-z]+)?$/);
+  if (!m) {
+    const justYear = s.match(/(\d{4})/);
+    if (justYear) return parseInt(justYear[1], 10);
+    return null;
+  }
+  const [, a, b] = m;
+  const yr = parseInt(/^\d{4}$/.test(a) ? a : b, 10);
+  const monStr = /^[a-z]+$/.test(a || '') ? a : b;
+  if (monStr && MONTHS[monStr] !== undefined) return yr + (MONTHS[monStr] + 0.5) / 12;
+  return yr;
+}
+
+const resolved = events.map((e, i) => ({
+  ...e,
+  _pos: typeof e.pos === 'number' ? e.pos : parseYear(e.year),
+  _idx: i,
+}));
+const allParsed = resolved.every(e => e._pos != null);
+// If any event has no parseable position, fall back to even spacing by index.
+const positions = allParsed
+  ? resolved.map(e => e._pos)
+  : resolved.map((_, i) => i);
+
+const startY = yearStart ?? Math.min(...positions);
+const endY = yearEnd ?? Math.max(...positions);
+const span = (endY - startY) || 1;
+
+const W = 800, H = 280, padX = 60, axisY = 180;
+const x = pos => padX + ((pos - startY) / span) * (W - padX * 2);
+
+// Stagger labels across 3 rows when >5 events; 2 rows otherwise.
+const rows = events.length > 5 ? 3 : 2;
+const rowGap = 22;
+
+const items = resolved.map((e, i) => ({
+  ...e,
+  _x: x(positions[i]),
+  _row: i % rows,
+}));
+
+// Footer year markers: prefer the user-facing strings, not the numeric span.
+const startLabel = events.length ? (typeof events[0].year === 'string' ? events[0].year : events[0].year) : '';
+const endLabel = events.length ? (typeof events[events.length-1].year === 'string' ? events[events.length-1].year : events[events.length-1].year) : '';
 ---
 <figure class="exhibit">
   <div class="exhibit-frame">
@@ -14,16 +63,16 @@ const x = y => padX + ((y - startY) / span) * (W - padX * 2);
     <div class="exhibit-svg-wrapper">
       <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
         <line x1={padX} y1={axisY} x2={W - padX} y2={axisY} stroke="#1A1A1A" stroke-width="0.8"/>
-        {events.map((e, i) => (
+        {items.map((e) => (
           <g>
-            <circle cx={x(e.year)} cy={axisY} r="4" fill="#7A1F1F"/>
-            <line x1={x(e.year)} y1={axisY - 4} x2={x(e.year)} y2={axisY - 30 - (i % 2) * 26} stroke="#C8C2B5" stroke-width="0.6"/>
-            <text x={x(e.year)} y={axisY - 36 - (i % 2) * 26} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#1A1A1A" font-weight="500">{e.label}</text>
-            <text x={x(e.year)} y={axisY + 22} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C">{e.year}</text>
+            <circle cx={e._x} cy={axisY} r="4" fill="#7A1F1F"/>
+            <line x1={e._x} y1={axisY - 4} x2={e._x} y2={axisY - 30 - e._row * rowGap} stroke="#C8C2B5" stroke-width="0.6"/>
+            <text x={e._x} y={axisY - 36 - e._row * rowGap} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="11" fill="#1A1A1A" font-weight="500">{e.label}</text>
+            <text x={e._x} y={axisY + 22} text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C">{e.year}</text>
           </g>
         ))}
-        <text x={padX} y={axisY + 50} font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" letter-spacing="0.08em">{startY}</text>
-        <text x={W - padX} y={axisY + 50} text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" letter-spacing="0.08em">{endY}</text>
+        <text x={padX} y={axisY + 50} font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" letter-spacing="0.08em">{startLabel}</text>
+        <text x={W - padX} y={axisY + 50} text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="10" fill="#5C5C5C" letter-spacing="0.08em">{endLabel}</text>
       </svg>
     </div>
     {source && <div class="exhibit-source" set:html={`<strong>Source.</strong> ${source}`} />}
