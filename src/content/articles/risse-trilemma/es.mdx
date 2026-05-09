@@ -1,320 +1,174 @@
 ---
 issue: "N° 07"
-date: "9 May 2026"
+date: "9 de mayo de 2026"
 sortDate: "2026-05-09c"
 language: es
+track: ai-policy
 kicker: "El comentario, anotado"
-title: "Tres potencias, tres lagunas, un trilema"
-titleHTML: "Tres potencias, tres lagunas, un <em>trilema</em>"
-dek: "Mathias Risse sostiene que ningún régimen relevante de IA — ni China, ni Estados Unidos, ni la Unión Europea — reúne las tres condiciones que una gobernanza de la IA compatible con los derechos humanos exige. El argumento es estructural; la condición ausente es, en cada caso, la que convierte al resto en algo distinto de lo que dice ser."
-dekHTML: "Mathias Risse sostiene que ningún régimen relevante de IA — ni China, ni Estados Unidos, ni la Unión Europea — reúne las tres condiciones que una gobernanza de la IA compatible con los derechos humanos exige. El argumento es estructural; la condición ausente es, en cada caso, la que convierte al resto en algo distinto de lo que dice ser."
-coverDek: "El filósofo que dirige el Carr-Ryan Center for Human Rights de Harvard sostiene que la gobernanza de la IA exige tres cosas a la vez — alcance regulatorio, poder tecnológico y compromiso con los derechos — y que ningún régimen relevante las reúne todas. Una lectura guiada del trilema, las lagunas y la ventana que se cierra."
-source: "Based on a commentary by Mathias Risse · Carr-Ryan Center for Human Rights, Harvard Kennedy School"
+title: "La tercera condición que ningún régimen logra aportar"
+titleHTML: "La tercera condición que ningún régimen <em>logra aportar</em>"
+dek: "Mathias Risse, el filósofo que dirige el Carr-Ryan Center for Human Rights de Harvard, nombra las tres condiciones que la regulación de la IA necesita para servir a los derechos humanos — y muestra que ningún bloque relevante reúne hoy las tres."
+dekHTML: "Mathias Risse, el filósofo que dirige el Carr-Ryan Center for Human Rights de Harvard, nombra las tres condiciones que la regulación de la IA necesita para servir a los derechos humanos — y muestra que ningún bloque relevante reúne hoy <em>las tres</em>."
+coverDek: "El director del Carr-Ryan Center de Harvard sostiene que la gobernanza de la IA exige tres cosas a la vez — alcance regulatorio, poder tecnológico y compromiso con los derechos — y que ningún régimen relevante las reúne todas. Una lectura guiada del trilema, las lagunas y la ventana que se cierra."
+source: "A partir de un comentario de Mathias Risse · Carr-Ryan Center for Human Rights, Harvard Kennedy School"
 sourceLabel: "N.º 07 · Del Carr-Ryan Commentary"
 topics:
   - "Gobernanza de la IA"
   - "Derechos humanos"
   - "Reglamento de IA de la UE"
-  - "NIST"
+  - "NIST AI RMF"
   - "Paradoja de Bruselas"
 ---
-<Fragment set:html={`
-<p class="lede">Mathias Risse, el filósofo moral que dirige el Carr-Ryan Center for Human Rights de la Harvard Kennedy School, ha escrito lo que es, en efecto, un diagnóstico estructural del problema global de la gobernanza de la IA. Tres condiciones, sostiene, son conjuntamente necesarias para que una regulación de la IA pueda servir genuinamente a los derechos humanos: <strong>alcance regulatorio</strong>, la capacidad práctica de hacer cumplir reglas a quienes desarrollan y despliegan los sistemas; <strong>poder tecnológico</strong>, una concentración significativa del desarrollo de frontera dentro de la jurisdicción que regula; y <strong>compromiso con los derechos</strong>, una dedicación creíble e institucionalmente arraigada a la privacidad, la no discriminación, el debido proceso y la dignidad humana, que opere como una restricción real tanto sobre el Estado como sobre el mercado. Cada uno de los tres grandes bloques regulatorios del mundo — China, Estados Unidos, la Unión Europea — reúne, en la lectura de Risse, dos como máximo. La condición ausente es, en cada caso, la que convierte al resto en algo distinto de lo que dice ser.</p>
 
-  <p>Lo que sigue lee el comentario de Risse tal como está, prestando atención a las partes de su argumento que ya se han movido desde que lo escribió, el 22 de abril. El bloqueo del trílogo en Bruselas se ha desencallado. La contracción del NIST ha continuado. La ventana que él describe como «abierta ahora» es, por su propia lógica, más estrecha hoy que hace dos semanas.</p>
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Timeline from '../../../components/exhibits/Timeline.astro';
+import Scorecard from '../../../components/exhibits/Scorecard.astro';
 
-  <a class="callback" href="../../ai-act-trilogue-stalled/es/">
-    <strong>Continúa los temas del N.º 03</strong> &nbsp;·&nbsp; Lo que el N.º 03 cubrió como una rotura procedimental de la negociación del Ómnibus Digital de la UE — doce horas en Bruselas que terminaron a las dos de la madrugada — Risse lo nombra como la condición estructural de la UE: compromiso con los derechos sin palanca industrial. El trílogo ha alcanzado desde entonces un acuerdo provisional; el trilema, no.
-  </a>
+<Lede>Mathias Risse, el filósofo que dirige el Carr-Ryan Center for Human Rights de Harvard, ha escrito lo que es, en efecto, un diagnóstico estructural del problema global de la gobernanza de la IA. Tres condiciones, sostiene, son conjuntamente necesarias para que la regulación de la IA sirva genuinamente a los derechos humanos: **alcance regulatorio**, la capacidad práctica de hacer cumplir reglas a quienes desarrollan y despliegan estos sistemas; **poder tecnológico**, una concentración significativa del desarrollo de frontera dentro de la jurisdicción que regula; y **compromiso con los derechos**, una dedicación creíble e institucionalmente arraigada a la privacidad, la no discriminación, el debido proceso y la dignidad humana que opere como una restricción real tanto sobre el Estado como sobre el mercado. Cada uno de los tres grandes bloques regulatorios del mundo — China, Estados Unidos, la Unión Europea — reúne, en la lectura de Risse, dos como máximo. La condición ausente es, en cada caso, la que convierte al resto en algo distinto de lo que dice ser.</Lede>
 
-  <!-- SECCIÓN 1 -->
-  <div class="section-divider">Parte uno</div>
+<Callback issue="N.º 04" slug="colorado-ai-intervention" lang="es">Lo que «Bruselas en Denver» rastreó como una pelea constitucional sobre la ley antidiscriminación algorítmica de Colorado, Risse lo nombra como la condición estructural del caso estadounidense: poder tecnológico sin gobernanza, con esfuerzos a nivel estatal cubriendo el espacio que la acción federal no ha llegado a ocupar.</Callback>
 
-  <span class="section-number">§ 01 — El marco</span>
-  <h2 class="section-title">Un <em>trilema</em> filosófico</h2>
-  <p class="section-standfirst">Risse es un filósofo moral nacido en Alemania y catedrático Berthold Beitz de Derechos Humanos, Asuntos Globales y Filosofía en Harvard. Su argumento es normativo antes que descriptivo: la pregunta no es qué régimen de IA es más eficiente, ni cuál innova más, sino cuál puede plausiblemente servir a los derechos humanos. Tres patas, un mismo taburete. Si se quita una, el resto deja de ser lo que era.</p>
+<Section number="01" title="Lo que la IA compatible con los derechos humanos exige: <em>las tres</em>">
 
-  <p>Las tres condiciones, sostiene Risse, son conjuntamente necesarias «para que la regulación de la IA sirva genuinamente a los derechos humanos». Alcance regulatorio sin compromiso con los derechos «produce represión institucionalizada». Poder tecnológico sin gobernanza «produce sistemas no rendibles cuyos daños se distribuyen invisiblemente sobre las poblaciones». Compromiso con los derechos sin poder tecnológico «produce una regulación de principios sobre sistemas que el regulador ni construye ni puede dirigir plenamente». Cada formulación hace su trabajo: identifica qué destruye, en concreto, cada pata ausente.</p>
+<Standfirst>Las tres condiciones que Risse nombra no son meramente deseables. Son conjuntamente necesarias, y el trilema consiste en que ninguna jurisdicción las reúne hoy.</Standfirst>
 
-  <p>En sentido estricto, esto no es un trilema lógico, y Risse lo reconoce. Un trilema, en sentido técnico, es una constricción según la cual los tres objetivos no pueden satisfacerse en principio a la vez. Las tres condiciones que él nombra <em>sí</em> pueden satisfacerse a la vez; uno puede imaginar, para cada uno de los tres bloques, las reformas concretas que lo conseguirían. La razón por la que utiliza el término es política. Los tres regímenes son los únicos modelos regulatorios significativos a escala global que existen, la configuración es estable y, desde la perspectiva de cualquier país que decida con cuál alinearse, la elección presenta compensaciones reales. Reformar desde dentro, añade Risse, es «difícil... aunque no imposible». El trilema no es, por tanto, una imposibilidad metafísica: es una descripción del mundo tal como está.</p>
+El primer movimiento del argumento es el que hace el trabajo más pesado. Risse insiste en que alcance regulatorio, poder tecnológico y compromiso con los derechos no son tres ítems de una lista de la que basta marcar dos. Son conjuntamente necesarias. Alcance regulatorio sin compromiso con los derechos produce represión institucionalizada. Poder tecnológico sin gobernanza produce sistemas no rendibles cuyos daños se distribuyen invisiblemente entre las poblaciones. Compromiso con los derechos sin poder tecnológico produce regulación de principios sobre sistemas que el regulador no construye y no puede gobernar plenamente. Cada combinación falla de un modo distinto, pero cada una falla.
 
-  <div class="context-box">
-    <div class="context-box-label">Antecedentes — ¿Qué es el efecto Bruselas?</div>
-    <p>El <strong>efecto Bruselas</strong>, denominado así por la jurista <strong>Anu Bradford</strong> en su libro homónimo de 2020, describe el fenómeno por el cual la regulación de la Unión Europea acaba gobernando la conducta comercial global sin que exista una regla equivalente en otras jurisdicciones. El mecanismo es directo: en lugar de mantener dos especificaciones para un mismo producto, las multinacionales adoptan la regla europea como predeterminada y la aplican a todos los mercados. El RGPD es el caso canónico; el derecho de la competencia, la seguridad alimentaria y la regulación química son otros.</p>
-    <p>Risse acuña, deliberadamente, una contraparte a la que llama <strong>paradoja de Bruselas</strong>: la jurisdicción con las intenciones regulatorias más cuidadas en materia de IA es la que tiene menos poder sobre la tecnología que pretende regular. Los dos términos no son contradictorios. El efecto Bruselas describe un mecanismo que funciona mejor cuando las empresas tienen incentivos fuertes para permanecer en el mercado europeo y cuando las actividades reguladas son visibles. Para el entrenamiento de IA de frontera, ninguna de esas dos condiciones se cumple con limpieza.</p>
-  </div>
+Por eso Risse llama trilema a esta configuración, y por eso es cuidadoso al precisar el sentido en que usa la palabra. En su acepción estricta — la versión familiar de la economía internacional, en la que no se pueden tener libre movilidad de capitales, tipo de cambio fijo y política monetaria independiente al mismo tiempo — un trilema describe una imposibilidad lógica. El trilema de Risse no es eso. Las tres condiciones son mutuamente compatibles en principio. No hay contradicción en imaginar una jurisdicción que combine cumplimiento real, capacidad tecnológica real y un marco real de derechos humanos. El trilema es político, no lógico: describe una configuración estable en la que cada uno de los tres regímenes regulatorios principales que existen carece de una de las tres condiciones, y carece de una distinta.
 
-  <p>El encuadre importa para cómo aterriza el resto del argumento. Al fijar los derechos humanos como el criterio frente al cual se miden los tres regímenes, Risse pone un dedo en la balanza que algunos lectores resistirán. Su comentario lo publica el Carr-Ryan Center for Human Rights, que se dedica precisamente a este tipo de argumento, y el propio Risse es autor de <em>Political Theory of the Digital Age</em> (2023), un libro cuyo título señala exactamente el marco que aquí se aplica. Nada de esto descalifica el diagnóstico. Sí significa que el trilema no es neutro en valores: es una afirmación moral que se sirve de una tipología tripartita como instrumento.</p>
+Para todos los países fuera de esos tres bloques, esa configuración produce una elección genuina con costes reales. Un país que decida cómo posicionarse frente a la gobernanza de la IA debe elegir qué tipo de fallo importar. Los términos de esa elección son lo que el resto del comentario despliega.
 
-  <!-- ILUSTRACIÓN 1 -->
-  <figure class="exhibit">
-    <div class="exhibit-frame">
-      <div class="exhibit-label">Ilustración 01</div>
-      <div class="exhibit-title">El trilema, en un solo cuadro</div>
-      <div class="exhibit-subtitle">Cada fila contiene como máximo dos columnas. La casilla vacía es lo que define al régimen.</div>
+<Scorecard
+  label="El trilema, como matriz"
+  columns={["Alcance regulatorio", "Poder tecnológico", "Compromiso con los derechos"]}
+  rows={[
+    { label: "China", values: [true, true, false] },
+    { label: "Estados Unidos", values: [false, true, true] },
+    { label: "Unión Europea", values: [true, false, true] }
+  ]}
+  source="Adaptado del comentario de Risse. La matriz sigue su encuadre titular para cada bloque; las matizaciones están en la prosa."
+/>
 
-      <div class="exhibit-svg-wrapper">
-        <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+La matriz es fiel a los titulares con que Risse caracteriza a cada bloque. No es, como él mismo admite, toda la historia. Señala en otra parte que el compromiso con los derechos de Estados Unidos está, a su vez, en disputa, y que el alcance regulatorio de la Unión Europea opera en parte mediante el acceso extraterritorial al mercado — lo que los académicos llaman el efecto Bruselas — más que por autoridad directa. La matriz muestra dónde están los puntos de presión estructurales. La prosa que sigue es donde viven las matizaciones.
 
-          <text x="40" y="46" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">RÉGIMEN</text>
-          <text x="220" y="46" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">ALCANCE REGULATORIO</text>
-          <text x="430" y="46" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">PODER TECNOLÓGICO</text>
-          <text x="600" y="46" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">COMPROMISO DERECHOS</text>
+</Section>
 
-          <line x1="40" y1="62" x2="760" y2="62" stroke="#1A1A1A" stroke-width="1.2"/>
+<Section number="02" title="China: alcance regulatorio, <em>sin derechos</em>">
 
-          <text x="40" y="100" font-family="'Spectral', serif" font-size="17" font-weight="600" fill="#1A1A1A">China</text>
-          <text x="40" y="120" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">partido-Estado</text>
+<Standfirst>China ha construido la arquitectura regulatoria más ambiciosa de cualquier jurisdicción mayor sobre los sistemas digitales — y la brecha más consecuente entre esa arquitectura y los derechos humanos de las personas a las que gobierna.</Standfirst>
 
-          <text x="220" y="105" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#1A1A1A">✓</text>
-          <text x="220" y="124" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">Ciberseguridad, Seguridad de</text>
-          <text x="220" y="138" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">Datos, PIPL — bajo el Partido</text>
+A lo largo de veinte años, Pekín ha ensamblado un cuerpo de derecho digital que sobre el papel se asemeja a los marcos más sofisticados del mundo. La Ley de Ciberseguridad de 2017, la Ley de Seguridad de los Datos de 2021 y la Ley de Protección de la Información Personal de 2021 cubren buena parte del mismo terreno regulatorio que el RGPD. Imponen obligaciones a los responsables del tratamiento, otorgan a los ciudadanos derechos nominales frente al uso indebido de sus datos por parte de empresas, y exigen evaluaciones de riesgo y auditorías de seguridad.
 
-          <text x="430" y="105" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#1A1A1A">✓</text>
-          <text x="430" y="124" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">Baidu, Alibaba, Huawei;</text>
-          <text x="430" y="138" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">escalado de cómputo doméstico</text>
+Lo que no hacen es lo que sí hace el RGPD: imponer esas mismas obligaciones al Estado. Cada uno de los instrumentos chinos está explícitamente subordinado a las exigencias de «seguridad nacional» y «estabilidad social» — categorías que, en la práctica, significan las exigencias del control del Partido Comunista. Las normas de protección de datos se aplican horizontalmente entre ciudadanos y empresas. El acceso vertical del Estado a los datos se preserva, sin supervisión independiente significativa. El resultado, sostiene Risse, es un sistema que ofrece la apariencia de gobernanza orientada a derechos manteniendo intacta la infraestructura de vigilancia y control.
 
-          <text x="600" y="105" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#7A1F1F">✗</text>
-          <text x="600" y="124" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">subordinado a la «seguridad</text>
-          <text x="600" y="138" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">nacional» y la «estabilidad»</text>
+Las consecuencias concretas son omnipresentes. El sistema de crédito social — lo que Risse describe como un conjunto entrelazado de listas negras financieras, puntuaciones regulatorias y experimentos de los gobiernos locales — hace operativa, a escala, la gobernanza algorítmica del comportamiento ciudadano. Es cuidadoso al señalar la distancia entre el sistema tal como funciona realmente y las descripciones más exageradas que circulan en la prensa occidental. No hay una puntuación nacional única. Hay muchos experimentos solapados, regímenes sectoriales de cumplimiento y listas negras para infracciones específicas, que varían enormemente de una localidad a otra. El diagnóstico estructural no depende de la versión más espectacular. Lo que importa es la dirección de la trayectoria: evaluación automatizada, basada en datos, del comportamiento ciudadano por parte del Estado, con consecuencias reales sobre movilidad, empleo y acceso a servicios, y con un recurso procesal mínimo.
 
-          <line x1="40" y1="162" x2="760" y2="162" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+<ContextBox label="Antecedentes — ¿qué es realmente el sistema de crédito social?">
+La expresión cubre dos cosas distintas que la cobertura occidental suele confundir. Una es un proyecto de larga data sobre crédito empresarial, una base de datos nacional de cumplimiento corporativo — más cercano a un sistema tipo Dun & Bradstreet que a algo distópico. La otra es un mosaico de pilotos municipales (Rongcheng, Suzhou, Hangzhou) y listas negras sectoriales (impagadores financieros, infractores de órdenes judiciales) en las que el Estado asigna puntuaciones o consecuencias de denegación de servicio sobre la conducta individual. No hay una puntuación nacional unificada. Pero la trayectoria — evaluación automatizada del comportamiento ciudadano por parte del Estado, con consecuencias concretas y recurso limitado — es real, y es la trayectoria lo que importa para el argumento de Risse.
+</ContextBox>
 
-          <text x="40" y="200" font-family="'Spectral', serif" font-size="17" font-weight="600" fill="#1A1A1A">Estados Unidos</text>
-          <text x="40" y="220" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">orientado al mercado</text>
+Hong Kong es la ilustración límite. Cuando Pekín impuso la Ley de Seguridad Nacional en 2020, lo hizo sobre una ciudad a la que se le había prometido, en la transferencia de 1997, cincuenta años de cultura jurídica diferenciada — protecciones de common law, independencia judicial, libertad de prensa. Desde entonces, las imputaciones a activistas prodemocracia, legisladores y periodistas se han sucedido sin interrupción. En marzo de 2024, el artículo 23 amplió el marco de 2020, ensanchando las definiciones de espionaje e injerencia externa de un modo que estrecha aún más el espacio para la disidencia.
 
-          <text x="220" y="205" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#7A1F1F">✗</text>
-          <text x="220" y="224" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">sin ley federal de privacidad;</text>
-          <text x="220" y="238" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">solo mosaico sectorial</text>
+En febrero de 2026, los tribunales pronunciaron el caso límite. Jimmy Lai, fundador de *Apple Daily* y rostro más visible de la prensa prodemocracia de la ciudad, fue condenado a los setenta y ocho años, a veinte años de prisión por colusión con fuerzas extranjeras bajo la Ley de Seguridad Nacional. La pena estuvo dentro de la franja más severa que la ley contempla. Dada su edad y estado de salud, funciona en la práctica como una cadena perpetua. Risse toma el caso como ilustración estructural: el mismo marco legal que se utiliza para silenciar a Lai gobierna también el acceso a datos, la regulación de plataformas y la subordinación de las herramientas algorítmicas a la autoridad del Partido. Donde la diferencia regional ha entrado en conflicto con la autoridad central, la autoridad central ha ganado. La lección para la gobernanza de la IA es la misma lección que la de las libertades civiles.
 
-          <text x="430" y="205" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#1A1A1A">✓</text>
-          <text x="430" y="224" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">OpenAI, Google DeepMind,</text>
-          <text x="430" y="238" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">Anthropic, Meta; nube + capital</text>
+El caso de Xinjiang es la segunda ilustración, y la más directamente anclada en la IA. Los organismos de derechos humanos de Naciones Unidas han descrito la vigilancia masiva de los uigures en Xinjiang — Plataformas Integradas de Operaciones Conjuntas, vigilancia policial predictiva, redes de cámaras con reconocimiento facial, bases de datos de ADN y de huellas vocales, instalación obligatoria de software de monitoreo en los dispositivos personales, aplicado a una población musulmana de unos doce millones de personas — como susceptibles de constituir crímenes contra la humanidad. El Departamento de Estado estadounidense ha empleado el término genocidio. El papel de la IA es central, no incidental: como infraestructura de la vigilancia y como mecanismo para generar las puntuaciones de riesgo que activan la detención.
 
-          <text x="600" y="205" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#7A1F1F">✗</text>
-          <text x="600" y="224" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">Risse: dos como máximo,</text>
-          <text x="600" y="238" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">déficits de derechos reconocidos</text>
+Más allá de sus fronteras, China exporta el modelo. Ya en 2019, el Carnegie Endowment documentó tecnología de vigilancia china con IA desplegada en al menos setenta y cinco países — no solo hardware y software, sino plantillas de gobernanza, diseñadas para maximizar la visibilidad estatal sobre las poblaciones, con escasas protecciones de derechos incorporadas. Solo Huawei suministró infraestructura de vigilancia a cincuenta países en aquel recuento de 2019. La cifra es ya más antigua que la propia Ley de Ciberseguridad.
 
-          <line x1="40" y1="262" x2="760" y2="262" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+Risse hace una pausa para reconocer lo que faltaría en una crítica puramente negativa. El gobierno chino ha sacado a cientos de millones de personas de la pobreza en las últimas décadas. El partido gobernante está genuinamente comprometido, en sus propios términos, con un bien público moldeado por las tradiciones comunista y confuciana, y la integración de la IA en toda la sociedad china puede entenderse como una expresión de ese compromiso. Reconocer esto, sostiene, es enteramente compatible con la crítica central: que un marco regulatorio subordinado al control político no puede, por construcción, situar los derechos por encima de las exigencias del sistema al que sirve.
 
-          <text x="40" y="300" font-family="'Spectral', serif" font-size="17" font-weight="600" fill="#1A1A1A">Unión Europea</text>
-          <text x="40" y="320" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">bloque comercial</text>
+<PullQuote attribution="— Mathias Risse">Donde el alcance regulatorio y la capacidad de IA son altos pero el compromiso con los derechos está ausente, la regulación se convierte en un multiplicador de fuerza para la represión, en lugar de en un freno sobre ella.</PullQuote>
 
-          <text x="220" y="305" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#1A1A1A">✓</text>
-          <text x="220" y="324" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">Reglamento de IA, RGPD, DSA;</text>
-          <text x="220" y="338" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">extraterritorial vía mercado</text>
+La frase nombra lo que el caso chino le hace a la intuición proregulatoria estándar. Una gobernanza eficaz no es inherentemente beneficiosa desde un punto de vista de derechos humanos. Todo depende de para *qué* gobierna.
 
-          <text x="430" y="305" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#7A1F1F">✗</text>
-          <text x="430" y="324" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">sin laboratorios de frontera</text>
-          <text x="430" y="338" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">a escala; cómputo fuera</text>
+</Section>
 
-          <text x="600" y="305" font-family="'Spectral', serif" font-size="22" font-weight="600" fill="#1A1A1A">✓</text>
-          <text x="600" y="324" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">Carta de Derechos Fundamentales</text>
-          <text x="600" y="338" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">como capa constitucional</text>
+<Section number="03" title="Estados Unidos: poder tecnológico, <em>sin gobernanza</em>">
 
-        </svg>
-      </div>
+<Standfirst>Estados Unidos alberga la industria de IA de frontera más concentrada del mundo y el derecho federal de IA más escaso. Risse sostiene que la brecha es estructural, no meramente contingente.</Standfirst>
 
-      <div class="exhibit-source"><strong>Fuente:</strong> Diagrama del editor, basado en M. Risse, «AI Regulation and Human Rights: A Global Trilemma», Carr-Ryan Commentary, Harvard Kennedy School, 22 de abril de 2026. La asignación de marcadores reproduce la del propio Risse; la columna de compromiso con los derechos para Estados Unidos lleva su matiz de que los déficits del país en esta materia son «serios», pero el elemento ausente identificado para el bloque es la gobernanza.</div>
-    </div>
-  </figure>
+Las cifras, en la lectura de Risse y en el AI Index de Stanford que cita, son inequívocas. La mayoría de los laboratorios de modelos fundacionales de frontera tienen sede en Estados Unidos. Los proveedores dominantes de infraestructura en la nube son estadounidenses. Las mayores reservas de capital riesgo dirigidas a IA son estadounidenses. Sea lo que sea de la distribución global del cómputo y el capital, el centro de la frontera está en la costa oeste estadounidense y en un puñado de polos de investigación de la costa este.
 
-  <!-- SECCIÓN 2 -->
-  <div class="section-divider">Parte dos</div>
+El panorama de la gobernanza es el inverso. Estados Unidos carece, sola entre las grandes democracias, de una ley federal integral de privacidad. A 2025, más de 140 países han promulgado legislación nacional de protección de datos. Estados Unidos, no. El vacío se ha llenado parcialmente con esfuerzos a nivel estatal — la Ley de Privacidad del Consumidor de California, la Ley de Derechos de Privacidad que la reforzó, leyes equivalentes en Colorado, Connecticut, Virginia y un creciente número de otros estados — pero estos esfuerzos son fragmentados por diseño. Distintas jurisdicciones, distintas definiciones, distintos remedios. Más fáciles de navegar para las grandes empresas con recursos abundantes que para los actores pequeños o las personas físicas, y dejan grandes categorías de datos y procesamientos fuera de su ámbito.
 
-  <span class="section-number">§ 02 — China</span>
-  <h2 class="section-title">Alcance y capacidad, sin <em>contención</em></h2>
-  <p class="section-standfirst">China tiene, en el marco de Risse, alcance regulatorio y poder tecnológico significativo. Lo que le falta — y lo que su arquitectura regulatoria ha sido construida deliberadamente para que falte — es un compromiso con los derechos que opere como una restricción real sobre la autoridad del Estado. Los instrumentos jurídicos se parecen a los de los regímenes protectores de derechos; la subordinación de esos instrumentos a la autoridad del Partido es el hecho estructural.</p>
+<ContextBox label="Antecedentes — ¿qué fue la EO 14110 y qué la sustituyó?">
+La EO 14110, dictada por el presidente Biden el 30 de octubre de 2023, fue el instrumento federal de gobernanza de la IA más ambicioso que Estados Unidos había producido. Exigía a quienes desarrollaran modelos fundacionales potentes que compartiesen los resultados de sus pruebas de seguridad con el gobierno, ordenaba a las agencias evaluar las implicaciones de los derechos civiles de la IA en sus ámbitos, y vinculaba la gobernanza de la IA a la privacidad y la protección del consumidor. Era una orden ejecutiva, no legislación, y cargaba con las limitaciones de esa forma. El 20 de enero de 2025 — su primer día en el cargo — Donald Trump la derogó. Tres días más tarde, la EO 14179 (*Removing Barriers to American Leadership in Artificial Intelligence*) la sustituyó por una postura desreguladora: requisitos de notificación de seguridad eliminados, política federal de IA reformulada como impulsora más que como gobernante de la tecnología. La investigación sobre seguridad de la IA en el National Institute of Standards and Technology (NIST) ha sido, desde entonces, objeto de desfinanciación y disrupción sustanciales.
+</ContextBox>
 
-  <p>El cuerpo de derecho digital es extenso: la Ley de Ciberseguridad (2017), la Ley de Seguridad de Datos (2021) y la Ley de Protección de Información Personal (PIPL, 2021), esta última, sobre el papel, con cierto parecido al RGPD. Pero todos esos instrumentos, observa Risse, están «explícitamente subordinados a las exigencias de la “seguridad nacional” y la “estabilidad social”», lo que en términos operativos significa las exigencias del control del Partido. Las normas de protección de datos rigen horizontalmente entre ciudadanos y empresas; el acceso vertical del Estado a los datos se preserva sin supervisión independiente significativa. El resultado es un sistema que ofrece la apariencia de una gobernanza orientada a derechos manteniendo intacta la infraestructura de vigilancia y control.</p>
+Detrás de la oscilación de las políticas se asienta algo más duradero: una economía política en la que las empresas tecnológicas han operado con una libertad extraordinaria frente a la restricción regulatoria, una ideología de la innovación como inherentemente beneficiosa que se ha sostenido en buena parte del espectro político, y un aparato corporativo de presión que ha logrado bloquear la legislación federal sobre privacidad y rendición de cuentas de plataformas durante más de dos décadas. Los marcos de la era Biden eran genuinos pero visiblemente frágiles — vulnerables, por diseño y por circunstancia política, a exactamente la derogación que se produjo.
 
-  <p>Las consecuencias que Risse traza son concretas. El sistema de crédito social, advierte, suele ser malinterpretado en los medios occidentales como un único mecanismo de puntuación nacional unificado; en realidad es un conjunto de experimentos locales, sistemas sectoriales de cumplimiento corporativo y listas negras nacionales para infracciones específicas, que varía enormemente en alcance entre territorios. Reconocer esa variación, sostiene Risse, «no es un mero gesto hacia el matiz»: es analíticamente importante. Pero no altera el diagnóstico estructural. Las zonas de innovación de Pekín, Shanghái, Shenzhen y Cantón son experimentos centralmente autorizados, no espacios gobernados de forma independiente. Ninguno de ellos ha desarrollado controles institucionales sobre la autoridad del Partido en los sistemas digitales. Y la dirección de la variación importa: las localidades compiten por demostrar liderazgo tecnológico y alineamiento con los objetivos centrales, no por ofrecer protecciones más fuertes a los derechos.</p>
+<ContextBox label="Antecedentes — ¿qué es el capitalismo de vigilancia?">
+La expresión proviene del libro de Shoshana Zuboff de 2019 *The Age of Surveillance Capitalism* (publicado en castellano como *La era del capitalismo de la vigilancia*). Nombra el modelo de negocio en el que la experiencia humana se transforma en mercancía intercambiable mediante la extracción y monetización a gran escala de los datos de comportamiento. A partir de esos datos se construyen modelos predictivos de la conducta humana; esos modelos se despliegan luego para modificar, a escala, la conducta que predicen, al servicio de la publicidad y la atención. La aportación de Zuboff no es la observación de que se recogen datos. Es la observación de que la relación entre las personas y los sistemas de información fue reestructurada de raíz — sin deliberación democrática ni consentimiento — para hacer de la modificación del comportamiento el producto. Risse usa el término para nombrar lo que considera un asalto silencioso pero serio a la autonomía humana, que no requiere la coerción explícita de la vigilancia autoritaria para producir un daño real.
+</ContextBox>
 
-  <p>Hong Kong es, en el relato de Risse, la ilustración límite. La transferencia de 1997 vino acompañada de la promesa de cincuenta años de pervivencia de las instituciones capitalistas y de muchas libertades; la Ley de Seguridad Nacional de 2020 y la ampliación de marzo de 2024 conocida como Artículo 23 no la han mantenido. El mismo marco legal utilizado para silenciar al magnate de los medios Jimmy Lai — condenado a finales de 2025 a veinte años de prisión a los setenta y ocho años — gobierna también el acceso a los datos, la regulación de plataformas y la subordinación de las herramientas algorítmicas a la autoridad del Partido. La trayectoria del territorio ilustra el mismo principio estructural que recorre toda la arquitectura regulatoria digital china: las protecciones formales persisten allí donde no amenazan al control del Partido, y son anuladas cuando lo amenazan.</p>
+El resultado es un sistema en el que el poder tecnológico es enorme, la gobernanza es fragmentada e incompleta, y las protecciones de derechos humanos quedan en buena medida en manos del mercado — que no ha mostrado un interés particular en proveerlas. Risse cita dos estudios de extensión libro como registro documental. *Atlas of AI* de Kate Crawford rastrea los costes materiales y humanos de los sistemas de IA tal como se despliegan realmente en contratación, administración de prestaciones, justicia penal y moderación de contenidos — resultados sistemáticamente racializados, que recaen con más fuerza sobre quienes tienen menos poder. *Automating Inequality* de Virginia Eubanks formula el argumento paralelo sobre los sistemas automatizados de bienestar y servicios públicos, mostrando cómo las herramientas digitales reproducen y amplifican patrones preexistentes de discriminación al tiempo que aíslan de la rendición de cuentas a quienes toman las decisiones.
 
-  <p>Xinjiang es el caso límite en otra dirección. Risse cita el informe del ACNUDH de agosto de 2022, que describió lo que sucede en la región — Plataformas Integradas de Operaciones Conjuntas, vigilancia policial predictiva, redes densas de reconocimiento facial, bases de datos de ADN y de huella vocal, software de vigilancia obligatorio en los dispositivos personales, todo ello aplicado a una población musulmana uigur de alrededor de doce millones de personas — como susceptible de constituir crímenes de lesa humanidad. El Departamento de Estado de Estados Unidos ha empleado la palabra genocidio. Risse es cuidadoso: el papel de la IA aquí no es incidental, sino estructural. La IA es la infraestructura de la vigilancia y el mecanismo por el cual las puntuaciones de riesgo generan detenciones. Y, como advierte, el modelo se exporta. Ya en 2019, el Carnegie Endowment documentó tecnología china de vigilancia con IA en al menos setenta y cinco países. Las exportaciones llevan hardware y software, pero también plantillas de gobernanza diseñadas para maximizar la visibilidad del Estado sobre las poblaciones.</p>
+Un mosaico de leyes sectoriales — HIPAA en sanidad, la Fair Credit Reporting Act en finanzas, COPPA para datos de menores, diversas leyes de derechos civiles aplicadas a la contratación y la concesión de crédito algorítmicas — sí impone alguna restricción sobre aplicaciones específicas. La actuación de la Federal Trade Commission bajo su autoridad sobre prácticas desleales y engañosas, las orientaciones de la EEOC y de HUD sobre herramientas algorítmicas — todo esto no es nada. Pero la arquitectura, sostiene Risse, es estructuralmente inadecuada de un modo que va más allá de la mera incompletitud. El enfoque sectorial fue diseñado para un mundo en el que industrias discretas manejaban categorías discretas de datos para fines discretos. La IA no es un sector. Es una tecnología de propósito general cuyos efectos más consecuentes surgen precisamente de la agregación y el despliegue intersectorial que las leyes sectoriales fueron diseñadas para impedir. Una arquitectura regulatoria construida sobre fronteras sectoriales no puede gobernar una tecnología que las disuelve.
 
-  <p>Risse no descarta el historial chino en reducción de la pobreza, y lo señala explícitamente: cientos de millones de personas sacadas de la pobreza durante décadas es un logro real, y la integración de la IA en la sociedad china es una expresión de un compromiso con el bien público que se nutre tanto de la tradición comunista como de la confuciana. Lo que sostiene es que esto es compatible con el diagnóstico, no una respuesta a él. La lección estructural es que la gobernanza efectiva no es, de suyo, una buena noticia desde el punto de vista de los derechos. «Todo depende de para qué se gobierna». Donde el alcance y la capacidad son altos pero el compromiso con los derechos está ausente o es desigual, la gobernanza se convierte «en un multiplicador de fuerza para la represión, no en una restricción sobre ella».</p>
+La inversión estructural respecto al caso chino se sigue. Donde la brecha china convierte a la gobernanza en un multiplicador de fuerza para la represión, la brecha estadounidense produce algo más sutil: una erosión de la privacidad, la autonomía y la igualdad impulsada por el mercado, distribuida desigualmente entre la población, menos visible que la vigilancia autoritaria pero acumulativa y seria.
 
-  <!-- SECCIÓN 3 -->
-  <div class="section-divider">Parte tres</div>
+</Section>
 
-  <span class="section-number">§ 03 — Estados Unidos</span>
-  <h2 class="section-title">Poder sin <em>gobernanza</em></h2>
-  <p class="section-standfirst">Estados Unidos alberga, según el AI Index del Stanford HAI, la mayor concentración de desarrollo de IA de frontera del mundo: la mayoría de los laboratorios de modelos fundacionales, los proveedores dominantes de infraestructura en la nube, los mayores fondos de capital orientados al sector. Lo que no ha construido, sostiene Risse, es una arquitectura regulatoria que traduzca esa posición en gobernanza. Las razones son duraderas, no misteriosas.</p>
+<Section number="04" title="La Unión Europea: derechos, <em>sin apalancamiento</em>">
 
-  <p>La economía política es la restricción. Las empresas tecnológicas han operado con una libertad extraordinaria respecto de la regulación; la ideología de la innovación como inherentemente beneficiosa ha sido hegemónica en buena parte del espectro político; y la presión corporativa ha bloqueado durante más de dos décadas la legislación federal sobre privacidad, rendición de cuentas de las plataformas y protección de datos. Las tecnologías digitales en EE. UU., sostiene Risse, «no se han utilizado para fortalecer la gobernanza democrática», sino para construir otra cosa.</p>
+<Standfirst>La UE ha codificado más reflexión cuidadosa sobre la IA y los derechos humanos que cualquier otra jurisdicción. Tiene, correspondientemente, menos poder sobre la propia tecnología.</Standfirst>
 
-  <div class="context-box">
-    <div class="context-box-label">Antecedentes — ¿Qué es el capitalismo de vigilancia?</div>
-    <p>El <strong>capitalismo de vigilancia</strong> es el término que <strong>Shoshana Zuboff</strong> desarrolló en su libro de 2019 <em>The Age of Surveillance Capitalism</em> para nombrar un acuerdo específico e históricamente novedoso: la extracción a gran escala de datos de comportamiento a partir de la experiencia humana, la construcción de modelos predictivos sobre esos datos y el uso de esos modelos para modificar el comportamiento a escala, principalmente al servicio de los ingresos publicitarios y de captación. La jugada clave, en el análisis de Zuboff, no es que se recolecten datos — la recolección es vieja —, sino que la propia experiencia humana queda convertida en una mercancía intercambiable, con la modificación de la conducta como producto.</p>
-    <p>El encuadre se discute en sus detalles, pero se ha convertido en un punto de referencia porque nombra lo que estaba ocurriendo de forma gradual: una reestructuración fundamental de la relación entre los individuos y los sistemas de información, llevada a cabo sin deliberación ni consentimiento democráticos. Zuboff codirige actualmente con Risse, dentro del Carr-Ryan Center, la beca «Surveillance Capitalism or Democracy?», parte del contexto que enmarca esta tesis.</p>
-  </div>
+El marco europeo es el más desarrollado del mundo. El Reglamento General de Protección de Datos, en vigor desde 2018, elevó la protección de datos a la condición de derecho fundamental bajo la Carta de la UE y estableció principios de limitación de la finalidad, minimización de datos y derecho a la explicación de las decisiones automatizadas que han modelado el derecho de datos a escala global. La Ley de Servicios Digitales impone evaluaciones sistémicas de riesgo, auditorías independientes y acceso de investigadores a los datos de las grandes plataformas, con atención particular a los sistemas de recomendación y a la amplificación de contenidos dañinos. El Reglamento de IA, formalmente adoptado en 2024, completa la arquitectura: un marco escalonado por riesgo que prohíbe abiertamente una categoría de aplicaciones de «riesgo inaceptable» — puntuación social, IA que explote vulnerabilidades psicológicas, la mayor parte de la vigilancia biométrica en tiempo real en espacios públicos, vigilancia policial predictiva basada en perfilado — e impone exigencias estrictas de transparencia, supervisión humana, calidad de datos y evaluaciones de impacto en derechos fundamentales sobre los sistemas clasificados como «alto riesgo» en empleo, educación, aplicación de la ley, migración y acceso a servicios esenciales.
 
-  <p>La laguna en privacidad es concreta. A 2025, más de 140 países han promulgado legislación nacional de protección de datos; Estados Unidos no figura entre ellos. El vacío se ha cubierto a nivel estatal — la CCPA y la CPRA en California, y legislación equivalente en Colorado, Connecticut, Virginia y una lista creciente —, pero el resultado es fragmentado, más fácil de navegar para empresas grandes con recursos que para actores pequeños o individuos, y deja amplias categorías de datos y de tratamiento fuera de su ámbito. El mosaico es significativo; no es suficiente.</p>
+Tomados en conjunto, estos instrumentos constituyen el intento más desarrollado, por parte de cualquier jurisdicción, de hacer operativos los compromisos de derechos humanos en la gobernanza de la tecnología digital.
 
-  <p>La trayectoria federal reciente es, en la lectura de Risse, una de retirada activa. El <em>Blueprint for an AI Bill of Rights</em> de 2022 articulaba principios no vinculantes. La Orden Ejecutiva 14110, dictada en octubre de 2023, fue más allá: exigía a quienes desarrollan modelos fundacionales potentes compartir resultados de sus pruebas de seguridad con el gobierno federal, indicaba a las agencias evaluar las implicaciones para los derechos civiles de la IA en sus áreas de competencia y vinculaba explícitamente la gobernanza de la IA con la privacidad y la protección del consumidor. A los pocos días de tomar posesión en enero de 2025, la administración Trump derogó la OE 14110, la sustituyó por la OE 14179 — que reformulaba el papel federal como facilitador del desarrollo de la IA en lugar de regulador — y señaló un giro hacia la desregulación.</p>
+El marco viene con dificultades reales. El Reglamento de IA fue redactado pensando en una generación particular de sistemas — más estrechos, más predecibles, con forma de sistemas de decisión — y fue de algún modo desbordado por el ascenso de los modelos generativos antes incluso de su entrada en vigor. El tratamiento de la IA de propósito general se incorporó tarde en el proceso legislativo y sigue siendo menos desarrollado que el resto del marco. La implementación es desigual: la arquitectura escalonada por riesgo exige determinaciones categóricas continuas, y existen preocupaciones reales sobre si las autoridades nacionales de aplicación tendrán la pericia técnica y los recursos para supervisar eficazmente sistemas de IA sofisticados.
 
-  <p>Simultáneamente, la capacidad institucional que había servido de vehículo al trabajo federal sobre seguridad de la IA ha sido desmantelada. En febrero de 2025 se identificó como objetivo de despido a alrededor de 500 empleados en periodo de prueba del National Institute of Standards and Technology (NIST), incluida la mayor parte del personal del U.S. AI Safety Institute (AISI). El NIST emitió a continuación una directiva instruyendo a los investigadores asociados a eliminar las referencias a «seguridad de la IA», «IA responsable» y «equidad de la IA» de los objetivos de sus acuerdos de cooperación. La directora del AISI, Elizabeth Kelly, dimitió antes de que se materializaran los despidos. El personal del AISI fue excluido de la AI Action Summit de París, en febrero de 2025, donde el vicepresidente JD Vance sostuvo que «una regulación excesiva» podría «matar una industria transformadora justo cuando despega». Estados Unidos y el Reino Unido no firmaron la declaración final de la cumbre.</p>
+Hay también una crítica más fundamental desde la sociedad civil. El Reglamento de IA, pese a sus prohibiciones, sigue permitiendo usos significativos de la IA en materia de aplicación de la ley y control migratorio que conllevan serios riesgos para los derechos humanos — entre ellos, la vigilancia biométrica bajo excepciones de seguridad nacional ampliamente definidas, y la IA en el procesamiento de asilo y migración, donde lo que está en juego, en términos de derechos fundamentales, es especialmente alto. Las propias instituciones de la UE, y sus Estados miembros actuando individualmente, no siempre han practicado lo que el Reglamento de IA predica.
 
-  <div class="inline-note">
-    <strong>El vacío institucional.</strong> El AISI se creó en noviembre de 2023 como instrumento principal de la administración Biden para la investigación federal en seguridad de la IA — evaluaciones de modelos, ejercicios de <em>red-teaming</em>, marcos voluntarios con los laboratorios de frontera. La función sucesora, tras la disrupción de febrero de 2025, no se ha establecido a nivel federal. El mosaico estatal sigue ahí; la capacidad federal de coordinación que el NIST había empezado a construir, no.
-  </div>
+<ContextBox label="Antecedentes — ¿qué es el efecto Bruselas?">
+El término, acuñado por la profesora de Derecho de Columbia Anu Bradford, describe un mecanismo por el cual la Unión Europea exporta sus estándares regulatorios en virtud del tamaño de su mercado. En lugar de negociar con cada jurisdicción extranjera, las multinacionales encuentran más barato y simple cumplir las reglas europeas a escala global que mantener regímenes de cumplimiento separados. El RGPD es el ejemplo canónico: las prácticas de protección de datos en empresas sin clientes europeos reflejan, no obstante, la estructura del RGPD, porque el coste de equivocarse en Europa supera al coste de cumplir en todas partes. El efecto Bruselas funciona mejor para actividades visibles, dirigidas al consumidor, y peor para las elecciones arquitectónicas aguas arriba — entrenamiento del modelo, asignación de cómputo, diseño del sistema — que dan forma a la IA de manera más fundamental. La «paradoja de Bruselas» de Risse juega con esto: la jurisdicción con la regulación más reflexiva es la que tiene menos poder sobre la tecnología que regula.
+</ContextBox>
 
-  <p>La arquitectura federal restante — HIPAA en sanidad, la <em>Fair Credit Reporting Act</em> en finanzas, COPPA para datos de menores, los estatutos de derechos civiles aplicados por la FTC y la EEOC — no es nada despreciable, pero es estructuralmente inadecuada en un sentido que va más allá de la mera incompletud. El enfoque sectorial fue diseñado para un mundo de industrias discretas que manejaban categorías discretas de datos. La IA, sostiene Risse, no es un sector: es una tecnología de propósito general cuyos efectos más consecuentes surgen precisamente de la agregación entre dominios que las leyes sectoriales fueron diseñadas para impedir. Una arquitectura regulatoria construida sobre fronteras sectoriales no puede gobernar una tecnología que disuelve esas fronteras.</p>
+La brecha más fundamental, sin embargo, es industrial. Muy poco desarrollo de IA a gran escala ocurre realmente en la UE. El continente tiene instituciones de investigación importantes y algunas empresas notables, pero los modelos fundacionales de frontera que están reconfigurando cómo se procesa la información, cómo se genera el contenido y cómo se toman las decisiones están construidos predominantemente por empresas con sede en Estados Unidos — OpenAI, Google DeepMind, Anthropic, Meta — o por empresas chinas — Baidu, Alibaba, Huawei. La infraestructura de cómputo, los centros de datos y los chips especializados que hacen posible el entrenamiento a gran escala, está igualmente concentrada fuera de Europa. Esta es la paradoja de Bruselas en su forma más nítida: la jurisdicción con las intenciones regulatorias más reflexivas es la que menos poder tiene sobre la tecnología que pretende gobernar.
 
-  <p>La lección estructural es la inversa de la china. Donde el poder tecnológico es enorme pero la gobernanza es débil y fragmentada, la consecuencia no es la represión estatal, sino la erosión de la privacidad, la autonomía y la igualdad guiada por el mercado: distribuida, menos visible, acumulativamente seria. <em>Atlas of AI</em> de Kate Crawford y <em>Automating Inequality</em> de Virginia Eubanks han documentado cómo se ve esto en la contratación, las prestaciones públicas, la justicia penal y la moderación de contenidos: resultados que recaen con más fuerza sobre quienes tienen menos poder, con quienes deciden aislados de la rendición de cuentas. Risse añade, con su característica honestidad, que ha escrito en otros sitios sobre los déficits de Estados Unidos también en compromiso con los derechos; la afirmación del trilema no es que cada bloque tenga dos de las tres condiciones, sino que cada uno tiene <em>como máximo</em> dos. La distinción está pensada para fijar un techo, no un suelo.</p>
+El efecto Bruselas ofrece compensación parcial. Las empresas ajustan productos y prácticas para cumplir el derecho europeo en lugar de quedar excluidas del mercado europeo. Pero el mecanismo funciona mejor cuando las empresas tienen incentivos fuertes para permanecer en el mercado europeo y cuando las actividades reguladas son visibles y dirigidas al consumidor. Para los sistemas de IA más potentes, y para los procesos de entrenamiento y las elecciones arquitectónicas que los moldean de un modo más fundamental, el apalancamiento europeo es, en el mejor de los casos, parcial.
 
-  <!-- SECCIÓN 4 -->
-  <div class="section-divider">Parte cuatro</div>
+La implicación estructural es la tercera inversión del trilema. Donde la brecha china convierte la gobernanza en represión, y donde la brecha estadounidense convierte la ausencia de gobernanza en erosión de derechos impulsada por el mercado, la brecha europea convierte la regulación sofisticada en algo que la tecnología puede sortear. La UE aporta liderazgo normativo y jurídico sobre una IA compatible con los derechos humanos, pero carece del apalancamiento industrial para dirigir la trayectoria tecnológica de la que sus ciudadanos no están aislados.
 
-  <span class="section-number">§ 04 — La Unión Europea</span>
-  <h2 class="section-title">Derechos sin <em>palanca industrial</em></h2>
-  <p class="section-standfirst">La UE es el más serio de los tres actores en su compromiso con que la gobernanza de la IA responda a los derechos humanos, sostiene Risse, pero ejerce un control limitado sobre la tecnología misma. Los instrumentos son sofisticados. El alcance llega solamente hasta donde llega el mercado, y las partes más consecuentes de la IA de frontera se construyen fuera del bloque.</p>
+</Section>
 
-  <p>La arquitectura jurídica es la más desarrollada de las tres. El Reglamento de IA, formalmente adoptado en 2024 como Reglamento (UE) 2024/1689, adopta un enfoque por niveles de riesgo: prohibición tajante de las aplicaciones de «riesgo inaceptable» — sistemas de puntuación social, manipulación de vulnerabilidades psicológicas, casi toda vigilancia biométrica en tiempo real en espacios accesibles al público, vigilancia policial predictiva basada únicamente en perfiles — y exigencias estrictas en transparencia, supervisión humana, calidad de datos y evaluaciones de impacto sobre los derechos fundamentales para los sistemas clasificados como «de alto riesgo» en empleo, educación, fuerzas del orden, migración y acceso a servicios esenciales. Combinada con el RGPD (en vigor desde 2018, que eleva la protección de datos a derecho fundamental dentro de la Carta) y con la Ley de Servicios Digitales (DSA, que obliga a las plataformas grandes a realizar evaluaciones sistémicas de riesgo y a dar acceso a los investigadores a sus datos), el marco europeo es, sobre el papel, el intento más coherente de hacer operativos los compromisos con los derechos en la gobernanza digital.</p>
+<Section number="05" title="La ventana que <em>no permanecerá abierta</em>">
 
-  <p>Risse es honesto sobre las debilidades del Reglamento de IA. Estuvo modelado en buena parte por preocupaciones sobre sistemas de IA más estrechos y predecibles, y se vio en cierto modo desbordado por la IA generativa antes de entrar en vigor; el tratamiento de los modelos de propósito general se añadió tarde y sigue siendo menos desarrollado que el resto del marco. La aplicación arrastra fricciones reales. Las autoridades nacionales de control podrían no tener la pericia técnica para supervisar sistemas sofisticados. Y la crítica de la sociedad civil — sobre todo de European Digital Rights — ha señalado que el Reglamento, pese a sus prohibiciones, sigue permitiendo usos significativos de la IA en seguridad pública y en control migratorio bajo excepciones de seguridad nacional definidas con amplitud, con las situaciones de mayores derechos en juego situadas precisamente donde el marco es menos firme.</p>
+<Standfirst>El trilema es político, no lógico. Cada bloque tiene un camino. Lo que es incierto es si alguno de ellos lo recorrerá antes de que la configuración se consolide.</Standfirst>
 
-  <p>El hecho estructural, sin embargo, no son los compromisos internos del Reglamento. Es la geografía de la tecnología que regula. Los modelos fundacionales de frontera — los sistemas que están reconfigurando cómo se procesa la información, cómo se genera el contenido y cómo se toman las decisiones — los construyen mayoritariamente empresas con sede en Estados Unidos (OpenAI, Google DeepMind, Anthropic, Meta) o en China (Baidu, Alibaba, Huawei). La infraestructura de cómputo, los centros de datos y los chips especializados que hacen posible el entrenamiento a gran escala, están concentrados fuera de Europa. Risse lo llama «la <strong>paradoja de Bruselas</strong>»: la jurisdicción con las intenciones regulatorias más cuidadas tiene el menor poder sobre la tecnología que pretende gobernar.</p>
+El rendimiento del marco es reformista, no resignado. Cada elemento ausente apunta a una agenda concreta. La sofisticación regulatoria de China en ausencia de compromiso con los derechos exige presión internacional sobre la transparencia y sobre las condiciones asociadas a las exportaciones de IA — particularmente a los países del Sur Global que importan su infraestructura de vigilancia. El poder tecnológico de Estados Unidos en ausencia de gobernanza exige legislación federal de privacidad, reforzamiento de la actuación de las agencias, armonización de los marcos a nivel estatal y la restauración de los marcos de la era Biden que la actual administración ha abandonado. El compromiso con los derechos de la Unión Europea en ausencia de poder tecnológico exige una inversión seria en capacidad europea de IA — infraestructura de cómputo, desarrollo de modelos fundacionales, ecosistemas de datos —, sin la cual el marco regulatorio más sofisticado del mundo gobierna solo los márgenes de la tecnología que está llamado a dirigir.
 
-  <p>El efecto Bruselas — la regulación extraterritorial vía acceso al mercado — compensa parcialmente. Las empresas ajustan productos y prácticas para cumplir con la normativa europea antes que ser excluidas de un mercado único de 450 millones de personas. Pero ese mecanismo, sostiene Risse, funciona mejor allí donde las empresas tienen incentivos fuertes para permanecer en el mercado europeo y donde las actividades reguladas son visibles. Para el entrenamiento de IA de frontera — las decisiones arquitectónicas, la selección de los conjuntos de datos, las evaluaciones de seguridad — ninguna de esas dos condiciones se cumple con limpieza, y la palanca europea es «parcial, en el mejor de los casos».</p>
+Más allá de la reforma específica de cada bloque, Risse aboga por la coordinación internacional, reconociendo con claridad cuánto más difícil se ha vuelto desde enero de 2025. Sigue favoreciendo una moratoria global sobre el desarrollo de la IA de frontera como la expresión más seria posible de responsabilidad colectiva, admitiendo a la vez que abogar por una moratoria sin una teoría de cómo podría lograrse es un deseo y no una prescripción. Lo que propone como más inmediatamente alcanzable es un conjunto más pequeño y más concreto de compromisos internacionales: la notificación obligatoria de incidentes ante fallos significativos de sistemas de IA, modelada sobre la notificación de seguridad en aviación; el acuerdo sobre un pequeño conjunto de prohibiciones categóricas, incluida la vigilancia masiva con IA destinada a la exportación y las decisiones plenamente autónomas en sistemas armamentísticos letales; y un fondo internacional dedicado a la capacidad de gobernanza de la IA en países de renta baja, que enfrentan hoy los mayores riesgos con la menor protección institucional.
 
-  <p>Dos hechos posteriores al texto de Risse afilan la imagen europea. El primero atañe al Ómnibus Digital, el paquete de reformas propuesto por la Comisión Europea el 19 de noviembre de 2025. Su elemento central era un aplazamiento de dieciséis meses de las obligaciones del Reglamento de IA para los sistemas de alto riesgo del Anexo III — del 2 de agosto de 2026 al 2 de diciembre de 2027 — para dar tiempo a los organismos de normalización y a las autoridades nacionales competentes a estar listos. El trílogo se rompió el 28 de abril, en la ruptura que el N.º 03 documentó. El 7 de mayo de 2026 — hace dos días — el Consejo y el Parlamento alcanzaron un acuerdo provisional, preservando en lo sustancial los aplazamientos y clarificando la articulación con los regímenes sectoriales. El Ómnibus aún debe adoptarse formalmente, pero el acuerdo político ya está cerrado. La pelea que se rompió a las dos de la madrugada se ha desencallado.</p>
+<Timeline
+  events={[
+    { year: 2018, label: "El RGPD entra en vigor" },
+    { year: 2020, label: "Ley de Seguridad Nacional en HK" },
+    { year: 2023, label: "EO 14110 · Declaración de Bletchley" },
+    { year: 2024, label: "Reglamento de IA UE · Artículo 23 HK" },
+    { year: 2025, label: "Trump deroga 14110 · NIST desfinanciado" },
+    { year: 2026, label: "Jimmy Lai condenado a veinte años" }
+  ]}
+  label="Ventana que se cierra"
+  source="Compilación a partir del comentario de Risse y de la cobertura periodística contemporánea."
+/>
 
-  <p>Si esto refuerza o debilita la posición de la UE depende de qué se piense que el plazo de agosto debía conseguir. La tesis de la Comisión es que el calendario original exigía el cumplimiento contra estándares que aún no existían — una fecha que habría producido ambigüedad, no rigor. La objeción de la sociedad civil es que el aplazamiento es la nariz del camello: cada extensión amplía el espacio en el que se despliegan sistemas no cubiertos, y un marco que cede a la presión del calendario es más difícil de defender la próxima vez. Ambas lecturas caben dentro del marco de Risse. La UE sigue teniendo compromiso con los derechos sin palanca industrial; la única pregunta es si el aplazamiento fue un acto de administración competente o de deferencia ante la pata que al bloque le falta.</p>
+La Cumbre de Seguridad de la IA de 2023 en Bletchley Park es, vista desde aquí, la marca más alta y el punto de inflexión. La declaración fue firmada por veintiocho países más la UE — incluidos Estados Unidos y China — y reconoció que los riesgos de la IA «son inherentemente internacionales por naturaleza», a la vez que comprometía a los firmantes con la investigación cooperativa en seguridad. Fue un comienzo significativo. Desde la segunda toma de posesión de Trump, ese comienzo ha sido puesto en duda activa. Lo que había seguido a aproximadamente una década de apatía deliberadamente cultivada en torno a la ética de la IA, sostiene Risse, ha dado paso ahora a un periodo de abdicación activa.
 
-  <p>El segundo hecho es la orden ejecutiva de la administración Trump de diciembre de 2025 — y la posterior intervención del Departamento de Justicia contra la ley de Colorado sobre discriminación algorítmica, sobre la base de la cláusula de igual protección — que el N.º 04 abordó con detalle. La SB24-205 de Colorado era, arquitectónicamente, una traducción casi literal del Reglamento de IA de la UE. La acción federal contra ella es, en los términos del trilema, el fallo no solo de regular la IA en Estados Unidos: es el cierre activo del único nivel — los estados — en el que una gobernanza al estilo europeo había empezado a migrar al derecho estadounidense. El efecto Bruselas, en otras palabras, tiene una contracorriente. Si esa contracorriente se sostiene es ahora una cuestión constitucional.</p>
+La analogía de la ventana carga con el peso del argumento de cierre. La gobernanza de la no proliferación nuclear fue negociable en los años sesenta en parte porque la capacidad no se había difundido aún de manera irreversible. Esa ventana es hoy mucho más estrecha. La regulación de plataformas se volvió dramáticamente más difícil una vez que las empresas de redes sociales habían crecido hasta convertirse en infraestructura — la Ley de Servicios Digitales es un instrumento de ventana que se cierra, un intento de gobernar lo que ya se había endurecido en parte. La gobernanza climática carga con la misma lección estructural, medible ahora en grados de calentamiento y en vidas. La gobernanza de la IA enfrenta la misma dinámica. Cuanto más profundamente se incrusten los sistemas de IA en la infraestructura económica, las funciones del Estado y la textura cotidiana de la vida social, mayor será el coste político y técnico de someterlos a una rendición de cuentas significativa. La ventana está abierta ahora. No permanecerá abierta indefinidamente.
 
-  <!-- SECCIÓN 5 -->
-  <div class="section-divider">Parte cinco</div>
+</Section>
 
-  <span class="section-number">§ 05 — La agenda de reforma y la ventana</span>
-  <h2 class="section-title">Cada bloque tiene una agenda <em>concreta</em>, si quisiera</h2>
-  <p class="section-standfirst">El marco del trilema es generativo además de diagnóstico. Cada condición ausente implica una reforma que, según Risse, ya está especificada. La afirmación más difícil es la temporal: las condiciones para cualquiera de esas reformas son hoy más estrechas que hace cinco años, y serán más estrechas dentro de cinco.</p>
+<div class="section-divider">Coda</div>
 
-  <p>Las prescripciones por bloque son directas. La sofisticación regulatoria china en ausencia de compromiso con los derechos «pide presión internacional sobre la transparencia y sobre las condiciones que se imponen a las exportaciones de IA», en particular hacia los países del Sur Global que importan su infraestructura de vigilancia. El poder tecnológico estadounidense en ausencia de gobernanza «pide legislación federal de privacidad, refuerzo de la capacidad de aplicación de las agencias, armonización entre los estados y la restauración y fortalecimiento de los marcos de la era Biden que la administración actual ha abandonado». El compromiso de la UE con los derechos sin poder tecnológico «pide inversión seria en capacidad europea de IA — infraestructura de cómputo, desarrollo de modelos fundacionales, ecosistemas de datos — sin la cual el marco regulatorio más sofisticado del mundo gobierna solo los márgenes de la tecnología que pretende dirigir».</p>
+Lo incierto es si alguno de los tres bloques actuará sobre la agenda que su elemento ausente implica. Las condiciones políticas para la reforma son, en cada caso, reales, y no se están volviendo más fáciles. La actual administración estadounidense se mueve en la dirección contraria. El sistema chino se mueve hacia más, no menos, integración entre la IA y la autoridad estatal. La Unión Europea aún no ha producido el compromiso de política industrial al que su ambición regulatoria tendría que estar a la altura.
 
-  <p>Risse extiende el caso más allá de la reforma por bloques. Una moratoria global sobre el desarrollo de IA de frontera sería la expresión más seria posible de responsabilidad colectiva por lo que se está construyendo; dice explícitamente que sigue creyendo que sería sensata. Concede también que defender una moratoria sin una teoría de cómo podría conseguirse «no es una prescripción: es un deseo». Lo que sí es alcanzable de forma más inmediata, en su opinión, es un conjunto más específico de compromisos internacionales: la notificación obligatoria de incidentes para fallos significativos de sistemas de IA, modelada sobre la notificación de seguridad aérea; un acuerdo sobre un pequeño número de prohibiciones categóricas, incluida la vigilancia masiva habilitada por IA destinada a la exportación y las decisiones letales totalmente autónomas; y un fondo internacional dedicado a la capacidad de gobernanza de la IA en países de renta baja, que actualmente afrontan los riesgos más altos con la menor protección institucional.</p>
+Lo que no es incierto es la estructura. El diagnóstico de Risse no requiere que ninguno de los tres bloques sea perverso ni que ninguno sea incompetente. Requiere solo que cada uno sea políticamente lo que es. El trilema describe una configuración estable de comportamiento político normal a través de tres jurisdicciones — la UE actuando como un actor normativo, Estados Unidos como uno conducido por el mercado, China como un Estado-partido — en un mundo en el que la IA es de propósito general. La configuración es estable porque el elemento ausente de cada bloque está enraizado en la lógica política que produce los elementos que sí tiene. Reformar a cualquiera de ellos no es, por tanto, un ajuste menor. Es remar contracorriente del gradiente que produjo el arreglo presente.
 
-  <!-- ILUSTRACIÓN 2 -->
-  <figure class="exhibit">
-    <div class="exhibit-frame">
-      <div class="exhibit-label">Ilustración 02</div>
-      <div class="exhibit-title">La trayectoria asimétrica de los tres regímenes</div>
-      <div class="exhibit-subtitle">Hitos seleccionados, 2017 — 2026. Los bloques nunca se movieron en la misma dirección; ahora se mueven, visiblemente, en direcciones distintas.</div>
-
-      <div class="exhibit-svg-wrapper">
-        <svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-
-          <text x="40" y="40" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">AÑO</text>
-          <text x="120" y="40" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">CHINA</text>
-          <text x="320" y="40" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">ESTADOS UNIDOS</text>
-          <text x="540" y="40" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">UNIÓN EUROPEA</text>
-
-          <line x1="40" y1="56" x2="760" y2="56" stroke="#1A1A1A" stroke-width="1.2"/>
-
-          <g font-family="'Spectral', serif" font-size="13" fill="#1A1A1A">
-
-            <text x="40" y="86" font-weight="600">2017</text>
-            <text x="120" y="86">Ley de Ciberseguridad</text>
-            <text x="320" y="86" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="540" y="86" font-style="italic" fill="#5C5C5C">—</text>
-
-            <text x="40" y="112" font-weight="600">2018</text>
-            <text x="120" y="112" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="320" y="112" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="540" y="112">RGPD entra en vigor</text>
-
-            <text x="40" y="138" font-weight="600">2021</text>
-            <text x="120" y="138">Ley de Seguridad de Datos, PIPL</text>
-            <text x="320" y="138" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="540" y="138" font-style="italic" fill="#5C5C5C">—</text>
-
-            <text x="40" y="164" font-weight="600">2022</text>
-            <text x="120" y="164">Informe ACNUDH Xinjiang (ago.)</text>
-            <text x="320" y="164">Blueprint for an AI Bill of Rights</text>
-            <text x="540" y="164" font-style="italic" fill="#5C5C5C">—</text>
-
-            <text x="40" y="190" font-weight="600">Oct 2023</text>
-            <text x="120" y="190" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="320" y="190">Orden Ejecutiva 14110</text>
-            <text x="540" y="190" font-style="italic" fill="#5C5C5C">—</text>
-
-            <text x="40" y="216" font-weight="600">Nov 2023</text>
-            <text x="120" y="216">firma Declaración de Bletchley</text>
-            <text x="320" y="216">Bletchley; AISI creado</text>
-            <text x="540" y="216">firma Declaración de Bletchley</text>
-
-            <text x="40" y="242" font-weight="600">Mar 2024</text>
-            <text x="120" y="242">Artículo 23 de Hong Kong</text>
-            <text x="320" y="242" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="540" y="242" font-style="italic" fill="#5C5C5C">—</text>
-
-            <text x="40" y="268" font-weight="600">Ago 2024</text>
-            <text x="120" y="268" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="320" y="268" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="540" y="268">Reglamento de IA en vigor</text>
-
-            <text x="40" y="294" font-weight="700" fill="#7A1F1F">Ene 2025</text>
-            <text x="120" y="294" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="320" y="294" font-weight="600">OE 14179 deroga la 14110</text>
-            <text x="540" y="294" font-style="italic" fill="#5C5C5C">—</text>
-
-            <text x="40" y="320" font-weight="700" fill="#7A1F1F">Feb 2025</text>
-            <text x="120" y="320">París: firma la declaración</text>
-            <text x="320" y="320" font-weight="600">Despidos NIST/AISI; París: no firma</text>
-            <text x="540" y="320">París: firma la declaración</text>
-
-            <text x="40" y="346" font-weight="600">Ago 2025</text>
-            <text x="120" y="346" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="320" y="346" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="540" y="346">Aplican obligaciones GPAI</text>
-
-            <text x="40" y="372" font-weight="600">Nov 2025</text>
-            <text x="120" y="372" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="320" y="372" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="540" y="372">Ómnibus Digital propuesto</text>
-
-            <text x="40" y="398" font-weight="700" fill="#7A1F1F">May 2026</text>
-            <text x="120" y="398" font-style="italic" fill="#5C5C5C">—</text>
-            <text x="320" y="398">DOJ contra Colorado (intervención)</text>
-            <text x="540" y="398" font-weight="600">Acuerdo provisional Ómnibus (7 may.)</text>
-
-          </g>
-
-          <line x1="40" y1="420" x2="760" y2="420" stroke="#1A1A1A" stroke-width="1.2"/>
-
-          <g transform="translate(40, 442)">
-            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">HOY · 9 DE MAYO DE 2026</text>
-          </g>
-
-        </svg>
-      </div>
-
-      <div class="exhibit-source"><strong>Fuentes:</strong> Instrumentos jurídicos chinos y Artículo 23 a partir de las normas correspondientes; evaluación del ACNUDH sobre Xinjiang, agosto de 2022; OE 14110 (2023) y OE 14179 (2025) de EE. UU. del Federal Register; eventos AISI/NIST a partir de la cobertura de Axios, Bloomberg, Fortune y Lawfare, febrero de 2025; calendario del Reglamento de IA según el Reglamento (UE) 2024/1689 y las preguntas frecuentes de la Comisión Europea; declaraciones de Bletchley y París a partir de gov.uk y CSIS; Ómnibus Digital y acuerdo provisional del 7 de mayo de 2026 a partir del comunicado de prensa del Consejo de la UE. Selección del editor; no exhaustiva.</div>
-    </div>
-  </figure>
-
-  <p>El argumento a favor de la coordinación internacional, reconoce Risse, se ha atenuado desde enero de 2025. La Declaración de Bletchley de noviembre de 2023 — firmada por Estados Unidos, el Reino Unido, China, la UE y otras veinticinco partes — comprometía a los gobiernos a una investigación cooperativa sobre seguridad y reconocía que los riesgos de la IA «son inherentemente internacionales por naturaleza». A Bletchley le siguió Seúl en 2024 (un comunicado más estrecho, once firmantes) y la AI Action Summit de París, en febrero de 2025, donde sesenta y un países — entre ellos China — firmaron una declaración sobre IA inclusiva y sostenible, y donde Estados Unidos y el Reino Unido no la firmaron. El discurso de Vance en París reformuló el proyecto: no seguridad, no derechos, sino innovación; el Reino Unido recalificó pocos días después su propio AI Safety Institute como AI Security Institute, abandonando explícitamente el trabajo sobre sesgo y desinformación. Como resume Risse el arco: aproximadamente una década de defensa de la integración de la ética y los derechos humanos en la gobernanza de la IA había seguido a un periodo de «apatía deliberadamente cultivada»; la administración Trump ha inaugurado ahora un periodo de «abdicación activa».</p>
-
-  <p>El argumento de la ventana, en el marco de Risse, merece tomarse en serio. La gobernanza de la no proliferación nuclear fue posible en los años sesenta en parte porque se negoció antes de que la capacidad se hubiera extendido de forma irreversible; esa ventana es ahora mucho más estrecha. La regulación de las plataformas se volvió drásticamente más difícil cuando las empresas de redes sociales pasaron a ser infraestructura — la Ley de Servicios Digitales es un intento de cerrar una ventana ya parcialmente cerrada. El coste de retrasar la gobernanza climática se mide hoy en grados de calentamiento. La IA afronta la misma dinámica: cuanto más profundamente los sistemas de IA se incrustan en la infraestructura económica, en las funciones del Estado y en la textura cotidiana de la vida social, mayor es el coste político y técnico de someterlos a una rendición de cuentas significativa.</p>
-
-  <div class="pull-quote">
-    Lo que falta no son las herramientas, sino la voluntad de usarlas.
-    <span class="pull-quote-attribution">— Mathias Risse</span>
-  </div>
-
-  <p>El cierre de Risse no es, por tanto, pesimista en sentido analítico. El trilema «no es una imposibilidad lógica: es una condición política, y las condiciones políticas pueden cambiar». Cada bloque tiene una agenda clara si decide actuar sobre ella. La comunidad internacional dispone de instituciones, por imperfectas que sean, que podrían fortalecerse y reorientarse. El marco normativo — los derechos humanos como restricción genuina sobre el poder estatal y sobre el poder de mercado — está «disponible, codificado en derecho internacional y ratificado por las tres jurisdicciones bajo discusión». La formulación es precisa: ratificado, en los tres casos. Lo que falta no son las herramientas, sino la voluntad de usarlas.</p>
-
-
-  <!-- CODA -->
-  <div class="section-divider">Coda</div>
-
-  <p>Lo que es genuinamente incierto. Si el trilema se endurece o se atenúa. La UE acaba de preservar el grueso de su paquete de aplazamiento y simplificación; si el Ómnibus se adopta formalmente, alivia la presión de implementación, pero reabre cuestiones que la sociedad civil daba por zanjadas. Estados Unidos no está dejando de gobernar la IA por accidente; en la trayectoria actual, está cerrando deliberadamente la capacidad institucional que había empezado a hacerlo, incluso a nivel estatal por la vía del litigio federal. China continúa exportando tanto tecnología de vigilancia como las plantillas que convierten la visibilidad estatal sobre las poblaciones en premisa operativa. Tres trayectorias, ninguna alineada.</p>
-
-  <p>Lo que no es incierto. El marco diagnóstico es útil con independencia de hacia dónde se incline cada régimen a continuación. La aportación de Risse es menos la etiqueta del trilema — las tipologías de gobernanza de la IA proliferan — que la insistencia en que la tercera pata, el compromiso con los derechos, es lo que hace que la cuestión completa sea moral y no de contratación pública. Un régimen puede tener gobernanza y capacidad y producir aun así una sociedad en la que ningún lector respetuoso con los derechos querría vivir. Un régimen puede tener derechos y capacidad y, aun así, no llegar a gobernar lo que construye. Un régimen puede tener derechos y gobernanza y ser, aun así, una nota a pie de una tecnología construida en otra parte. El trilema es una manera de negarse a contabilizar cualquiera de esos tres como una victoria.</p>
-
-  <p>El texto se lee, en último término, como el argumento de un filósofo y no como un documento de política pública. No puntúa propuestas de reforma frente a restricciones de viabilidad; no pondera los costes relativos de distintas arquitecturas internacionales; no entra a fondo con quienes rechazan el marco de los derechos como criterio en favor, pongamos, de la capacidad, la competencia o la soberanía. Lo que hace es mantener la pregunta sobre su propio terreno. Ese terreno es moral, el criterio son los derechos humanos, y el diagnóstico es que hoy nadie al frente de la IA está cumpliendo las tres condiciones que los derechos humanos exigen. Al lector se le deja con un cuadro en el que la pata ausente en cada caso es precisamente la que el régimen es menos probable que construya por su cuenta — y con una ventana que el autor insiste en que sigue abierta, pero por poco.</p>
-
-`} />
+Lo que le queda al lector es el encuadre del propio ensayo. El trilema no es una imposibilidad lógica. Es una condición política, y las condiciones políticas pueden cambiar. El marco normativo — los derechos humanos como un freno real sobre el poder estatal y sobre el del mercado — está disponible, codificado en derecho internacional y ratificado por las tres jurisdicciones aquí discutidas. Lo que falta, escribe Risse, no son las herramientas, sino la voluntad de usarlas. La función de su comentario, según él mismo lo describe, es hacer visible el coste de esa voluntad ausente, e insistir en que es un coste medido en derechos humanos. Si esa visibilidad bastará para mover a alguno de los tres regímenes hacia la tercera condición que cada uno no puede aportar por sí solo — la respuesta a eso no está en el ensayo, porque no está aún en el mundo.
