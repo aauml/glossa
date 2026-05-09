@@ -1,1 +1,16 @@
+# build
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# environment
+.env
+.env.production
+.env.local
+
+# system
+.DS_Store
 .vercel
+.legacy-reference/

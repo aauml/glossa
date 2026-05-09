@@ -1,0 +1,19 @@
+---
+import SizeSwitch from './SizeSwitch.astro';
+const { lang, slug, sourceLabel } = Astro.props;
+const otherLang = lang === 'en' ? 'es' : 'en';
+---
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="masthead-section" href="/">← Lecturas</a>
+    <span class="masthead-meta">
+      <span class="lang-switch">
+        {lang === 'en' ? <span class="lang-active">EN</span> : <a href={`/articles/${slug}/en/`} class="lang-link">EN</a>}
+        <span class="lang-sep">·</span>
+        {lang === 'es' ? <span class="lang-active">ES</span> : <a href={`/articles/${slug}/es/`} class="lang-link">ES</a>}
+      </span>
+      {sourceLabel && <span class="masthead-meta-text">{sourceLabel}</span>}
+      <SizeSwitch />
+    </span>
+  </div>
+</header>

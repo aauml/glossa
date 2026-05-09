@@ -1,0 +1,14 @@
+---
+const { label = 'Exhibit', title, subtitle, source } = Astro.props;
+---
+<figure class="exhibit">
+  <div class="exhibit-frame">
+    <div class="exhibit-label">{label}</div>
+    {title && <div class="exhibit-title">{title}</div>}
+    {subtitle && <div class="exhibit-subtitle">{subtitle}</div>}
+    <div class="exhibit-svg-wrapper">
+      <slot />
+    </div>
+    {source && <div class="exhibit-source" set:html={`<strong>Source.</strong> ${source}`} />}
+  </div>
+</figure>

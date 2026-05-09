@@ -1,0 +1,7 @@
+---
+const { speaker } = Astro.props;
+---
+<div class="qa-block">
+  {speaker && <span class="qa-speaker">{speaker}</span>}
+  <p class="qa-text"><slot /></p>
+</div>

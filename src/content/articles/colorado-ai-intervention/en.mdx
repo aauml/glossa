@@ -1,0 +1,514 @@
+---
+slug: colorado-ai-intervention
+issue: "N° 04"
+date: "9 May 2026"
+sortDate: "2026-05-09"
+language: en
+kicker: "The litigation, annotated"
+title: "Brussels in Denver"
+titleHTML: "Brussels in <em>Denver</em>"
+dek: "On April 24 the Justice Department intervened against Colorado's algorithmic-discrimination law on the theory that requiring fairness in AI is itself unlawful discrimination — the kind of doctrinal turn that decides what regulating AI in America is allowed to look like."
+dekHTML: "On April 24 the Justice Department intervened against Colorado's algorithmic-discrimination law on the theory that requiring fairness in AI is itself unlawful discrimination — the kind of doctrinal turn that decides what regulating AI in America is allowed to look like."
+coverDek: "Brussels in Denver: Colorado's AI Act faces a federal preemption challenge from xAI, with the DOJ stepping in. A guided reading of what's actually being decided and why it matters beyond one state."
+source: "Based on filings in xAI Corp. v. Weiser"
+sourceLabel: "No. 04 · On xAI v. Weiser and the DOJ intervention"
+topics:
+  - "xAI v. Weiser"
+  - "DOJ intervention"
+  - "AI litigation"
+  - "Colorado AI Act"
+  - "State preemption"
+---
+<Fragment set:html={`
+<p class="lede">On April 9, 2026, xAI — the company behind the model called Grok — sued the Colorado attorney general in federal district court, asking the judge to enjoin a state law called Senate Bill 24-205 before its 30 June effective date. Two weeks later, on April 24, the United States Department of Justice moved to intervene. The court granted the motion. The DOJ's complaint cites a single constitutional provision — the Equal Protection Clause — and a single theory: that requiring artificial-intelligence systems to avoid discrimination is itself a form of unconstitutional discrimination. That doctrinal turn — civil-rights law turned against fairness rules in code — is what is now in front of the court.</p>
+
+  <p>The substantive question is older than this case. Whether disparate-impact analysis can sit inside an Equal Protection framework that is, in form, about intent — that has been argued for forty years. The doctrinal vehicle is new. So is the law that has provoked it. SB24-205 is not, as it might first appear, a homegrown experiment. Architecturally, it is a near-translation of Europe's AI Act — the same developer/deployer split of obligations, the same risk-tiering logic, the same impact-assessment requirements, the same extraterritorial reach. The Justice Department's challenge is not, strictly, to a state law. It is to a transplant.</p>
+
+  <p>What follows reads the case as it stands today, with attention to the two filings that have moved the architecture in the past fortnight: xAI's complaint and the DOJ's complaint in intervention. Both lean on the December 2025 Executive Order that named "a new Colorado law" by all but its number — and that named, as policy, the federal government's intention to use litigation rather than legislation as its instrument of AI governance.</p>
+
+  <a class="callback" href="../../ai-act-trilogue-stalled/en/">
+    <strong>Continues themes from N° 03</strong> &nbsp;·&nbsp; The EU AI Act's developer/deployer architecture returns here, transplanted into a Colorado statute — and now contested on constitutional grounds the European original never had to face.
+  </a>
+
+  <!-- SECTION 1 -->
+  <div class="section-divider">Part one</div>
+
+  <span class="section-number">§ 01 — Setting</span>
+  <h2 class="section-title">A statute <em>modeled</em> on Brussels</h2>
+  <p class="section-standfirst">Colorado SB24-205, signed into law in May 2024 and set to take effect on 30 June 2026, is the most architecturally European piece of AI regulation any American jurisdiction has yet produced. To understand what the Justice Department is challenging, it helps to read the statute first.</p>
+
+  <p>The bill, formally titled <em>Consumer Protections for Artificial Intelligence</em>, does in miniature what the EU AI Act does in scale. It defines a category of "high-risk" AI systems — those that are "a substantial factor" in consequential decisions about individuals: employment, housing, education, financial services, health care, government services, certain insurance products. It splits the regulated population in two: <strong>developers</strong>, who train and provide AI systems, and <strong>deployers</strong>, who use them to make decisions about people. It imposes a duty on both to "use reasonable care" to protect consumers from any known or reasonably foreseeable risks of algorithmic discrimination. It mandates documentation, transparency reports to the public and to the attorney general, and annual impact assessments. It is enforceable by the state attorney general.</p>
+
+  <p>The substantive concept around which all this is built is <em>algorithmic discrimination</em>, defined by the statute as any condition in which the use of an AI system results in an unlawful differential treatment or impact that disfavors an individual or group on the basis of protected characteristics — age, race, sex, disability, religion, and so on. The definition includes one critical exemption. It does not capture AI systems used "to expand an applicant, customer, or participant pool to increase diversity or redress historical discrimination," nor systems used solely for testing.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Background — What does SB24-205 actually require?</div>
+    <p><strong>Developers</strong> of high-risk AI systems must use reasonable care to protect against algorithmic discrimination, document the system's intended uses and known limitations, disclose information about training data and discrimination-mitigation practices to deployers, and notify the Colorado attorney general within 90 days of discovering that a deployed system has caused algorithmic discrimination.</p>
+    <p><strong>Deployers</strong> must implement a risk-management policy modeled on a recognized framework (the NIST AI Risk Management Framework is named in the bill's drafting history), conduct annual impact assessments of each high-risk deployment, notify affected consumers when a high-risk system is used to make a consequential decision about them, and provide an opportunity to appeal that decision. Deployers with fewer than fifty employees and no internal training of high-risk systems face reduced obligations.</p>
+  </div>
+
+  <p>The architecture is recognizable to anyone who has read the EU AI Act. Both texts split developers from deployers — the EU calls them providers and deployers, but the structure is identical. Both define a category of high-risk uses that triggers heavier obligations. Both require pre-deployment impact assessment and ongoing risk-management. Both reach beyond their territory to capture systems whose outputs affect their residents. The differences are real but proportional: SB24-205 is shorter, narrower in scope, and has a softer enforcement spine — state-AG only, no certification regime, no fines tiered to global revenue. Within its scope, however, it is a state-level American restatement of the European logic.</p>
+
+  <!-- EXHIBIT 1 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 01</div>
+      <div class="exhibit-title">Two laws, one architecture</div>
+      <div class="exhibit-subtitle">Colorado SB24-205 and the EU AI Act on six points where their structure overlaps</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <text x="40" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">FEATURE</text>
+          <text x="280" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">COLORADO SB24-205</text>
+          <text x="540" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">EU AI ACT</text>
+          <line x1="40" y1="48" x2="760" y2="48" stroke="#1A1A1A" stroke-width="1.2"/>
+
+          <g font-family="'Spectral', serif" font-size="14" fill="#1A1A1A">
+            <text x="40" y="80" font-weight="600">Scope</text>
+            <text x="280" y="80">"high-risk" AI systems</text>
+            <text x="280" y="96" font-style="italic" font-size="12" fill="#5C5C5C">substantial factor in consequential decisions</text>
+            <text x="540" y="80">"high-risk" AI systems</text>
+            <text x="540" y="96" font-style="italic" font-size="12" fill="#5C5C5C">Annex III + Annex I categories</text>
+            <line x1="40" y1="116" x2="760" y2="116" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="140" font-weight="600">Obligated parties</text>
+            <text x="280" y="140">developers, deployers</text>
+            <text x="540" y="140">providers, deployers</text>
+            <line x1="40" y1="156" x2="760" y2="156" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="180" font-weight="600">Risk tiering</text>
+            <text x="280" y="180">high-risk only</text>
+            <text x="280" y="196" font-style="italic" font-size="12" fill="#5C5C5C">single threshold</text>
+            <text x="540" y="180">four tiers</text>
+            <text x="540" y="196" font-style="italic" font-size="12" fill="#5C5C5C">prohibited / high / limited / minimal</text>
+            <line x1="40" y1="216" x2="760" y2="216" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="240" font-weight="600">Pre-deployment</text>
+            <text x="280" y="240">impact assessment</text>
+            <text x="280" y="256" font-style="italic" font-size="12" fill="#5C5C5C">annual, deployer-conducted</text>
+            <text x="540" y="240">conformity assessment</text>
+            <text x="540" y="256" font-style="italic" font-size="12" fill="#5C5C5C">+ fundamental-rights impact assessment</text>
+            <line x1="40" y1="276" x2="760" y2="276" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="300" font-weight="600">Enforcement</text>
+            <text x="280" y="300">Colorado AG</text>
+            <text x="280" y="316" font-style="italic" font-size="12" fill="#5C5C5C">no private right of action</text>
+            <text x="540" y="300">national supervisors + EU AI Office</text>
+            <text x="540" y="316" font-style="italic" font-size="12" fill="#5C5C5C">fines up to 7% global turnover</text>
+            <line x1="40" y1="336" x2="760" y2="336" stroke="#1A1A1A" stroke-width="0.4" opacity="0.3"/>
+
+            <text x="40" y="360" font-weight="600">Extraterritorial</text>
+            <text x="280" y="360">any AI affecting Coloradans</text>
+            <text x="540" y="360">any AI affecting EU residents</text>
+          </g>
+
+          <line x1="40" y1="396" x2="760" y2="396" stroke="#1A1A1A" stroke-width="1.2"/>
+
+          <g transform="translate(40, 416)">
+            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">READING</text>
+            <text x="0" y="20" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#1A1A1A">Different statutes; the same governance grammar. Risk-tiering, the developer/deployer split,</text>
+            <text x="0" y="38" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#1A1A1A">and the impact-assessment workflow are the architectural fingerprints of Brussels.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Sources:</strong> Colorado Senate Bill 24-205, "Consumer Protections for Artificial Intelligence" (signed May 2024). Regulation (EU) 2024/1689 (the AI Act). Comparison by the editor.</div>
+    </div>
+  </figure>
+
+  <p>Governor Jared Polis signed SB24-205 in May 2024 with a public statement of misgivings — calling on the legislature to refine the law before it took effect. A 2025 amendment effort to soften several of its core provisions failed. As of this writing, the law's effective date holds: 30 June 2026. xAI's lawsuit, and the federal intervention that followed, are the strongest external pressure on the statute since its enactment.</p>
+
+  <!-- SECTION 2 -->
+  <div class="section-divider">Part two</div>
+
+  <span class="section-number">§ 02 — Complaint</span>
+  <h2 class="section-title">Four flags, and a <em>speech</em> claim</h2>
+  <p class="section-standfirst">xAI's complaint, filed eleven weeks before the law would take effect, asks the District of Colorado to enjoin SB24-205 on four constitutional grounds. Three are familiar federal-preemption-and-due-process arguments. The fourth, and most ambitious, is the claim that an AI model's outputs are protected speech.</p>
+
+  <p>The complaint, captioned <em>xAI Corp. v. Philip J. Weiser</em>, was filed in the U.S. District Court for the District of Colorado on April 9, 2026. It asks for declaratory and injunctive relief on four counts.</p>
+
+  <p>The <strong>First Amendment</strong> claim is the most ambitious. It contends that Grok's output is expressive speech, and that SB24-205 compels xAI to alter that speech to conform to a state-mandated viewpoint about fairness and equity. Compliance, the complaint says, would require redesigning, retraining, or constraining the model — recalibrating what information to include in responses, hard-coding additional guardrails, or re-weighting training datasets. The legal theory is that those technical adjustments are not just engineering choices but compelled editorial decisions, and that the disclosure obligations layered on top compound the compelled-speech problem with a viewpoint-discrimination problem.</p>
+
+  <p>The <strong>Dormant Commerce Clause</strong> claim argues that SB24-205 reaches extraterritorially: it applies to any AI system that affects "even a single Colorado resident," regardless of where the system was developed, trained, or deployed. xAI argues this fails the Pike balancing test — that the burden on interstate commerce, including the potential need to retrain models nationwide rather than carve out a Colorado-only version, is "clearly excessive" relative to any speculative local benefit.</p>
+
+  <p>The <strong>Due Process</strong> claim is the most technical and may be the most decisive in the short term. It argues that SB24-205 is unconstitutionally vague: terms like "algorithmic discrimination," "high-risk artificial intelligence system," "reasonable care," and "substantial factor" are not defined with the precision developers need to know what compliance looks like. The complaint's argument is the standard vagueness one — that fair notice is a constitutional minimum, and that a statute leaving developers without a clear standard while granting the attorney general open-ended enforcement discretion violates that minimum.</p>
+
+  <p>The <strong>Equal Protection</strong> claim is the structural setup for what the DOJ would pick up two weeks later. It targets the diversity-redress carveout, arguing that exempting AI systems that "expand pools to increase diversity or redress historical discrimination" codifies a racial classification — preferring some pools over others on the basis of protected characteristics — without the compelling justification strict scrutiny demands.</p>
+
+  <!-- EXHIBIT 2 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 02</div>
+      <div class="exhibit-title">The four counts, by what they would do</div>
+      <div class="exhibit-subtitle">Doctrinal novelty against breadth of consequence if accepted by the court</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <line x1="120" y1="60" x2="120" y2="380" stroke="#1A1A1A" stroke-width="1"/>
+          <line x1="120" y1="380" x2="720" y2="380" stroke="#1A1A1A" stroke-width="1"/>
+
+          <text x="60" y="60" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">BREADTH</text>
+          <text x="60" y="76" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">OF IMPACT</text>
+          <text x="60" y="92" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.18em" fill="#5C5C5C" font-style="italic">if accepted</text>
+
+          <text x="110" y="80" text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.16em" fill="#5C5C5C" font-weight="600">BROAD</text>
+          <text x="110" y="380" text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.16em" fill="#5C5C5C" font-weight="600">NARROW</text>
+
+          <text x="420" y="412" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="600">DOCTRINAL NOVELTY OF THE THEORY</text>
+
+          <text x="120" y="400" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.16em" fill="#5C5C5C" font-weight="600">SETTLED</text>
+          <text x="720" y="400" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.16em" fill="#5C5C5C" font-weight="600">NOVEL</text>
+
+          <line x1="420" y1="60" x2="420" y2="380" stroke="#1A1A1A" stroke-width="0.3" opacity="0.2" stroke-dasharray="3 4"/>
+          <line x1="120" y1="220" x2="720" y2="220" stroke="#1A1A1A" stroke-width="0.3" opacity="0.2" stroke-dasharray="3 4"/>
+
+          <circle cx="200" cy="320" r="16" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+          <text x="200" y="324" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.1em" fill="#1A1A1A" font-weight="700">III</text>
+          <text x="200" y="282" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">Due Process</text>
+          <text x="200" y="298" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">vagueness</text>
+
+          <circle cx="320" cy="290" r="16" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+          <text x="320" y="294" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.1em" fill="#1A1A1A" font-weight="700">II</text>
+          <text x="320" y="252" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">Commerce Clause</text>
+          <text x="320" y="268" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">extraterritoriality</text>
+
+          <circle cx="500" cy="170" r="16" fill="#A14848" stroke="#1A1A1A" stroke-width="1"/>
+          <text x="500" y="174" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.1em" fill="#FAF4E8" font-weight="700">IV</text>
+          <text x="500" y="132" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">Equal Protection</text>
+          <text x="500" y="148" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">diversity-redress carveout</text>
+
+          <circle cx="640" cy="100" r="22" fill="#7A1F1F" stroke="#1A1A1A" stroke-width="1.2"/>
+          <text x="640" y="105" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.1em" fill="#FAF4E8" font-weight="700">I</text>
+          <text x="640" y="156" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">First Amendment</text>
+          <text x="640" y="172" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">model output as speech</text>
+
+          <line x1="120" y1="440" x2="720" y2="440" stroke="#1A1A1A" stroke-width="0.4" opacity="0.4"/>
+          <g transform="translate(120, 458)">
+            <text font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">READING</text>
+            <text x="100" y="0" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#1A1A1A">Vagueness wins narrow; the speech claim, if won, redefines AI regulation.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> <em>xAI Corp. v. Philip J. Weiser</em>, Complaint for Declaratory and Injunctive Relief, D. Colo., 9 April 2026. Plotting by the editor; positions reflect the editor's reading of doctrinal novelty and consequence, not the parties' framing.</div>
+    </div>
+  </figure>
+
+  <p>The four counts are not equally novel. The vagueness argument is workmanlike administrative-law and could plausibly carry an injunction on its own. The Commerce Clause claim has the most precedent on its side; courts have struck down state laws with similar single-resident extraterritorial reach. The First Amendment argument is the one whose acceptance would most thoroughly reshape AI regulation in the United States, by establishing a precedent that algorithmic outputs are constitutionally protected speech against compelled modification — a position with consequences that go well beyond Colorado, and well beyond fairness rules. The Equal Protection argument is what the federal government will adopt and amplify two weeks later.</p>
+
+  <!-- SECTION 3 -->
+  <div class="section-divider">Part three</div>
+
+  <span class="section-number">§ 03 — Intervention</span>
+  <h2 class="section-title">How fairness became <em>discrimination</em></h2>
+  <p class="section-standfirst">The Justice Department's complaint in intervention, filed on April 24, narrows the case to a single clause and a single argument. The clause is Equal Protection. The argument is that requiring fairness in AI systems necessarily compels the kind of demographic-conscious engineering the clause forbids.</p>
+
+  <p>The DOJ's path into the case runs through a particular statutory authority. The relevant provision is 42 U.S.C. § 2000h-2, a section of the Civil Rights Act of 1964 that allows the United States to intervene in any action raising Equal Protection issues, provided the Attorney General certifies that the case is "of general public importance." The Acting Attorney General did so. The court granted the intervention. The mechanism is unusual; the Justice Department does not, as a matter of routine, intervene in private constitutional suits. It does so when the federal government has a policy interest in the doctrine being shaped.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Background — What is § 2000h-2 intervention?</div>
+    <p><strong>42 U.S.C. § 2000h-2</strong> was enacted as part of the Civil Rights Act of 1964 to allow the federal government to participate in private lawsuits raising Equal Protection issues — originally, suits about racial discrimination in public accommodations and education. The provision requires only that the Attorney General certify the case as one of general public importance; once certified, the United States enters as a party with the same standing as the original litigants.</p>
+    <p>The provision has historically been used sparingly and on the side of plaintiffs alleging civil-rights violations — schoolchildren, hospital patients, voters. Using it to enter on the constitutional side of an AI company against a state's algorithmic-discrimination law is an inversion of that historical pattern. The government's interpretation of the statute is straightforward; what is novel is the choice to use it this way.</p>
+  </div>
+
+  <p>The complaint advances two counts, both rooted in the Equal Protection Clause.</p>
+
+  <p>The first is what the government calls <strong>compelled discrimination</strong>. The argument runs as follows. SB24-205 imposes liability for algorithmic outcomes that produce a "differential impact" on protected groups — disparate-impact liability based on, in the DOJ's phrase, "statistics alone." The only way to reliably avoid such outcomes is for developers to engineer their AI systems with explicit attention to demographic results — re-weighting training data, adjusting output distributions, hard-coding adjustments to ensure protected-class parity. In domains the DOJ characterizes as "zero-sum" — hiring, admissions, lending — adjusting an algorithm to reduce disparate impact on one group necessarily means reducing access for another. The act of correcting a statistical disparity, the government argues, is the act of intentionally treating individuals differently on the basis of protected characteristics. Disparate-impact compliance is therefore disparate treatment in disguise. And disparate treatment is precisely what the Equal Protection Clause forbids.</p>
+
+  <p>The second count is what the government calls <strong>authorized discrimination</strong>. It targets the same diversity-redress carveout xAI flagged. The argument is shorter: by exempting AI systems used to "expand pools to increase diversity or redress historical discrimination," the statute affirmatively permits intentional differential treatment based on protected classes. Without a compelling government interest narrowly tailored, that permission cannot survive strict scrutiny.</p>
+
+  <p>Both counts depend on the same conceptual move: a re-coupling of disparate-impact methodology with disparate-treatment liability. For four decades the two have been treated as legally distinct. Disparate-impact analysis — the analytical tool civil-rights enforcement has used to identify and remedy facially neutral practices that operate to harm protected groups — was understood as compatible with, and complementary to, the Equal Protection Clause's prohibition on intentional discrimination. The DOJ's complaint argues that this distinction collapses when the entity being regulated is a designed system. Where a hiring panel might apply a facially neutral test that happens to disadvantage women, an AI developer who knows the model produces disparate outputs and adjusts the model to fix them is doing something different: choosing, with intent, to treat groups differently. That is the inversion.</p>
+
+  <div class="pull-quote">
+    Disparate-impact compliance, the government argues, is disparate treatment in disguise.
+    <span class="pull-quote-attribution">DOJ Complaint in Intervention, 24 April 2026 — paraphrased</span>
+  </div>
+
+  <p>This is, on its own terms, an aggressive reading of Equal Protection doctrine — and one that contradicts forty years of civil-rights enforcement, in which disparate-impact methodology has been understood as a tool to root out discrimination, not as a form of it. Whether the District of Colorado will accept it is the question. Whether the Tenth Circuit will, on the inevitable appeal, is the more important one. The DOJ's filing concedes nothing about that history; it presents the inversion as straightforward.</p>
+
+  <!-- EXHIBIT 3 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 03</div>
+      <div class="exhibit-title">The inversion, in four steps</div>
+      <div class="exhibit-subtitle">The DOJ's chain of reasoning from disparate impact to compelled discrimination</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <g transform="translate(40, 50)">
+            <rect x="0" y="0" width="160" height="100" fill="#FAF4E8" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="80" y="28" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">STEP 01</text>
+            <text x="80" y="56" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">Statistical</text>
+            <text x="80" y="74" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">disparity</text>
+            <text x="80" y="92" text-anchor="middle" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">in AI output</text>
+          </g>
+
+          <line x1="200" y1="100" x2="240" y2="100" stroke="#7A1F1F" stroke-width="1.2"/>
+          <polygon points="240,100 232,96 232,104" fill="#7A1F1F"/>
+
+          <g transform="translate(240, 50)">
+            <rect x="0" y="0" width="160" height="100" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="80" y="28" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">STEP 02</text>
+            <text x="80" y="56" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">SB24-205</text>
+            <text x="80" y="74" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">imposes liability</text>
+            <text x="80" y="92" text-anchor="middle" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#5C5C5C">on developer / deployer</text>
+          </g>
+
+          <line x1="400" y1="100" x2="440" y2="100" stroke="#7A1F1F" stroke-width="1.2"/>
+          <polygon points="440,100 432,96 432,104" fill="#7A1F1F"/>
+
+          <g transform="translate(440, 50)">
+            <rect x="0" y="0" width="160" height="100" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="80" y="28" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">STEP 03</text>
+            <text x="80" y="56" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">Compliance =</text>
+            <text x="80" y="74" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">demographic-conscious</text>
+            <text x="80" y="92" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="600" fill="#1A1A1A">engineering</text>
+          </g>
+
+          <line x1="600" y1="100" x2="640" y2="100" stroke="#7A1F1F" stroke-width="1.2"/>
+          <polygon points="640,100 632,96 632,104" fill="#7A1F1F"/>
+
+          <g transform="translate(640, 50)">
+            <rect x="0" y="0" width="120" height="100" fill="#7A1F1F" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="60" y="28" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" letter-spacing="0.18em" fill="#FAF4E8" font-weight="700">STEP 04</text>
+            <text x="60" y="56" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="700" fill="#FAF4E8">Intentional</text>
+            <text x="60" y="74" text-anchor="middle" font-family="'Spectral', serif" font-size="14" font-weight="700" fill="#FAF4E8">discrimination</text>
+            <text x="60" y="92" text-anchor="middle" font-family="'Spectral', serif" font-size="11" font-style="italic" fill="#FAF4E8">violates EP Clause</text>
+          </g>
+
+          <g transform="translate(40, 200)">
+            <line x1="0" y1="0" x2="720" y2="0" stroke="#1A1A1A" stroke-width="0.4" opacity="0.4"/>
+            <text x="0" y="24" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#5C5C5C" font-weight="700">UNTIL NOW</text>
+            <text x="0" y="48" font-family="'Spectral', serif" font-size="14" font-style="italic" fill="#1A1A1A">Disparate-impact analysis ≠ disparate-treatment liability. The two doctrines were treated as</text>
+            <text x="0" y="68" font-family="'Spectral', serif" font-size="14" font-style="italic" fill="#1A1A1A">complementary: one identified facially neutral practices that harmed protected groups; the</text>
+            <text x="0" y="88" font-family="'Spectral', serif" font-size="14" font-style="italic" fill="#1A1A1A">other prohibited intentional differential treatment. Forty years of civil-rights enforcement.</text>
+          </g>
+
+          <g transform="translate(40, 320)">
+            <line x1="0" y1="0" x2="720" y2="0" stroke="#7A1F1F" stroke-width="0.6"/>
+            <text x="0" y="24" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">DOJ'S CLAIM</text>
+            <text x="0" y="48" font-family="'Spectral', serif" font-size="14" font-style="italic" fill="#1A1A1A">For designed systems — where the developer can see the disparity and choose to fix it —</text>
+            <text x="0" y="68" font-family="'Spectral', serif" font-size="14" font-style="italic" fill="#1A1A1A">the distinction collapses. Fixing a statistical gap with intent is, by its nature, intentional</text>
+            <text x="0" y="88" font-family="'Spectral', serif" font-size="14" font-style="italic" fill="#1A1A1A">differential treatment. The Equal Protection Clause forbids it.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Source:</strong> Reasoning chain reconstructed from the DOJ Complaint in Intervention, 24 April 2026. Diagram by the editor; the doctrinal characterization is the government's, not the editor's.</div>
+    </div>
+  </figure>
+
+  <!-- SECTION 4 -->
+  <div class="section-divider">Part four</div>
+
+  <span class="section-number">§ 04 — Architecture</span>
+  <h2 class="section-title">Litigation as <em>policy</em></h2>
+  <p class="section-standfirst">The intervention is not a one-off. It sits inside a federal architecture for AI policy that, in the current administration, is being built through executive orders and litigation rather than through Congress.</p>
+
+  <p>The DOJ's complaint in intervention is candid about its policy provenance. It cites the Executive Order signed on December 11, 2025, <em>Ensuring a National Policy Framework for Artificial Intelligence</em> — the order that, by name, identified Colorado's then-pending law as a "problematic state law" and asserted that it "may even force AI models to produce false results to avoid a 'differential treatment or impact' on protected groups." The same order established what it called the AI Litigation Task Force, an interagency body with the explicit and only mission of challenging state AI laws inconsistent with the executive's policy. The Colorado intervention is, in effect, that task force's first major filing.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Background — The December 11 Executive Order</div>
+    <p><strong>Executive Order 14XXX, "Ensuring a National Policy Framework for Artificial Intelligence,"</strong> was signed on 11 December 2025. It directed federal agencies to refrain from regulatory action that could create "cumbersome regulation" of U.S. AI companies, and named several state laws — including, by description, Colorado's not-yet-effective SB24-205 — as inconsistent with the federal policy posture.</p>
+    <p>Most consequentially, the order established the <strong>AI Litigation Task Force</strong>, an interagency body led by the Civil Rights Division of the Justice Department, "whose sole responsibility shall be to challenge State AI laws inconsistent with the policy set forth in this Executive Order." The task force does not have authority to make rules; its instrument is litigation. The Colorado filing is its first appearance on a docket.</p>
+  </div>
+
+  <p>The architecture above the case is therefore not, despite appearances, a Justice Department response to a private suit. It is the activation of a litigation strategy decided several months earlier. The March 2026 National AI Legislative Framework, the administration's articulation of what it does want from American AI policy, expressed the same posture in a different idiom: U.S. AI companies must be free to innovate without "cumbersome regulation," and where federal legislation is not forthcoming, the courts are the appropriate venue for setting the terrain.</p>
+
+  <p>It is worth being precise about what this is and what it is not. Congress has not passed an AI law. The federal AI policy of the United States, as a matter of statute, remains the patchwork of sectoral rules that already existed before generative models — the FTC's authority over deceptive practices, the EEOC's enforcement of employment-discrimination law, the FDA's oversight of medical devices, the SEC's market-integrity rules. What the executive branch is now doing is asserting, through executive order and through targeted litigation, a federal policy line that displaces state regulation without producing federal regulation in its place. The Colorado intervention is the most concrete instance of that strategy yet.</p>
+
+  <!-- EXHIBIT 4 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 04</div>
+      <div class="exhibit-title">Litigation as policy, in four levels</div>
+      <div class="exhibit-subtitle">How a December executive order arrived at an April court filing</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 540" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <!-- Level 1: Policy instrument -->
+          <rect x="240" y="30" width="320" height="80" fill="#7A1F1F" stroke="#1A1A1A" stroke-width="1"/>
+          <text x="400" y="58" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.22em" fill="#FAF4E8" font-weight="700">LEVEL 1  ·  POLICY INSTRUMENT</text>
+          <text x="400" y="84" text-anchor="middle" font-family="'Spectral', serif" font-size="18" font-weight="700" fill="#FAF4E8">Executive Order, 11 Dec 2025</text>
+          <text x="400" y="102" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#FAF4E8">"Ensuring a National Policy Framework for AI"</text>
+
+          <!-- Vertical connector down -->
+          <line x1="400" y1="110" x2="400" y2="150" stroke="#7A1F1F" stroke-width="1.5"/>
+          <polygon points="400,150 396,142 404,142" fill="#7A1F1F"/>
+
+          <!-- Level 2: Operational body + Doctrine articulation (parallel) -->
+          <rect x="80" y="155" width="280" height="80" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+          <text x="220" y="183" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">LEVEL 2A  ·  OPERATIONAL BODY</text>
+          <text x="220" y="209" text-anchor="middle" font-family="'Spectral', serif" font-size="16" font-weight="600" fill="#1A1A1A">AI Litigation Task Force</text>
+          <text x="220" y="227" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">interagency, DOJ Civil Rights-led</text>
+
+          <rect x="440" y="155" width="280" height="80" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+          <text x="580" y="183" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">LEVEL 2B  ·  DOCTRINE</text>
+          <text x="580" y="209" text-anchor="middle" font-family="'Spectral', serif" font-size="16" font-weight="600" fill="#1A1A1A">Legislative Framework, Mar 2026</text>
+          <text x="580" y="227" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">"freedom from cumbersome regulation"</text>
+
+          <!-- Cross-bar showing 2A-2B come from level 1 -->
+          <line x1="220" y1="155" x2="220" y2="135" stroke="#7A1F1F" stroke-width="0.8"/>
+          <line x1="580" y1="155" x2="580" y2="135" stroke="#7A1F1F" stroke-width="0.8"/>
+          <line x1="220" y1="135" x2="580" y2="135" stroke="#7A1F1F" stroke-width="0.8"/>
+          <line x1="400" y1="135" x2="400" y2="150" stroke="none"/>
+
+          <!-- Vertical connector from 2A down -->
+          <line x1="220" y1="235" x2="220" y2="280" stroke="#7A1F1F" stroke-width="1.5"/>
+          <polygon points="220,280 216,272 224,272" fill="#7A1F1F"/>
+
+          <!-- Level 3: § 2000h-2 mechanism -->
+          <rect x="80" y="285" width="280" height="80" fill="#FAF4E8" stroke="#1A1A1A" stroke-width="1"/>
+          <text x="220" y="313" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">LEVEL 3  ·  STATUTORY HOOK</text>
+          <text x="220" y="339" text-anchor="middle" font-family="'Spectral', serif" font-size="16" font-weight="600" fill="#1A1A1A">42 U.S.C. § 2000h-2</text>
+          <text x="220" y="357" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#5C5C5C">Civil Rights Act intervention authority</text>
+
+          <!-- Vertical connector from 3 down -->
+          <line x1="220" y1="365" x2="220" y2="410" stroke="#7A1F1F" stroke-width="1.5"/>
+          <polygon points="220,410 216,402 224,402" fill="#7A1F1F"/>
+
+          <!-- Level 4: First filing -->
+          <rect x="80" y="415" width="640" height="80" fill="#A14848" stroke="#1A1A1A" stroke-width="1"/>
+          <text x="400" y="443" text-anchor="middle" font-family="'IBM Plex Sans', sans-serif" font-size="10" letter-spacing="0.22em" fill="#FAF4E8" font-weight="700">LEVEL 4  ·  FIRST APPEARANCE ON A DOCKET</text>
+          <text x="400" y="469" text-anchor="middle" font-family="'Spectral', serif" font-size="18" font-weight="700" fill="#FAF4E8">DOJ Complaint in Intervention, 24 April 2026</text>
+          <text x="400" y="487" text-anchor="middle" font-family="'Spectral', serif" font-size="12" font-style="italic" fill="#FAF4E8">xAI Corp. v. Weiser, D. Colo. — Equal Protection only</text>
+
+          <!-- Side annotations -->
+          <text x="60" y="73" text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#5C5C5C" font-weight="700">DEC '25</text>
+          <text x="60" y="200" text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#5C5C5C" font-weight="700">JAN–MAR '26</text>
+          <text x="60" y="330" text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#5C5C5C" font-weight="700">EXISTING</text>
+          <text x="60" y="460" text-anchor="end" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.18em" fill="#7A1F1F" font-weight="700">24 APR '26</text>
+
+          <!-- Footer reading -->
+          <line x1="80" y1="510" x2="720" y2="510" stroke="#1A1A1A" stroke-width="0.4" opacity="0.4"/>
+          <text x="80" y="528" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#1A1A1A">Each level is a deliberate choice. The intervention is the activation, not the origin.</text>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Sources:</strong> Executive Order of 11 December 2025; National AI Legislative Framework (March 2026); 42 U.S.C. § 2000h-2; <em>xAI Corp. v. Weiser</em>, Complaint in Intervention, D. Colo., 24 April 2026. Hierarchy reconstructed by the editor.</div>
+    </div>
+  </figure>
+
+  <p>The pattern is not new in U.S. constitutional history — federal preemption-by-litigation is older than the Republic — but its application to AI policy is. Where the European Union has spent four years legislating an AI Act and is now spending a fifth amending it (see N° 03 of this collection), the United States is producing AI policy through executive order, litigation strategy, and filings like the one the District of Colorado is now considering. The doctrine is being set by judges, not by legislators.</p>
+
+  <div class="inline-note">
+    <strong>What Congress is doing.</strong> No comprehensive AI bill has cleared committee in either chamber of the current Congress. The bipartisan AI Insight Forums of the previous Congress did not produce framework legislation; the proposals that emerged from them — federal AI safety institute funding, sectoral updates to the Privacy Act, NIST authorization expansions — have moved as appropriations riders rather than as standalone law. There is no federal SB24-205 in any meaningful drafting stage.
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section-divider">Part five</div>
+
+  <span class="section-number">§ 05 — Crossing</span>
+  <h2 class="section-title">The Brussels Effect, <em>contested</em></h2>
+  <p class="section-standfirst">The Brussels Effect is the political-science thesis that EU regulation, by virtue of market access, becomes de facto global standard. Colorado's statute was the closest American example of that thesis arriving on U.S. soil. The DOJ's intervention is the closest test of whether it can land.</p>
+
+  <p>For two decades the political scientist Anu Bradford has argued that European regulation diffuses globally not by treaty or persuasion but through the structure of the global market: companies that need to access EU consumers find it cheaper to apply EU standards to their global operations than to maintain dual product lines. The thesis explains GDPR's reach into California, EU product-safety standards in American supermarkets, and — until now — the gravitational pull of the EU AI Act on American state legislation. SB24-205 was not borrowed from Brussels by accident. It was borrowed because Brussels had done the architectural work first, and Colorado's drafters could read what worked.</p>
+
+  <div class="context-box">
+    <div class="context-box-label">Background — What is the Brussels Effect?</div>
+    <p>The <strong>Brussels Effect</strong>, named in Anu Bradford's 2020 book of the same title, is the observation that EU regulation often becomes de facto global through market structure rather than through political export. A multinational company facing a stricter rule in its largest market — privacy under GDPR, chemical safety under REACH, product standards under CE marking — typically finds it more efficient to apply that rule to all its products globally than to run two production lines.</p>
+    <p>What Bradford's thesis implies for AI is that the EU AI Act would, over time, set a global default for high-risk AI compliance — whether or not other jurisdictions formally adopted it. SB24-205 is one of the first U.S. state laws that visibly absorbs that default. Whether it survives the federal challenge is, in Bradford's vocabulary, a test of whether the Effect has limits at constitutional borders.</p>
+  </div>
+
+  <p>What the DOJ's intervention now contests is whether that effect can land in U.S. constitutional space. The argument is not that the EU model is unwise — the federal complaint does not engage with whether the substantive architecture is good policy. It argues that the architecture, when adopted by an American state, runs into a constitutional clause the EU does not have to respect. Equal Protection, in the DOJ's framing, is the firewall that stops the Brussels Effect at the Atlantic.</p>
+
+  <p>The piece on the AI Act trilogue published in this collection two weeks ago described a Europe negotiating its own architecture's coherence — whether to fragment the horizontal AI Act with sectoral exceptions, whether to push back compliance dates. That negotiation now reads differently in light of Colorado. While the EU is renegotiating the AI Act's reach, an American transplant of the same logic is being challenged in a federal court on the grounds that the logic itself — a developer/deployer split, risk-tiering, disparate-impact accountability — cannot survive the American constitutional order. Whether the EU's framework will hold in Brussels and whether its transplant will hold in Denver are formally two unrelated questions. Substantively, they are the same question seen from two sides of a regulatory frontier.</p>
+
+  <!-- EXHIBIT 5 -->
+  <figure class="exhibit">
+    <div class="exhibit-frame">
+      <div class="exhibit-label">Exhibit 05</div>
+      <div class="exhibit-title">Three positions on disparate impact</div>
+      <div class="exhibit-subtitle">EU AI Act, Colorado SB24-205, and the U.S. Department of Justice on the same question</div>
+
+      <div class="exhibit-svg-wrapper">
+        <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+
+          <g transform="translate(40, 30)">
+            <rect x="0" y="0" width="230" height="280" fill="#FAF4E8" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">EU AI ACT</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="15" font-style="italic" fill="#5C5C5C">Brussels, in force since 2024</text>
+
+            <g font-family="'Spectral', serif" font-size="13" fill="#1A1A1A">
+              <text x="20" y="98" font-weight="600">Definition</text>
+              <text x="20" y="116" font-size="12" fill="#1A1A1A">discriminatory outcome from</text>
+              <text x="20" y="132" font-size="12" fill="#1A1A1A">high-risk system</text>
+
+              <text x="20" y="168" font-weight="600">Methodology</text>
+              <text x="20" y="186" font-size="12" fill="#1A1A1A">disparate-impact analysis</text>
+              <text x="20" y="202" font-size="12" fill="#1A1A1A">required pre-deployment</text>
+
+              <text x="20" y="238" font-weight="600">Remedy</text>
+              <text x="20" y="256" font-size="12" fill="#1A1A1A">conformity / impact</text>
+              <text x="20" y="272" font-size="12" fill="#1A1A1A">assessment + mitigation</text>
+            </g>
+          </g>
+
+          <g transform="translate(285, 30)">
+            <rect x="0" y="0" width="230" height="280" fill="#ECE2D0" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#7A1F1F" font-weight="700">COLORADO SB24-205</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="15" font-style="italic" fill="#5C5C5C">Denver, effective 30 Jun 2026</text>
+
+            <g font-family="'Spectral', serif" font-size="13" fill="#1A1A1A">
+              <text x="20" y="98" font-weight="600">Definition</text>
+              <text x="20" y="116" font-size="12" fill="#1A1A1A">"unlawful differential</text>
+              <text x="20" y="132" font-size="12" fill="#1A1A1A">treatment or impact"</text>
+
+              <text x="20" y="168" font-weight="600">Methodology</text>
+              <text x="20" y="186" font-size="12" fill="#1A1A1A">disparate-impact analysis</text>
+              <text x="20" y="202" font-size="12" fill="#1A1A1A">required of deployers</text>
+
+              <text x="20" y="238" font-weight="600">Remedy</text>
+              <text x="20" y="256" font-size="12" fill="#1A1A1A">"reasonable care" duty;</text>
+              <text x="20" y="272" font-size="12" fill="#1A1A1A">disclosure to AG</text>
+            </g>
+          </g>
+
+          <g transform="translate(530, 30)">
+            <rect x="0" y="0" width="230" height="280" fill="#7A1F1F" stroke="#1A1A1A" stroke-width="1"/>
+            <text x="20" y="32" font-family="'IBM Plex Sans', sans-serif" font-size="11" letter-spacing="0.22em" fill="#FAF4E8" font-weight="700">U.S. DOJ</text>
+            <text x="20" y="58" font-family="'Spectral', serif" font-size="15" font-style="italic" fill="#FAF4E8">Complaint in Intervention, 24 Apr 2026</text>
+
+            <g font-family="'Spectral', serif" font-size="13" fill="#FAF4E8">
+              <text x="20" y="98" font-weight="600">Definition</text>
+              <text x="20" y="116" font-size="12">disparate-impact rules</text>
+              <text x="20" y="132" font-size="12">are themselves discrimination</text>
+
+              <text x="20" y="168" font-weight="600">Methodology</text>
+              <text x="20" y="186" font-size="12">forbidden under Equal</text>
+              <text x="20" y="202" font-size="12">Protection in zero-sum</text>
+              <text x="20" y="218" font-size="12">domains</text>
+
+              <text x="20" y="252" font-weight="600">Remedy</text>
+              <text x="20" y="270" font-size="12">strike down state laws</text>
+            </g>
+          </g>
+
+          <g transform="translate(40, 340)">
+            <line x1="0" y1="0" x2="720" y2="0" stroke="#1A1A1A" stroke-width="0.4" opacity="0.4"/>
+            <text x="0" y="20" font-family="'Spectral', serif" font-style="italic" font-size="13" fill="#5C5C5C">EU and Colorado read the same governance instrument; the DOJ rejects the instrument itself.</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="exhibit-source"><strong>Sources:</strong> Regulation (EU) 2024/1689 (AI Act); Colorado SB24-205; DOJ Complaint in Intervention, 24 April 2026. Comparison by the editor.</div>
+    </div>
+  </figure>
+
+  <p>This is, in the most literal sense, the constitutional question that any American state-level AI regulation will face. New York City's AI bias-audit law, Illinois's AI Video Interview Act, and California's pending efforts in this space all rest on the same disparate-impact-aware methodology that SB24-205 codifies. If the District of Colorado — and behind it, the Tenth Circuit, and behind that, the Supreme Court — accepts the DOJ's theory, the constitutional ceiling on state AI regulation is set lower than any of those laws assumed. The Brussels Effect, in that scenario, runs into Equal Protection and stops there.</p>
+
+  <p>If the court does not accept the theory — or if the injunction does not issue before June 30, and SB24-205 enters into force as written — the answer is not that the Brussels Effect prevails. It is that the question is unsettled, and the federal litigation strategy is in for several years of state-by-state, circuit-by-circuit work.</p>
+
+  <!-- CODA -->
+  <div class="section-divider">Coda</div>
+
+  <p>What is uncertain. Whether the District of Colorado will issue a preliminary injunction before 30 June. Whether xAI's First Amendment theory — model output as protected speech against compelled modification — will hold up on its own merits even if the Equal Protection theory does not. Whether the Tenth Circuit, on the inevitable appeal, will narrow or broaden the doctrine the District sets. Whether other state AI laws — New York City's bias-audit ordinance, Illinois's, California's pending bills — will be the next federal targets, and how quickly.</p>
+
+  <p>What is not uncertain. American AI policy in this administration will not arrive through Congress. It will arrive through executive orders, through targeted litigation, and through filings like the DOJ's complaint in this case. The doctrinal terrain is being shifted before it is settled. The Brussels Effect, to the extent it had begun to land in U.S. state legislation, is now actively being pushed back at the federal level — not on policy grounds but on constitutional ones.</p>
+
+  <p>What the reader is left with is a constitutional fight that is, in substance, a model fight. Two governance models for AI sit on either side of it. The European-derived model, in which fairness and impact-assessment are required ex ante and enforced through documentation, certification, and disparate-impact accountability. And the model the federal government is now articulating, in which fairness rules of the first kind are themselves constitutionally suspect, because they presuppose demographic-conscious engineering. The Colorado court will not formally rule on which model is right. It will, in deciding xAI's motion, rule on which model can be implemented under the Fourteenth Amendment. That is a smaller question and a much larger one at once.</p>
+`} />

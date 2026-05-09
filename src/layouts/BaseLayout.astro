@@ -1,0 +1,29 @@
+---
+import '../styles/global.css';
+const { title, description } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title}</title>
+{description && <meta name="description" content={description} />}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script is:inline>(function(){try{var s=localStorage.getItem('lecturas-text-size')||'md';document.documentElement.setAttribute('data-text-size',s);}catch(e){}})();</script>
+</head>
+<body>
+<slot />
+<script is:inline>
+(function(){
+  var btns=document.querySelectorAll('.text-size-switch button');
+  function paint(s){btns.forEach(function(b){b.classList.toggle('active',b.dataset.size===s);});}
+  var cur=localStorage.getItem('lecturas-text-size')||'md';
+  paint(cur);
+  btns.forEach(function(b){b.addEventListener('click',function(){var s=b.dataset.size;document.documentElement.setAttribute('data-text-size',s);try{localStorage.setItem('lecturas-text-size',s);}catch(e){}paint(s);});});
+})();
+</script>
+</body>
+</html>

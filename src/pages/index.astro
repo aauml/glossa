@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import CoverLayout from '../layouts/CoverLayout.astro';
+
+const allArticles = await getCollection('articles');
+// Show one card per slug (use the EN entry as canonical for cover metadata)
+const enArticles = allArticles
+  .filter(a => a.data.language === 'en' && !a.data.hidden)
+  .sort((a, b) => b.data.sortDate.localeCompare(a.data.sortDate));
+---
+<CoverLayout>
+  <section class="cover">
+    <h1 class="cover-wordmark">Lecturas</h1>
+    <p class="cover-tagline">A personal reading collection. Annotated readings of podcasts, videos, and articles worth slowing down for.</p>
+    <div class="cover-meta">
+      <span>A personal reader</span>
+      <span class="cover-meta-bar"></span>
+      <span>Updated 2026</span>
+    </div>
+  </section>
+
+  <section class="contents">
+    <p class="contents-section-label">Issues</p>
+    {enArticles.map((a) => (
+      <a class="article-card" href={`/articles/${a.data.slug}/en/`}>
+        <div class="article-card-meta">
+          <span class="article-card-number">{a.data.issue}</span>
+          <span class="article-card-date">{a.data.date}</span>
+        </div>
+        <h2 class="article-card-title" set:html={a.data.titleHTML} />
+        <p class="article-card-dek" set:html={a.data.coverDek} />
+        <ul class="article-card-topics">
+          {a.data.topics.map(t => <li>{t}</li>)}
+        </ul>
+      </a>
+    ))}
+    <div class="placeholder-card">More to come</div>
+  </section>
+
+  <footer class="footer">
+    <span>Personal · No ads · No tracking</span>
+    <a href="https://github.com/aauml/lecturas">View on GitHub →</a>
+  </footer>
+</CoverLayout>

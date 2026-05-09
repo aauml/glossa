@@ -1,0 +1,7 @@
+---
+const { label = 'Context' } = Astro.props;
+---
+<aside class="context-box">
+  <div class="context-box-label">{label}</div>
+  <slot />
+</aside>

@@ -1,0 +1,6 @@
+---
+const { issue, slug, lang = 'en' } = Astro.props;
+---
+<a class="callback" href={`/articles/${slug}/${lang}/`}>
+  <strong>↑ {issue}</strong> · <slot />
+</a>

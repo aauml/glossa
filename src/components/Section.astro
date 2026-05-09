@@ -1,0 +1,7 @@
+---
+const { number, title } = Astro.props;
+---
+<div class="section-divider">Part {number}</div>
+<span class="section-number">§ {number}</span>
+<h2 class="section-title" set:html={title} />
+<slot />

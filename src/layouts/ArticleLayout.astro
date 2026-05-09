@@ -1,0 +1,24 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import ArticleMasthead from '../components/ArticleMasthead.astro';
+const { entry, lang } = Astro.props;
+const { data } = entry;
+const slug = data.slug;
+---
+<BaseLayout title={`${data.title} · Lecturas`} description={data.dek}>
+  <ArticleMasthead lang={lang} slug={slug} sourceLabel={data.sourceLabel} />
+  <section class="hero">
+    {data.kicker && <span class="hero-kicker">{data.kicker}</span>}
+    <h1 class="hero-headline" set:html={data.titleHTML} />
+    <p class="hero-dek" set:html={data.dekHTML || data.dek} />
+    <div class="hero-meta">
+      <span>{data.issue}</span>
+      <span class="hero-meta-bar"></span>
+      <span>{data.date}</span>
+      {data.source && <><span class="hero-meta-bar"></span><span>{data.source}</span></>}
+    </div>
+  </section>
+  <article class="article">
+    <slot />
+  </article>
+</BaseLayout>
