@@ -1,0 +1,145 @@
+---
+issue: "N° 11"
+date: "10 May 2026"
+sortDate: "2026-05-10b"
+language: en
+kicker: "The executive order, annotated"
+track: ai-policy
+title: "The patchwork, the preemption, and the gap"
+titleHTML: "The patchwork, the preemption, and the <em>gap</em>"
+dek: "Trump's December 2025 executive order announces a national policy framework for AI by attacking what isn't national — while conceding, in its own text, that the framework requires a Congress that has twice refused to act."
+dekHTML: "Trump's December 2025 executive order announces a national policy framework for AI by attacking what isn't national — while conceding, in its own text, that the framework requires a Congress that has <em>twice</em> refused to act."
+coverDek: "An executive order to dismantle state AI regulation that explicitly defers the framework it claims to provide. A guided reading of what the order actually directs, what its mechanisms can and cannot do, and the distance between the announcement and the architecture."
+source: "Based on the White House Fact Sheet of December 11, 2025 and Executive Order 14365"
+sourceLabel: "No. 11 · From the White House"
+topics:
+  - "Executive Order 14365"
+  - "Federal preemption"
+  - "State AI laws"
+  - "BEAD funding"
+  - "NIST AI RMF"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Timeline from '../../../components/exhibits/Timeline.astro';
+import Comparison from '../../../components/exhibits/Comparison.astro';
+
+<Lede>In the closing weeks of 2025 the Trump administration delivered an executive order whose title insists on what the document then concedes is not yet so. *Ensuring a National Policy Framework for Artificial Intelligence*, signed on December 11, opens with a declaration that American AI dominance requires a single, minimally burdensome national standard rather than the fifty discordant ones the order says are emerging from state legislatures. Section 8 of the same text then directs senior White House advisers to *prepare* that framework as a legislative recommendation — meaning the framework requires a Congress that has, in the preceding twelve months, twice declined to enact one. What the order produces in the meantime is not a structure but a campaign: a Justice Department litigation task force, a Commerce Department evaluation of state laws to be challenged or stripped of federal funding, an FCC proceeding on a possible federal disclosure standard, and an FTC policy statement on whether some state laws are preempted by the prohibition on deceptive practices. The framework is announced. The mechanisms attack what is not it.</Lede>
+
+<Callback issue="N° 04" slug="colorado-ai-intervention" lang="en">Continues themes from N° 04. The Colorado AI Act — the only state law named, in all but its number, in the executive order — is now in front of a federal judge in *xAI v. Weiser*. This piece reads the policy frame the litigation invokes.</Callback>
+
+<Section number="01" title="The administration's <em>case</em>">
+
+<Standfirst>The fact sheet's argument runs in three movements: there are too many state laws, some of them force AI to embed left-wing ideology, and the result is that China will catch the United States in the AI race. Each is worth examining as a claim about the world.</Standfirst>
+
+The numerical claim is easy to verify and easy to misread. State legislatures introduced more than 1,000 AI-related bills in 2025, a figure consistent with the National Conference of State Legislatures' tally and reported across legal-industry analyses. *Introduced* is the operative word. The Future of Privacy Forum and the Council of State Governments report that roughly 100 to 145 of those measures were enacted across some 38 jurisdictions, most of them narrowly scoped — political-advertising deepfakes, automated employment decisions, generative-AI watermarking, child-safety provisions in the Take It Down Act mould. The fifty-regulatory-regimes framing collapses this distribution into a single aggregated patchwork that, as a matter of compliance burden, only a small subset of firms actually faces.
+
+The censorship claim narrows to one named target. The order's text identifies "a new Colorado law banning 'algorithmic discrimination'" as an example of state regulation that "may even force AI models to produce false results in order to avoid a 'differential treatment or impact' on protected groups." The law in question is Senate Bill 24-205, the Colorado AI Act, signed by Governor Jared Polis in May 2024 and now scheduled to take effect on June 30, 2026. The law applies to "high-risk" AI systems used in consequential decisions about employment, housing, lending, healthcare, education, and similar domains. It does not regulate the truthful outputs of general-purpose generative models, which is what the fact sheet's framing implies. The administration's reading turns a civil-rights duty of care for predictive systems into a compulsion to lie.
+
+<ContextBox label="Background — what the Colorado AI Act actually does">
+SB24-205 imposes a duty of reasonable care on developers and deployers of high-risk AI systems to avoid algorithmic discrimination — defined as unlawful differential treatment in consequential decisions on the basis of protected characteristics. It requires impact assessments, risk-management programs, and consumer disclosures, and grants enforcement authority to the Colorado Attorney General. Architecturally, it is a near-translation of the European Union's AI Act, with the same developer/deployer split and risk-tiering. It does not regulate generative AI text outputs; the only "outputs" within its scope are the consequential decisions a high-risk system produces.
+</ContextBox>
+
+The China-race claim sits underneath the other two. The administration's larger frame — set out in *Winning the Race: America's AI Action Plan* of July 23, 2025 — treats every regulatory friction as a competitive concession. The president's own statement appended to the fact sheet draws the line explicitly: "We MUST have one Federal Standard instead of a patchwork of 50 State Regulatory Regimes. If we don't, then China will easily catch us in the AI race." The parenthetical that follows in the same statement — "Remember Black George Washington?" — points to the February 2024 episode in which Google's Gemini image generator produced racially diversified depictions of historical figures including the Founding Fathers, prompting Sundar Pichai to call the output "completely unacceptable" and Google to suspend the feature. That episode is the rhetorical anchor for what the order calls "Woke AI." It does not appear anywhere in the operative text of Executive Order 14365 itself.
+
+</Section>
+
+<Section number="02" title="The patchwork the order is <em>fighting</em>">
+
+<Standfirst>The state laws the order targets are mostly not what the order describes. Texas's framework explicitly recognises NIST as an affirmative defense. Colorado's near-translation of the EU AI Act has been postponed and is in litigation. The administration's "blue state overreach" framing does not survive the political map.</Standfirst>
+
+Texas signed the Texas Responsible AI Governance Act, HB 149, into law on June 22, 2025 — under a Republican governor in a Republican supermajority state. The Texas law prohibits AI systems designed for "restricted purposes," including incitement to self-harm, unlawful discrimination, infringement of constitutional rights, and the generation of child sexual abuse material. Crucially, it provides an affirmative defense for organizations that comply with the National Institute of Standards and Technology's AI Risk Management Framework. Penalties scale from curable violations of $10,000 to non-curable violations of up to $200,000, with daily penalties for ongoing violations. There is no private right of action.
+
+California's catalogue is broader but narrower in any individual measure: an AI Transparency Act requiring watermarking and detection tools for synthetic content (effective August 2026), provisions on political deepfakes, and a federal Take It Down Act that the First Lady championed and the president signed into law in May 2025 to address non-consensual intimate imagery and deepfake exploitation. Nevada has political-advertising disclosure rules for synthetic media. Montana has right-of-publicity protections. Rhode Island, Nebraska, Indiana, and Kentucky have bolted automated-decision-making opt-out rights onto their consumer-privacy laws. The picture is less a "patchwork of 50 different regulatory regimes" than a layer of harm-specific provisions atop two genuinely comprehensive statutes — Colorado's and Texas's — both of which now reference, by reference or by affirmative defense, the same federal voluntary framework.
+
+The political coalition behind state action is the order's most awkward fact. Forty-two state attorneys general — bipartisan — signed a December 9, 2025 letter to AI industry leaders expressing concern about "sycophantic and delusional" outputs. Thirty-six attorneys general had earlier written to Speaker Johnson opposing the preemption clause then under consideration in the National Defense Authorization Act. Twenty-three attorneys general from states including Arizona, Tennessee, Utah, and Wisconsin filed a comment letter with the Federal Communications Commission on December 17, 2025 opposing FCC preemption of state AI laws. The states the administration is fighting are not the ones its rhetoric describes.
+
+</Section>
+
+<Section number="03" title="The mechanisms, and their <em>limits</em>">
+
+<Standfirst>Three of the order's instruments — the litigation task force, the BEAD funding restriction, and the agency preemption proceedings — face substantial legal headwinds the order's drafters appear to know about.</Standfirst>
+
+The Department of Justice formally established the AI Litigation Task Force on January 9, 2026, by Attorney General memorandum. Its mandate is to challenge state AI laws on grounds that they unconstitutionally regulate interstate commerce, are preempted by existing federal regulations, or are otherwise unlawful. As of this writing the Task Force has not initiated litigation in its own name, but the Justice Department has already intervened against the Colorado AI Act in *xAI Corp. v. Weiser*, where xAI is challenging SB24-205 on Equal Protection grounds — the doctrinal turn that treats requiring AI systems to avoid discrimination as itself a form of unconstitutional discrimination.
+
+The BEAD restriction is the order's most aggressive lever and its most legally exposed. The Broadband Equity, Access, and Deployment Program, established by the 2021 Bipartisan Infrastructure Law, provides $42.45 billion to expand high-speed internet to unserved and underserved locations across all 50 states and territories. Because states have come in under budget on deployment costs, an estimated $21 billion in "non-deployment" funds remains for planning, workforce development, and adoption initiatives. Section 5 of the executive order conditions a state's eligibility for those non-deployment funds on the absence of "onerous" AI laws as identified by the Commerce Department's evaluation.
+
+<ContextBox label="Background — why the BEAD condition is constitutionally fragile">
+Under *South Dakota v. Dole*, conditions on federal grants must be unambiguously stated in the authorising statute, related to the program's purpose, not coercive, and not a violation of other constitutional rules. The BEAD statute (47 U.S.C. § 1702) never mentions AI; it is about connecting locations to broadband. The Supreme Court has further held — in cases displacing traditional state authority — that Congress must "make its intention to do so unmistakably clear in the language of the statute." Commercial regulation of AI is a classic exercise of state police power. Lawfare and the Benton Institute for Broadband &amp; Society have argued that the BEAD strategy fails the Spending Clause clear-statement rule, the major-questions doctrine, and the federalism canon — three independent obstacles, any one of which a court could use to strike the condition.
+</ContextBox>
+
+The Federal Communications Commission proceeding is on similarly thin authority. The Communications Act of 1934 gives the FCC jurisdiction over telecommunications services and limited authority over information services. AI systems sit closer to the information-service category — the Sixth Circuit held in early 2025 that broadband itself is an information service — and information-service regulation under the 1934 Act is statutorily constrained. Twenty-three state attorneys general told the FCC as much in their December 19 comment letter. The FTC policy statement directed by Section 7, treating state laws that require alterations to AI outputs as preempted under the Section 5 prohibition on deceptive practices, attempts to manufacture preemption through agency interpretation rather than congressional action — a theory that the Supreme Court's recent administrative-law jurisprudence treats with notable scepticism.
+
+<Comparison
+  title="What the order directs and what the order concedes"
+  leftLabel="What the EO directs (Sections 3–7)"
+  rightLabel="What the EO concedes (Section 8)"
+  rows={[
+    { left: "DOJ Litigation Task Force to challenge state AI laws", right: "A national framework requires a legislative recommendation to Congress" },
+    { left: "Commerce Department evaluation of 'onerous' state laws", right: "Carve-outs for child safety, infrastructure, state procurement" },
+    { left: "BEAD non-deployment funding withheld from non-compliant states", right: "Carve-out for 'other topics as shall be determined'" },
+    { left: "FCC proceeding on a federal disclosure standard", right: "Implementation 'consistent with applicable law'" },
+    { left: "FTC policy statement on Section 5 preemption of state output rules", right: "No private right of enforcement created" },
+  ]}
+/>
+
+</Section>
+
+<Section number="04" title="What the order <em>concedes</em>">
+
+<Standfirst>Section 8 is the document's most candid passage. It directs the drafting of a legislative recommendation. The framework the title announces is, in operative terms, a request to Congress.</Standfirst>
+
+The Special Advisor for AI and Crypto and the Assistant to the President for Science and Technology are jointly tasked under Section 8(a) with preparing legislation that would establish a uniform federal AI policy framework preempting state laws inconsistent with the order's policy. Section 8(b) lists what that legislation must *not* preempt: state laws on child safety; on AI compute and data center infrastructure (other than generally applicable permitting reforms); on state government procurement and use of AI; and on "other topics as shall be determined."
+
+The carve-outs are not decorative. Each names an area where the administration's preemption coalition has previously fractured. The original House version of the One Big Beautiful Bill Act of July 2025 contained a ten-year moratorium on state AI laws. After bipartisan opposition from forty state attorneys general, 260 state legislators, and conservative House members including Representative Marjorie Taylor Greene who said she would not have voted for the bill had she known the moratorium was in it, Senators Marsha Blackburn and Ted Cruz attempted a revised compromise tying the moratorium to BEAD eligibility. That, too, collapsed. The Senate stripped the moratorium 99-1 on July 1, 2025 — Senator Thom Tillis the lone vote to keep it. The bill became law without it.
+
+<PullQuote attribution="— Section 8(b), Executive Order 14365">
+The legislative recommendation called for in subsection (a) of this section shall not propose preempting otherwise lawful State AI laws relating to child safety protections.
+</PullQuote>
+
+The November 2025 attempt to insert preemption into the Fiscal Year 2026 National Defense Authorization Act died on the same political ground. A draft of the executive order itself, leaked on November 19, was held back through the rest of November as Republican lawmakers pushed back on its scope. The version signed on December 11 is more restrained than the draft — but only because the administration has read the room. Twice in twelve months, Congress has refused to enact what Section 8 now asks Congress to enact.
+
+<Timeline
+  title="The year of AI federalism"
+  events={[
+    { year: "Jan 2025", label: "EO 14179 revokes Biden AI safety order" },
+    { year: "May 2025", label: "Take It Down Act signed (deepfake exploitation)" },
+    { year: "Jul 2025", label: "Senate strips OBBB moratorium 99–1" },
+    { year: "Jul 2025", label: "AI Action Plan + 'Woke AI' procurement EO" },
+    { year: "Nov 2025", label: "NDAA preemption clause dropped after AG opposition" },
+    { year: "Dec 2025", label: "EO 14365 signed; AG letter to FCC follows" },
+    { year: "Jan 2026", label: "DOJ Task Force established by AG memorandum" },
+    { year: "Apr 2026", label: "DOJ intervenes in xAI v. Weiser" },
+  ]}
+/>
+
+</Section>
+
+<Section number="05" title="The interoperability question, <em>unmentioned</em>">
+
+<Standfirst>The order is loud about Colorado and silent about NIST. The voluntary federal framework that already functions as a de facto compliance baseline is the one structure the order does not address — and the one most likely to determine what national governance of AI actually looks like.</Standfirst>
+
+The National Institute of Standards and Technology released the AI Risk Management Framework, version 1.0, on January 26, 2023. It is voluntary, non-binding, and use-case agnostic. It organises trustworthy-AI obligations into four functions — *govern, map, measure, manage* — and has become the most widely cited reference document for organisational AI governance in the United States. Federal agencies use it. State laws cite it. Texas's TRAIGA grants compliance with it as an affirmative defense. The Colorado AI Act lets a developer or deployer establish reasonable care by aligning with "a nationally or internationally recognized framework," with NIST AI RMF and ISO/IEC 42001 the named candidates.
+
+The July 2025 AI Action Plan directed NIST to revise the framework to "eliminate references to misinformation, Diversity, Equity, and Inclusion, and climate change." That revision is the most consequential AI policy decision of the year that the December 11 executive order does not mention. The framework remains voluntary; the underlying legal obligations under Title VII and other federal civil-rights statutes do not change because NIST has stopped naming them. But the cleaning of the federal vocabulary changes what state laws can cite by reference. Colorado's "nationally recognized framework" presumption now points to a document that has been edited to remove the precise concepts Colorado's law was written to address.
+
+This is where the order's silences begin to speak. A genuine national framework for AI in the United States already exists in skeletal form: a voluntary federal document that states are incorporating into their statutes and that companies treat as the practical compliance baseline. The architecture for what the European Union is building through the AI Act and what Spanish-language scholarship describes as *interoperabilidad regulatoria* — regulatory interoperability — is, in the American case, voluntary federal guidance plus state implementation plus industry adoption. The order's *legal* posture is to attack the state implementation. Its *political* posture is to keep the voluntary federal guidance alive but ideologically purged. The result is to weaken both the only existing federal coordination mechanism and the state laws that would lend it teeth, without putting anything in their place.
+
+A federal framework that preempts state law, in the form Section 8 asks Congress to write, would have to specify what AI risks are governed federally, by what standard, with what evidence, and with what enforcement. None of that is in the order. The question for the year ahead is whether Congress takes Section 8(a) seriously, what carve-outs survive, and whether what emerges resembles the structure that already half-exists or something new.
+
+</Section>
+
+<Section number="06" title="Coda">
+
+What is uncertain is whether the order's three principal mechanisms — the Litigation Task Force's commerce-clause and First Amendment theories, the BEAD non-deployment condition, and the FCC and FTC preemption proceedings — survive the legal challenges already gathering. Twenty-three state attorneys general have written to the FCC. Industry-side analyses from Goodwin, Latham &amp; Watkins, Skadden, and Morrison Foerster all flag substantial constitutional exposure. The Supreme Court's recent administrative-law jurisprudence cuts against preemption-by-agency-interpretation. The order's own implementation deadlines have begun to slip; the Commerce Department's evaluation, due March 11, 2026, was not delivered on schedule.
+
+What is not uncertain is that states will continue to legislate, that companies will continue to rely on the NIST framework as the operational baseline regardless of its revisions, and that the architecture of de facto American AI governance — voluntary federal guidance, state implementation, industry adoption, federal litigation — was already in place before December 11, 2025. The executive order formalises confrontation more than it changes the underlying topology.
+
+What the reader is left with is a policy moment in which the rhetoric of "framework" describes a fight rather than a structure. The questions worth tracking are not whether some state laws will fall — some will — but whether the administration succeeds in displacing the only federal coordination mechanism the United States has yet produced. If it does, what replaces it will not come from this executive order. It will come from Congress, or from the courts, or from the slow accretion of practice across firms operating in jurisdictions whose rules are converging without anyone authorising the convergence.
+
+</Section>
