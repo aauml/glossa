@@ -51,7 +51,16 @@ Tools available: web search (always-on Claude tool), Tavily MCP if connected, th
 - **Section count: 2–7, source-driven.** Default is five. A tight argument needs three. A 90-page law review article needs six or seven. Never pad to hit a number; never compress to avoid one.
 - Exhibits earn their place. Zero exhibits is fine. Don't reach for one because the format expects it.
 
-**Multi-part pieces.** For very long or very dense sources — a book chapter, a 90-page law review article, a multi-hour hearing — a single piece may not be enough. Split into numbered parts (Part I, Part II), each self-contained with its own slug (`topic-part-1`, `topic-part-2`). Each part should work on its own. Use multi-part only when compression would sacrifice the things that make the piece worth reading.
+**Multi-part pieces.** For sources where one piece would compress out what makes them worth reading — a book chapter, a 90-page law review article, a regulation with sectoral chapters, an executive order touching unrelated domains — split into numbered parts (Part I, Part II) with separate slugs (`topic-part-1`, `topic-part-2`).
+
+Split only when all three hold:
+- **Independent threads.** A reader who lands on Part II doesn't need Part I to get something from it.
+- **Distinct research apparatus.** Different primary sources, glossary, actors per part. If the research overlaps heavily, it's one piece.
+- **Index test passes.** A reader arriving at Part II from the cover, cold, should find a coherent piece. If the conclusion depends on premises established in Part I, it's not a series — it's one long piece.
+
+Keep one piece when the argument has internal dependencies — when cutting one section breaks another. Papers building a thesis step by step, long-form interviews developing one position, regulatory analysis where the conclusion depends on earlier definitions. Length alone is not a criterion: a 300-page book with one thesis is one piece; a 20-page paper with three independent contributions is three.
+
+**Mechanics.** Ship one piece per trigger. Even when a series is warranted, produce Part I, surface the rest in the one-sentence judgment-call flag at the end of the chat reply (e.g. *"This is Part I on GPAI obligations. The high-risk and sanctions blocks would each stand as their own Part if you want to extend."*), and wait for Arturo to trigger the next part as a new conversation. No series infrastructure exists beyond `<Callback>` for linking parts — don't pre-build it.
 
 The variable is the writing-to-source ratio. Match the source.
 
