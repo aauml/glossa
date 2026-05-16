@@ -134,6 +134,67 @@ When you spot this kind of resonance, surface it. The reader who has read both p
 - **Scaffolding prose.** "The first reason is... The second reason is... The third reason is..." reads like a lecture outline. Weave arguments together. Use the source's own structure only if the source's structure is itself interesting.
 - **Bureaucratic calques.** "Decisores" when "quienes deciden" works. "Progenitores" when "padres" is what you mean. "Implementar" when "aplicar" or "poner en marcha" say it better. This applies to both languages but especially to Spanish.
 
+## Sentence syntax — keeping cognitive load down
+
+Most Lecturas pieces are read on mobile, where the reader's working memory has less help from spatial layout than on paper. Two habits keep the prose readable on a small screen without flattening the register.
+
+**Limit subordination depth.** No sentence should hang more than two levels of subordination off the same head noun. If you find a relative clause inside a relative clause inside a parenthetical inside the main clause, split. The reader is forced to hold the head noun active across the whole nested structure, and on a phone the head noun has usually scrolled off the top of the viewport by the time the verb arrives. Concrete test: read the sentence aloud at normal speed. If you lose track of what the subject is before the verb arrives, the structure is too deep.
+
+**Vary rhythm.** Aim for at least one short sentence (under 15 words) for every two long ones (over 30 words). The short ones are not padding — they are the decompression that lets the long ones land. Magazine prose alternates deliberately; academic prose tends not to, which is one of the reasons academic prose tires the reader faster.
+
+**Split `Primero / Segundo` patterns into their own paragraphs** when each carries argumentative weight. Inline `Primero, X. Segundo, Y.` reads as a list disguised as prose. Two short paragraphs — "La primera es que X." / "La segunda es que Y." — give the reader the visual cue that two distinct beats are coming, and let each one absorb.
+
+**Split compound sentences with both a colon and a coordinating conjunction.** A sentence shaped like *"Primero, X reclama Y: Z, y W."* is doing too much: a thesis, an explanation, and an extension joined into one. Three separate sentences almost always read better.
+
+## Inline glossing for technical terms
+
+A second source of cognitive load, distinct from sentence syntax, is technical vocabulary the reader has to stop and recall. A six-word gloss on first appearance is not padding — it is the most compressed possible form of needed information.
+
+**Gloss on first appearance**, then never again in the same piece:
+
+- *Latin legal terms:* ex ante, ex post, prima facie, mutatis mutandis, stare decisis, ratio decidendi, obiter dicta.
+- *Specialized acronyms:* first use as full name + acronym in apposition. After that, use the acronym alone. Examples: "el Marco de Gestión de Riesgos de IA del NIST (AI RMF)", "legalidad por diseño (LbD, por sus siglas en inglés)", "evaluación de impacto en protección de datos (EIPD)".
+- *Untranslated technical terms:* smart contract, oracle (in the crypto sense), Brussels Effect, *ethics-shopping / ethics-washing*. Keep the original term where translating it would lose precision; gloss it in six words.
+- *Field neologisms:* onlife, sociotechnical, infrastructural power.
+- *Legal principles a non-lawyer reader may not know cold:* the principle of legality, the rule of law (when used in a technically specific sense), administrative due process.
+
+**Do not gloss** vocabulary the academic-magazine register presupposes: jurisprudencia, normatividad, debido proceso, derechos fundamentales, democracia constitucional, imperio de la ley, judicatura independiente, separación de poderes. Glossing these is condescending and signals the piece is aimed at the wrong reader.
+
+**Format.** Em-dash interpolation by default — readable inline, doesn't slow flow:
+
+> *La decisión ocurre ex ante — antes de que el sistema actúe — en el momento de redactar las cláusulas.*
+
+Parentheses are fine when the gloss is one or two words; avoid "es decir" (adds two words and reads textbook-y).
+
+**Exhibits must be readable standalone.** If an exhibit (`<Comparison>`, `<Scorecard>`, `<Bars>`, etc.) uses an acronym or technical term that hasn't been glossed earlier in the body, gloss it inside the exhibit's content or label. The reader of an exhibit should not have to scroll back to the body to decode it.
+
+## Pedagogical hinges — selective scaffolding for organizing concepts
+
+Most Lecturas paragraphs do not need pedagogical scaffolding. The genre is academic-magazine, not seminar notes. But every piece has one or two passages where a single distinction or concept organizes everything that comes after — *if the reader misses it there, the rest of the piece does less work*. Those are hinge passages, and they justify expanded pedagogical treatment even at the cost of length.
+
+**How to spot a hinge.** A passage is a hinge when one or more of the following holds:
+
+- It is the first appearance of a concept the piece will reference five or more times.
+- It introduces a distinction (A vs. B) that organizes a later section, an exhibit, or the coda.
+- It marks a counterintuitive move where the reader's first instinct is likely wrong (e.g., "two things that look identical do opposite work").
+- It carries a definition the rest of the argument depends on.
+
+A typical piece has two or three hinges. A piece with zero is probably summarizing without arguing. A piece with seven is trying to teach a course.
+
+**The hinge pattern.** When you've identified a hinge, expand it using this five-move structure:
+
+1. **Concrete anchor first.** Open with an example, image, or scenario the reader can hold in working memory. Not the abstract claim. "Imagina un sistema que decide automáticamente si una persona recibe una prestación social…"
+2. **Name the concept after the anchor**, not before. The reader already has something to attach the name to.
+3. **Unpack any technical sub-terms with inline glosses** as you introduce them (see *Inline glossing* above).
+4. **Recast abstract opposition as two concrete questions** when contrasting concepts. Not "they do opposite work" but "A asks: how do I make the system comply with the rule? B asks: how do I make the system leave standing what makes the rule protect?"
+5. **Close with a reflection prompt**, not a summary. A question the reader can hold without answering — one that the rest of the piece will retroactively answer. *"Antes de continuar, considera: ¿…? La intuición rápida puede no ser correcta."*
+
+**Cost and discipline.** A hinge expansion adds roughly 200-300 words to what would have been a 80-150 word paragraph. That cost is acceptable on two or three passages per piece. It is not acceptable on every paragraph — a piece where every concept is scaffolded becomes a textbook chapter and loses the magazine register entirely.
+
+**Where not to use hinges.** Don't scaffold concepts that have already been installed earlier in the piece. Don't scaffold the recap moves of a coda. Don't scaffold in places where the source itself already does the pedagogical work and your job is to compress, not expand.
+
+**Trigger.** Apply hinge treatment when the piece itself warrants it — usually automatically, on the passages that meet the spotting criteria above. If Arturo asks for a piece that is "más accesible," "para seminario," or names a less expert reader, increase the number of hinges. If he asks for "registro estricto academic-magazine," reduce to zero hinges and let the regular prose do the work.
+
 ## Length targets
 
 - Total article: 2,500-5,000 words (source-driven, not formula-driven)
