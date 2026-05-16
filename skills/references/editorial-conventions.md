@@ -197,10 +197,23 @@ A piece has as many hinges as the source has organizing concepts that the rest o
 
 ## Length targets
 
-- Total article: 2,500-5,000 words (source-driven, not formula-driven)
-- Lede: 100-180 words
-- Section standfirst: 25-50 words  
-- Section body (excluding exhibits): 200-600 words (shorter for dense material, longer for narrative)
-- Coda: 150-300 words total
+Length is not a fixed range — it is a tiered framework. A piece falls into one of four tiers, each with its own discipline. Thresholds trigger different actions, not different verdicts.
+
+**Short piece (1,500–3,500 words, 8–15 min read).** The default. Focal sources: an article, an interview, an op-ed, a podcast episode, a talk. One or two pedagogical hinges. Most Lecturas pieces should aim here.
+
+**Medium piece (3,500–6,000 words, 15–25 min).** For substantial sources: an academic paper, a long magazine article, a book chapter, an extended report. Two to four hinges. Navigation aids (TOC, per-section reading times) become useful.
+
+**Long piece (6,000–10,000 words, 25–40 min).** For foundational sources: a full book, a sweeping policy document, multi-hour testimony. Three or more hinges. Navigation aids essential. The piece must earn its length with structural ambition; otherwise, compress or split.
+
+**Very long piece (>10,000 words).** Rare. Each section must justify itself. Default presumption is that the piece should be a series, not a single piece — unless the structural criteria (argumental unity, single research apparatus, Index test failing for hypothetical Part II) clearly say otherwise.
+
+**Thresholds are signals, not limits.** Crossing 6,500 words does not require splitting; it requires asking whether the structure supports the length. If the answer is yes, the piece stays long. If the answer is no, two corrections are available: compress if the piece is overwritten, split if it bundled independent threads. Length itself is never a sufficient criterion for splitting — the structural criteria (independent threads, distinct research apparatus, Index test positive) decide.
+
+Sub-targets, still useful at any tier:
+
+- Lede: 100–180 words
+- Section standfirst: 25–50 words
+- Section body (excluding exhibits): 200–600 words — shorter for dense material, longer for narrative
+- Coda: 150–300 words
 
 These are guides, not rules. Don't pad to hit the target; don't truncate beats that need their space. A short piece that's alive is better than a long piece that's thorough but dead.
