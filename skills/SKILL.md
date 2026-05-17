@@ -23,31 +23,64 @@ All other pieces (N° 01 through N° 16, both N° 19s) precede the current conve
 
 Before pushing a new piece (or a rewrite), measure these against the rules and report the numbers in the reply. If any fail, fix before pushing — not after.
 
+**Sentence-level rules:**
+
 1. **Length tier identified.** Short (1.5-3.5K) / Medium (3.5-6K) / Long (6-10K) / Very long (>10K). State which tier, and confirm the tier's discipline is satisfied (hinge count, navigation aids if needed, structural ambition if long).
 2. **Short:long sentence ratio ≥ 2:1.** Measure with the audit pattern below. If below 2:1, split long sentences before pushing.
-3. **No sentence with >2 levels of subordination.** Read each long sentence and trace the subordination tree. If a relative clause hangs off a relative clause hangs off a parenthetical, split.
-4. **Inline glosses present on first appearance of:** Latin terms (ex ante, ex post, prima facie); specialized acronyms (LbD, RGPD, AI RMF, etc.); untranslated technical terms (smart contract, oráculo, Brussels Effect); field neologisms (onlife). Em-dash format, ≤7 words, never repeated.
-5. **Pedagogical hinges identified and developed** with the five-move pattern (concrete anchor → name → sub-term glosses → opposition as two questions → reflection prompt). Count must match what the source warrants — not zero by default, not maximum by reflex.
-6. **No `X: Y, y Z` compound sentences** doing thesis + colon + coordinated explanation.
-7. **`Primero / Segundo` patterns** that carry argumentative weight live in their own paragraphs, not inline.
-8. **Exhibits readable standalone** — any acronym or technical term in an exhibit must be glossed either there or earlier in the body.
+3. **No sentence with >2 levels of subordination.** Read each long sentence and trace the subordination tree. If a relative clause hangs off a relative clause hangs off a parenthetical, split. **This rule applies regardless of sentence length** — a 17-word sentence with three subordinations is heavier than a 30-word sentence with linear structure. Hidden subordination is more dangerous than long length because the metric doesn't catch it.
+4. **Distance between subject and main verb ≤ 12 words.** If the reader has to hold the head subject in working memory across a long relative clause before reaching the verb, the sentence taxes parsing. Move the subordinate clause out front, or split.
 
-The audit pattern for ratio measurement (run from `/tmp` after writing the MDX):
+**Lexical / glossing rules:**
+
+5. **Inline glosses present on first appearance of:** Latin terms (ex ante, ex post, prima facie); specialized acronyms (LbD, RGPD, AI RMF, etc.); untranslated technical terms (smart contract, oráculo, Brussels Effect); field neologisms (onlife). Em-dash format, ≤7 words, never repeated.
+
+**Semantic-density rules (lived-experience load):**
+
+6. **Abstract-noun density.** Each paragraph that contains four or more abstract nouns (*implicación, sustitución, plantilla, infraestructura, posición, condiciones, hechos estructurales, desplazamiento*, etc.) without at least one concrete noun (a person, place, object, number, scene) is too dense. Add a concrete anchor or compress.
+7. **Concrete anchor per section.** Each section should contain at least one physical anchor: a named scene, a verifiable number, a specific moment, a quoted phrase, an object. Wolff talking, Wolff arguing, Wolff diagnosing — those are all the same abstract register. Wolff at Yale in 1968 reading his classmates' assignments — that is a scene. The piece needs scenes, not just arguments.
+8. **Concrete-fact placement.** When a paragraph contains a falsifiable empirical claim (a number, a date, a quoted statement), it should appear by sentence 2 of the paragraph, not at the end. Burying the concrete inside the abstract makes the abstract harder to process. The concrete grounds it.
+9. **Body paragraph length ≤ 100 words** (excluding components like ContextBox, Scorecard, Timeline). A paragraph above 100 words feels macizo on mobile even with perfect sentence structure. Split visually if not analytically.
+10. **Institutional reference budget.** Maximum three named institutions / think tanks / outlets per section in the body. Additional sources go to footnotes. The body should not feel like a citation list.
+
+**Structural rules:**
+
+11. **Pedagogical hinges identified and developed** with the five-move pattern (concrete anchor → name → sub-term glosses → opposition as two questions → reflection prompt). Count must match what the source warrants — not zero by default, not maximum by reflex.
+12. **No `X: Y, y Z` compound sentences** doing thesis + colon + coordinated explanation.
+13. **`Primero / Segundo` patterns** that carry argumentative weight live in their own paragraphs, not inline.
+14. **Exhibits readable standalone** — any acronym or technical term in an exhibit must be glossed either there or earlier in the body.
+
+The audit pattern for the measurable rules (run from `/tmp` after writing the MDX):
 
 ```python
 import re
 text = open('PATH_TO_MDX').read()
 body = re.sub(r'^---\n.*?\n---\n', '', text, count=1, flags=re.DOTALL)
-body = re.sub(r'<[^>]+/?>', ' ', body)
-body = re.sub(r'\{[^}]*\}', ' ', body)
-sents = [s.strip() for s in re.split(r'(?<=[.!?])\s+', body) if len(s.strip().split()) > 2]
+body_clean = re.sub(r'<(ContextBox|Scorecard|Timeline|PullQuote|Callback|Lede)[^>]*>.*?</\1>',
+                    '', body, flags=re.DOTALL)
+body_clean = re.sub(r'<[^>]+/?>', '', body_clean)
+body_clean = re.sub(r'\{[^}]*\}', '', body_clean)
+
+# Rule 2: short:long ratio
+sents = [s.strip() for s in re.split(r'(?<=[.!?])\s+', body_clean) if len(s.strip().split()) > 2]
 lens = [len(s.split()) for s in sents]
 short = sum(1 for l in lens if l < 15)
 long_ = sum(1 for l in lens if l > 30)
-print(f"short:long = {short}:{long_} ({short/max(long_,1):.2f}:1)")
+print(f"R2: short:long = {short}:{long_} ({short/max(long_,1):.2f}:1)")
+
+# Rule 9: paragraph length
+paras = [p.strip() for p in body_clean.split('\n\n') if len(p.strip()) > 50]
+p_words = [len(p.split()) for p in paras]
+heavy = sum(1 for w in p_words if w > 100)
+print(f"R9: paragraphs >100w: {heavy}/{len(paras)}, max {max(p_words)}")
+
+# Rule 6: abstract-noun density per paragraph (heuristic)
+ABSTRACT = r'\b(implicación|sustitución|plantilla|infraestructura|posición|condiciones|hechos estructurales|desplazamiento|arquitectura|categoría|dimensión|operación|sustancia|principio|noción|función|relación|proceso|trayectoria|configuración|determinación)\b'
+heavy_abs = [(i, len(re.findall(ABSTRACT, p, re.I))) for i, p in enumerate(paras)]
+flagged = [(i, c) for i, c in heavy_abs if c >= 4]
+print(f"R6: paragraphs with ≥4 abstract nouns: {len(flagged)}")
 ```
 
-If the audit shows < 2:1, the piece is not ready to push.
+If any rule fails, the piece is not ready to push.
 
 ## What Lecturas is
 

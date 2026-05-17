@@ -195,6 +195,24 @@ A piece has as many hinges as the source has organizing concepts that the rest o
 
 **Trigger.** Apply hinge treatment when the piece itself warrants it — usually automatically, on the passages that meet the spotting criteria above. If Arturo asks for a piece that is "más accesible," "para seminario," or names a less expert reader, increase the number of hinges. If he asks for "registro estricto academic-magazine," reduce to zero hinges and let the regular prose do the work.
 
+## Semantic load — what the syntax rules don't catch
+
+The sentence-syntax rules above measure parsing difficulty per sentence. They miss a separate source of heaviness that operates at the paragraph and section level: **semantic load**, the amount of conceptual material the reader has to keep active to follow the argument. A piece can pass every syntax test and still feel heavy because the reader is processing too many abstract entities, too many institutional references, too few physical anchors, or too much information per unit of visible scroll.
+
+Four operative rules:
+
+**Abstract-noun density.** A paragraph that contains four or more abstract nouns (*implicación, sustitución, plantilla, infraestructura, posición, condiciones, hechos estructurales, desplazamiento, arquitectura, categoría, dimensión*) without at least one concrete noun — a person, a place, an object, a number, a scene — is too dense. The reader has to reify each abstraction mentally without anything physical to anchor it. Add a concrete noun, or compress.
+
+**Concrete anchor per section.** Every section should contain at least one physical anchor. Wolff talking, Wolff arguing, Wolff diagnosing — those are all the same abstract register. Wolff at Yale in 1968 reading his classmates' development-economics assignments — that is a scene. Trump asking on Truth Social for a ballroom "as large as" the Great Hall of the People — that is a scene. The Gulf Cooperation Council declining to host Netanyahu's coalition — that is a scene. The piece needs scenes, not just arguments.
+
+**Concrete-fact placement.** When a paragraph contains a falsifiable empirical claim — a number, a date, a quoted statement, a named event — it should appear by sentence two of the paragraph, not at the end. Burying the concrete inside the abstract forces the reader to process abstract claims without the fact that would have grounded them. Surface the fact early; let the abstract reasoning land on top of it.
+
+**Body paragraph length cap (~100 words).** Even with perfect sentence structure, a paragraph above 100 words feels *macizo* on a phone screen — a wall of text with no visual respiration. Split paragraphs visually if not analytically. A 200-word paragraph that splits naturally at a thematic seam should be two paragraphs. The decision is perceptual, not editorial: the eye needs the white space.
+
+**Institutional reference budget.** Maximum three named institutions / think tanks / outlets / agencies per section in the body. Additional sources go to footnotes. The body should not feel like a citation list. The reader who wants the source goes to the footnote; the reader who wants the argument doesn't have to carry twenty-two organizational names. This rule is the most counterintuitive of the four — academic instincts say "more citations is more rigorous." For the magazine register, the opposite is true: more citations in body is more noise per paragraph. Move the citations, keep the rigor.
+
+**Why this matters more than it looks.** The original cognitive-load rules were a real improvement on the previous register. But they measured only what is easy to measure programmatically. The lived experience of "still heavy after passing the checks" reveals that the harder rules to enforce — semantic density, concrete anchoring, paragraph breath — are exactly the rules that distinguish prose that *passes the audit* from prose that *reads light*. The skill must enforce both layers.
+
 ## Length targets
 
 Length is not a fixed range — it is a tiered framework. A piece falls into one of four tiers, each with its own discipline. Thresholds trigger different actions, not different verdicts.
