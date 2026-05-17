@@ -7,6 +7,48 @@ description: Turn source material into a "Lecturas" annotated reading — a bili
 
 A skill for producing pieces in Arturo's bilingual annotated-reading collection.
 
+## ⚠️ Style precedence — read this first
+
+The editorial rules in `references/editorial-conventions.md` take precedence over the style of any existing piece in `src/content/articles/*`. **The archive is deployed history, not style canon.** Do not pattern-match to existing pieces as templates for new ones — most of them predate the current editorial conventions (cognitive-load limits, inline glossing, pedagogical hinges, tiered length framework).
+
+If you need to look at examples of the current register, use only these:
+
+- `N° 17` (hildebrandt-law-computer-scientists, both EN and ES) — full canon, all rules applied
+- `N° 20` (wolff-third-option, ES) — partial canon, gloss pattern correct
+- `N° 18` (wilkerson-beijing-choreography, ES) — partial canon, reflection prompts present
+
+All other pieces (N° 01 through N° 16, both N° 19s) precede the current conventions. They are valid history but invalid templates.
+
+## 🔍 Pre-publish checklist — run before every push
+
+Before pushing a new piece (or a rewrite), measure these against the rules and report the numbers in the reply. If any fail, fix before pushing — not after.
+
+1. **Length tier identified.** Short (1.5-3.5K) / Medium (3.5-6K) / Long (6-10K) / Very long (>10K). State which tier, and confirm the tier's discipline is satisfied (hinge count, navigation aids if needed, structural ambition if long).
+2. **Short:long sentence ratio ≥ 2:1.** Measure with the audit pattern below. If below 2:1, split long sentences before pushing.
+3. **No sentence with >2 levels of subordination.** Read each long sentence and trace the subordination tree. If a relative clause hangs off a relative clause hangs off a parenthetical, split.
+4. **Inline glosses present on first appearance of:** Latin terms (ex ante, ex post, prima facie); specialized acronyms (LbD, RGPD, AI RMF, etc.); untranslated technical terms (smart contract, oráculo, Brussels Effect); field neologisms (onlife). Em-dash format, ≤7 words, never repeated.
+5. **Pedagogical hinges identified and developed** with the five-move pattern (concrete anchor → name → sub-term glosses → opposition as two questions → reflection prompt). Count must match what the source warrants — not zero by default, not maximum by reflex.
+6. **No `X: Y, y Z` compound sentences** doing thesis + colon + coordinated explanation.
+7. **`Primero / Segundo` patterns** that carry argumentative weight live in their own paragraphs, not inline.
+8. **Exhibits readable standalone** — any acronym or technical term in an exhibit must be glossed either there or earlier in the body.
+
+The audit pattern for ratio measurement (run from `/tmp` after writing the MDX):
+
+```python
+import re
+text = open('PATH_TO_MDX').read()
+body = re.sub(r'^---\n.*?\n---\n', '', text, count=1, flags=re.DOTALL)
+body = re.sub(r'<[^>]+/?>', ' ', body)
+body = re.sub(r'\{[^}]*\}', ' ', body)
+sents = [s.strip() for s in re.split(r'(?<=[.!?])\s+', body) if len(s.strip().split()) > 2]
+lens = [len(s.split()) for s in sents]
+short = sum(1 for l in lens if l < 15)
+long_ = sum(1 for l in lens if l > 30)
+print(f"short:long = {short}:{long_} ({short/max(long_,1):.2f}:1)")
+```
+
+If the audit shows < 2:1, the piece is not ready to push.
+
 ## What Lecturas is
 
 Lecturas is a personal reader. Arturo curates podcasts, video interviews, articles, and topics he wants to understand more carefully than once, and they get rebuilt as guided readings — bilingual, with optional data exhibits, every claim verified, every assumed concept supplemented. Each piece can ship in English only or in English and Spanish.
