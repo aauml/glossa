@@ -1,0 +1,143 @@
+---
+issue: "N° 21"
+date: "17 May 2026"
+sortDate: "2026-05-17"
+language: en
+kicker: "The conversation, annotated"
+track: ai-policy
+title: "The machine god that Beijing does not worship"
+titleHTML: "The machine god that Beijing does not <em>worship</em>"
+dek: "Kyle Chan, a Brookings fellow and one of the sharpest American observers of Chinese technology policy, explains to Ross Douthat why the US and China are running different AI races — and why the distinction matters more than who is ahead."
+dekHTML: "Kyle Chan, a Brookings fellow and one of the sharpest American observers of Chinese technology policy, explains to Ross Douthat why the US and China are running different AI races — and why the distinction matters more than who is ahead."
+coverDek: "The US pours hundreds of billions into the pursuit of artificial superintelligence. China builds delivery robots, humanoid factory workers, and cheap open-source models that half the world downloads for free. Kyle Chan maps the divergence and argues the American obsession with AGI may be obscuring the competition that actually matters."
+source: "Based on a conversation between Kyle Chan and Ross Douthat · Interesting Times · 14 May 2026"
+sourceLabel: "No. 21 · From Interesting Times"
+topics:
+  - "US-China AI competition"
+  - "AGI skepticism"
+  - "Semiconductor export controls"
+  - "Open source vs closed models"
+  - "Robotics and deployment"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Comparison from '../../../components/exhibits/Comparison.astro';
+import Scorecard from '../../../components/exhibits/Scorecard.astro';
+
+<Lede>The phrase comes near the end of the conversation, delivered with a dry laugh that Douthat immediately picks up: "The closer you are to the machine god, the more its voice whispers in your ear." Kyle Chan — a Brookings fellow who has testified before Congress on Chinese technology policy, writes the influential *High Capacity* newsletter, and is currently finishing a book on Chinese industrial policy for Princeton University Press — is describing why there may be people at DeepSeek who believe in the superintelligence future more fervently than anyone in Beijing's State Council. The line captures something essential about the divergence he spends the rest of the hour mapping: that America's AI project and China's AI project are not the same project at different speeds. They are different projects, animated by different theories about what artificial intelligence is for, constrained by different material realities, and converging on different futures.</Lede>
+
+<Section number="01" title="Two races, not <em>one</em>">
+
+<Standfirst>Chan's central claim is structural, not quantitative: the US is running a race to AGI; China is running several races at once, and AGI is not the main one.</Standfirst>
+
+The American race, in Chan's framing, is a bet on transcendence. OpenAI, Anthropic, Google DeepMind — companies now valued in the hundreds of billions — are pouring capital into the pursuit of artificial general intelligence, a system that can do everything a human can do on a computer, and then the "super" part: something that exceeds human capability across every domain. The scale of spending, the rhetoric of the founders, the gravitational pull on talent and capital — all of it orbits this single idea.
+
+<ContextBox label="What is AGI, and why does it matter here?">
+Artificial general intelligence is the hypothetical point at which an AI system matches or exceeds human cognitive ability across all domains — not just chess, not just coding, but reasoning, creativity, persuasion, scientific discovery, everything. No system has achieved it. Whether it is achievable, imminent, or even coherently defined is the subject of fierce debate. What matters for Chan's argument is not whether AGI arrives, but that the *belief* it will arrive shapes American strategy: how capital is allocated, what regulations are resisted, what risks are tolerated.
+</ContextBox>
+
+China's project, by contrast, is diffuse. Chan identifies four distinct fronts. First, model quality — keeping pace with American frontier models, which Chinese labs currently do at a lag of roughly three to nine months depending on the benchmark. Second, efficiency — making models smaller, cheaper, faster to run. This is partly a response to constraint (the chip shortage) and partly a deliberate strategy. Third, open source — giving models away for free so that developers worldwide, including in Silicon Valley, can download, customise, and build on Chinese foundations. Fourth, applications — robotics, autonomous delivery, factory automation, ride-hailing integration. The nuts and bolts.
+
+If you walked through Shanghai or Beijing today, Chan says, you might see delivery robots handling packages, waiter robots bringing food in restaurants, drone delivery for coffee, self-driving taxis. Not ubiquitous yet, but visible — and probably surprising to an American visitor whose daily interaction with AI is mostly a chat window on a laptop screen.
+
+</Section>
+
+<Section number="02" title="The chip <em>chokepoint</em>">
+
+<Standfirst>The US controls access to the world's most advanced AI chips — but the supply chain it leverages runs through Taiwan, the Netherlands, and a set of dependencies that cut both ways.</Standfirst>
+
+Chan walks Douthat through the semiconductor stack with unusual clarity. Nvidia designs the chips. TSMC in Taiwan fabricates them. ASML in the Netherlands makes the lithography machines — extreme ultraviolet systems that cost hundreds of millions of dollars each — without which TSMC's most advanced processes would be impossible. The US export controls do not merely prevent Nvidia from selling to China. They cut China out of this entire vertically integrated supply chain.
+
+<Scorecard
+  columns={["Designs chips", "Fabricates chips", "Makes fab equipment", "Under US export control"]}
+  rows={[
+    { label: "Nvidia (US)", values: [true, false, false, "Controls"] },
+    { label: "TSMC (Taiwan)", values: [false, true, false, "Complies"] },
+    { label: "ASML (Netherlands)", values: [false, false, true, "Complies"] },
+    { label: "Huawei (China)", values: [true, true, false, "Targeted"] }
+  ]}
+  title="The AI chip supply chain"
+  subtitle="Simplified roles in frontier AI chip production"
+/>
+
+China's response has been to build its own capacity. Huawei — the heavily sanctioned telecom giant that has expanded into smartphones, electric vehicles, clean energy, and now AI chips — is the leading player. But Huawei's chips are simply not as good as Nvidia's. The gap is real, and it constrains what Chinese AI labs can do. The efficiency imperative that defines so much of China's AI strategy is, in part, a product of squeezing more intelligence out of less compute.
+
+Chan offers a revealing indicator for anyone worried about a secret Chinese AGI programme. When Trump relaxed some export controls and allowed H200 Nvidia chips to be sold to China, Beijing effectively said thanks but no thanks. The AI companies wanted those chips badly, but the government prioritised reducing dependency on American supply chains and bolstering domestic semiconductor development. If China were truly sprinting for AGI, Chan argues, it would have gobbled up those chips instantly, not knowing when the window might close.
+
+</Section>
+
+<Section number="03" title="Energy, the <em>unseen</em> layer">
+
+<Standfirst>Below the chips, below the models, sits the layer Chan considers the most important and least discussed: energy. And here, China may hold the structural advantage.</Standfirst>
+
+The argument is almost embarrassingly physical for a conversation about artificial intelligence. Data centres need power. Enormous, growing, constant power. In the United States, this has become a genuine bottleneck: data centre construction is running into power capacity limits, permitting battles, and community resistance. The backlash to data centres is now a political issue in multiple states.
+
+China, meanwhile, has been building out energy capacity — solar, wind, batteries — at a pace that has no parallel in the industrialised world. And it is beginning to connect this energy buildout to its compute buildout. One strategy Chan highlights: constructing data centres in western provinces, far from the coastal megacities. This sounds counterintuitive — don't you want data centres close to users? — but it serves a dual purpose. It exploits renewable energy resources concentrated in remote regions, and it redistributes economic activity to poorer provinces, a perennial concern for Chinese planners who worry about the gap between high-tech Shenzhen and the underdeveloped interior.
+
+The broader point is that AI competition is not just a software race or a chip race. It is an infrastructure race that stretches down to the most basic industrial inputs. And on infrastructure, China's state-directed model — for all its rigidity elsewhere — can move faster than the American system of private investment constrained by local planning, environmental review, and community opposition.
+
+</Section>
+
+<Section number="04" title="The anxiety that <em>mirrors</em>">
+
+<Standfirst>In the US, the public mood around AI mixes apocalyptic dread with economic fear. In China, the dominant anxiety is different: the fear of being left behind.</Standfirst>
+
+Chan's description of the Chinese public mood is the section of the conversation most likely to unsettle American listeners. In the US, the anxieties are familiar: job displacement, social disruption, the data centre in your backyard, the vague existential dread of a superintelligence you cannot control. In China, the primary anxiety is competitive — not "will AI take my job?" but "am I using AI enough to keep my job?"
+
+This individual-level anxiety mirrors the national-level anxiety. When AlphaGo defeated the human world champion in Go — a game with deep cultural resonance in China — there was a wave of policy alarm in Beijing. When ChatGPT launched, the concern sharpened: was China falling behind? The response was not to slow down but to accelerate, to integrate, to deploy.
+
+<ContextBox label="China's youth employment problem">
+The context for this anxiety is demographic. Youth unemployment in China sits near 17 per cent — roughly double the US rate. More than 12 million new college graduates enter the Chinese job market each year. They do not want factory jobs or delivery work. They want the "good jobs," the knowledge-economy positions that AI both creates and threatens. In this environment, AI is not an abstract concern about the future of work. It is a competitive tool in a labour market that was already brutally crowded before the technology arrived.
+</ContextBox>
+
+The welfare state dimension is thin but growing. China dismantled the Mao-era "iron rice bowl" — guaranteed lifetime employment at state enterprises — decades ago. Unless you work for a state-owned company or the government, job security is largely a market outcome. There is increasing discussion in Beijing about AI-related displacement and what the state should do about it, but it remains early-stage. The dominant policy posture is still accelerationist: emphasise the new jobs AI will create, frame the disruption as part of "Industrial Revolution 4.0 or 5.0," hit the gas pedal.
+
+One notable exception: Beijing is already regulating AI companions — the AI boyfriend, the AI girlfriend. The party-state's view is productionist. Video games were cracked down upon because they were seen as a waste of human potential. EdTech startups were crushed because they fed a destructive exam-preparation arms race. AI companions are suspect for the same reason: they might absorb the attention and energy of young people who should be engineering the future, building China's SpaceX equivalents, staffing the robotics factories.
+
+<PullQuote attribution="— Kyle Chan">The closer you are to the machine god, the more its voice whispers in your ear. I don't think Beijing is AGI-pilled.</PullQuote>
+
+</Section>
+
+<Section number="05" title="The seat belt <em>question</em>">
+
+<Standfirst>Douthat pushes the hawk's case: if timelines are short, maintaining even a few months' lead over an authoritarian rival might matter enormously. Chan pushes back — but not all the way.</Standfirst>
+
+The final stretch of the conversation is the most policy-dense, and it is where Chan's position reveals its real shape. He is not arguing that the US should stop competing. He is arguing that the framework of competition is distorted by the AGI fixation in ways that produce bad policy.
+
+The race mentality, in his view, is driving recklessness. If the only thing that matters is reaching superintelligence first, then guardrails are a handicap, regulation is self-sabotage, and every data centre is a patriotic necessity. JD Vance made this explicit in a speech: in the trade-off between AI safety and AI speed, America should choose speed. Chan thinks that framing is wrong — not because safety is more important than speed, but because the trade-off is not as binary as the hawks present it.
+
+<Comparison
+  leftLabel="The hawk's case"
+  rightLabel="Chan's reframe"
+  rows={[
+    { left: "AGI is imminent; lead time is everything", right: "AGI timeline is unknowable; medium risks are more concrete" },
+    { left: "Export controls should be tighter", right: "Controls slow China short-term but accelerate its self-reliance long-term" },
+    { left: "Guardrails slow the US down", right: "A seat belt is not the same as a speed limit" },
+    { left: "China is a unitary adversary", right: "Beijing, DeepSeek, and the AI labs have different views of the race" },
+    { left: "Engagement is naive", right: "Non-state actors using AI for bioweapons or cyberattacks is a shared threat" }
+  ]}
+  title="Two positions on US-China AI policy"
+/>
+
+The medium risks — cyber attack capability, biosecurity threats from models that can augment unsophisticated actors — are, in Chan's estimation, both more plausible and more underestimated than the AGI scenario. These are the risks that justify maintaining export controls. These are also the risks that might justify talking to China, not about binding arms-control agreements (the trust deficit is too deep for that), but about shared vulnerabilities — the rogue non-state actor who plays American and Chinese models against each other, the cyber attack that exploits a capability neither government fully anticipated.
+
+On deployment, Chan is more prescriptive. The US should invest more in open source, where commercial incentives currently push American labs toward closed, subscription-based models while Chinese labs give theirs away. The US should think harder about diffusion — about getting AI into hands, industries, and countries that currently default to Chinese models because they are free, customisable, and good enough. This is a competition the US is ceding by design, not by necessity.
+
+Douthat's final question is the darkest. Does any of this only change after a disaster — a major cyber incident, a bioweapons event, something that makes both countries pause? Chan does not dismiss the scenario. He worries that the US and China may be waiting for exactly that kind of incident before they start talking seriously. The nuclear analogy haunts the conversation: those negotiations were only possible because the weapons had been used, and everyone knew what they could do.
+
+</Section>
+
+<Section number="06" title="Coda">
+
+What remains genuinely uncertain is the AGI timeline — and Chan is honest about this. Nobody can say whether the recursive improvement loop that American labs theorise about will arrive in two years, twenty years, or never. If it arrives soon, the hawks are right and every month of lead time is precious. If it doesn't, then the US may have spent a decade optimising for a race that China was never running, while China captured the markets, the deployments, and the industrial integration that determine who actually shapes how AI is used in the world.
+
+What is not uncertain is the divergence itself. China is building robots, not gods. It is shipping models, not hoarding them. It is connecting data centres to solar farms in Gansu, not to apocalyptic visions of machine consciousness in San Francisco. Whether this is wisdom or merely a different kind of bet depends entirely on what artificial intelligence turns out to be — a tool that gets progressively better, or a threshold that, once crossed, changes the nature of the game entirely.
+
+The reader is left with Chan's quiet inversion of the usual framing. The question is not "is China catching up?" The question is whether the US has correctly identified what it is racing toward — and whether, in its fixation on the machine god, it is neglecting the terrestrial competition that will determine which country's vision of AI the rest of the world actually lives inside.
+
+</Section>
