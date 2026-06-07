@@ -1,0 +1,163 @@
+---
+issue: "N° 27"
+date: "6 Jun 2026"
+sortDate: "2026-06-06"
+language: en
+track: finance
+title: "When the debt becomes the war"
+titleHTML: "When the debt becomes the <em>war</em>"
+dek: "David Lin and Mario Nawfal survey the global economy in the shadow of the Iran conflict and find that the bigger emergency — the one nobody is declaring — is already happening at home."
+dekHTML: "David Lin and Mario Nawfal survey the global economy in the shadow of the Iran conflict and find that the bigger emergency — the one nobody is declaring — is already happening at home."
+coverDek: "Bond yields, a $1.9 trillion deficit, and a savings rate at 2.6%. David Lin walks through the mechanics of how America's debt problem is quietly becoming everyone's cost-of-living problem — regardless of whether the Strait of Hormuz stays open or not."
+source: "Based on a conversation between David Lin and Mario Nawfal · June 2026"
+sourceLabel: "N° 27 · David Lin / Mario Nawfal"
+topics:
+  - "U.S. federal debt"
+  - "10-year Treasury yield"
+  - "Strait of Hormuz"
+  - "wealth concentration"
+  - "Iran war"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Bars from '../../../components/exhibits/Bars.astro';
+import Comparison from '../../../components/exhibits/Comparison.astro';
+
+<Lede>
+The United States is spending more on interest payments than on its military. That sentence is now a fact, not a projection, and it barely registered in a news cycle dominated by drone strikes and ceasefire negotiations. David Lin, who hosts a finance program that draws economists, hedge fund managers, and commodity traders, sat down with Mario Nawfal in June 2026 to map the damage — not from the Iran conflict specifically, but from the collision between an already-stressed debt structure and the inflation expectations that any prolonged war embeds permanently. The conversation covers bond yields, the Congressional Budget Office's own deficit projections, the Canadian recession nobody is naming, and the paradox of stock indices at all-time highs while household savings collapse. What emerges is a picture of two economies running in parallel: one concentrated in a few technology stocks and doing well by any market metric, the other running out of runway quietly, one credit card delinquency at a time.
+</Lede>
+
+<Callback issue="N° 26" slug="wolf-varoufakis-petrodollar" lang="en">The petrodollar conversation between Wolff and Varoufakis established the structural frame: dollar dominance persists as long as oil is priced in dollars and recycled through U.S. Treasuries. This piece examines what happens when the Treasury side of that equation starts showing cracks.</Callback>
+
+<Section number="01" title="The yield that <em>worries</em> everyone">
+
+<Standfirst>The 10-year Treasury yield is the price at which everything else in the economy gets discounted. When it moves fast, the damage is structural, not cyclical.</Standfirst>
+
+The number Lin keeps returning to is 4.5%. HSBC calls anything above that on the 10-year Treasury the "danger zone" — not because the yield itself is catastrophic by historical standards, but because the system that has to service it is carrying a level of debt that didn't exist the last time rates were anywhere near here. In the late 1980s, when the 10-year was in double digits, the federal debt as a share of GDP was roughly half what it is now. The interest payment, as a share of total government revenue, was manageable. Today, that calculation has inverted.
+
+<ContextBox label="What is the 10-year Treasury yield?">
+The U.S. Treasury issues bonds with different maturities. The 10-year bond is the benchmark — the rate at which the federal government borrows for a decade, and the rate that anchors mortgage rates, corporate borrowing, and credit card interest across the economy. When investors demand a higher yield to hold Treasuries (because they expect inflation, or distrust fiscal policy), borrowing becomes more expensive at every level of the economy simultaneously.
+</ContextBox>
+
+The speed of the move matters as much as the level. The 10-year went from near zero in 2021 to above 4.5% in roughly three years. Economies and balance sheets adjust to rates slowly; a fast move leaves borrowers who locked in cheap debt suddenly illiquid when they need to refinance, and it leaves the federal government paying dramatically more on every new issuance.
+
+Lin notes that investor Grant Cardone recently posted that a 10-year yield at 6% would produce a 1930s-style depression. Lin distances himself from the drama of that formulation — "large financial institutions wouldn't quote it as dramatically" — but agrees the direction of concern is shared. Mortgage costs, corporate credit, consumer debt: all of it floats, eventually, on the 10-year.
+
+<Bars
+  items={[
+    { label: "10-year yield — 2021 (near zero)", value: 0.5, display: "~0.5%" },
+    { label: "10-year yield — current (danger zone)", value: 4.6, display: "~4.6%" },
+    { label: "HSBC danger zone threshold", value: 4.5, display: "4.5%", accent: true },
+    { label: "Grant Cardone depression threshold", value: 6, display: "6.0%" },
+  ]}
+  unit="%"
+  title="The climb that moved markets"
+  subtitle="10-year Treasury yield, selected reference points"
+/>
+
+</Section>
+
+<Section number="02" title="The debt the CBO <em>quantified</em>">
+
+<Standfirst>The Congressional Budget Office issues projections without editorial commentary. What the numbers say is already alarming enough to stand without embellishment.</Standfirst>
+
+Lin pulls up the CBO's numbers during the conversation, reading them directly. The deficit totals $1.9 trillion in fiscal year 2026 — 5.8% of GDP. By 2036, it grows to $3.1 trillion, representing 6.7% of GDP. Debt held by the public rises from 101% of GDP today to 120% by 2036, "well above the previous record of 106% just after World War II," in the CBO's own language.
+
+The post-WWII comparison is worth dwelling on. In 1946, the United States was emerging from a war that it had effectively financed with forced domestic savings, wage controls, and war bonds — a managed mobilization. The debt came down over the following decades through a combination of growth, mild inflation, and genuine fiscal restraint. The conditions that allowed that path are not present now: growth is uneven, inflation is politically intractable to allow as a debt-relief mechanism, and fiscal restraint is not visible in either party's legislative agenda.
+
+<ContextBox label="What does it mean to monetize the debt?">
+When the Federal Reserve buys U.S. Treasury bonds — either directly or through quantitative easing programs — it is effectively creating new money to cover government borrowing. This "monetizes" the debt: instead of finding a private buyer willing to lend at a market rate, the government borrows from an institution that can create the money. The immediate effect is that yields are suppressed (more buyers = lower rates). The longer-term effect is that M2 money supply — the broad measure of money in the economy — rises, which, for monetarists like Steve Hanke, is directly correlated to inflation.
+</ContextBox>
+
+Interest expenses on the federal debt have now surpassed military spending. Lin notes this as a structural fact, not a rhetorical point. The money going to bondholders is money not going to infrastructure, research, or the defense budget that both parties claim to want to expand. The interest payment is the one line item in the budget that cannot be cut without default.
+
+The political logic, in Lin's framing, runs as follows: spending cuts are nearly impossible to achieve at the required scale; tax increases are politically costly; the remaining option is to allow inflation to erode the real value of the debt, which is itself a form of taxation that hits wage earners harder than asset holders. None of the options is comfortable, and the U.S. is not choosing between them so much as drifting toward all three at once.
+
+<PullQuote attribution="— David Lin">Never before in the history of the United States has debt been this high. I literally don't know what will happen, because there's no historical precedent for the debt reaching this kind of level.</PullQuote>
+
+</Section>
+
+<Section number="03" title="What the Iran war <em>adds</em>">
+
+<Standfirst>The Strait of Hormuz closure is economically significant but not the primary mechanism of damage — the bigger effect runs through inflation expectations embedded in bond markets.</Standfirst>
+
+The war changed one thing at the Fed funds futures level immediately: the probability of rate cuts evaporated. Before the conflict, market pricing implied one or two cuts by year-end. By the time of this conversation, the CME FedWatch tool was pricing roughly a 45-48% chance of a rate *hike* of 25 basis points before the end of 2026. Kevin Walsh, whom the Trump administration brought in as the incoming Fed chair reportedly seeking a more accommodative posture on rates, is inheriting a market that has already moved against that expectation.
+
+<ContextBox label="What is the CME FedWatch Tool?">
+The Chicago Mercantile Exchange runs a futures market on the federal funds rate — the overnight lending rate that the Federal Reserve sets. Traders bet on where they expect the rate to be at future Fed meetings. The FedWatch Tool aggregates those bets into implied probabilities. It is not a forecast; it is a real-time snapshot of where money is positioned, which makes it a leading indicator of market sentiment rather than of actual Fed policy.
+</ContextBox>
+
+Lin's argument on oil is counterintuitive and worth following carefully. Higher oil prices would have been catastrophic for an 1970s-style U.S. economy, where heavy industry consumed enormous quantities of fossil fuels as a fixed cost and where household budgets allocated a large share to gasoline. Today's S&P 500 is heavily weighted toward technology companies whose margin structures are largely insensitive to energy input costs. Apple, Microsoft, and Nvidia don't run oil-fired furnaces. This explains, Lin suggests, why the S&P remained near all-time highs through the early weeks of the conflict even as geopolitical risk spiked.
+
+The asymmetric impact falls elsewhere. Lin had just returned from a trip through Taiwan, Singapore, and Bali. East Asian economies — China especially — still import the majority of their oil from Gulf producers. The Philippines briefly declared a national state of emergency over fuel supply. Rice and fertilizer prices are rising globally, hitting caloric staples that billions of people in Southeast Asia depend on in ways that gasoline price spikes in the United States do not.
+
+<Comparison
+  leftLabel="United States"
+  rightLabel="East Asia"
+  title="Oil shock exposure — structural differences"
+  rows={[
+    { left: "World's largest oil producer", right: "Majority oil imported from Gulf" },
+    { left: "S&P 500 dominated by tech (low energy intensity)", right: "Industrial and manufacturing base (high energy intensity)" },
+    { left: "Rate hike risk as primary channel", right: "Direct supply disruption as primary channel" },
+    { left: "Relative insulation from Hormuz closure", right: "Philippines declared state of emergency" },
+  ]}
+/>
+
+</Section>
+
+<Section number="04" title="Canada, a case study in <em>extraction</em> without extraction">
+
+<Standfirst>The only G7 economy currently in technical recession sits on some of the world's largest reserves of oil, natural gas, and critical minerals — and is producing none of it fast enough.</Standfirst>
+
+Lin uses Canada as the sharpest available illustration of the gap between resource wealth on paper and resource capacity in practice. Two consecutive quarters of negative real GDP growth qualify Canada as the only G7 country in a technical recession at the time of this conversation. The country holds enormous reserves of natural gas, oil, and the critical minerals — copper, lithium, nickel, rare earths — that the AI infrastructure buildout and electrification transition require.
+
+The problem is lead time. A mine doesn't open in a quarter. Lin cites an industry consensus of 10 to 15 years from permitting to operational production. The United States designated copper a critical mineral only in 2024. The global supply chain for refined critical minerals runs heavily through Chinese processing facilities, meaning that even where the ore is in the ground in Canada or Nevada, the capacity to refine it into usable form often isn't.
+
+This is a theme Lin connects to the broader geopolitical story: the West is resource-rich in the ground and supply-chain dependent at the processing stage, and those two facts are now in tension in a way that takes a decade or more to unwind regardless of policy urgency.
+
+</Section>
+
+<Section number="05" title="Two economies, one <em>headline</em>">
+
+<Standfirst>Stock indices at all-time highs and household savings at 2.6% are both true simultaneously. Understanding why requires accepting that these two facts describe different populations.</Standfirst>
+
+Lin shows a Federal Reserve chart on household wealth distribution that he has used before on his own show. The visual tells a familiar story: the top 0.1% and the 90th-to-99th percentile have accumulated dramatically more wealth since 1989; the bottom 50% have been essentially flat in real terms. The overlay that matters is the correlation between stock market appreciation and wealth concentration. The wealthy own assets; as asset prices rise, wealth concentrates further. The mechanism is not complicated, and it has been accelerating since the AI-driven equity boom began in late 2022.
+
+The Taiwan Semiconductor data point Lin offers is arresting: TSMC now constitutes 42-44% of the entire Taiwan stock exchange by market cap on any given day. Taiwan — a territory of under 25 million people — has the fifth-largest stock exchange in the world by market cap, having recently passed India. Korea's KOSPI is up roughly 90% year-to-date, driven almost entirely by Samsung and a cluster of other chaebol. These are not diversified economic outcomes. They are concentrated bets on the AI infrastructure cycle.
+
+<ContextBox label="What are the Magnificent Seven?">
+"Magnificent Seven" is shorthand for the seven technology companies — Apple, Microsoft, Nvidia, Alphabet, Amazon, Meta, and Tesla — that have accounted for a disproportionate share of S&P 500 returns since 2023. At peak concentration, these seven stocks have represented more than 30% of the entire S&P 500's market capitalization. Buying an S&P 500 index fund has increasingly meant buying a leveraged bet on this cluster, not a diversified exposure to 500 American companies.
+</ContextBox>
+
+The savings rate collapse is the other data point Lin flags: 2.6%, the lowest since roughly 2022, while credit card delinquencies are rising and the average days late on card payments is at its highest since the pandemic. These two data sets — the wealth chart and the delinquency chart — describe the same economy at different income levels. For the top quartile, assets are appreciating and spending is comfortable. For households without significant asset holdings, the interest rate environment is extracting real purchasing power every month through higher card rates, higher mortgage costs, and static wages relative to embedded inflation.
+
+Lin's hedge fund guest Thomas Hayes captures the SpaceX IPO dynamic neatly: when a housekeeper's husband asks whether he should buy in, the answer is that he will be exit liquidity for the venture investors who got in early. The pattern is familiar from every late-cycle technology bubble — broad retail participation at the point when sophisticated money is rotating out.
+
+<Bars
+  items={[
+    { label: "U.S. personal savings rate (2026)", value: 2.6, display: "2.6%" },
+    { label: "Pre-pandemic average savings rate (~2015–2019)", value: 7.5, display: "~7.5%" },
+    { label: "Post-COVID savings peak (~2020)", value: 33, display: "~33%" },
+  ]}
+  unit="%"
+  title="The savings rate collapse"
+  subtitle="U.S. personal savings as % of disposable income"
+/>
+
+The rotation Lin and his guests observe — from Magnificent Seven into small-caps and mid-caps — may be the rational response to stretched valuations in tech. The Russell 2000 small-cap index has outperformed the S&P year-to-date; the mid-cap index is also ahead. Whether that rotation represents a genuine broadening of the equity rally or simply a repricing before a wider correction is the question hedge funds are sitting with.
+
+</Section>
+
+The Coda.
+
+What is not uncertain: interest expenses on U.S. federal debt have surpassed military spending and are projected by the CBO to more than double by 2036. The 10-year Treasury yield is in territory that HSBC calls the danger zone, and the market has already priced out every rate cut that was expected before the Iran war. These are not forecasts. They are current facts.
+
+What remains genuinely open: whether the Federal Reserve will prioritize inflation control over the economic pain of higher rates, whether Congress will find any fiscal restraint, and whether the AI-driven concentration in equity markets will unwind gradually or sharply. Lin is honest that the debt trajectory has no historical precedent in U.S. history, which means the confident prediction about what comes next is, at some level, a guess.
+
+What the reader is left with: the conversation between Lin and Nawfal is not primarily about the Iran war. The war is the occasion — the thing that added rate-hike probability to an already-stressed rate environment and embedded inflation expectations that markets will be pricing for years. The deeper subject is structural: a debt trajectory that closes off options, a wealth concentration that means aggregate statistics increasingly describe a prosperity that most people do not experience, and a political system that is not, in Lin's careful phrasing, "going to be able" to make the hard choices. The piece from last week on the petrodollar — the recycling mechanism that has sustained Treasury demand for fifty years — is worth reading alongside this one. If the dollar's reserve status is what allows the U.S. to run deficits of this scale indefinitely, the question Wolff and Varoufakis raised about the durability of that arrangement becomes, suddenly, not academic at all.
