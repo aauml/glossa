@@ -1,0 +1,159 @@
+---
+issue: "N° 27"
+date: "6 Jun 2026"
+sortDate: "2026-06-06"
+language: es
+track: finance
+title: "Cuando la deuda se convierte en la guerra"
+titleHTML: "Cuando la deuda se convierte en la <em>guerra</em>"
+dek: "David Lin y Mario Nawfal recorren la economía global a la sombra del conflicto iraní y descubren que la emergencia mayor — la que nadie declara — ya está ocurriendo en casa."
+dekHTML: "David Lin y Mario Nawfal recorren la economía global a la sombra del conflicto iraní y descubren que la emergencia mayor — la que nadie declara — ya está ocurriendo en casa."
+coverDek: "Rendimientos de bonos, un déficit de 1,9 billones de dólares y una tasa de ahorro del 2,6 %. David Lin explica los mecanismos por los que el problema de la deuda estadounidense se convierte silenciosamente en un problema del coste de vida para todos, con independencia de si el estrecho de Ormuz permanece abierto o no."
+source: "Basado en una conversación entre David Lin y Mario Nawfal · Junio de 2026"
+sourceLabel: "N° 27 · David Lin / Mario Nawfal"
+topics:
+  - "Deuda federal de EE. UU."
+  - "Rendimiento del bono a 10 años"
+  - "Estrecho de Ormuz"
+  - "Concentración de riqueza"
+  - "Guerra con Irán"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Bars from '../../../components/exhibits/Bars.astro';
+import Comparison from '../../../components/exhibits/Comparison.astro';
+
+<Lede>
+Estados Unidos gasta más en intereses de su deuda que en su presupuesto militar. Eso ya es un hecho, no una proyección, y apenas registró en un ciclo de noticias dominado por ataques de drones y negociaciones de alto el fuego. David Lin, que conduce un programa financiero en el que participan economistas, gestores de fondos de cobertura y operadores de materias primas, se sentó con Mario Nawfal en junio de 2026 para trazar el mapa del daño — no el del conflicto iraní en sí, sino el de la colisión entre una estructura de deuda ya tensionada y las expectativas de inflación que cualquier guerra prolongada incrusta de forma permanente. La conversación abarca los rendimientos de los bonos, las propias proyecciones de déficit de la Oficina Presupuestaria del Congreso, la recesión canadiense que nadie quiere nombrar y la paradoja de unos índices bursátiles en máximos históricos mientras los ahorros de los hogares se desploman. Lo que emerge es un retrato de dos economías que funcionan en paralelo: una concentrada en unas pocas acciones tecnológicas y que va bien por cualquier métrica de mercado; la otra agotando su margen silenciosamente, una deuda de tarjeta de crédito impagada a la vez.
+</Lede>
+
+<Callback issue="N° 26" slug="wolf-varoufakis-petrodollar" lang="es">La conversación sobre el petrodólar entre Wolff y Varoufakis estableció el marco estructural: la hegemonía del dólar se sostiene mientras el petróleo se cotice en dólares y los excedentes se reciclen a través de los bonos del Tesoro estadounidense. Esta pieza examina qué ocurre cuando el lado del Tesoro de esa ecuación empieza a mostrar grietas.</Callback>
+
+<Section number="01" title="El rendimiento que <em>preocupa</em> a todos">
+
+<Standfirst>El rendimiento del bono del Tesoro a 10 años es el precio con el que se descuenta todo lo demás en la economía. Cuando se mueve rápido, el daño es estructural, no cíclico.</Standfirst>
+
+El número al que Lin regresa continuamente es el 4,5 %. HSBC denomina "zona de peligro" cualquier nivel superior a ese en el bono a 10 años — no porque el rendimiento en sí sea catastrófico para los estándares históricos, sino porque el sistema que tiene que servir esa deuda carga con un nivel de endeudamiento que no existía la última vez que los tipos estuvieron cerca de ahí. A finales de los años ochenta, cuando el bono a 10 años estaba en dos dígitos, la deuda federal como porcentaje del PIB era aproximadamente la mitad de lo que es ahora. El pago de intereses, como parte del total de ingresos del gobierno, era manejable. Hoy ese cálculo se ha invertido.
+
+<ContextBox label="¿Qué es el rendimiento del bono del Tesoro a 10 años?">
+El Tesoro de Estados Unidos emite bonos con distintos vencimientos. El bono a 10 años es el de referencia — el tipo al que el gobierno federal pide prestado a una década, y el tipo que ancla los tipos hipotecarios, los préstamos corporativos y los intereses de las tarjetas de crédito en toda la economía. Cuando los inversores exigen un rendimiento más alto para mantener bonos del Tesoro — porque esperan inflación o desconfían de la política fiscal —, el coste del endeudamiento aumenta simultáneamente en todos los niveles de la economía.
+</ContextBox>
+
+La velocidad del movimiento importa tanto como el nivel. El bono a 10 años pasó de cerca de cero en 2021 a más del 4,5 % en aproximadamente tres años. Las economías y los balances se adaptan a los tipos lentamente; un movimiento rápido deja a los prestatarios que se endeudaron barato de repente sin liquidez cuando necesitan refinanciar, y deja al gobierno federal pagando bastante más en cada nueva emisión.
+
+Lin señala que el inversor Grant Cardone publicó recientemente que un rendimiento del bono a 10 años en el 6 % produciría una depresión al estilo de los años treinta. Lin se distancia del dramatismo de esa formulación — "las grandes instituciones financieras no lo citarían de forma tan dramática" — pero coincide en que la dirección de la preocupación es compartida. Hipotecas, crédito corporativo, deuda del consumidor: todo ello fluctúa, con el tiempo, sobre el bono a 10 años.
+
+<Bars
+  items={[
+    { label: "Rendimiento a 10 años — 2021 (mínimos históricos)", value: 0.5, display: "~0,5 %" },
+    { label: "Rendimiento a 10 años — actualidad (zona de peligro)", value: 4.6, display: "~4,6 %" },
+    { label: "Umbral zona de peligro HSBC", value: 4.5, display: "4,5 %", accent: true },
+    { label: "Umbral depresión según Grant Cardone", value: 6, display: "6,0 %" },
+  ]}
+  unit="%"
+  title="La subida que movió los mercados"
+  subtitle="Rendimiento del bono del Tesoro a 10 años, puntos de referencia seleccionados"
+/>
+
+</Section>
+
+<Section number="02" title="La deuda que la OPC <em>cuantificó</em>">
+
+<Standfirst>La Oficina Presupuestaria del Congreso publica proyecciones sin comentario editorial. Lo que dicen los números ya es suficientemente alarmante por sí solo.</Standfirst>
+
+Lin consulta las cifras de la OPC durante la conversación y las lee directamente. El déficit asciende a 1,9 billones de dólares en el ejercicio fiscal 2026 — el 5,8 % del PIB. Para 2036, crecerá hasta 3,1 billones, lo que representa el 6,7 % del PIB. La deuda en manos del público sube del 101 % del PIB actual al 120 % en 2036, "muy por encima del récord anterior del 106 % justo después de la Segunda Guerra Mundial", en palabras de la propia OPC.
+
+La comparación con la posguerra merece atención. En 1946, Estados Unidos salía de una guerra que había financiado en gran medida con ahorro doméstico forzado, controles salariales y bonos de guerra — una movilización gestionada. La deuda se redujo en las décadas siguientes gracias a una combinación de crecimiento, inflación moderada y verdadera contención fiscal. Las condiciones que permitieron ese camino no están presentes ahora: el crecimiento es desigual, la inflación es políticamente inmanejable como mecanismo de alivio de la deuda, y la contención fiscal no es visible en la agenda legislativa de ninguno de los dos partidos.
+
+<ContextBox label="¿Qué significa monetizar la deuda?">
+Cuando la Reserva Federal compra bonos del Tesoro de Estados Unidos — directamente o mediante programas de expansión cuantitativa — está creando efectivamente dinero nuevo para cubrir el endeudamiento público. Esto "monetiza" la deuda: en lugar de encontrar un comprador privado dispuesto a prestar a un tipo de mercado, el gobierno toma prestado de una institución que puede crear el dinero. El efecto inmediato es que los rendimientos se suprimen (más compradores = tipos más bajos). El efecto a largo plazo es que la oferta monetaria M2 — la medida amplia del dinero en la economía — aumenta, lo que, para los monetaristas como Steve Hanke, está directamente correlacionado con la inflación.
+</ContextBox>
+
+Los gastos en intereses de la deuda federal han superado ya el gasto militar. Lin lo señala como un hecho estructural, no como un argumento retórico. El dinero que va a los tenedores de bonos es dinero que no va a infraestructuras, investigación o el presupuesto de defensa que ambos partidos dicen querer ampliar. El pago de intereses es la única línea del presupuesto que no se puede recortar sin incurrir en impago.
+
+La lógica política, en el marco de Lin, es la siguiente: los recortes del gasto son casi imposibles de lograr a la escala necesaria; las subidas de impuestos son políticamente costosas; la opción restante es permitir que la inflación erosione el valor real de la deuda, lo que es en sí mismo una forma de impuesto que golpea más duramente a los asalariados que a los tenedores de activos. Ninguna de las opciones es cómoda, y Estados Unidos no está eligiendo entre ellas tanto como derivando hacia las tres a la vez.
+
+<PullQuote attribution="— David Lin">Nunca en la historia de Estados Unidos la deuda ha sido tan alta. Literalmente no sé qué pasará, porque no existe precedente histórico para que la deuda alcance este nivel.</PullQuote>
+
+</Section>
+
+<Section number="03" title="Lo que la guerra con Irán <em>añade</em>">
+
+<Standfirst>El cierre del estrecho de Ormuz tiene una significación económica real, pero no es el mecanismo principal del daño — el efecto mayor se canaliza a través de las expectativas de inflación incrustadas en los mercados de bonos.</Standfirst>
+
+La guerra cambió inmediatamente una cosa en el nivel de los futuros sobre los tipos de los fondos federales: la probabilidad de bajadas de tipos se evaporó. Antes del conflicto, los precios de mercado implicaban una o dos bajadas antes de fin de año. En el momento de esta conversación, la herramienta FedWatch del CME asignaba aproximadamente un 45-48 % de probabilidad a una *subida* de tipos de 25 puntos básicos antes de finales de 2026. Kevin Walsh, a quien la administración Trump incorporó como próximo presidente de la Fed supuestamente buscando una postura más acomodaticia sobre los tipos, hereda un mercado que ya se ha movido en contra de esa expectativa.
+
+<ContextBox label="¿Qué es la herramienta FedWatch del CME?">
+El Chicago Mercantile Exchange gestiona un mercado de futuros sobre el tipo de los fondos federales — el tipo de préstamo a un día que fija la Reserva Federal. Los operadores apuestan sobre dónde esperan que esté el tipo en futuras reuniones de la Fed. La herramienta FedWatch agrega esas apuestas en probabilidades implícitas. No es una previsión; es una instantánea en tiempo real de dónde está posicionado el dinero, lo que la convierte en un indicador adelantado del sentimiento del mercado más que de la política real de la Fed.
+</ContextBox>
+
+El argumento de Lin sobre el petróleo es contraintuitivo y merece seguirse con atención. Los precios más altos del petróleo habrían sido catastróficos para una economía estadounidense al estilo de los años setenta, donde la industria pesada consumía enormes cantidades de combustibles fósiles como coste fijo y donde los presupuestos de los hogares destinaban una gran parte a la gasolina. El S&P 500 actual está muy ponderado hacia empresas tecnológicas cuyas estructuras de márgenes son en gran medida insensibles a los costes de los insumos energéticos. Apple, Microsoft y Nvidia no tienen hornos de fuel oil. Esto explica, sugiere Lin, por qué el S&P se mantuvo cerca de máximos históricos durante las primeras semanas del conflicto incluso cuando el riesgo geopolítico se disparó.
+
+El impacto asimétrico recae en otro lugar. Lin acababa de regresar de un viaje por Taiwán, Singapur y Bali. Las economías del este asiático — China especialmente — siguen importando la mayoría de su petróleo de los productores del Golfo. Filipinas declaró brevemente un estado de emergencia nacional por el suministro de combustible. Los precios del arroz y los fertilizantes están subiendo globalmente, afectando a alimentos básicos calóricos de los que dependen miles de millones de personas en el Sudeste Asiático de maneras que las subidas del precio de la gasolina en Estados Unidos no producen.
+
+<Comparison
+  leftLabel="Estados Unidos"
+  rightLabel="Asia Oriental"
+  title="Exposición al choque petrolero — diferencias estructurales"
+  rows={[
+    { left: "Mayor productor de petróleo del mundo", right: "Mayoría del petróleo importado del Golfo" },
+    { left: "S&P 500 dominado por tecnología (baja intensidad energética)", right: "Base industrial y manufacturera (alta intensidad energética)" },
+    { left: "Riesgo de subida de tipos como canal principal", right: "Disrupción directa del suministro como canal principal" },
+    { left: "Relativa protección frente al cierre de Ormuz", right: "Filipinas declaró estado de emergencia nacional" },
+  ]}
+/>
+
+</Section>
+
+<Section number="04" title="Canadá, un caso de extracción <em>sin extracción</em>">
+
+<Standfirst>La única economía del G7 actualmente en recesión técnica se asienta sobre algunas de las mayores reservas mundiales de petróleo, gas natural y minerales críticos — y no está extrayendo ninguno de ellos con la rapidez necesaria.</Standfirst>
+
+Lin utiliza Canadá como la ilustración más nítida disponible de la brecha entre la riqueza en recursos sobre el papel y la capacidad real de explotarlos. Dos trimestres consecutivos de crecimiento negativo del PIB real convierten a Canadá en el único país del G7 en recesión técnica en el momento de esta conversación. El país posee enormes reservas de gas natural, petróleo y los minerales críticos — cobre, litio, níquel, tierras raras — que requieren la construcción de infraestructura de IA y la transición hacia la electrificación.
+
+El problema es el plazo. Una mina no abre en un trimestre. Lin cita un consenso de la industria de 10 a 15 años desde el otorgamiento de permisos hasta la producción operativa. Estados Unidos designó el cobre como mineral crítico solo en 2024. La cadena de suministro global para los minerales refinados se canaliza en gran medida a través de instalaciones de procesamiento chinas, lo que significa que incluso cuando el mineral está en el suelo en Canadá o Nevada, la capacidad para refinarlo en una forma utilizable a menudo no está disponible.
+
+Este es un tema que Lin conecta con la historia geopolítica más amplia: Occidente es rico en recursos en el subsuelo y dependiente de la cadena de suministro en la fase de procesamiento, y estos dos hechos están ahora en tensión de una manera que llevará una década o más deshacer, independientemente de la urgencia política.
+
+</Section>
+
+<Section number="05" title="Dos economías, un solo <em>titular</em>">
+
+<Standfirst>Los índices bursátiles en máximos históricos y los ahorros de los hogares en el 2,6 % son simultáneamente ciertos. Entender por qué requiere aceptar que estos dos hechos describen poblaciones diferentes.</Standfirst>
+
+Lin muestra un gráfico de la Reserva Federal sobre la distribución de la riqueza de los hogares que ya ha utilizado en su propio programa. La imagen cuenta una historia familiar: el 0,1 % más rico y el percentil 90-99 han acumulado dramáticamente más riqueza desde 1989; el 50 % inferior ha estado esencialmente estancado en términos reales. La superposición que importa es la correlación entre la revalorización del mercado de valores y la concentración de la riqueza. Los ricos poseen activos; a medida que los precios de los activos suben, la riqueza se concentra aún más. El mecanismo no es complicado, y se ha acelerado desde que comenzó el auge bursátil impulsado por la IA a finales de 2022.
+
+El dato de Taiwan Semiconductor que ofrece Lin es llamativo: TSMC representa ahora el 42-44 % de todo el índice bursátil taiwanés por capitalización de mercado en cualquier día. Taiwán — un territorio de menos de 25 millones de personas — tiene la quinta bolsa de valores del mundo por capitalización, habiendo superado recientemente a India. El KOSPI de Corea ha subido aproximadamente un 90 % en lo que va de año, impulsado casi en su totalidad por Samsung y un grupo de otros chaebol. Estos no son resultados económicos diversificados. Son apuestas concentradas en el ciclo de infraestructura de IA.
+
+<ContextBox label="¿Qué son los Siete Magníficos?">
+"Siete Magníficos" es la abreviatura de las siete empresas tecnológicas — Apple, Microsoft, Nvidia, Alphabet, Amazon, Meta y Tesla — que han acaparado una parte desproporcionada de los rendimientos del S&P 500 desde 2023. En el pico de concentración, estas siete acciones han representado más del 30 % de toda la capitalización de mercado del S&P 500. Comprar un fondo indexado del S&P 500 ha significado cada vez más hacer una apuesta apalancada sobre este grupo, no una exposición diversificada a 500 empresas estadounidenses.
+</ContextBox>
+
+El desplome de la tasa de ahorro es el otro dato que Lin subraya: el 2,6 %, el nivel más bajo desde aproximadamente 2022, mientras que la morosidad en las tarjetas de crédito está aumentando y el promedio de días de retraso en los pagos con tarjeta está en su punto más alto desde la pandemia. Estos dos conjuntos de datos — el gráfico de riqueza y el gráfico de morosidad — describen la misma economía en distintos niveles de ingresos. Para el cuartil superior, los activos se revalorizan y el gasto es cómodo. Para los hogares sin tenencias de activos significativas, el entorno de tipos de interés extrae poder adquisitivo real cada mes a través de tipos de tarjeta más altos, costes hipotecarios más elevados y salarios estancados en relación con la inflación incorporada.
+
+<Bars
+  items={[
+    { label: "Tasa de ahorro personal en EE. UU. (2026)", value: 2.6, display: "2,6 %" },
+    { label: "Media previa a la pandemia (~2015-2019)", value: 7.5, display: "~7,5 %" },
+    { label: "Pico de ahorro pospandemia (~2020)", value: 33, display: "~33 %" },
+  ]}
+  unit="%"
+  title="El desplome de la tasa de ahorro"
+  subtitle="Ahorro personal de EE. UU. como % de la renta disponible"
+/>
+
+El gestor de fondos Thomas Hayes captura con precisión la dinámica de la OPV de SpaceX: cuando el marido de una empleada del hogar pregunta si debería comprar acciones, la respuesta es que será liquidez de salida para los inversores de capital riesgo que entraron antes. El patrón es familiar en todas las burbujas tecnológicas de final de ciclo — amplia participación minorista justo cuando el dinero sofisticado está rotando hacia fuera.
+
+</Section>
+
+Lo que no está en duda: los gastos en intereses de la deuda federal estadounidense han superado el gasto militar y la OPC proyecta que se multiplicarán por más de dos para 2036. El rendimiento del bono del Tesoro a 10 años está en territorio que HSBC denomina zona de peligro, y el mercado ya ha descartado todas las bajadas de tipos que se esperaban antes de la guerra con Irán. Estas no son previsiones. Son hechos actuales.
+
+Lo que permanece genuinamente abierto: si la Reserva Federal priorizará el control de la inflación sobre el dolor económico de los tipos más altos, si el Congreso encontrará alguna contención fiscal y si la concentración en los mercados de renta variable impulsada por la IA se deshará de forma gradual o brusca. Lin reconoce con honestidad que la trayectoria de la deuda no tiene precedente en la historia de Estados Unidos, lo que significa que la predicción segura sobre lo que viene a continuación es, en algún nivel, una conjetura.
+
+Lo que el lector se lleva: la conversación entre Lin y Nawfal no trata principalmente de la guerra con Irán. La guerra es la ocasión — lo que añadió probabilidad de subida de tipos a un entorno de tipos ya tensionado e incrustó expectativas de inflación que los mercados estarán descontando durante años. El tema más profundo es estructural: una trayectoria de deuda que cierra opciones, una concentración de riqueza que hace que las estadísticas agregadas describan cada vez más una prosperidad que la mayoría no experimenta, y un sistema político que no podrá, en la cuidadosa formulación de Lin, "tomar las decisiones difíciles". La pieza de la semana pasada sobre el petrodólar — el mecanismo de reciclaje que ha sostenido la demanda de bonos del Tesoro durante cincuenta años — vale la pena leerla junto a esta. Si el estatus de reserva del dólar es lo que permite a Estados Unidos mantener déficits de esta magnitud indefinidamente, la pregunta que plantearon Wolff y Varoufakis sobre la durabilidad de ese arreglo se convierte de repente en algo nada académico.
