@@ -1,0 +1,190 @@
+---
+issue: "N.º 31"
+date: "24 de junio de 2026"
+sortDate: "2026-06-24"
+language: es
+track: thesis
+title: "Elegir un método para construir una ontología"
+titleHTML: "Elegir un método para <em>construir una ontología</em>"
+dek: "Existen unas veinte metodologías con nombre para construir una ontología, separadas por generación, por escuela y por si se construye de cero o se reutiliza lo que ya hay. Para una tesis que alinea el Reglamento de IA de la UE con el marco del NIST, la elección no es arbitraria: la correcta resulta ser un linaje español que va de METHONTOLOGY a NeOn y a LOT."
+dekHTML: "Existen unas veinte metodologías con nombre para construir una ontología, separadas por generación, por escuela y por si se construye de cero o se reutiliza lo que ya hay. Para una tesis que alinea el Reglamento de IA de la UE con el marco del NIST, la correcta resulta ser un linaje español que va de METHONTOLOGY a NeOn y a <em>LOT</em>."
+coverDek: "Método, lenguaje y herramienta son tres cosas distintas, y confundirlas es el error más común en el trabajo ontológico. Esta lectura ordena el panorama de las metodologías de ingeniería ontológica, explica cómo funcionan las principales y muestra por qué una tesis de comparación regulatoria debe reutilizar antes que inventar, y qué método convierte la reutilización en el centro de todo."
+source: "A partir de la literatura sobre metodologías de ingeniería ontológica, principalmente Fernández-López et al. (METHONTOLOGY, 1997), Suárez-Figueroa et al. (NeOn, 2012) y Poveda-Villalón et al. (LOT, 2022)."
+sourceLabel: "N.º 31 · Metodología"
+topics:
+  - "Ontología"
+  - "Ingeniería del conocimiento"
+  - "Metodología"
+  - "Reglamento de IA"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Timeline from '../../../components/exhibits/Timeline.astro';
+import Comparison from '../../../components/exhibits/Comparison.astro';
+import Footnote from '../../../components/Footnote.astro';
+import Footnotes from '../../../components/Footnotes.astro';
+
+<Lede>Una ontología, en el sentido que importa aquí, no es un tratado filosófico sobre la naturaleza del ser. Es un artefacto de ingeniería: un modelo formal, legible por máquina, que fija qué conceptos existen en un dominio, qué propiedades tienen y cómo se relacionan. Si se construye una para un reglamento, se le pueden hacer preguntas, comprobar que no se contradice y alinearla con otro reglamento para ver dónde coinciden ambos. Ese último movimiento —la alineación— es la razón misma por la que una tesis sobre el Reglamento de IA de la UE y el marco estadounidense del NIST construiría una ontología. Pero antes de modelar un solo concepto hay que tomar una decisión previa, y es la que más a menudo se toma mal o por inercia: ¿qué *método* se sigue para construir el artefacto? Hay alrededor de veinte metodologías con nombre disponibles, repartidas en treinta años y varios países, y no son intercambiables. Elegir bien marca la diferencia entre un capítulo que se defiende solo y otro que gasta su defensa disculpándose por una complejidad que nunca necesitó.</Lede>
+
+<Callback issue="N.º 30" slug="guizzardi-guarino-ontological-unpacking" lang="es">Guizzardi y Guarino sostienen que la diferencia entre dos sistemas de datos es a menudo una diferencia de ontología: de qué asume cada uno que existe. Esta lectura es su secuela práctica: una vez que se acepta que las ontologías deben hacerse explícitas, la pregunta siguiente es cómo se construye una.</Callback>
+
+<Section number="01" title="Método, lenguaje y herramienta son <em>tres</em> cosas">
+
+<Standfirst>El error más común en el trabajo ontológico es comparar elementos que pertenecen a capas distintas. Separarlos es la condición de todo lo demás.</Standfirst>
+
+Conviene disolver de entrada una confusión recurrente, porque contamina casi todo primer encuentro con el campo. Se pregunta si NeOn es mejor que Protégé, o si conviene usar METHONTOLOGY u OWL. Son preguntas mal planteadas. Comparan cosas que viven en capas distintas del trabajo, y la comparación no tiene respuesta porque los elementos no son alternativas entre sí.
+
+Hay que mantener separadas tres capas. Una **metodología** indica qué pasos seguir: cómo especificar lo que la ontología debe hacer, cómo reunir los conceptos, cómo validar el resultado. Un **lenguaje de representación** es la sintaxis formal en la que se escribe el modelo —RDF, OWL, SKOS, todos estándares del World Wide Web Consortium—. Una **herramienta** es el software en el que efectivamente se construye y desde el que se exporta el lenguaje: Protégé, el editor de Stanford que ha sido la opción por defecto del campo durante dos décadas, es una herramienta, no un método. No se elige entre una metodología y una herramienta, igual que no se elige entre el método ágil y un editor de texto. Se usa una metodología para decidir qué hacer, una herramienta para hacerlo y un lenguaje para escribir el resultado.
+
+<ContextBox label="Las capas, en concreto">
+**Metodología** — NeOn, LOT, METHONTOLOGY. *Qué pasos dar.*
+**Lenguaje** — OWL (lógica descriptiva), RDF (el modelo de grafo de base), SKOS (taxonomías ligeras), SHACL (validación de restricciones). *Cómo escribirlo.*
+**Herramienta** — Protégé / WebProtégé, más razonadores (HermiT, Pellet) que comprueban la consistencia lógica. *Dónde se construye.*
+
+Una metodología es agnóstica respecto a la herramienta, y en buena medida respecto al lenguaje. El mismo método puede ejecutarse en Protégé o editando Turtle a mano; puede apuntar a un OWL pesado o a un SKOS ligero. La elección del método está aguas arriba de ambos.
+</ContextBox>
+
+Una vez separadas las capas, la pregunta verdadera se enfoca. No es *qué software* ni *qué sintaxis*. Es qué *procedimiento*, y esa pregunta arrastra treinta años de literatura.
+
+</Section>
+
+<Section number="02" title="El panorama en <em>cuatro generaciones</em>">
+
+<Standfirst>Las metodologías se leen mejor en orden cronológico, porque cada generación reacciona a los límites de la anterior. El arco va del oficio a la ingeniería, de ahí a las redes y, por fin, a la agilidad.</Standfirst>
+
+El campo no llegó de golpe a sus opciones actuales. Avanzó en cuatro oleadas, y verlas es la vía más rápida para entender por qué cada método tiene la forma que tiene.
+
+La **primera generación**, a mediados de los noventa, se construyó desde la experiencia individual. Investigadores que acababan de levantar una ontología grande escribían lo que habían hecho y lo ofrecían como guía. El método de Uschold y King, extraído de la construcción de la Enterprise Ontology en Edimburgo, y el de Grüninger y Fox, surgido del proyecto TOVE en Toronto, son los ejemplos canónicos. Eran notas de campo honestas más que disciplinas de ingeniería: útiles, pero atadas al único proyecto que las produjo, y escasas en la estructura que permite que un método se traslade a otro equipo y otro dominio.
+
+La **segunda generación**, en el cambio de siglo, se propuso que construir ontologías se pareciera a la ingeniería del software propiamente dicha. El hito es METHONTOLOGY, creada en 1997 por Fernández-López, Gómez-Pérez y Juristo en la Universidad Politécnica de Madrid, que tomó deliberadamente el vocabulario del estándar de ciclo de vida del software del IEEE y prescribió una secuencia ordenada de actividades —especificación, conceptualización, formalización, implementación, mantenimiento—, cada una generando artefactos documentados.<Footnote n={1}/> La metodología alemana On-To-Knowledge, de la escuela de Karlsruhe de Staab, Studer y Sure, pertenece a la misma generación y aportó la idea adicional de que una ontología debe construirse para una aplicación explícita y evaluarse frente a ella.
+
+La **tercera generación**, a lo largo de los 2000, respondió a un hecho que la segunda había minusvalorado: para entonces ya existían ontologías y vocabularios reutilizables, y construir cada nueva desde cero era un derroche. NeOn, producto de un gran proyecto europeo dirigido de nuevo desde Madrid, es la metodología que define esta oleada. Su premisa es que las ontologías viven en redes —importan, extienden, mapean y reingenierizan unas a otras— y sustituyó el ciclo de vida lineal único por un menú de nueve escenarios que cubren cosas como reutilizar recursos ontológicos, reingenierizar recursos no ontológicos como los textos legales, y fusionar o alinear modelos existentes.<Footnote n={2}/> DILIGENT, desarrollada en esos mismos años, empujó una idea paralela: que las ontologías reales las construyen grupos distribuidos que discuten, y que esa discusión debe estructurarse y registrarse.
+
+La **cuarta generación**, en la última década, es el giro ágil. A medida que el coste de los vocabularios pequeños y bien publicados caía y el ecosistema de la web semántica maduraba, la pesada ceremonia de los métodos de segunda generación empezó a resultar desproporcionada para muchos proyectos. La metodología Linked Open Terms —LOT, publicada en 2022 por Poveda-Villalón y colegas, una vez más desde el grupo de Madrid— destila lo esencial en un ciclo ligero e iterativo de especificar, implementar, publicar y mantener, con la reutilización de términos existentes y la publicación FAIR en su centro.<Footnote n={3}/> SAMOD y UPON Lite pertenecen a la misma familia ágil.
+
+<Timeline
+  label="Genealogía"
+  title="Cuatro generaciones de ingeniería ontológica"
+  source="Las fechas marcan la publicación canónica de cada metodología; las flechas de influencia van de izquierda a derecha dentro de cada escuela."
+  events={[
+    { year: 1995, label: "Uschold y King; Grüninger y Fox — basadas en experiencia (Edimburgo, Toronto)" },
+    { year: 1997, label: "METHONTOLOGY — grado ingenieril, derivada del IEEE (Madrid)" },
+    { year: 2001, label: "On-To-Knowledge — orientada a la aplicación (Karlsruhe)" },
+    { year: 2005, label: "DILIGENT — distribuida, basada en argumentación" },
+    { year: 2012, label: "NeOn — redes y reutilización, nueve escenarios (Madrid)" },
+    { year: 2022, label: "LOT — ágil, FAIR, reutilización primero (Madrid)" }
+  ]}
+/>
+
+Las generaciones no son estrictamente sucesivas —los métodos antiguos siguen usándose, y METHONTOLOGY en particular sigue siendo una cita viva en el trabajo de ontología biomédica—. Pero el arco es real y tiene dirección: de construir en aislamiento a reutilizar lo que existe, de la documentación pesada a la iteración. Esa dirección importa enormemente para una tesis cuyo objeto entero son dos documentos que ya existen.
+
+</Section>
+
+<Section number="03" title="Cómo funcionan <em>de verdad</em> las principales">
+
+<Standfirst>Cuatro métodos cargan con casi todo el peso del campo. Cada uno se entiende mejor por el único problema que vino a resolver.</Standfirst>
+
+Los nombres no bastan; las diferencias están en la mecánica. Cuatro métodos merecen conocerse con detalle operativo, porque definen las opciones que una tesis afronta de hecho.
+
+**METHONTOLOGY** trata la construcción de ontologías como un proceso de ingeniería controlado. Se empieza por un documento de especificación que enuncia el propósito y el alcance de la ontología, se avanza por una fase de conceptualización que organiza los términos del dominio en representaciones intermedias estructuradas antes de escribir nada de código, y luego se formaliza, se implementa y se mantiene. Su gran virtud es el rigor y la trazabilidad: cada etapa deja un artefacto documentado. Su coste es el peso. Asume que se construye algo sustancial desde los cimientos, y dedica esfuerzo real a las fases tempranas de *decidir qué conceptos existen*, esfuerzo que se desperdicia en parte cuando los conceptos ya vienen dados por una fuente externa.
+
+**On-To-Knowledge** añade la disciplina de construir hacia una aplicación conocida y evaluar frente a ella. Su contribución duradera es la insistencia en que una ontología no está terminada cuando es consistente, sino cuando responde las preguntas que la aplicación necesita responder, una idea que sobrevive, refinada, en todo método moderno.
+
+**DILIGENT** es la especialista en colaboración. Se diseñó para la situación en la que una ontología la mantiene una comunidad distribuida cuyos miembros discrepan, y aporta maquinaria —argumentación estructurada, registro de razones— para converger en modelos compartidos. Si la ontología es producto de un comité, DILIGENT ofrece herramientas que ningún método en solitario tiene. Si es producto de un único investigador modelando dos textos legales, esa maquinaria es sobrecoste.
+
+**NeOn** es la metodología de la reutilización. Su idea organizadora es que rara vez se parte de cero, así que en lugar de un único ciclo de vida rígido ofrece nueve escenarios y permite ensamblar los que el proyecto necesite. Dos de esos escenarios son decisivos para el trabajo jurídico: reingenierizar un recurso no ontológico —tomar el texto de un reglamento y convertirlo en modelo formal— y reutilizar recursos ontológicos existentes. NeOn es el primer método importante que trata el *no inventar* como el caso normal y no como una ocurrencia tardía.
+
+<PullQuote>NeOn es el primer método importante que trata el no inventar como el caso normal y no como una ocurrencia tardía. Ese único giro es lo que la convierte en la columna adecuada para alinear dos marcos que ya existen.</PullQuote>
+
+**LOT** toma la filosofía de reutilización de NeOn y la hace operativa y ligera. Donde NeOn describe un espacio de escenarios, LOT da un ciclo concreto y repetible: redactar una especificación guiada por preguntas de competencia —las preguntas reales que la ontología debe responder—, implementar, publicar y mantener, iterando cuando haga falta. Es explícitamente industrial y ágil, se apoya en reutilizar términos ya publicados e incorpora prácticas modernas de publicación y evaluación. LOT es, en efecto, el procedimiento que NeOn implica, escrito como pasos que se pueden seguir un martes cualquiera.
+
+<ContextBox label="Preguntas de competencia">
+La bisagra de la validación ontológica moderna. Una pregunta de competencia es una pregunta que la ontología terminada debe poder responder; para una tesis sobre el Reglamento de IA, algo como *«¿qué documentación exige el Reglamento a un sistema de alto riesgo?»* o *«¿qué control del NIST satisface el deber de supervisión humana del artículo 14?»*. Se escriben primero, se construye para satisfacerlas y se usan al final para demostrar que la ontología funciona. Convierten la cuestión «¿es buena esta ontología?» de un asunto de gusto en una prueba verificable.
+</ContextBox>
+
+</Section>
+
+<Section number="04" title="¿Limitadas por tema? ¿Por <em>país</em>?">
+
+<Standfirst>Las preguntas que surgen a continuación tienen respuestas nítidas, y una de ellas es estratégica más que meramente descriptiva.</Standfirst>
+
+Dos preguntas surgen de modo natural una vez visible el panorama. ¿Están estos métodos limitados por la materia? ¿Y por el país?
+
+Sobre el tema, la respuesta es no en principio y sí en la práctica, y la distinción importa. Una metodología es un procedimiento, no un contenido; nada en METHONTOLOGY o NeOn es biológico, jurídico o financiero. El mismo método construye una ontología de proteínas o de derecho de contratación pública. Lo cierto es que las comunidades se agrupan: la ontología biomédica está dominada por METHONTOLOGY y NeOn junto al ecosistema OBO, no porque otros métodos *no puedan* servir a ese dominio, sino porque la adopción engendra adopción. La lección para una tesis de dominio jurídico es liberadora: la elección de método no está condicionada por el hecho de que la materia sea el derecho. Está condicionada por la *forma del trabajo*, y la forma aquí es la reutilización de textos normativos existentes, lo que apunta a NeOn y LOT por razones que nada tienen que ver con que el tema sea la regulación.
+
+Sobre el país, la respuesta es más interesante, y es donde la descripción se vuelve estrategia. No hay restricción nacional para usar ningún método, pero los métodos vienen en escuelas geográficas identificables, cada una con su propio linaje.
+
+<Comparison
+  label="Escuelas"
+  title="La ingeniería ontológica tiene linajes nacionales"
+  leftLabel="Escuela / centro"
+  rightLabel="Metodologías"
+  rows={[
+    { left: "Española — Universidad Politécnica de Madrid (grupo Gómez-Pérez)", right: "METHONTOLOGY → NeOn → LOT" },
+    { left: "Alemana — Karlsruhe / AIFB (Studer, Staab, Sure)", right: "On-To-Knowledge, DILIGENT" },
+    { left: "Italiana — Roma (De Nicola)", right: "UPON; buena parte del trabajo reciente de web semántica" },
+    { left: "Griega — Egeo (Kotis y Vouros)", right: "HCOME" },
+    { left: "Anglófona temprana — Edimburgo, Toronto, Stanford", right: "Uschold y King, Grüninger y Fox, Ontology 101" }
+  ]}
+/>
+
+El punto estratégico está en la primera fila. Toda la columna metodológica disponible para esta tesis —METHONTOLOGY, NeOn y LOT— es un único linaje español, los tres surgidos del mismo grupo de investigación madrileño a lo largo de veinticinco años. METHONTOLOGY no es solo «el antecedente clásico» que se cita por forma. Es el *origen de la familia misma* en la que opera la tesis: NeOn es su sucesora en red, LOT su destilación ágil. Para un doctorado que se defiende en una universidad española, construir sobre el linaje nacional dominante en ingeniería ontológica no es una coincidencia que ocultar, sino una coherencia que enunciar. El método tiene pasaporte, y es el correcto.
+
+</Section>
+
+<Section number="05" title="Cuál — y por qué <em>no</em> las otras">
+
+<Standfirst>La decisión no es solo qué método adoptar, sino qué sofisticación rechazar. La disciplina está en las renuncias.</Standfirst>
+
+Para una tesis que alinea los deberes de documentación del Reglamento de IA con el marco del NIST, el método se sigue de un hecho sobre el trabajo: no se inventan conceptos. Los conceptos vienen dados —por los artículos 11 a 14 del Reglamento de un lado, por las cuatro funciones del marco del NIST del otro—. La tarea es modelar ambos con fidelidad y alinearlos. Ese hecho incluye y excluye opciones con una claridad inusual.
+
+Incluye a METHONTOLOGY *como ascendencia y la excluye como procedimiento*. Sus pesadas fases tempranas de decidir qué conceptos existen se desperdician en buena medida cuando los conceptos llegan ya escritos en un texto legal; ejecutar su ciclo de vida completo inflaría el capítulo y dejaría sin espacio al caso de estudio que ha de seguir. Se cita como raíz del linaje y no se ejecuta.
+
+Incluye a NeOn *como marco*. Su escenario de reingeniería es exactamente la operación de convertir el texto de un reglamento en modelo formal, y su escenario de reutilización es exactamente lo que se hace al apoyarse en ontologías del Reglamento de IA ya existentes en lugar de partir en frío. NeOn está hecha para la situación en la que la tesis se encuentra.
+
+Incluye a LOT *como capa operativa*. NeOn dice qué escenarios aplican; LOT dice qué hacer el lunes por la mañana —especificar con preguntas de competencia trazables a los artículos 11 a 14, implementar, validar, documentar—. Aporta el detalle procedimental que NeOn deja en abstracto, y lo hace en el registro ágil que un proyecto de tres años necesita.
+
+Lo que queda es la disciplina más difícil: rechazar la sofisticación que no se necesita. La tentación, una vez conocido el campo, es echar mano de lógica descriptiva pesada con un razonador automático, métricas formales de emparejamiento de ontologías y una ontología de alto nivel debajo de todo. Para esta tesis, cada una de esas piezas es un aplazamiento, no un requisito.
+
+<Comparison
+  label="El mínimo deliberado"
+  title="Qué adoptar ahora, qué aplazar"
+  leftLabel="Adoptar — el stack mínimo"
+  rightLabel="Aplazar — hasta que un codirector lo pida"
+  rows={[
+    { left: "NeOn + LOT como método", right: "El ciclo de vida completo de METHONTOLOGY (solo citar)" },
+    { left: "Protégé como editor", right: "—" },
+    { left: "SKOS + RDFS para el modelo", right: "OWL 2 DL pesado + razonador (HermiT/Pellet)" },
+    { left: "Relaciones de mapeo SKOS para la matriz UE↔NIST, con criterio jurídico experto", right: "Emparejamiento automático + métricas de precisión/exhaustividad estilo OAEI" },
+    { left: "Preguntas de competencia + OOPS! para validar", right: "OntoClean; SSSOM como formato de salida opcional" }
+  ]}
+/>
+
+La correspondencia entre los dos marcos es el corazón de la tesis, pero es un ejercicio de criterio jurídico experto, no un problema algorítmico de emparejamiento, y la forma mínima de expresarla ya está disponible en las relaciones de mapeo tipadas de SKOS (*exactMatch*, *closeMatch*, *broadMatch* y las demás), que dan una matriz defendible y estructurada sin invocar un razonador. El aparato más pesado no es erróneo; es prematuro. Se adopta solo si el trabajo exige de verdad inferencia, y si la exige, la puerta queda abierta.
+
+El movimiento crucial es hacer del mínimo una decisión *declarada* y no una omisión silenciosa. Una tesis se fortalece, no se debilita, con límites elegidos sobre el papel: cuando un tribunal pregunte por qué no hay razonamiento OWL, la respuesta «fue una decisión metodológica revisada, documentada y justificada» es una posición, mientras que un encogimiento de hombros es un agujero. La misma lógica que acota la formalización a los artículos 11 a 14 en primer lugar —modelar lo que se puede defender, declarar lo que se deja fuera— gobierna el stack técnico.
+
+</Section>
+
+<Section number="06" title="Coda — el método es una <em>postura</em>">
+
+<Standfirst>Bajo los acrónimos late una sola pregunta sobre qué tipo de trabajo está haciendo la tesis.</Standfirst>
+
+Es tentador tratar la elección entre metodologías ontológicas como un detalle técnico, zanjado por el nombre que más aparezca en los artículos recientes. Se entiende mejor como una postura. Toda metodología codifica un supuesto sobre lo que hace quien construye, y los supuestos no son iguales. Los métodos basados en experiencia suponen que se documenta un oficio. METHONTOLOGY supone que se ingenieriza un artefacto a partir de conocimiento de dominio en bruto. DILIGENT supone que se negocia un acuerdo entre una comunidad. NeOn y LOT suponen que se reutiliza y se conecta lo que ya existe.
+
+Ese último supuesto es el verdadero para esta tesis, y reconocerlo es lo que hace encajar todo lo demás. El trabajo no es inventar un modelo de la regulación de la IA; es hacer que dos marcos existentes se vuelvan legibles entre sí. Un método pensado para inventar impondría una ceremonia que el trabajo no necesita y engañaría al lector sobre cuál es la contribución. Un método pensado para reutilizar y alinear nombra el trabajo correctamente, y la función más importante de un método, antes de estructurar una sola clase o relación, es decir la verdad sobre qué clase de trabajo es.
+
+<Callback issue="N.º 17" slug="hildebrandt-law-computer-scientists" lang="es">La distinción de Hildebrandt entre lo legal-por-diseño y la protección-jurídica-por-diseño es la compañera sustantiva de esta distinción metodológica: decidir cómo modelar los deberes del Reglamento de IA depende de decidir primero para qué sirven esos deberes. La ontología formaliza la estructura; su marco mantiene honesta la formalización sobre lo que protege.</Callback>
+
+</Section>
+
+<Footnotes notes={[
+  "M. Fernández-López, A. Gómez-Pérez y N. Juristo, «METHONTOLOGY: From Ontological Art Towards Ontological Engineering», Actas del AAAI Spring Symposium on Ontological Engineering (Stanford, 1997). El método se modeló deliberadamente sobre el estándar IEEE 1074 de procesos del ciclo de vida del software; su tratamiento más completo está en A. Gómez-Pérez, M. Fernández-López y O. Corcho, <em>Ontological Engineering</em> (Springer, 2003).",
+  "La metodología NeOn define nueve escenarios para construir ontologías y redes de ontologías, entre ellos la reutilización de recursos ontológicos, la reingeniería de recursos no ontológicos y la alineación de ontologías. Véase M. C. Suárez-Figueroa, A. Gómez-Pérez y M. Fernández-López, «The NeOn Methodology for Ontology Engineering», en <em>Ontology Engineering in a Networked World</em> (Springer, 2012), pp. 9-34.",
+  "M. Poveda-Villalón, A. Fernández-Izquierdo, M. Fernández-López y R. García-Castro, «LOT: An industrial oriented ontology engineering framework», <em>Engineering Applications of Artificial Intelligence</em> 111 (2022), 104755. El acrónimo significa Linked Open Terms; el ciclo es especificación, implementación, publicación y mantenimiento, con reutilización de términos existentes y publicación FAIR incorporadas."
+]}/>
