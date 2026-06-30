@@ -1,11 +1,13 @@
 ---
-name: lecturas
-description: Turn source material into a "Lecturas" annotated reading — a bilingual (English + Spanish) personal reading in Arturo's collection at lecturas-ten.vercel.app. Use this skill whenever Arturo provides source material (transcript, URL, video, paste) AND asks for an annotated reading, OR when he names a topic/question and asks for an explainer or "reading on" something. Also use when he refers to existing Lecturas pieces, asks to update the collection, or extends/edits a piece already in it. The skill encodes the editorial voice, design system, bilingual translation conventions, and the Astro-based deployment pipeline.
+name: glossa
+description: Glossa is the publication layer over the phd-kb knowledge base — it turns a seed (an idea, source, or question) into a bilingual (English + Spanish) annotated reading with verifiable provenance, published to Arturo's collection at lecturas-ten.vercel.app (repo aauml/glossa). Use this skill whenever Arturo provides source material (transcript, URL, video, paste) AND asks for an annotated reading, OR when he names a topic/question and asks for an explainer or "reading on" something. Also use when he refers to existing pieces, asks to update the collection, or extends/edits a piece already in it. The skill encodes the editorial voice, design system, bilingual translation conventions, the Astro-based deployment pipeline, and Glossa's data model (glossa_* tables in phd-kb): it reads the curated KB (evaluated_items), records human authorship and provenance, and respects the human supervision gates (compuertas).
 ---
 
-# Lecturas
+# Glossa
 
-A skill for producing pieces in Arturo's bilingual annotated-reading collection.
+Glossa is the **publication layer (domain PUB)** over the `phd-kb` knowledge base. It produces pieces in Arturo's bilingual annotated-reading collection, anchored to a dated human seed and backed by verifiable provenance. The thinking is Arturo's; research, verification, drafting, and publishing are assisted.
+
+> **Heritage.** Glossa evolves the `lecturas` skill and its live site (`lecturas-ten.vercel.app`, repo renamed `aauml/lecturas` → `aauml/glossa`). The public publication brand is still "Lecturas" on the live site until the brand migration ships (docs 08/09); the skill, repo, and data domain are already "Glossa." The editorial machinery below is unchanged from `lecturas` — what is new is the phd-kb integration and the compuertas.
 
 ## ⚠️ Style precedence — read this first
 
@@ -82,13 +84,52 @@ print(f"R6: paragraphs with ≥4 abstract nouns: {len(flagged)}")
 
 If any rule fails, the piece is not ready to push.
 
-## What Lecturas is
+## What Glossa is
 
-Lecturas is a personal reader. Arturo curates podcasts, video interviews, articles, and topics he wants to understand more carefully than once, and they get rebuilt as guided readings — bilingual, with optional data exhibits, every claim verified, every assumed concept supplemented. Each piece can ship in English only or in English and Spanish.
+Glossa is a personal reader. Arturo curates podcasts, video interviews, articles, and topics he wants to understand more carefully than once, and they get rebuilt as guided readings — bilingual, with optional data exhibits, every claim verified, every assumed concept supplemented. Each piece can ship in English only or in English and Spanish.
 
 The site is live at `https://lecturas-ten.vercel.app` and is built with **Astro**. Articles are MDX content files; the design system (CSS, layouts, components) lives in code. Build merges the two. This means a new issue is two small MDX files, never a giant HTML file. Mobile publishing works because of this.
 
-The format is validated through five issues. The voice and design are settled. Don't reinvent. Match it.
+The format is validated through many issues. The voice and design are settled. Don't reinvent. Match it.
+
+## Glossa and phd-kb — the publication layer
+
+Glossa does not build a knowledge base, surveillance, memory, or cost tracking. Those already exist in `phd-kb` (Supabase project `wtwuvrtmadnlezkbesqp`, repo `aauml/thesis`). Glossa is domain **PUB**: it **consumes** the KB and **publishes**. Decision of record: **D-020** in `aauml/thesis/DECISIONS.md`.
+
+**Boundary rule (do not cross).** PUB reads the KB, never modifies it. Glossa owns only the `glossa_*` tables and the `aauml/glossa` repo.
+- ✅ Read `evaluated_items` (the curated bibliography) and its embeddings.
+- ✅ Read `monitor_findings` (surveillance), `reading_conversations`, `source_validations`.
+- ✅ Write `glossa_seeds`, `glossa_issues`, `glossa_issue_sources`.
+- ❌ Never write `evaluated_items` or any `pm_*` / KB pipeline table. ❌ Never touch `agent_docs` (read-only mirror populated by `sync-docs.yml`).
+
+**KB-first, then the web.** The curated corpus is the floor of trust; live web/APIs are the frontier. Always query the KB before reaching for Tavily/OpenAlex.
+
+### Reading the KB (evaluated_items)
+
+Two access paths — both via the Supabase project `wtwuvrtmadnlezkbesqp`. From **Code/Cowork** prefer the Supabase MCP `execute_sql`; from **chat/mobile** use the Supabase connector or REST. Keys via 1Password (`op`, vault `ademas.ai`); never paste them.
+
+- **Cheap filters (no embedding) — default for a first pass:**
+  ```sql
+  select pk, title, url, source, importance, thesis_relevance, chapters, capa
+  from evaluated_items
+  where archived is not true
+    and (thesis_relevance ilike '%PATTERN%' or title ilike '%recidivism%' or thesis_relevance ilike '%NIST%')
+  order by (importance = 'ALTA') desc, created_at desc
+  limit 25;
+  ```
+- **Semantic search (when a 384-dim query embedding is available):** RPC `search_evaluated_items(query_embedding, match_threshold, match_count, filter_importance)` — embeddings are `vector(384)`, generated by the KB's `generate-embeddings` edge function. Returns ranked cosine matches. Use for conceptual recall the keyword filters miss.
+
+Capture the `pk` of every source you actually use — it is the provenance key written into `glossa_issue_sources`.
+
+### Writing provenance (glossa_* — the pipeline)
+
+Every piece leaves a provenance graph: a dated human **seed** → an **issue** moving through the pipeline → **sources** from the KB with verification. Schema: `db/migrations/0001_glossa_publication_layer.sql`.
+
+1. **At the seed/framing gate** — insert one `glossa_seeds` row (the dated human intention = authorship). Set `mode` (tesis|fuente|pregunta|vigilancia|dialectica|serie), `track`, `thesis` (Arturo's angle), and any origin (`origin_finding_id` / `origin_conversation_id` / `origin_kb_id`).
+2. **When work starts** — insert a `glossa_issues` row: `slug`, `issue_no`, `track`, `mode`, `status='researching'`, `seed_id`, and `title_en/title_es/dek_en/dek_es/topics/chapters` as they firm up. Advance `status` through `researching → drafting → review → published`.
+3. **At the review gate / on publish** — for each KB source used, insert `glossa_issue_sources` (`issue_id`, `source_kb_id` = the `evaluated_items.pk`, `role` primary|support|context|discourse, `claim`, `verified` si|no|parcial). On publish, set the issue's `status='published'`, `url_en/url_es`, `published_at`, `model`.
+
+Web/API sources that are not in the KB still go into the piece's `sources.json` sidecar (see `references/deployment.md` and doc 05); only KB-backed sources get a `glossa_issue_sources` row (it FKs to `evaluated_items`).
 
 ## Two intake modes
 
@@ -100,6 +141,26 @@ Decide automatically from the input shape, no confirmation question:
 Edge: a starting source plus "fuller picture" / "research more" / "what's the broader context" is **Mode B with that source as the entry point**. A bare URL with no instructions defaults to **Mode A**.
 
 The skill executes one of these. Don't ask which.
+
+## Entry modes and gates (compuertas)
+
+The intake modes above (A/B) decide *how to research*. The **entry mode** decides *where Arturo's authorship enters* and *which human gates apply*. The invariant across all modes: a dated human intention anchors the piece, and there is a gate before anything is written or published. Detail: doc 03.
+
+| Entry mode | What Arturo brings | Authorship enters | Framing gate? |
+|---|---|---|---|
+| **tesis** | a formed hypothesis | up front | no (thesis already set) |
+| **serie** | a gap in the argument to fill | up front | no |
+| **fuente** | a URL / PDF / podcast / video | after a digest | **yes** |
+| **pregunta** | a question, no thesis yet | after a digest | **yes** |
+| **vigilancia** | nothing — surveillance pinged | after a digest | **yes** |
+| **dialectica** | two sources in tension | after a digest | **yes** |
+
+**The two gates** — a gate is a stop where the flow waits for Arturo's OK. Nothing is written or published without it.
+
+1. **Framing gate (encuadre) — "ask before fixing the thesis."** In material-first modes (fuente / pregunta / vigilancia / dialectica), stop after the research digest, surface what you found, and let Arturo react and fix the thesis/angle. Write the `glossa_seeds` row only once the thesis is fixed. In angle-first modes (tesis / serie) the thesis is already supplied, so this gate is already satisfied — proceed.
+2. **Review gate (revisión) — "ask before publishing."** Build the EN/ES draft, then present it (and the source list) for Arturo's review and edits **before** pushing. Do not auto-push a Glossa piece. On approval, push, then write provenance and flip `status='published'`.
+
+This is the one place Glossa deliberately departs from the old `lecturas` "ship first, talk later" default — see *When to ask vs when to proceed* below. The gate is elastic: during the conversation, pull more sources as needed; it is a ping-pong, not a rigid "before/after research" line. In angle-first modes the two gates can collapse into a single review conversation.
 
 ## Research is mandatory in both modes
 
@@ -141,7 +202,7 @@ The variable is the writing-to-source ratio. Match the source.
 
 ## Fluidity
 
-Lecturas pieces should be entertaining to read. Not entertaining the way a listicle is — entertaining the way a well-written long-form magazine essay is. The reader should want to keep going.
+Glossa pieces should be entertaining to read. Not entertaining the way a listicle is — entertaining the way a well-written long-form magazine essay is. The reader should want to keep going.
 
 Three things kill fluidity:
 1. **Scaffolding prose.** "The first channel is accuracy. The second channel is rule of law. The third channel is dignity." This reads like a lecture outline. Weave arguments together; use narrative transitions; let each section earn its right to exist by doing something the previous one didn't.
@@ -152,7 +213,7 @@ Three things kill fluidity:
 
 Read `references/editorial-conventions.md` before writing. The short version:
 
-- **Framing matters more than coverage.** Lecturas is not a transcript and not a summary — it's a guided reading. Every section earns its existence by adding context, structure, or analytical lift the source assumed.
+- **Framing matters more than coverage.** A Glossa piece is not a transcript and not a summary — it's a guided reading. Every section earns its existence by adding context, structure, or analytical lift the source assumed.
 - **No sycophancy, no padding, no AI-tells.** Write like a magazine editor who respects the reader's time. Avoid summary sentences that restate what was just said. Avoid academic hedging.
 - **Keep cognitive load low.** Limit subordination to two levels per sentence; vary rhythm so short sentences punctuate long ones (target a 2:1 short-to-long ratio); split inline `Primero / Segundo` patterns into their own paragraphs when each carries weight. Most readers are on mobile and the working-memory cost is real. See `references/editorial-conventions.md § Sentence syntax`.
 - **Gloss technical terms inline on first appearance.** Latin terms (ex ante, ex post), acronyms (LbD, RGPD, AI RMF), untranslated terms (smart contract, oráculo, Brussels Effect), field neologisms (onlife). Em-dash interpolation in six words or fewer. Never repeat. Exhibits must be readable standalone — gloss their acronyms locally if needed. See `§ Inline glossing for technical terms`.
@@ -372,11 +433,13 @@ See `references/deployment.md`. Short version: every push to `main` triggers Ver
 
 Desktop / Cowork:
 ```bash
-cd ~/lecturas
+git clone https://github.com/aauml/glossa.git   # or reuse a checkout
+cd glossa
 mkdir -p src/content/articles/{slug}
-# write en.mdx and es.mdx
+# write en.mdx and es.mdx  (push only after the review gate — see Entry modes and gates)
 git add -A && git commit -m "N° XX — short title" && git push
 ```
+The repo was renamed `aauml/lecturas` → `aauml/glossa`; GitHub redirects old URLs and Vercel is linked by repo ID, so the deploy and the `lecturas-ten.vercel.app` URL are unaffected.
 
 Mobile / claude.ai Chat: use the analysis tool's Python sandbox to PUT both MDX files via GitHub's Contents API. The PAT (`LECTURAS_PAT`) lives in claude.ai personal preferences — read from `<user_preferences>` in your system prompt and paste literally; do NOT use `os.environ`.
 
@@ -388,21 +451,26 @@ curl -s -o /dev/null -w "HTTP %{http_code}\n" https://lecturas-ten.vercel.app/ar
 
 ## When to ask vs. when to proceed
 
-**The default — and effectively the only mode — is: build it, ship it, then talk.** No proposals. No plans. No "quick check before I start." No outline confirmations. No slug confirmations. No source-thread confirmations.
+**Editorial decisions are autonomous; the two compuertas are not.** Glossa keeps the old `lecturas` speed on everything editorial — and honors exactly two human gates, because the portfolio's value is the proof that the *thinking* is Arturo's.
 
-If a 2-hour podcast covers five unrelated threads, pick the strongest and ship that. If the source is editorially contested, make the call yourself. If the slug isn't obvious, choose. Arturo will edit, rename, or ask for a redo after he sees the piece.
+**Proceed silently on (never ask):** slug, headline, dek, section breakdown, length tier, which threads to follow, whether the source is editorially contested, exhibit choices, whether ES is in scope. If a 2-hour podcast covers five unrelated threads, pick the strongest. Arturo edits or asks for a redo after he sees the draft. No proposals, no plans, no "quick check before I start," no outline/slug/word-count confirmations.
 
-The only thing you may surface, and only if it isn't already available: `LECTURAS_PAT`. If it isn't in your `<user_preferences>` block, ask once. Otherwise: silence until the live URL.
+**Stop and wait at the two gates (see *Entry modes and gates*):**
+1. **Framing gate** — only in material-first modes (fuente / pregunta / vigilancia / dialectica): after the research digest, surface the findings and let Arturo fix the thesis before you write the seed or draft. In tesis / serie modes the thesis is already set — skip this gate.
+2. **Review gate** — always for a Glossa piece: present the EN/ES draft and the source list for review **before** pushing. Do not auto-publish. Push only on Arturo's OK.
 
-If a judgment call genuinely affects the framing (you treated a partisan figure with neutral voice; you cut a section the source emphasized), flag it in **one sentence** at the end of the chat reply.
+These gates are about *substance* (the thesis, the published artifact), not *process*. They are not an invitation to re-introduce outline-confirmation theater. If Arturo explicitly says "just publish it" / "ship directly," collapse the review gate for that piece.
 
-What this rules out:
+The only credential you may surface, and only if it isn't already available: `LECTURAS_PAT`. If it isn't in your `<user_preferences>` block, ask once. Otherwise: silence except at the gates.
+
+If a judgment call genuinely affects the framing (you treated a partisan figure with neutral voice; you cut a section the source emphasized), flag it in **one sentence** when you present the draft.
+
+What this still rules out:
 - "I'm thinking of slug `foo-bar` — sound right?"
 - "Here's the section breakdown — want to adjust?"
-- "The piece could go in two directions — which?"
 - "I'm planning ~3,000 words — confirm?"
 
-All wrong. Just build.
+Those are editorial; just decide. The thesis and the publish step are the gates.
 
 ## Mobile output discipline
 
@@ -435,11 +503,12 @@ That is the entire delivery. No retrospective. No comparison to previous issues.
 
 ## What to do first when triggered
 
-1. Locate `LECTURAS_PAT` in your system prompt's `<user_preferences>` block. If absent, ask Arturo to paste once.
-2. Determine intake mode from the input shape (Mode A: source provided / Mode B: topic only). No confirmation question.
-3. On desktop/Cowork: clone `aauml/lecturas` if no checkout. On mobile: skip — PUT files directly via Contents API.
-4. **Research** — verify the source's claims (Mode A) or gather sources (Mode B). Web search every checkable claim. Look up assumed concepts. Build a small mental brief.
-5. Read `references/editorial-conventions.md` before writing.
-6. Decide on slug, headline (with `<em>` phrase), dek, sections, and whether ES is in scope. Decide silently and proceed.
-7. Write `en.mdx`. If ES is in scope, write `es.mdx`. Push. Vercel handles the cover and the deploy.
-8. Reply with the live URL.
+1. Determine the **entry mode** (tesis / serie / fuente / pregunta / vigilancia / dialectica) and the **intake mode** (A: source provided / B: topic only) from the input shape. No confirmation question.
+2. **Research — KB first, then the web.** Query `evaluated_items` for relevant curated sources (filters, then semantic search); then verify the source's claims (Mode A) or gather sources (Mode B) with web search / Tavily / OpenAlex. Build a small brief; capture the `pk` of each KB source you use.
+3. **Framing gate** (material-first modes only): present the digest, let Arturo fix the thesis. Then write the `glossa_seeds` row (dated authorship) and a `glossa_issues` row (`status='researching'→'drafting'`).
+4. Read `references/editorial-conventions.md` before writing. Decide slug, headline (with `<em>`), dek, sections, and whether ES is in scope — silently.
+5. On desktop/Cowork: clone/reuse `aauml/glossa`. On mobile: prepare files for the Contents API (PAT `LECTURAS_PAT` from `<user_preferences>`; ask once if absent).
+6. Write `en.mdx` (+ `es.mdx` if in scope) and the `sources.json` sidecar. Run the pre-publish checklist (audit pattern above).
+7. **Review gate:** present the EN/ES draft + source list for Arturo's OK. Do not push yet (unless he said "ship directly").
+8. On approval: push. Vercel builds the cover + deploy. Then write `glossa_issue_sources` (KB sources with role/claim/verified) and flip the issue to `status='published'` with `url_en/url_es`, `published_at`, `model`.
+9. Reply with the live URLs (and one sentence on any framing judgment call).

@@ -2,9 +2,9 @@
 
 ## Architecture
 
-Astro site, Vercel-hosted, GitHub-backed. Every push to `main` of `aauml/lecturas` triggers `astro build` and a fresh deploy.
+Astro site, Vercel-hosted, GitHub-backed. Every push to `main` of `aauml/glossa` triggers `astro build` and a fresh deploy. (Repo renamed from `aauml/lecturas`; GitHub redirects old URLs and Vercel links by project id, so the alias below is unchanged.)
 
-- **GitHub repo**: `aauml/lecturas` (public)
+- **GitHub repo**: `aauml/glossa` (public, formerly `aauml/lecturas`)
 - **Vercel project**: `lecturas` in team `ayalaax-6763s-projects` (id: `team_PCfVDieErgkV66bd9jvNg32g`, project id: `prj_DnoxPEwO3xw8DZPUvIsAwwQVtTP0`)
 - **Production alias**: `https://lecturas-ten.vercel.app`
 - **Build trigger**: every commit to `main` → Vercel webhook → `npm run build` → live in ~60s
@@ -162,8 +162,8 @@ The bespoke `<Exhibit>` wrapper still exists for unusual cases. Reach for it las
 ## Deploy flow — desktop / Cowork (shell)
 
 ```bash
-git clone https://aauml:${LECTURAS_PAT}@github.com/aauml/lecturas.git ~/lecturas  # if not cloned
-cd ~/lecturas
+git clone https://aauml:${LECTURAS_PAT}@github.com/aauml/glossa.git ~/glossa  # if not cloned
+cd ~/glossa
 mkdir -p src/content/articles/{slug}
 # write en.mdx (and es.mdx if ES in scope)
 git add -A
@@ -196,7 +196,7 @@ Use the analysis tool's Python sandbox to PUT MDX files via GitHub's Contents AP
 import base64, requests
 
 PAT = "github_pat_REPLACE_WITH_VALUE_FROM_PREFERENCES"
-OWNER, REPO, BRANCH = "aauml", "lecturas", "main"
+OWNER, REPO, BRANCH = "aauml", "glossa", "main"
 HEADERS = {"Authorization": f"Bearer {PAT}", "Accept": "application/vnd.github+json"}
 API = f"https://api.github.com/repos/{OWNER}/{REPO}"
 
