@@ -6,7 +6,7 @@ Astro site, Vercel-hosted, GitHub-backed. Every push to `main` of `aauml/glossa`
 
 - **GitHub repo**: `aauml/glossa` (public, formerly `aauml/lecturas`)
 - **Vercel project**: `lecturas` in team `ayalaax-6763s-projects` (id: `team_PCfVDieErgkV66bd9jvNg32g`, project id: `prj_DnoxPEwO3xw8DZPUvIsAwwQVtTP0`)
-- **Production alias**: `https://lecturas-ten.vercel.app`
+- **Production alias**: `https://glossa.ademas.ai`
 - **Build trigger**: every commit to `main` → Vercel webhook → `npm run build` → live in ~60s
 
 ## Repo layout
@@ -174,9 +174,9 @@ git push
 Vercel handles the rest. Verify:
 
 ```bash
-curl -s -o /dev/null -w "HTTP %{http_code}\n" https://lecturas-ten.vercel.app/
-curl -s -o /dev/null -w "HTTP %{http_code}\n" https://lecturas-ten.vercel.app/articles/{slug}/en/
-[ -f src/content/articles/{slug}/es.mdx ] && curl -s -o /dev/null -w "HTTP %{http_code}\n" https://lecturas-ten.vercel.app/articles/{slug}/es/
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://glossa.ademas.ai/
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://glossa.ademas.ai/articles/{slug}/en/
+[ -f src/content/articles/{slug}/es.mdx ] && curl -s -o /dev/null -w "HTTP %{http_code}\n" https://glossa.ademas.ai/articles/{slug}/es/
 ```
 
 ## Deploy flow — mobile / claude.ai Chat
@@ -284,7 +284,7 @@ del es_mdx
 import time
 time.sleep(60)  # let Vercel build
 for path in ["", f"articles/{slug}/en/"]:
-    r = requests.get(f"https://lecturas-ten.vercel.app/{path}")
+    r = requests.get(f"https://glossa.ademas.ai/{path}")
     print(r.status_code, path or "(cover)")
 ```
 
@@ -293,7 +293,7 @@ for path in ["", f"articles/{slug}/en/"]:
 ```
 EN (12 KB) → 7a3b...
 [ES (11 KB) → 9c2d... if ES in scope]
-Live: https://lecturas-ten.vercel.app/articles/{slug}/en/
+Live: https://glossa.ademas.ai/articles/{slug}/en/
 ```
 
 That's the entire delivery.

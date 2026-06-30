@@ -1,13 +1,13 @@
 ---
 name: glossa
-description: Glossa is the publication layer over the phd-kb knowledge base — it turns a seed (an idea, source, or question) into a bilingual (English + Spanish) annotated reading with verifiable provenance, published to Arturo's collection at lecturas-ten.vercel.app (repo aauml/glossa). Use this skill whenever Arturo provides source material (transcript, URL, video, paste) AND asks for an annotated reading, OR when he names a topic/question and asks for an explainer or "reading on" something. Also use when he refers to existing pieces, asks to update the collection, or extends/edits a piece already in it. The skill encodes the editorial voice, design system, bilingual translation conventions, the Astro-based deployment pipeline, and Glossa's data model (glossa_* tables in phd-kb): it reads the curated KB (evaluated_items), records human authorship and provenance, and respects the human supervision gates (compuertas).
+description: Glossa is the publication layer over the phd-kb knowledge base — it turns a seed (an idea, source, or question) into a bilingual (English + Spanish) annotated reading with verifiable provenance, published to Arturo's collection at glossa.ademas.ai (repo aauml/glossa). Use this skill whenever Arturo provides source material (transcript, URL, video, paste) AND asks for an annotated reading, OR when he names a topic/question and asks for an explainer or "reading on" something. Also use when he refers to existing pieces, asks to update the collection, or extends/edits a piece already in it. The skill encodes the editorial voice, design system, bilingual translation conventions, the Astro-based deployment pipeline, and Glossa's data model (glossa_* tables in phd-kb): it reads the curated KB (evaluated_items), records human authorship and provenance, and respects the human supervision gates (compuertas).
 ---
 
 # Glossa
 
 Glossa is the **publication layer (domain PUB)** over the `phd-kb` knowledge base. It produces pieces in Arturo's bilingual annotated-reading collection, anchored to a dated human seed and backed by verifiable provenance. The thinking is Arturo's; research, verification, drafting, and publishing are assisted.
 
-> **Heritage.** Glossa evolves the `lecturas` skill and its live site (`lecturas-ten.vercel.app`, repo renamed `aauml/lecturas` → `aauml/glossa`). The public publication brand is still "Lecturas" on the live site until the brand migration ships (docs 08/09); the skill, repo, and data domain are already "Glossa." The editorial machinery below is unchanged from `lecturas` — what is new is the phd-kb integration and the compuertas.
+> **Heritage.** Glossa evolves the `lecturas` skill and its live site (`glossa.ademas.ai`, repo renamed `aauml/lecturas` → `aauml/glossa`). The public publication brand is still "Lecturas" on the live site until the brand migration ships (docs 08/09); the skill, repo, and data domain are already "Glossa." The editorial machinery below is unchanged from `lecturas` — what is new is the phd-kb integration and the compuertas.
 
 ## ⚠️ Style precedence — read this first
 
@@ -88,7 +88,7 @@ If any rule fails, the piece is not ready to push.
 
 Glossa is a personal reader. Arturo curates podcasts, video interviews, articles, and topics he wants to understand more carefully than once, and they get rebuilt as guided readings — bilingual, with optional data exhibits, every claim verified, every assumed concept supplemented. Each piece can ship in English only or in English and Spanish.
 
-The site is live at `https://lecturas-ten.vercel.app` and is built with **Astro**. Articles are MDX content files; the design system (CSS, layouts, components) lives in code. Build merges the two. This means a new issue is two small MDX files, never a giant HTML file. Mobile publishing works because of this.
+The site is live at `https://glossa.ademas.ai` and is built with **Astro**. Articles are MDX content files; the design system (CSS, layouts, components) lives in code. Build merges the two. This means a new issue is two small MDX files, never a giant HTML file. Mobile publishing works because of this.
 
 The format is validated through many issues. The voice and design are settled. Don't reinvent. Match it.
 
@@ -439,14 +439,14 @@ mkdir -p src/content/articles/{slug}
 # write en.mdx and es.mdx  (push only after the review gate — see Entry modes and gates)
 git add -A && git commit -m "N° XX — short title" && git push
 ```
-The repo was renamed `aauml/lecturas` → `aauml/glossa`; GitHub redirects old URLs and Vercel is linked by repo ID, so the deploy and the `lecturas-ten.vercel.app` URL are unaffected.
+The repo was renamed `aauml/lecturas` → `aauml/glossa`; GitHub redirects old URLs and Vercel is linked by repo ID, so the deploy and the `glossa.ademas.ai` URL are unaffected.
 
 Mobile / claude.ai Chat: use the analysis tool's Python sandbox to PUT both MDX files via GitHub's Contents API. The PAT (`LECTURAS_PAT`) lives in claude.ai personal preferences — read from `<user_preferences>` in your system prompt and paste literally; do NOT use `os.environ`.
 
 After push, verify:
 ```bash
-curl -s -o /dev/null -w "HTTP %{http_code}\n" https://lecturas-ten.vercel.app/
-curl -s -o /dev/null -w "HTTP %{http_code}\n" https://lecturas-ten.vercel.app/articles/{slug}/en/
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://glossa.ademas.ai/
+curl -s -o /dev/null -w "HTTP %{http_code}\n" https://glossa.ademas.ai/articles/{slug}/en/
 ```
 
 ## When to ask vs. when to proceed

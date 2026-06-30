@@ -10,13 +10,12 @@ Lo que falta decidir antes de o durante la construcción.
 
 ## Marca / migración
 
-- **Renombrar `lecturas` → `glossa`.** Tarea pendiente y consecuente (necesita manos y credenciales):
-  - Repo `aauml/lecturas` → `glossa` (o nuevo repo).
-  - Proyecto y URL en Vercel (`lecturas-ten.vercel.app` → dominio/sub nuevo).
+- **Renombrar `lecturas` → `glossa`. ✅ HECHO (2026-06-30, desde Code):**
+  - Repo `aauml/lecturas` → `aauml/glossa` (rename, conserva historia y enlace de Vercel).
   - Skill `lecturas` → `glossa`.
-  - Redirecciones para no romper enlaces existentes.
-- **Subdominio exacto** bajo el paraguas "AI" (p. ej. `glossa.[tu-dominio]`).
-- **Identidad visual** (logotipo, tipografía, encaje con el resto de apps).
+  - **Subdominio `glossa.ademas.ai`** añadido al proyecto Vercel; DNS CNAME en Cloudflare (zona `ademas.ai`, DNS-only). Canonical del sitio = `https://glossa.ademas.ai`.
+  - Redirección `lecturas-ten.vercel.app` → `glossa.ademas.ai` (308, preserva ruta) para no romper enlaces.
+- **Identidad visual** (logotipo, tipografía) y **marca visible en el masthead** del sitio (hoy aún "Lecturas"): pendiente — ver [docs/08](08-Marca-y-Nombre.md).
 
 ## Editoriales
 

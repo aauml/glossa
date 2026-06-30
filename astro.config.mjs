@@ -3,7 +3,7 @@ import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 
 export default defineConfig({
-  site: 'https://lecturas-ten.vercel.app',
+  site: 'https://glossa.ademas.ai',
   integrations: [mdx(), react()],
   trailingSlash: 'always',
   build: {

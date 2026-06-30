@@ -1,0 +1,160 @@
+---
+issue: "N° 32"
+date: "30 June 2026"
+sortDate: "2026-06-30"
+language: en
+track: thesis
+title: "What the AI Act would ask of PATTERN"
+titleHTML: "What the AI Act would ask of <em>PATTERN</em>"
+dek: "PATTERN scores the recidivism risk of nearly every person in federal prison, and almost nothing about it can be formally contested. Read against the EU AI Act's high-risk regime, the gap looks less like a bug than a design."
+dekHTML: "PATTERN scores the recidivism risk of nearly every person in federal prison, and almost nothing about it can be formally contested. Read against the EU AI Act's high-risk regime, the gap looks less like a bug than a <em>design</em>."
+coverDek: "A single algorithm sorts almost everyone in U.S. federal prison into a risk category that helps decide when they go home. It is audited by the GAO, revalidated by the Justice Department's own researchers, and challenged in a handful of lawsuits — and still there is almost no built-in way for the person scored to contest the score. This reading uses PATTERN as the worked example of a thesis-level claim: that documented compliance and contestable compliance are different things, and that the distance between them is exactly what a high-risk regulatory regime is built to close."
+source: "Based on NIJ revalidation reports, GAO-26-107268, the First Step Act, and the EU AI Act (Arts. 11–15, Annex VI, Art. 31)"
+sourceLabel: "No. 32 · PATTERN / First Step Act · EU AI Act ↔ NIST"
+topics:
+  - "Algorithmic risk assessment"
+  - "EU AI Act high-risk"
+  - "NIST AI RMF"
+  - "Contestability"
+  - "First Step Act / PATTERN"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Orientation from '../../../components/Orientation.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Comparison from '../../../components/exhibits/Comparison.astro';
+import Scorecard from '../../../components/exhibits/Scorecard.astro';
+import Footnote from '../../../components/Footnote.astro';
+import Footnotes from '../../../components/Footnotes.astro';
+
+<Orientation lang="en">
+<p>How a single federal algorithm helps decide when a person in prison goes home.</p>
+<p>The difference between compliance that is <em>documented</em> and compliance that can be <em>contested</em>.</p>
+<p>What the EU AI Act's high-risk regime would demand of a tool the United States governs far more lightly.</p>
+<p>Why the gap is a question about the thesis of regulatory interoperability, not just about one tool.</p>
+</Orientation>
+
+<Lede>Every person serving a sentence in a United States federal prison is given a number that helps decide when they leave. The number is produced by PATTERN — the Prisoner Assessment Tool Targeting Estimated Risk and Needs — a statistical model the Justice Department built after Congress, in the First Step Act of 2018, ordered it to. The score sorts each person into one of four recidivism-risk categories, from minimum to high, and that category governs something concrete: whether the time credits a person earns through programming can actually be cashed out for earlier release to a halfway house or home confinement. A minimum-risk score is a path home. A high-risk score is a closed door. The tool is real, it is consequential, and it is governed — audited, revalidated, litigated. What it is not, in any structured way, is contestable by the person it scores. That last fact is the subject of this reading, and the reason PATTERN is the cleanest available illustration of a claim that sits at the center of any serious comparison between European and American AI regulation.</Lede>
+
+<Callback issue="N° 17" slug="hildebrandt-law-computer-scientists" lang="en">Hildebrandt's distinction between <em>legal by design</em> and <em>legal protection by design</em> is the theoretical engine of this piece: PATTERN is what it looks like when a system is governed for systemic risk but never built to keep contestation standing.</Callback>
+
+<Section number="01" title="The tool, and what the score actually <em>moves</em>">
+
+<Standfirst>Before the regulation, the object. PATTERN is not an advisory curiosity; its output changes the date on which a human being walks out.</Standfirst>
+
+The First Step Act was a bipartisan sentencing-and-prisons law, signed in December 2018, that tried to reduce the federal prison population by paying people, in time, for rehabilitation. Complete approved programming — a vocational course, a drug-treatment program — and you earn "time credits." Apply those credits, and your release to supervised conditions comes sooner. But the statute attached a gate to the payout: the credits can be *applied* only by people the system judges unlikely to re-offend. To run that gate at scale, Congress directed the Justice Department to build a risk-assessment instrument.<Footnote n={1}/> PATTERN is that instrument, released in 2019 and revised since.
+
+The mechanics are worth stating plainly, because the abstraction "risk assessment" hides the stakes. PATTERN takes a set of inputs — age, criminal-history facts, disciplinary record inside prison, program completion — and returns a score, which maps to a risk level. The level is not advice a case manager may take or leave. It is wired into eligibility. Two people with identical earned credits can land on opposite sides of the release gate because the model placed them in different categories.
+
+<ContextBox label="What is a recidivism risk score?">
+A recidivism risk score is a statistical estimate of how likely a person is to be arrested or reconvicted within some window after release. It is built by fitting a model to historical data — who re-offended, and what facts preceded it — and then applying the fitted weights to a new person. The score is a probability dressed as a category. It describes a group rate, not a verdict about the individual, even though the system uses it to make an individual decision.
+</ContextBox>
+
+This is the first thing to hold: the score is not a recommendation that sits beside the decision. For a large class of cases it *is* the decision, or the part of it that does the deciding. That is precisely the configuration that, in other contexts, the law has learned to surround with procedure.
+
+</Section>
+
+<Section number="02" title="How the United States governs PATTERN — diffusely, and from <em>outside</em>">
+
+<Standfirst>There is real oversight. It just doesn't live inside the tool, and it almost never runs at the request of the person scored.</Standfirst>
+
+It would be wrong to say PATTERN is ungoverned. The opposite is closer to true: it is one of the most-examined algorithms in the federal government. The Justice Department's own research arm revalidates it on a roughly annual cadence, publishing technical reports on its predictive accuracy and its disparities across racial and ethnic groups — disparities the reports themselves document and the department has acknowledged it is still working to reduce.<Footnote n={2}/> In 2025 the Government Accountability Office, the legislature's audit body, examined the system and concluded that improvements were needed in how the tool is managed and how its limitations are communicated to the people who rely on it.<Footnote n={3}/> The Justice Department now also lists PATTERN in its public inventory of agency AI use cases.<Footnote n={4}/>
+
+So oversight exists. The question is its *shape*. Each of these channels is systemic and external: a periodic revalidation by in-house statisticians, a one-off audit by the GAO, an entry in a transparency inventory, a comment letter from a civil-rights coalition.<Footnote n={5}/> They examine the tool as a population-level instrument. None of them is a route by which a particular person, scored "high" on a particular Tuesday, can demand the basis of that score and put it before someone empowered to change it.
+
+Where individual contestation has surfaced, it has surfaced where the American system tends to send unresolved grievances: the courts. A small run of suits brought by incarcerated plaintiffs has begun to test PATTERN-adjacent determinations — how credits were calculated, how a risk level was assigned, whether the process was followed.<Footnote n={6}/> Litigation is a contestation channel. But it is the slowest, costliest, and least accessible one available, reachable mostly after the fact and mostly by those who can find counsel.
+
+<PullQuote attribution="— The thesis of this reading">PATTERN is comprehensively audited and almost entirely unappealable. Those are not the same kind of accountability.</PullQuote>
+
+The distinction in that line is the whole point, and it is worth slowing down for, because the intuition that "a well-audited system is an accountable system" is exactly the intuition the rest of this piece is trying to complicate. Auditing asks: *does the tool perform as specified across the population?* Contestation asks: *can this person challenge what the tool did to them?* A system can pass the first test continuously and offer no answer to the second. PATTERN, at present, largely does.
+
+</Section>
+
+<Section number="03" title="What a high-risk regime would <em>require</em>">
+
+<Standfirst>Now move the same tool across the Atlantic, conceptually, and ask what the EU AI Act would demand if PATTERN fell under its high-risk rules.</Standfirst>
+
+The European Union's Artificial Intelligence Act, in force since August 2024, does not regulate all AI the same way. It sorts systems by risk, and reserves its heaviest obligations for a defined set of "high-risk" uses — among them AI used in the administration of justice and in law-enforcement risk assessment, the family PATTERN belongs to.<Footnote n={7}/> A tool of PATTERN's function, deployed in the Union, would almost certainly land in that tier. And the high-risk tier is not a warning label. It is a set of enforceable design and process duties.
+
+Four of those duties matter here, because they are exactly the duties PATTERN's American governance leaves to chance. Articles 11 and 12 require technical documentation and automatic record-keeping — the system must keep logs that make its operation reconstructable after the fact. Article 13 requires transparency to the deployer, so the official using the score understands the tool's capabilities and limits. Article 14 requires human oversight *built into* the system's design and operative during use, not merely promised in a policy. Article 15 requires a declared and tested standard of accuracy and robustness.<Footnote n={8}/>
+
+<ContextBox label="High-risk ≠ banned">
+Calling a system "high-risk" under the AI Act does not prohibit it. It permits the system on condition that the provider builds in documentation, logging, transparency, human oversight, accuracy, and a conformity assessment — a check that the duties were met — before and during deployment. The model is the one Europe already uses for medical devices and elevators: dangerous-enough things are allowed, but only through a gate.
+</ContextBox>
+
+Then comes the part with no American analogue at all: conformity assessment. Before a high-risk system goes to market, the AI Act requires a procedure to verify it meets the requirements — most often through internal control under Annex VI, and for some uses through an independent third party, a "notified body," accredited under Article 31 to perform the check.<Footnote n={9}/> The point is not that Europe's paperwork is heavier. The point is structural: the AI Act converts good practice into a *precondition for operating*, and attaches an outside verifier to confirm it. PATTERN's revalidations are excellent, but they are the work of the same department that runs the tool, performed after deployment, with no external gate the system must pass to keep running.
+
+<Comparison
+  label="The same tool, two regimes"
+  leftLabel="PATTERN as governed now (U.S.)"
+  rightLabel="If it were high-risk under the EU AI Act"
+  rows={[
+    { left: "Revalidated by the agency that operates it, after deployment", right: "Conformity assessment required before deployment (Annex VI; third party under Art. 31 for some uses)" },
+    { left: "Documentation exists but is not a condition of operating", right: "Technical documentation and logging mandatory (Arts. 11–12)" },
+    { left: "Human review of the score is a matter of internal policy", right: "Human oversight built into design and operative in use (Art. 14)" },
+    { left: "Accuracy and disparities studied, disclosed unevenly", right: "Declared, tested accuracy and robustness standard (Art. 15)" },
+    { left: "Individual contestation via FOIA, comment, or lawsuit — after the fact", right: "Transparency duties + the GDPR's standing right to contest solely automated decisions" }
+  ]}
+  source="Compiled from the First Step Act, NIJ/GAO reporting, and EU AI Act Arts. 11–15, Annex VI, Art. 31."
+/>
+
+</Section>
+
+<Section number="04" title="Why this is a question about <em>interoperability</em>, not one tool">
+
+<Standfirst>The gap is not that America forgot to govern PATTERN. It is that the framework America governs it with was never built to do the job the gap names.</Standfirst>
+
+The United States is not without an AI governance framework. It has the National Institute of Standards and Technology's AI Risk Management Framework — the AI RMF — a careful, widely respected document organized around four functions: govern, map, measure, and manage.<Footnote n={10}/> An agency that took the AI RMF seriously for PATTERN would do much of what good governance asks: inventory the system, map its context, measure its performance and its disparities, manage the risks it surfaces. Most of that, in fact, is what the revalidations already do.
+
+But the AI RMF is voluntary, and — more importantly for this argument — it is built to manage risk at the level of the *system and the institution*, not to vest a *right in the person*. It tells an agency how to govern its model well. It does not tell the person scored that they may demand the basis of the score and contest it before a forum that can change it. That second thing is not a defect the AI RMF failed to include by oversight. It is simply a different kind of instrument doing a different kind of work.
+
+<ContextBox label="What is the NIST AI RMF?">
+The AI Risk Management Framework, published by NIST in 2023, is the United States' flagship AI-governance document: a voluntary, function-based playbook (govern, map, measure, manage) for organizations building or deploying AI. It is influential and well-made. It is also, by design, an internal risk-management tool — guidance to the operator — rather than a charter of enforceable rights for the people an AI system acts upon.
+</ContextBox>
+
+This is where PATTERN stops being an anecdote and becomes evidence for a thesis. The central project of comparing the EU AI Act and the NIST AI RMF is to find where the two frameworks correspond and, more revealingly, where one covers ground the other leaves open.<Footnote n={11}/> PATTERN marks one of those open patches with unusual clarity. On the European side, a high-risk classification pulls in conformity assessment, built-in oversight, and — through the data-protection regime that sits alongside the AI Act — an individual's standing right to contest a solely automated decision. On the American side, the matching obligations are either voluntary, external, after-the-fact, or absent. The frameworks are not mirror images with a few missing tiles. They are built around different centers of gravity: systemic risk management on one side, individual legal protection on the other.
+
+<Scorecard
+  title="Four high-risk duties, mapped onto PATTERN as it stands"
+  columns={["EU AI Act high-risk", "PATTERN today"]}
+  rows={[
+    { label: "Technical documentation & logging (Arts. 11–12)", values: [true, false] },
+    { label: "Transparency to the deployer (Art. 13)", values: [true, "partial"] },
+    { label: "Human oversight built into design (Art. 14)", values: [true, "partial"] },
+    { label: "Declared, tested accuracy & robustness (Art. 15)", values: [true, "partial"] },
+    { label: "Pre-deployment conformity assessment (Annex VI / Art. 31)", values: [true, false] },
+    { label: "Individual right to contest the decision", values: [true, false] },
+  ]}
+/>
+
+That last row is the one Hildebrandt's vocabulary was built to name. A system can be *legal by design* — engineered to run the rule correctly — and still fail to be built for *legal protection by design*, the preservation of the conditions, contestability first among them, that make a rule protective rather than merely enforced. PATTERN is a careful instance of the former with very little of the latter.
+
+</Section>
+
+<Section number="05" title="Coda — what's open, what isn't">
+
+PATTERN is a moving target, and some of what this reading describes will change. The tool is being revalidated again for 2026; the disparities its own evaluators document may narrow; the handful of lawsuits testing its determinations may produce doctrine that hardens, somewhere, into a real contestation channel. The American system is not static, and its preferred venue for building rights — the courtroom — is slow but not closed.
+
+What is not open to much doubt is the structure. PATTERN is comprehensively studied and very lightly contestable, and that combination is not an accident of one tool's implementation. It is what you get when a system is governed by a framework built to manage institutional risk rather than to vest individual protection. The EU AI Act would not necessarily make PATTERN fairer or more accurate — its revalidations may already beat what a first conformity assessment would require. What the AI Act would change is the *grammar*: it would make documentation, oversight, and an external check into conditions of operating, and it would sit beside a right that lets the scored person push back.
+
+The reader is left with a diagnostic, not a verdict. When you next meet a claim that some public algorithm is "responsibly governed," it is worth asking which question the governance answers. Does the tool perform well across the population? Or can the person it judges argue with it? Those are different accountabilities, and PATTERN is the case that shows how far apart they can sit.
+
+<Footnotes notes={[
+  "First Step Act of 2018, Pub. L. 115-391, §101 (codified at 18 U.S.C. §3631 et seq.), directing the Attorney General to develop a risk and needs assessment system. The Bureau of Prisons documents the eligibility consequences for earned time credits in its annual First Step Act reporting; see DOJ/BOP, <em>First Step Act Annual Report</em> (June 2024).",
+  "See the National Institute of Justice revalidation series, e.g. <em>2020 / 2021 / 2022 Review and Revalidation of the First Step Act Risk Assessment Tool</em> (OJP/NIJ, reports 256084, 303859, 305720), and NIJ, 'Predicting Recidivism: Continuing To Improve the Bureau of Prisons' Risk Assessment Tool, PATTERN.' The reports document predictive performance and group-level disparities; peer review includes Labrecque, Hester & Gwinn, 'Revalidation of the First Step Act Risk Assessment,' <em>Crime & Delinquency</em> (2025).",
+  "U.S. Government Accountability Office, GAO-26-107268, <em>Federal Prisons: Improvements Needed to the System Used to Assess and Mitigate Incarcerated People's Recidivism Risk</em> (2025).",
+  "DOJ 2025 AI use-case inventory; reporting in FedScoop, 'Justice Department's AI inventory' (2025), which records PATTERN among the department's catalogued AI systems.",
+  "On the civil-rights critique of PATTERN's disparities and process, see the Leadership Conference on Civil and Human Rights, comment letter to the Department of Justice on PATTERN and the First Step Act.",
+  "Illustrative federal challenges touching PATTERN/time-credit determinations include <em>Conley v. Healy</em>, No. 5:24-cv-01430 (N.D. Ohio 2024); <em>Crowe et al. v. Federal Bureau of Prisons</em>, No. 1:24-cv-03582 (D.D.C. 2024); and <em>Haywood v. Director, Bureau of Prisons</em>, No. 1:25-cv-01503 (N.D. Ill. 2025). Cited to show the venue, not to assert outcomes.",
+  "Regulation (EU) 2024/1689 (the AI Act), in force 1 August 2024, with high-risk obligations phasing in through 2026–2027. High-risk uses are listed in Annex III, which includes AI in law enforcement and the administration of justice; see also artificialintelligenceact.eu, 'High-Level Summary.'",
+  "EU AI Act Arts. 11 (technical documentation), 12 (record-keeping/logging), 13 (transparency to deployers), 14 (human oversight), 15 (accuracy, robustness, cybersecurity). Art. 14 requires oversight operative during use, not only at design stage.",
+  "EU AI Act Annex VI (conformity assessment based on internal control) and Art. 31 (requirements for notified bodies performing third-party conformity assessment for certain high-risk systems).",
+  "National Institute of Standards and Technology, <em>AI Risk Management Framework (AI RMF 1.0)</em> (NIST AI 100-1, 2023), organized around the Govern, Map, Measure, and Manage functions.",
+  "On formal EU AI Act ↔ NIST AI RMF mapping, see Hernandez, Golpayegani & Lewis, 'An Open Knowledge Graph-Based Approach for Mapping Concepts and Requirements between the EU AI Act and International Standards' (arXiv:2408.11925, 2024). On the case for openness in criminal-justice risk tools, see Garrett & Stevenson, 'Open Risk Assessment.'"
+]}/>
+
+</Section>

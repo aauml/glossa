@@ -1,0 +1,27 @@
+{
+  "issue": "N° 32",
+  "slug": "pattern-contestability-gap",
+  "glossa_issue_id": "3cd08f8e-0978-4912-aa37-8f82bf2e537e",
+  "glossa_seed_id": "991202f1-ed2f-4000-9e90-0445e0a386fb",
+  "sources": [
+    { "id": "src-01", "kb_pk": "f3f671b7-b0e2-4226-bdee-18756457051c", "tipo": "informe", "role": "primary", "ref": "NIJ — NIJ's Role Under the First Step Act: Developing and Improving PATTERN", "respalda": "Origen estatutario de PATTERN (First Step Act) y su función de elegibilidad", "verificada": "si", "como": "Fuente primaria NIJ en KB" },
+    { "id": "src-02", "kb_pk": "045bbd0a-9f78-4a52-b618-e10d395fdbc4", "tipo": "informe", "role": "primary", "ref": "DOJ/BOP — First Step Act Annual Report (June 2024)", "respalda": "Mecánica de créditos de tiempo y consecuencias de elegibilidad", "verificada": "si", "como": "Primaria BOP en KB" },
+    { "id": "src-03", "kb_pk": "5c444732-ff00-4f08-a5a4-9acc10dc0dda", "tipo": "informe", "role": "support", "ref": "NIJ — 2020 Review and Revalidation of the FSA Risk Assessment (256084)", "respalda": "Revalidación periódica y disparidades", "verificada": "si", "como": "Primaria NIJ en KB" },
+    { "id": "src-04", "kb_pk": "8ab4ce99-1d82-4fe2-8c9a-c7223b16ee29", "tipo": "informe", "role": "support", "ref": "NIJ — 2021 Review and Revalidation (303859, v1.3)", "respalda": "Revalidación 2021 y exactitud predictiva", "verificada": "si", "como": "Primaria NIJ en KB" },
+    { "id": "src-05", "kb_pk": "9da2a4e5-5648-422e-9eb5-81acf1888f18", "tipo": "informe", "role": "support", "ref": "NIJ — 2022 Review and Revalidation (305720)", "respalda": "Revalidación 2022", "verificada": "si", "como": "Primaria NIJ en KB" },
+    { "id": "src-06", "kb_pk": "7970b081-6cf2-41a7-a92d-b9d30f290f26", "tipo": "informe", "role": "support", "ref": "NIJ — Predicting Recidivism: Continuing To Improve PATTERN", "respalda": "Esfuerzo continuo de mejora; cadencia de revalidación", "verificada": "si", "como": "Primaria NIJ en KB" },
+    { "id": "src-07", "kb_pk": "8b81552d-c9ba-4801-8a44-5cf6c4af8176", "tipo": "informe", "role": "primary", "ref": "GAO-26-107268 — Federal Prisons: Improvements Needed (PATTERN)", "respalda": "Auditoría externa del Congreso; mejoras necesarias", "verificada": "si", "como": "Primaria GAO en KB; confirmada vía Tavily (files.gao.gov)" },
+    { "id": "src-08", "kb_pk": "71dcb14c-b436-45c4-9dcb-a60f38a3af26", "tipo": "nota", "role": "context", "ref": "FedScoop / DOJ 2025 AI Use Case Inventory (PATTERN listado)", "respalda": "PATTERN en el inventario público de IA del DOJ", "verificada": "si", "como": "Cobertura FedScoop en KB" },
+    { "id": "src-09", "kb_pk": "0f15019f-d889-4c18-bd61-6891cea14eee", "tipo": "sentencia", "role": "context", "ref": "Conley v. Healy, No. 5:24-cv-01430 (N.D. Ohio 2024)", "respalda": "Litigio como canal de contestación ex post", "verificada": "parcial", "como": "Registro judicial en KB; citado por vía, no por resultado" },
+    { "id": "src-10", "kb_pk": "177f3d15-068f-4147-b4f4-139c08624e58", "tipo": "sentencia", "role": "context", "ref": "Crowe et al. v. BOP, No. 1:24-cv-03582 (D.D.C. 2024)", "respalda": "Litigio relacionado con PATTERN/créditos", "verificada": "parcial", "como": "Registro judicial en KB; citado por vía" },
+    { "id": "src-11", "kb_pk": "937e5037-cc1b-4c9b-8b43-3315c1b220ce", "tipo": "sentencia", "role": "context", "ref": "Haywood v. Director, BOP, No. 1:25-cv-01503 (N.D. Ill. 2025)", "respalda": "Litigio 2025 relacionado con PATTERN", "verificada": "parcial", "como": "Registro judicial en KB; citado por vía" },
+    { "id": "src-12", "kb_pk": "0ed883f8-3a79-4ebd-9f0a-34fb771d1f7c", "tipo": "norma", "role": "primary", "ref": "EU AI Act — High-Level Summary (Annex III high-risk)", "respalda": "Clasificación de alto riesgo; justicia/aplicación de la ley", "verificada": "si", "como": "artificialintelligenceact.eu en KB" },
+    { "id": "src-13", "kb_pk": "935e0b02-7292-42f2-b85c-1ccd85d3f53c", "tipo": "norma", "role": "primary", "ref": "EU AI Act Annex VI — Conformity Assessment (internal control)", "respalda": "Evaluación de conformidad previa al despliegue", "verificada": "si", "como": "Texto del Reglamento en KB" },
+    { "id": "src-14", "kb_pk": "654826af-32a4-4928-ac49-991626b3c573", "tipo": "norma", "role": "primary", "ref": "EU AI Act Article 31 — Notified Bodies", "respalda": "Verificador externo (organismo notificado)", "verificada": "si", "como": "Texto del Reglamento en KB" },
+    { "id": "src-15", "kb_pk": "4b65bc80-e6e2-4fec-82ab-8851fb898837", "tipo": "paper", "role": "discourse", "ref": "Hernandez, Golpayegani & Lewis (2024) — Open KG mapping AI Act ↔ standards (arXiv:2408.11925)", "respalda": "Antecedente del crosswalk AI Act↔NIST (marco de la tesis)", "verificada": "si", "como": "Paper en KB (ALTA, caps 2/5)" }
+  ],
+  "web_only": [
+    { "tipo": "paper", "ref": "Garrett & Stevenson — Open Risk Assessment (SSRN)", "respalda": "Defensa académica de apertura/transparencia en risk assessment penal", "verificada": "parcial", "como": "Tavily; no ingestado al KB" },
+    { "tipo": "nota", "ref": "The Leadership Conference — comment letter to DOJ on PATTERN", "respalda": "Crítica de derechos civiles a disparidades/proceso", "verificada": "parcial", "como": "Tavily" }
+  ]
+}

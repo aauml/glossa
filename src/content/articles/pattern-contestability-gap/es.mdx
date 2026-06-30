@@ -1,0 +1,160 @@
+---
+issue: "N° 32"
+date: "30 junio 2026"
+sortDate: "2026-06-30"
+language: es
+track: thesis
+title: "Lo que el Reglamento de IA le exigiría a PATTERN"
+titleHTML: "Lo que el Reglamento de IA le exigiría a <em>PATTERN</em>"
+dek: "PATTERN evalúa el riesgo de reincidencia de casi cada persona en prisión federal estadounidense, y casi nada en él puede contestarse formalmente. Leído contra el régimen de alto riesgo del Reglamento de IA de la UE, la brecha parece menos un defecto que un diseño."
+dekHTML: "PATTERN evalúa el riesgo de reincidencia de casi cada persona en prisión federal estadounidense, y casi nada en él puede contestarse formalmente. Leído contra el régimen de alto riesgo del Reglamento de IA de la UE, la brecha parece menos un defecto que un <em>diseño</em>."
+coverDek: "Un solo algoritmo clasifica a casi toda la población de las prisiones federales de Estados Unidos en una categoría de riesgo que ayuda a decidir cuándo sale en libertad. Lo audita la GAO, lo revalidan los propios investigadores del Departamento de Justicia y lo discuten algunas demandas — y aun así apenas existe una vía interna para que la persona evaluada conteste su puntuación. Esta lectura usa PATTERN como ejemplo trabajado de una tesis: que el cumplimiento documentado y el cumplimiento contestable son cosas distintas, y que la distancia entre ambos es justo lo que un régimen regulatorio de alto riesgo está hecho para cerrar."
+source: "A partir de los informes de revalidación del NIJ, el GAO-26-107268, la First Step Act y el Reglamento de IA de la UE (arts. 11–15, Anexo VI, art. 31)"
+sourceLabel: "N.º 32 · PATTERN / First Step Act · Reglamento de IA ↔ NIST"
+topics:
+  - "Evaluación algorítmica de riesgo"
+  - "Reglamento de IA · alto riesgo"
+  - "NIST AI RMF"
+  - "Contestabilidad"
+  - "First Step Act / PATTERN"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Orientation from '../../../components/Orientation.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Comparison from '../../../components/exhibits/Comparison.astro';
+import Scorecard from '../../../components/exhibits/Scorecard.astro';
+import Footnote from '../../../components/Footnote.astro';
+import Footnotes from '../../../components/Footnotes.astro';
+
+<Orientation lang="es">
+<p>Cómo un único algoritmo federal ayuda a decidir cuándo sale en libertad una persona presa.</p>
+<p>La diferencia entre un cumplimiento que está <em>documentado</em> y uno que puede <em>contestarse</em>.</p>
+<p>Qué le exigiría el régimen de alto riesgo del Reglamento de IA de la UE a una herramienta que Estados Unidos gobierna con mucha más ligereza.</p>
+<p>Por qué la brecha es una pregunta sobre la tesis de la interoperabilidad regulatoria, no solo sobre una herramienta.</p>
+</Orientation>
+
+<Lede>A cada persona que cumple condena en una prisión federal de Estados Unidos se le asigna un número que ayuda a decidir cuándo sale. Lo produce PATTERN — Prisoner Assessment Tool Targeting Estimated Risk and Needs, el instrumento de evaluación de riesgo y necesidades que el Departamento de Justicia construyó después de que el Congreso, en la First Step Act de 2018, se lo ordenara. La puntuación clasifica a cada persona en una de cuatro categorías de riesgo de reincidencia, de mínimo a alto, y esa categoría gobierna algo concreto: si los créditos de tiempo que alguien gana con sus programas pueden de verdad canjearse por una salida anticipada a un centro de reinserción o a confinamiento domiciliario. Una puntuación de riesgo mínimo es un camino a casa. Una de riesgo alto es una puerta cerrada. La herramienta es real, tiene consecuencias y está gobernada — se audita, se revalida, se litiga. Lo que no es, de ninguna forma estructurada, es contestable por la persona a la que evalúa. Ese último hecho es el asunto de esta lectura, y la razón por la que PATTERN es la ilustración más limpia de una afirmación que está en el centro de cualquier comparación seria entre la regulación europea y la estadounidense de la IA.</Lede>
+
+<Callback issue="N° 17" slug="hildebrandt-law-computer-scientists" lang="es">La distinción de Hildebrandt entre <em>legal by design</em> y <em>legal protection by design</em> es el motor teórico de esta pieza: PATTERN es lo que ocurre cuando un sistema se gobierna para el riesgo sistémico pero nunca se construye para mantener en pie la contestación.</Callback>
+
+<Section number="01" title="La herramienta, y lo que la puntuación de verdad <em>mueve</em>">
+
+<Standfirst>Antes que la norma, el objeto. PATTERN no es una curiosidad consultiva: su resultado cambia la fecha en que un ser humano sale por la puerta.</Standfirst>
+
+La First Step Act fue una ley penal y penitenciaria bipartidista, firmada en diciembre de 2018, que intentó reducir la población reclusa federal pagando a las personas, en tiempo, por rehabilitarse. Completa un programa aprobado — un curso de formación profesional, un tratamiento de adicciones — y ganas «créditos de tiempo». Aplícalos, y tu salida a un régimen supervisado se adelanta. Pero el texto legal puso una compuerta al cobro: los créditos solo puede aplicarlos quien el sistema juzga con baja probabilidad de reincidir. Para operar esa compuerta a escala, el Congreso encargó al Departamento de Justicia construir un instrumento de evaluación de riesgo.<Footnote n={1}/> PATTERN es ese instrumento, publicado en 2019 y revisado desde entonces.
+
+Vale la pena enunciar la mecánica sin rodeos, porque la abstracción «evaluación de riesgo» esconde lo que está en juego. PATTERN toma una serie de datos — edad, hechos del historial penal, expediente disciplinario dentro de prisión, programas completados — y devuelve una puntuación, que se traduce en un nivel de riesgo. El nivel no es un consejo que un gestor de caso pueda tomar o dejar. Está cableado a la elegibilidad. Dos personas con créditos ganados idénticos pueden caer a lados opuestos de la compuerta de salida porque el modelo las situó en categorías distintas.
+
+<ContextBox label="¿Qué es una puntuación de riesgo de reincidencia?">
+Una puntuación de riesgo de reincidencia es una estimación estadística de la probabilidad de que una persona sea detenida o condenada de nuevo dentro de cierto plazo tras salir. Se construye ajustando un modelo a datos históricos — quién reincidió y qué hechos lo precedieron — y aplicando luego esos pesos a una persona nueva. La puntuación es una probabilidad disfrazada de categoría. Describe una tasa de grupo, no un veredicto sobre el individuo, aunque el sistema la use para tomar una decisión individual.
+</ContextBox>
+
+Esto es lo primero que hay que retener: la puntuación no es una recomendación que se sienta al lado de la decisión. Para una clase amplia de casos *es* la decisión, o la parte que decide. Es justo la configuración que, en otros contextos, el derecho ha aprendido a rodear de garantías.
+
+</Section>
+
+<Section number="02" title="Cómo gobierna Estados Unidos a PATTERN — de forma difusa, y desde <em>fuera</em>">
+
+<Standfirst>Hay supervisión real. Solo que no vive dentro de la herramienta, y casi nunca se activa a petición de la persona evaluada.</Standfirst>
+
+Sería falso decir que PATTERN no está gobernado. Lo contrario se acerca más a la verdad: es uno de los algoritmos más examinados del gobierno federal. El brazo investigador del propio Departamento de Justicia lo revalida con una cadencia más o menos anual, y publica informes técnicos sobre su exactitud predictiva y sus disparidades entre grupos raciales y étnicos — disparidades que los propios informes documentan y que el departamento reconoce seguir tratando de reducir.<Footnote n={2}/> En 2025, la Oficina de Rendición de Cuentas del Gobierno (GAO), el órgano de auditoría del Congreso, examinó el sistema y concluyó que hacían falta mejoras en cómo se gestiona la herramienta y cómo se comunican sus límites a quienes dependen de ella.<Footnote n={3}/> El Departamento de Justicia también incluye ya a PATTERN en su inventario público de casos de uso de IA.<Footnote n={4}/>
+
+Así que supervisión hay. La pregunta es su *forma*. Cada uno de estos canales es sistémico y externo: una revalidación periódica de estadísticos internos, una auditoría puntual de la GAO, una entrada en un inventario de transparencia, una carta de alegaciones de una coalición de derechos civiles.<Footnote n={5}/> Examinan la herramienta como un instrumento de nivel poblacional. Ninguno es una vía por la que una persona concreta, evaluada como «alto» un martes concreto, pueda exigir la base de esa puntuación y ponerla ante alguien con poder para cambiarla.
+
+Donde ha asomado la contestación individual, ha sido donde el sistema estadounidense suele enviar los agravios sin resolver: los tribunales. Un puñado de demandas presentadas por personas presas ha empezado a poner a prueba determinaciones vinculadas a PATTERN — cómo se calcularon los créditos, cómo se asignó un nivel de riesgo, si se siguió el procedimiento.<Footnote n={6}/> El litigio es un canal de contestación. Pero es el más lento, el más caro y el menos accesible de los disponibles: se alcanza casi siempre a posteriori y casi siempre por quien consigue abogado.
+
+<PullQuote attribution="— La tesis de esta lectura">PATTERN se audita a fondo y casi no se puede recurrir. No son el mismo tipo de rendición de cuentas.</PullQuote>
+
+La distinción de esa frase es todo el asunto, y conviene frenar en ella, porque la intuición de que «un sistema bien auditado es un sistema con rendición de cuentas» es justo la intuición que el resto de la pieza trata de complicar. Auditar pregunta: *¿rinde la herramienta según lo especificado en el conjunto de la población?* Contestar pregunta: *¿puede esta persona impugnar lo que la herramienta hizo con ella?* Un sistema puede superar lo primero de forma continua y no ofrecer respuesta a lo segundo. PATTERN, hoy, en gran medida hace eso.
+
+</Section>
+
+<Section number="03" title="Lo que un régimen de alto riesgo <em>exigiría</em>">
+
+<Standfirst>Ahora mueve la misma herramienta al otro lado del Atlántico, conceptualmente, y pregunta qué exigiría el Reglamento de IA si PATTERN cayera bajo sus reglas de alto riesgo.</Standfirst>
+
+El Reglamento de Inteligencia Artificial de la Unión Europea, en vigor desde agosto de 2024, no regula toda la IA por igual. Clasifica los sistemas por riesgo y reserva sus obligaciones más pesadas para un conjunto definido de usos de «alto riesgo» — entre ellos la IA empleada en la administración de justicia y en la evaluación de riesgo para fines policiales, la familia a la que PATTERN pertenece.<Footnote n={7}/> Una herramienta con la función de PATTERN, desplegada en la Unión, caería casi con seguridad en ese nivel. Y el nivel de alto riesgo no es una etiqueta de advertencia. Es un conjunto de deberes de diseño y de proceso exigibles.
+
+Cuatro de esos deberes importan aquí, porque son justo los que la gobernanza estadounidense de PATTERN deja al azar. Los artículos 11 y 12 exigen documentación técnica y registro automático — el sistema debe guardar trazas que permitan reconstruir su funcionamiento a posteriori. El artículo 13 exige transparencia hacia quien lo despliega, para que el funcionario que usa la puntuación entienda las capacidades y los límites de la herramienta. El artículo 14 exige supervisión humana *integrada* en el diseño del sistema y operativa durante el uso, no solo prometida en una política. El artículo 15 exige un estándar declarado y probado de exactitud y robustez.<Footnote n={8}/>
+
+<ContextBox label="Alto riesgo ≠ prohibido">
+Llamar «de alto riesgo» a un sistema bajo el Reglamento de IA no lo prohíbe. Lo permite a condición de que el proveedor integre documentación, registro, transparencia, supervisión humana, exactitud y una evaluación de conformidad — una comprobación de que los deberes se cumplieron — antes y durante el despliegue. El modelo es el que Europa ya usa para los productos sanitarios y los ascensores: las cosas suficientemente peligrosas se permiten, pero solo a través de una compuerta.
+</ContextBox>
+
+Después llega la parte sin análogo estadounidense alguno: la evaluación de conformidad. Antes de que un sistema de alto riesgo salga al mercado, el Reglamento de IA exige un procedimiento que verifique que cumple los requisitos — casi siempre por control interno conforme al Anexo VI y, para algunos usos, mediante un tercero independiente, un «organismo notificado», acreditado según el artículo 31 para hacer la comprobación.<Footnote n={9}/> El argumento no es que el papeleo europeo pese más. El argumento es estructural: el Reglamento convierte la buena práctica en una *condición para operar*, y le adosa un verificador externo que lo confirme. Las revalidaciones de PATTERN son excelentes, pero son obra del mismo departamento que opera la herramienta, hechas tras el despliegue, sin ninguna compuerta externa que el sistema deba pasar para seguir en marcha.
+
+<Comparison
+  label="La misma herramienta, dos regímenes"
+  leftLabel="PATTERN tal como se gobierna hoy (EE. UU.)"
+  rightLabel="Si fuera de alto riesgo bajo el Reglamento de IA"
+  rows={[
+    { left: "Revalidado por la agencia que lo opera, tras el despliegue", right: "Evaluación de conformidad exigida antes del despliegue (Anexo VI; tercero por art. 31 en algunos usos)" },
+    { left: "La documentación existe pero no es condición para operar", right: "Documentación técnica y registro obligatorios (arts. 11–12)" },
+    { left: "La revisión humana de la puntuación es cuestión de política interna", right: "Supervisión humana integrada en el diseño y operativa en el uso (art. 14)" },
+    { left: "Exactitud y disparidades estudiadas, divulgadas de forma desigual", right: "Estándar declarado y probado de exactitud y robustez (art. 15)" },
+    { left: "Contestación individual por FOIA, alegación o demanda — a posteriori", right: "Deberes de transparencia + el derecho del RGPD a impugnar decisiones solo automatizadas" }
+  ]}
+  source="A partir de la First Step Act, los informes del NIJ/GAO y el Reglamento de IA arts. 11–15, Anexo VI, art. 31."
+/>
+
+</Section>
+
+<Section number="04" title="Por qué esto es una cuestión de <em>interoperabilidad</em>, no de una herramienta">
+
+<Standfirst>La brecha no es que Estados Unidos se olvidara de gobernar a PATTERN. Es que el marco con el que lo gobierna nunca se construyó para hacer el trabajo que la brecha nombra.</Standfirst>
+
+Estados Unidos no carece de marco de gobernanza de IA. Tiene el Marco de Gestión de Riesgos de IA del Instituto Nacional de Estándares y Tecnología — el AI RMF del NIST —, un documento cuidadoso y muy respetado, organizado en torno a cuatro funciones: gobernar, mapear, medir y gestionar.<Footnote n={10}/> Una agencia que se tomara en serio el AI RMF para PATTERN haría buena parte de lo que pide la buena gobernanza: inventariar el sistema, mapear su contexto, medir su rendimiento y sus disparidades, gestionar los riesgos que afloran. De hecho, casi todo eso es lo que las revalidaciones ya hacen.
+
+Pero el AI RMF es voluntario y — más importante para este argumento — está hecho para gestionar el riesgo en el plano del *sistema y la institución*, no para conferir un *derecho a la persona*. Le dice a una agencia cómo gobernar bien su modelo. No le dice a la persona evaluada que puede exigir la base de la puntuación y contestarla ante un foro que pueda cambiarla. Esa segunda cosa no es un defecto que el AI RMF olvidara incluir. Es, sencillamente, otra clase de instrumento haciendo otra clase de trabajo.
+
+<ContextBox label="¿Qué es el AI RMF del NIST?">
+El Marco de Gestión de Riesgos de IA, publicado por el NIST en 2023, es el documento insignia de gobernanza de IA de Estados Unidos: un manual voluntario, basado en funciones (gobernar, mapear, medir, gestionar), para organizaciones que construyen o despliegan IA. Es influyente y está bien hecho. También es, por diseño, una herramienta interna de gestión de riesgos — orientación para el operador — y no una carta de derechos exigibles para las personas sobre las que un sistema de IA actúa.
+</ContextBox>
+
+Aquí PATTERN deja de ser una anécdota y se vuelve prueba de una tesis. El proyecto central de comparar el Reglamento de IA de la UE y el AI RMF del NIST es encontrar dónde se corresponden ambos marcos y, más revelador, dónde uno cubre un terreno que el otro deja abierto.<Footnote n={11}/> PATTERN marca uno de esos huecos con claridad inusual. Del lado europeo, una clasificación de alto riesgo arrastra evaluación de conformidad, supervisión integrada y — a través del régimen de protección de datos que acompaña al Reglamento de IA — el derecho de la persona a impugnar una decisión solo automatizada. Del lado estadounidense, las obligaciones equivalentes son voluntarias, externas, a posteriori o inexistentes. Los marcos no son imágenes especulares con unas pocas piezas que faltan. Están construidos alrededor de centros de gravedad distintos: gestión del riesgo sistémico de un lado, protección jurídica individual del otro.
+
+<Scorecard
+  title="Cuatro deberes de alto riesgo, mapeados sobre PATTERN tal como está"
+  columns={["Reglamento de IA · alto riesgo", "PATTERN hoy"]}
+  rows={[
+    { label: "Documentación técnica y registro (arts. 11–12)", values: [true, false] },
+    { label: "Transparencia hacia quien lo despliega (art. 13)", values: [true, "parcial"] },
+    { label: "Supervisión humana integrada en el diseño (art. 14)", values: [true, "parcial"] },
+    { label: "Exactitud y robustez declaradas y probadas (art. 15)", values: [true, "parcial"] },
+    { label: "Evaluación de conformidad previa (Anexo VI / art. 31)", values: [true, false] },
+    { label: "Derecho individual a contestar la decisión", values: [true, false] },
+  ]}
+/>
+
+Esa última fila es la que el vocabulario de Hildebrandt se construyó para nombrar. Un sistema puede ser *legal by design* — diseñado para ejecutar la regla correctamente — y aun así no estar construido para la *legal protection by design*, la preservación de las condiciones, la contestabilidad la primera, que hacen que una regla proteja en lugar de simplemente ejecutarse. PATTERN es un caso cuidadoso de lo primero con muy poco de lo segundo.
+
+</Section>
+
+<Section number="05" title="Coda — qué queda abierto y qué no">
+
+PATTERN es un blanco móvil, y parte de lo que esta lectura describe cambiará. La herramienta se está revalidando otra vez para 2026; las disparidades que documentan sus propios evaluadores pueden estrecharse; el puñado de demandas que ponen a prueba sus determinaciones puede producir doctrina que cuaje, en algún sitio, en un canal de contestación real. El sistema estadounidense no es estático, y su sede preferida para construir derechos — el tribunal — es lenta pero no está cerrada.
+
+Lo que no admite mucha duda es la estructura. PATTERN se estudia a fondo y se contesta muy poco, y esa combinación no es un accidente de la implementación de una herramienta. Es lo que se obtiene cuando un sistema se gobierna con un marco hecho para gestionar el riesgo institucional en lugar de para conferir protección individual. El Reglamento de IA no haría necesariamente a PATTERN más justo ni más exacto — sus revalidaciones quizá ya superen lo que exigiría una primera evaluación de conformidad. Lo que el Reglamento cambiaría es la *gramática*: convertiría la documentación, la supervisión y una comprobación externa en condiciones para operar, y se situaría junto a un derecho que permite a la persona evaluada replicar.
+
+Al lector le queda un diagnóstico, no un veredicto. La próxima vez que encuentres la afirmación de que algún algoritmo público está «gobernado de forma responsable», conviene preguntar a qué pregunta responde esa gobernanza. ¿Rinde bien la herramienta en el conjunto de la población? ¿O puede la persona a la que juzga discutir con ella? Son rendiciones de cuentas distintas, y PATTERN es el caso que muestra cuánto pueden separarse.
+
+<Footnotes notes={[
+  "First Step Act de 2018, Pub. L. 115-391, §101 (codificada en 18 U.S.C. §3631 y ss.), que ordena al Fiscal General desarrollar un sistema de evaluación de riesgo y necesidades. La Oficina Federal de Prisiones (BOP) documenta las consecuencias de elegibilidad para los créditos de tiempo en su informe anual; véase DOJ/BOP, <em>First Step Act Annual Report</em> (junio de 2024).",
+  "Véase la serie de revalidaciones del National Institute of Justice, p. ej. <em>2020 / 2021 / 2022 Review and Revalidation of the First Step Act Risk Assessment Tool</em> (OJP/NIJ, informes 256084, 303859, 305720), y NIJ, «Predicting Recidivism: Continuing To Improve the Bureau of Prisons' Risk Assessment Tool, PATTERN». Los informes documentan el rendimiento predictivo y las disparidades por grupo; la revisión por pares incluye Labrecque, Hester y Gwinn, «Revalidation of the First Step Act Risk Assessment», <em>Crime & Delinquency</em> (2025).",
+  "U.S. Government Accountability Office, GAO-26-107268, <em>Federal Prisons: Improvements Needed to the System Used to Assess and Mitigate Incarcerated People's Recidivism Risk</em> (2025).",
+  "Inventario de casos de uso de IA del Departamento de Justicia (2025); cobertura en FedScoop, «Justice Department's AI inventory» (2025), que registra a PATTERN entre los sistemas de IA catalogados del departamento.",
+  "Sobre la crítica de derechos civiles a las disparidades y el proceso de PATTERN, véase la carta de alegaciones de The Leadership Conference on Civil and Human Rights al Departamento de Justicia sobre PATTERN y la First Step Act.",
+  "Como ejemplo, impugnaciones federales que tocan determinaciones de PATTERN / créditos de tiempo: <em>Conley v. Healy</em>, n.º 5:24-cv-01430 (N.D. Ohio, 2024); <em>Crowe et al. v. Federal Bureau of Prisons</em>, n.º 1:24-cv-03582 (D.D.C., 2024); y <em>Haywood v. Director, Bureau of Prisons</em>, n.º 1:25-cv-01503 (N.D. Ill., 2025). Se citan para mostrar la vía, no para afirmar resultados.",
+  "Reglamento (UE) 2024/1689 (Reglamento de IA), en vigor desde el 1 de agosto de 2024, con las obligaciones de alto riesgo entrando de forma escalonada en 2026–2027. Los usos de alto riesgo se listan en el Anexo III, que incluye la IA en la aplicación de la ley y la administración de justicia; véase también artificialintelligenceact.eu, «High-Level Summary».",
+  "Reglamento de IA, arts. 11 (documentación técnica), 12 (conservación de registros), 13 (transparencia hacia los responsables del despliegue), 14 (supervisión humana), 15 (exactitud, robustez, ciberseguridad). El art. 14 exige supervisión operativa durante el uso, no solo en la fase de diseño.",
+  "Reglamento de IA, Anexo VI (evaluación de conformidad basada en control interno) y art. 31 (requisitos de los organismos notificados que realizan la evaluación de conformidad por tercero para ciertos sistemas de alto riesgo).",
+  "National Institute of Standards and Technology, <em>AI Risk Management Framework (AI RMF 1.0)</em> (NIST AI 100-1, 2023), organizado en torno a las funciones Gobernar, Mapear, Medir y Gestionar.",
+  "Sobre el mapeo formal Reglamento de IA ↔ AI RMF del NIST, véase Hernandez, Golpayegani y Lewis, «An Open Knowledge Graph-Based Approach for Mapping Concepts and Requirements between the EU AI Act and International Standards» (arXiv:2408.11925, 2024). Sobre la defensa de la apertura en las herramientas de riesgo penal, véase Garrett y Stevenson, «Open Risk Assessment»."
+]}/>
+
+</Section>

@@ -47,8 +47,8 @@ Descriptor sugerido: *Glossa — lecturas anotadas · IA aplicada, dirección hu
 
 ## Estado
 
-**v0.1 — fase de diseño.** Documentación completa; aún sin construir. El primer hito de construcción es el MVP portátil (ver [Roadmap](docs/07-Roadmap.md)).
+**v0.1 — MVP portátil en marcha.** Diseño completo (docs 01–12); dominio PUB en `phd-kb` (D-020); skill `glossa`, repo y sitio migrados. Sitio en vivo: **[glossa.ademas.ai](https://glossa.ademas.ai)** (Astro + Vercel). Ver [Roadmap](docs/07-Roadmap.md).
 
 ## Relación con "Lecturas"
 
-Glossa es el nombre del proyecto y de la publicación. Evoluciona el skill `lecturas` y su sitio actual (`lecturas-ten.vercel.app`, repo `aauml/lecturas`). "Lecturas" suena bien en español pero engaña en inglés (*lectures* = conferencias); *Glossa/gloss* es la misma palabra en ambos idiomas. La migración del repo, el sitio y el dominio es una tarea pendiente listada en [Decisiones Abiertas](docs/09-Decisiones-Abiertas.md).
+Glossa es el nombre del proyecto y de la publicación. Evoluciona el skill `lecturas` y su sitio. **Migración hecha (2026-06-30):** repo `aauml/lecturas` → `aauml/glossa`, skill `lecturas` → `glossa`, y dominio en `glossa.ademas.ai` (el viejo `lecturas-ten.vercel.app` redirige). "Lecturas" suena bien en español pero engaña en inglés (*lectures* = conferencias); *Glossa/gloss* es la misma palabra en ambos idiomas. Pendiente menor: la marca visible en el masthead del sitio (ver [docs/08](docs/08-Marca-y-Nombre.md)).
