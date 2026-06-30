@@ -1,0 +1,108 @@
+---
+issue: "N° 33"
+date: "30 June 2026"
+sortDate: "2026-06-30T23:30:00"
+language: en
+track: ai-policy
+title: "Where the EU–NIST crosswalk runs out"
+titleHTML: "Where the EU–NIST crosswalk <em>runs out</em>"
+dek: "Map the EU AI Act onto the NIST framework and most of it lines up — until you reach the rows that decide who gets to argue back."
+dekHTML: "Map the EU AI Act onto the NIST framework and most of it lines up — until you reach the rows that decide who gets to <em>argue back</em>."
+coverDek: "Every serious comparison of American and European AI governance opens with a crosswalk: a table setting the NIST Risk Management Framework's four functions beside the EU AI Act's articles. The mapping mostly works — the same evidence fills both columns — which is exactly why the places it fails are easy to miss. This reading walks the table down to the rows where the American column goes blank, and argues that the blanks are the point."
+source: "Based on the NIST AI RMF (AI 100-1) and its crosswalk documents, the EU AI Act (Arts. 9–15, 43), and KB sources on regulatory interoperability and compliance formalisation"
+sourceLabel: "No. 33 · EU AI Act ↔ NIST AI RMF · the crosswalk"
+topics:
+  - "EU AI Act"
+  - "NIST AI RMF"
+  - "Regulatory interoperability"
+  - "Conformity assessment"
+  - "Contestability"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Orientation from '../../../components/Orientation.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Scorecard from '../../../components/exhibits/Scorecard.astro';
+
+<Orientation lang="en">
+<p>What a crosswalk between two AI governance regimes actually maps — and what it quietly leaves out.</p>
+<p>The difference between producing <em>evidence</em> and being bound to act on it.</p>
+<p>Why a fully NIST-aligned U.S. agency can still fail European conformity.</p>
+<p>The single axis — <em>contestability</em> — where the two columns stop corresponding.</p>
+</Orientation>
+
+<Lede>Open almost any guide to running AI governance on both sides of the Atlantic and the first artifact you meet is a crosswalk: a table with the NIST Risk Management Framework's four functions down one side and the EU AI Act's articles down the other, each cell claiming a correspondence. The pitch is always the same — maintain one control library, collect evidence once, satisfy several auditors. For most of the table it holds. The risk-management language lines up, the documentation duties overlap, the same test results travel between columns. That convergence is real, and it is the reason the table is worth keeping. It is also the reason the few rows where it breaks are so easy to walk past — and those rows, this reading argues, are where the actual comparison lives.</Lede>
+
+<Callback issue="N° 32" slug="pattern-contestability-gap" lang="en">N° 32 used PATTERN as the worked example of this gap inside one federal tool. This piece is the frame that case sits in: what the crosswalk promises in general, and where it stops.</Callback>
+
+<Section number="01" title="What the table actually <em>maps</em>">
+
+<Standfirst>Begin with the part that works, because it works well enough to be persuasive.</Standfirst>
+
+The NIST AI RMF — the U.S. National Institute of Standards and Technology's voluntary risk framework — is organised into four functions: GOVERN, MAP, MEASURE, and MANAGE. GOVERN sets policy and accountability; MAP fixes context and intended use; MEASURE tests performance, bias, and uncertainty; MANAGE acts on what the other three surface. Set those beside the EU AI Act's obligations for high-risk systems and the parallels are immediate.
+
+Article 9's continuous risk management reads like MAP and MANAGE in legal dress. Article 10 on data governance maps to MEASURE's bias and representativeness work. Article 11's technical documentation is the paper trail GOVERN and MAP already generate.
+
+<ContextBox label="The four AI RMF functions">
+GOVERN, MAP, MEASURE, MANAGE. GOVERN is the cross-cutting one — the policies, roles, and decision rights that make the other three repeatable. MAP understands the system and its context. MEASURE produces the metrics: accuracy, bias, robustness. MANAGE turns those metrics into treatment decisions, monitoring, and incident response. The framework describes a process, not a fixed set of controls — which is what lets it be mapped onto so many other regimes.
+</ContextBox>
+
+So the same artifacts recur on both sides. An evaluation report that closes a MEASURE subcategory is also the evidence an Article 10 file wants. A monitoring log produced under MANAGE is most of what Article 15's post-market duties ask for. This is the honest core of the crosswalk: a U.S. team that already runs the RMF has, without trying, drafted much of a European technical file.
+
+One caution about provenance. NIST's *own* crosswalk — the one in the framework's appendix — maps the *proposed* 2021 Act, and does so at the level of broad trustworthiness characteristics, not the binding 2024 articles. The granular, article-by-article maps people actually use are mostly built by vendors selling the "one program, three audits" promise. Useful, but not neutral, and not law.
+
+</Section>
+
+<Section number="02" title="Where the columns <em>run out</em>">
+
+<Standfirst>Keep reading down the table. A few rows in, the right-hand column starts to thin, then goes blank.</Standfirst>
+
+The breakage is not random. It clusters at exactly the obligations that turn documentation into a duty owed to someone. The clearest is Article 43 — conformity assessment, the pre-market check by a notified third party that a high-risk system meets the Act's requirements before it ships. There is no NIST cell for it, because there is nothing to map: the RMF is self-attested. You assert your own alignment; no independent body signs off, and nothing is withheld from the market if you do not.
+
+<ContextBox label="What is conformity assessment?">
+Under the AI Act, a high-risk system must pass a conformity assessment before going to market — a structured check, sometimes by an accredited external body, that it meets the Act's requirements (risk management, data governance, transparency, human oversight). It produces a declaration of conformity and, for many systems, CE marking. It is the mechanism that converts written requirements into a gate: fail it, and the system does not lawfully ship.
+</ContextBox>
+
+The same blank appears below it. CE marking, enforced transparency toward the person a decision affects (Article 13), human oversight that must be built in rather than asserted (Article 14), penalties that reach up to seven percent of worldwide turnover — none has a NIST equivalent. The crosswalk maps the evidence-production machinery faithfully and then stops at the machinery of enforcement, because the second machine was never built on the American side.
+
+<Scorecard
+  label="Crosswalk"
+  title="Where the rows stop corresponding"
+  columns={["EU AI Act", "NIST AI RMF"]}
+  rows={[
+    { label: "Continuous risk management", values: ["Art. 9 — required", "MAP · MEASURE · MANAGE"] },
+    { label: "Data governance", values: ["Art. 10 — required", "MAP 2 · MEASURE 2.5"] },
+    { label: "Technical documentation", values: ["Art. 11 — required", "GOVERN · MAP"] },
+    { label: "Transparency to the affected person", values: ["Art. 13 — required", "—"] },
+    { label: "Built-in human oversight", values: ["Art. 14 — required", "GOVERN 1 (partial)"] },
+    { label: "Third-party conformity assessment", values: ["Art. 43 — required", "✗"] },
+    { label: "Penalties · CE marking", values: ["Arts. 99, 48 — binding", "✗"] },
+  ]}
+  source="EU AI Act (Regulation 2024/1689); NIST AI RMF 1.0 (AI 100-1). Cell mappings are approximate; the lower rows have no NIST analogue."
+/>
+
+This is the hinge, so it is worth stating slowly. The crosswalk is a map of *evidence*. It is not a map of *standing*. It can show that a NIST file and a European file ask for the same test, the same log, the same documented decision. It cannot show that the affected person can see any of it, contest it, or force a response. The RMF never promised that, and a table can only align what both sides contain.
+
+<PullQuote attribution="— the thesis the crosswalk implies">A crosswalk aligns the evidence two regimes collect. It cannot align who is allowed to argue with it.</PullQuote>
+
+Even the Act's own escape hatch confirms the asymmetry. Article 40 lets harmonised European standards presumptively satisfy parts of the Act — but the NIST AI RMF is not a harmonised standard. Alignment with it buys familiarity and a head start on paperwork. It does not buy a presumption of conformity.
+
+</Section>
+
+<Section number="03" title="Why this is a claim, not a <em>table</em>">
+
+<Standfirst>The missing rows are not a gap to be filled by a better spreadsheet. They are the finding.</Standfirst>
+
+Read the crosswalk literally and it invites a tidy conclusion: get to NIST alignment and you are most of the way to European compliance. The blank rows say otherwise. A U.S. federal agency can run the RMF cleanly: publish its evaluations, log its monitoring, assign its owners. It can still sit nowhere near substantive conformity with the Act. The obligations it cannot satisfy are precisely the ones that give an outside person a foothold.
+
+NIST already produces the demographic-bias metrics a European file would want; the United States has had face-recognition error rates broken out by race since 2019. Producing the number was never the hard part. Being bound to act on it, in a way the affected person can invoke, is.
+
+The compliance-engineering literature names the same problem from the formal side. Two regimes can require overlapping evidence and still impose non-equivalent duties. A static table that marks each cell "covered" mistakes overlap for sufficiency. The point is not that crosswalks are wrong. It is that they answer a narrower question than they appear to — *what evidence transfers* — and leave the load-bearing one untouched: *what is owed, and to whom.*
+
+PATTERN is where that abstraction becomes a person waiting on a release date, which is why N° 32 spent a whole reading there. The crosswalk is the frame around it. Walk the table top to bottom and it quietly teaches its own thesis: documented compliance and contestable compliance are different things, and the distance between them is the column the American side does not have.
+
+</Section>

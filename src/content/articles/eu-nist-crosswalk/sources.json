@@ -1,0 +1,108 @@
+{
+  "slug": "eu-nist-crosswalk",
+  "issue": "N° 33",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "Golpayegani, Pandit & Lewis — AIRO: An Ontology for Representing AI Risks (EU AI Act + ISO)",
+      "como": "Prior art en KB",
+      "role": "context",
+      "tipo": "paper",
+      "kb_pk": "e24a9a7e-a1ae-4e24-925d-0f86939b01b3",
+      "respalda": "Ascendencia académica del crosswalk; AIRO mapea AI Act↔ISO, lo que encuadra el lado NIST como el hueco",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "Hernandez, Golpayegani & Lewis — Open KG mapping EU AI Act ↔ international standards",
+      "como": "Precedente metodológico en KB",
+      "role": "context",
+      "tipo": "paper",
+      "kb_pk": "4b65bc80-e6e2-4fec-82ab-8851fb898837",
+      "respalda": "Precedente de formalizar el crosswalk como grafo; mapea hacia ISO, no NIST",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "Robaldo, Batsakis & Calegari — Compliance Checking with Conflicting and Compensatory Norms",
+      "como": "Apoyo formal en KB",
+      "role": "support",
+      "tipo": "paper",
+      "kb_pk": "c339782d-c413-44b3-bb36-b82b7a028491",
+      "respalda": "Distinción normas conflictivas vs compensatorias: por qué EU↔NIST no es un mapeo 1:1",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "Amantea, Governatori & Quaranta — A Methodology for Compliance of AI Systems (CLSR 2026)",
+      "como": "Apoyo metodológico en KB",
+      "role": "support",
+      "tipo": "paper",
+      "kb_pk": "568c173f-e1e4-432b-a681-e2d2447e213d",
+      "respalda": "Los crosswalks estáticos de tabla no bastan para acreditar interoperabilidad; confunden solapamiento con suficiencia",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "NIST IR 8280 — FRVT Part 3: Demographic Effects",
+      "como": "Primaria NIST en KB",
+      "role": "support",
+      "tipo": "informe",
+      "kb_pk": "ffe83472-c703-4f72-89b9-2857e903be47",
+      "respalda": "NIST ya produce métricas de sesgo demográfico compatibles con MEASURE; producir el número nunca fue lo difícil",
+      "verificada": "si"
+    },
+    {
+      "id": "src-06",
+      "ref": "GAO-26-107268 — Federal Prisons: PATTERN Recidivism Risk Assessment Tool",
+      "como": "Primaria GAO en KB",
+      "role": "context",
+      "tipo": "informe",
+      "kb_pk": "8b81552d-c9ba-4801-8a44-5cf6c4af8176",
+      "respalda": "Caso donde el crosswalk colapsa visiblemente; enlace a N° 32",
+      "verificada": "si"
+    },
+    {
+      "id": "web-01",
+      "ref": "NIST AIRC — Crosswalk Documents",
+      "como": "airc.nist.gov/airmf-resources/crosswalks",
+      "role": "support",
+      "tipo": "web",
+      "kb_pk": null,
+      "respalda": "Los crosswalks oficiales del NIST son comunitarios y no implican endoso ni cobertura exhaustiva",
+      "verificada": "si"
+    },
+    {
+      "id": "web-02",
+      "ref": "NIST — Illustration: AI RMF trustworthiness characteristics ↔ Proposed EU AI Act, OECD, EO 13960, AI Bill of Rights",
+      "como": "nist.gov document",
+      "role": "support",
+      "tipo": "web",
+      "kb_pk": null,
+      "respalda": "El crosswalk propio del NIST mapea el AI Act PROPUESTO (2021) al nivel de características de fiabilidad, no de artículos vinculantes",
+      "verificada": "si"
+    },
+    {
+      "id": "web-03",
+      "ref": "Modulos — NIST AI RMF vs EU AI Act, side-by-side",
+      "como": "docs.modulos.ai",
+      "role": "context",
+      "tipo": "web",
+      "kb_pk": null,
+      "respalda": "Conformity assessment, marcado CE, seguimiento poscomercialización y sanciones no tienen equivalente NIST; el RMF es autodeclarado",
+      "verificada": "si"
+    },
+    {
+      "id": "web-04",
+      "ref": "AccuroAI — Unified crosswalk NIST AI RMF / ISO 42001 / EU AI Act",
+      "como": "accuroai.co",
+      "role": "context",
+      "tipo": "web",
+      "kb_pk": null,
+      "respalda": "Ejemplo del crosswalk granular como producto de proveedor ('un programa, tres auditorías'); Art. 40 corre por estándares armonizados",
+      "verificada": "si"
+    }
+  ],
+  "glossa_seed_id": "3f61e138-3929-4b74-a4e7-3179ede660a4",
+  "glossa_issue_id": "203b552e-aaf3-41bb-b21c-a2c969026880"
+}

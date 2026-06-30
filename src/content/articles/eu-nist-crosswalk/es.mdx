@@ -1,0 +1,108 @@
+---
+issue: "N° 33"
+date: "30 junio 2026"
+sortDate: "2026-06-30T23:30:00"
+language: es
+track: ai-policy
+title: "Donde el crosswalk UE–NIST se queda corto"
+titleHTML: "Donde el crosswalk UE–NIST <em>se queda corto</em>"
+dek: "Si se superpone el Reglamento de IA sobre el marco del NIST, casi todo encaja — hasta llegar a las filas que deciden quién tiene derecho a replicar."
+dekHTML: "Si se superpone el Reglamento de IA sobre el marco del NIST, casi todo encaja — hasta llegar a las filas que deciden quién tiene derecho a <em>replicar</em>."
+coverDek: "Toda comparación seria entre la gobernanza de la IA estadounidense y la europea empieza por un crosswalk: una tabla que pone las cuatro funciones del marco de gestión de riesgos del NIST junto a los artículos del Reglamento de IA. La correspondencia casi siempre funciona — la misma evidencia llena ambas columnas —, y por eso los puntos donde falla pasan desapercibidos. Esta lectura recorre la tabla hasta las filas donde la columna estadounidense se queda en blanco, y sostiene que esos blancos son lo importante."
+source: "A partir del NIST AI RMF (AI 100-1) y sus documentos de crosswalk, el Reglamento de IA de la UE (arts. 9–15, 43) y fuentes del KB sobre interoperabilidad regulatoria y formalización del cumplimiento"
+sourceLabel: "N.º 33 · Reglamento de IA ↔ NIST AI RMF · el crosswalk"
+topics:
+  - "Reglamento de IA"
+  - "NIST AI RMF"
+  - "Interoperabilidad regulatoria"
+  - "Evaluación de conformidad"
+  - "Contestabilidad"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Orientation from '../../../components/Orientation.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Scorecard from '../../../components/exhibits/Scorecard.astro';
+
+<Orientation lang="es">
+<p>Qué mapea de verdad un crosswalk entre dos regímenes de gobernanza de la IA — y qué deja fuera sin decirlo.</p>
+<p>La diferencia entre <em>producir</em> evidencia y estar <em>obligado</em> a actuar sobre ella.</p>
+<p>Por qué una agencia estadounidense plenamente alineada con el NIST puede aun así no cumplir el régimen europeo.</p>
+<p>El eje — la <em>contestabilidad</em> — donde las dos columnas dejan de corresponderse.</p>
+</Orientation>
+
+<Lede>Abra casi cualquier guía para gestionar la gobernanza de la IA a ambos lados del Atlántico y el primer artefacto que encontrará es un crosswalk — una tabla de correspondencias entre marcos: a un lado, las cuatro funciones del marco de gestión de riesgos del NIST; al otro, los artículos del Reglamento de IA, con cada celda reclamando una correspondencia. La promesa es siempre la misma: mantener una sola biblioteca de controles, recoger la evidencia una vez, satisfacer a varios auditores. En la mayor parte de la tabla, se cumple. El lenguaje de gestión de riesgos coincide, los deberes de documentación se solapan, los mismos resultados de pruebas viajan de una columna a otra. Esa convergencia es real, y es la razón por la que vale la pena conservar la tabla. También es la razón por la que las pocas filas donde se rompe pasan tan fácilmente desapercibidas — y en esas filas, sostiene esta lectura, vive la comparación de verdad.</Lede>
+
+<Callback issue="N° 32" slug="pattern-contestability-gap" lang="es">El N.º 32 usó PATTERN como ejemplo trabajado de esta brecha dentro de una herramienta federal concreta. Esta lectura es el marco en el que ese caso encaja: qué promete el crosswalk en general y dónde se detiene.</Callback>
+
+<Section number="01" title="Qué <em>mapea</em> de verdad la tabla">
+
+<Standfirst>Empecemos por la parte que funciona, porque funciona lo bastante bien como para resultar convincente.</Standfirst>
+
+El NIST AI RMF — el marco voluntario de gestión de riesgos del Instituto Nacional de Estándares y Tecnología de Estados Unidos — se organiza en cuatro funciones: GOVERN, MAP, MEASURE y MANAGE. GOVERN fija la política y la responsabilidad; MAP delimita el contexto y el uso previsto; MEASURE mide rendimiento, sesgo e incertidumbre; MANAGE actúa sobre lo que las otras tres sacan a la luz. Póngalas junto a las obligaciones del Reglamento de IA para sistemas de alto riesgo y los paralelismos son inmediatos.
+
+La gestión continua de riesgos del artículo 9 se lee como MAP y MANAGE con ropa jurídica. La gobernanza de datos del artículo 10 corresponde al trabajo de sesgo y representatividad de MEASURE. La documentación técnica del artículo 11 es el rastro de papel que GOVERN y MAP ya generan.
+
+<ContextBox label="Las cuatro funciones del AI RMF">
+GOVERN, MAP, MEASURE, MANAGE. GOVERN es la transversal — las políticas, los roles y los derechos de decisión que hacen repetibles a las otras tres. MAP entiende el sistema y su contexto. MEASURE produce las métricas: exactitud, sesgo, robustez. MANAGE convierte esas métricas en decisiones de tratamiento, monitorización y respuesta a incidentes. El marco describe un proceso, no un conjunto fijo de controles — y eso es lo que permite mapearlo sobre tantos otros regímenes.
+</ContextBox>
+
+Así que los mismos artefactos reaparecen en ambos lados. Un informe de evaluación que cierra una subcategoría de MEASURE es también la evidencia que pide un expediente del artículo 10. Un registro de monitorización producido bajo MANAGE es casi todo lo que reclaman los deberes de seguimiento poscomercialización del artículo 15. Este es el núcleo honesto del crosswalk: un equipo estadounidense que ya aplica el RMF ha redactado, sin proponérselo, buena parte de un expediente técnico europeo.
+
+Una advertencia sobre la procedencia. El crosswalk *propio* del NIST — el del anexo del marco — mapea el Reglamento *propuesto* de 2021, y lo hace al nivel de características generales de fiabilidad, no de los artículos vinculantes de 2024. Los mapas granulares, artículo por artículo, que la gente usa de verdad los construyen sobre todo proveedores que venden la promesa de «un solo programa, tres auditorías». Útiles, pero ni neutrales ni ley.
+
+</Section>
+
+<Section number="02" title="Donde las columnas <em>se agotan</em>">
+
+<Standfirst>Siga bajando por la tabla. Unas pocas filas después, la columna derecha empieza a adelgazar, y luego se queda en blanco.</Standfirst>
+
+La ruptura no es aleatoria. Se concentra justo en las obligaciones que convierten la documentación en un deber para con alguien. La más clara es el artículo 43 — la evaluación de conformidad, el control previo a la comercialización por un tercero notificado de que un sistema de alto riesgo cumple los requisitos del Reglamento antes de salir al mercado. No hay celda del NIST para ello, porque no hay nada que mapear: el RMF es autodeclarado. Uno afirma su propia alineación; ningún organismo independiente lo sanciona, y nada se retira del mercado si no lo hace.
+
+<ContextBox label="¿Qué es una evaluación de conformidad?">
+Bajo el Reglamento de IA, un sistema de alto riesgo debe pasar una evaluación de conformidad antes de salir al mercado — una comprobación estructurada, a veces por un organismo externo acreditado, de que cumple los requisitos del Reglamento (gestión de riesgos, gobernanza de datos, transparencia, supervisión humana). Produce una declaración de conformidad y, para muchos sistemas, el marcado CE. Es el mecanismo que convierte los requisitos escritos en una puerta: si se suspende, el sistema no sale legalmente al mercado.
+</ContextBox>
+
+El mismo blanco aparece más abajo. El marcado CE, la transparencia exigible hacia la persona a la que afecta una decisión (artículo 13), una supervisión humana que debe estar incorporada y no solo afirmada (artículo 14), sanciones de hasta el siete por ciento de la facturación mundial — ninguno tiene equivalente en el NIST. El crosswalk mapea fielmente la maquinaria de producción de evidencia y luego se detiene ante la maquinaria de ejecución, porque esa segunda máquina nunca se construyó del lado estadounidense.
+
+<Scorecard
+  label="Crosswalk"
+  title="Donde las filas dejan de corresponderse"
+  columns={["Reglamento de IA", "NIST AI RMF"]}
+  rows={[
+    { label: "Gestión continua de riesgos", values: ["Art. 9 — exigido", "MAP · MEASURE · MANAGE"] },
+    { label: "Gobernanza de datos", values: ["Art. 10 — exigido", "MAP 2 · MEASURE 2.5"] },
+    { label: "Documentación técnica", values: ["Art. 11 — exigido", "GOVERN · MAP"] },
+    { label: "Transparencia hacia la persona afectada", values: ["Art. 13 — exigido", "—"] },
+    { label: "Supervisión humana incorporada", values: ["Art. 14 — exigido", "GOVERN 1 (parcial)"] },
+    { label: "Evaluación de conformidad por un tercero", values: ["Art. 43 — exigido", "✗"] },
+    { label: "Sanciones · marcado CE", values: ["Arts. 99, 48 — vinculante", "✗"] },
+  ]}
+  source="Reglamento de IA (Reglamento (UE) 2024/1689); NIST AI RMF 1.0 (AI 100-1). Las correspondencias de celda son aproximadas; las filas inferiores no tienen análogo en el NIST."
+/>
+
+Esta es la bisagra, así que conviene decirla despacio. El crosswalk es un mapa de la *evidencia*. No es un mapa de la *legitimación para reclamar*. Puede mostrar que un expediente del NIST y uno europeo piden la misma prueba, el mismo registro, la misma decisión documentada. No puede mostrar que la persona afectada pueda ver algo de ello, contestarlo o forzar una respuesta. El RMF nunca prometió eso, y una tabla solo puede alinear lo que ambos lados contienen.
+
+<PullQuote attribution="— la tesis que el crosswalk implica">Un crosswalk alinea la evidencia que dos regímenes recogen. No puede alinear quién tiene derecho a discutirla.</PullQuote>
+
+Hasta la propia válvula de escape del Reglamento confirma la asimetría. El artículo 40 permite que los estándares europeos armonizados satisfagan, por presunción, partes del Reglamento — pero el NIST AI RMF no es un estándar armonizado. Alinearse con él compra familiaridad y ventaja en el papeleo. No compra una presunción de conformidad.
+
+</Section>
+
+<Section number="03" title="Por qué esto es una <em>tesis</em>, no una tabla">
+
+<Standfirst>Las filas que faltan no son un hueco que un mejor formulario vaya a rellenar. Son el hallazgo.</Standfirst>
+
+Léase el crosswalk al pie de la letra e invita a una conclusión cómoda: llegue a la alineación con el NIST y tendrá casi resuelto el cumplimiento europeo. Las filas en blanco dicen otra cosa. Una agencia federal estadounidense puede aplicar el RMF de forma impecable: publica sus evaluaciones, registra su monitorización, asigna a sus responsables. Y aun así puede quedar muy lejos de la conformidad sustantiva con el Reglamento. Las obligaciones que no puede satisfacer son justamente las que dan a alguien de fuera un punto de apoyo.
+
+El NIST ya produce las métricas de sesgo demográfico que querría un expediente europeo; Estados Unidos tiene tasas de error de reconocimiento facial desglosadas por raza desde 2019. Producir el número nunca fue lo difícil. Lo difícil es estar obligado a actuar sobre él, de un modo que la persona afectada pueda invocar.
+
+La literatura sobre ingeniería del cumplimiento nombra el mismo problema desde el lado formal. Dos regímenes pueden exigir evidencia solapada e imponer aun así deberes no equivalentes. Una tabla estática que marca cada celda como «cubierta» confunde solapamiento con suficiencia. La cuestión no es que los crosswalks estén equivocados. Es que responden a una pregunta más estrecha de lo que aparentan — *qué evidencia se transfiere* — y dejan intacta la que sostiene el peso: *qué se debe, y a quién.*
+
+PATTERN es donde esa abstracción se vuelve una persona esperando una fecha de salida, y por eso el N.º 32 le dedicó una lectura entera. El crosswalk es el marco que lo rodea. Recorra la tabla de arriba abajo y enseña, sin alzar la voz, su propia tesis: el cumplimiento documentado y el cumplimiento contestable son cosas distintas, y la distancia entre ambos es la columna que el lado estadounidense no tiene.
+
+</Section>
