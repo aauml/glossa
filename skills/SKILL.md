@@ -512,12 +512,15 @@ That is the entire delivery. No retrospective. No comparison to previous issues.
 
 ## Files in this skill
 
+Packaged with the skill (always available, any surface):
 - `SKILL.md` — this file
 - `references/editorial-conventions.md` — voice, framings, established patterns
 - `references/spanish-translation.md` — Iberian register, the billion trap, key terminology
-- `references/deployment.md` — repo layout, frontmatter spec, MDX body conventions, both deploy flows
-- `src/components/exhibits/interactive/README.md` — full prop reference and worked examples for the four interactive React components
-- `assets/article-template.html`, `assets/cover-template.html`, `assets/exhibit-patterns.html` — legacy HTML, kept as visual reference for what the rendered article looks like; not used as templates
+- `references/deployment.md` — both deploy flows (Code/Cowork git; chat Supabase queue), frontmatter spec, MDX conventions
+
+In the repo `aauml/glossa` (read when you have a checkout — Code/Cowork):
+- `src/components/exhibits/interactive/README.md` — prop reference for the interactive React exhibits
+- `src/components/`, `src/styles/global.css` — the live design system (source of truth for component props)
 
 ## What to do first when triggered
 
