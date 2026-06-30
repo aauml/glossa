@@ -441,27 +441,32 @@ git add -A && git commit -m "N° XX — short title" && git push
 ```
 The repo was renamed `aauml/lecturas` → `aauml/glossa`; GitHub redirects old URLs and Vercel is linked by repo ID, so the deploy and the `glossa.ademas.ai` URL are unaffected.
 
-**Chat / mobile has NO git.** Do not try to push or to use GitHub's Contents API from chat — that path is not available on mobile. Publishing from chat goes through the **Supabase publish queue**: the chat writes the finished MDX into `glossa_publish_requests`; a GitHub Action (`glossa-publish.yml`) materializes the files into the repo, Vercel deploys, and the worker writes the live URLs back into the row.
+**Chat / mobile has NO git.** Do not push or use GitHub's Contents API from chat, and do not try to compose a giant SQL `INSERT` (it stalls). **Publish from chat with ONE HTTP POST to the public `glossa-enqueue` edge function** — the same kind of call as `semantic-search`. The function inserts the queue row server-side; a GitHub Action (`glossa-publish.yml`) materializes the MDX into the repo, Vercel deploys, and the live URLs are written back.
 
-Chat / mobile publish (only after the review gate / Arturo's OK):
+Chat / mobile publish (only after the review gate / Arturo's OK) — **one call**:
+```
+POST https://wtwuvrtmadnlezkbesqp.supabase.co/functions/v1/glossa-enqueue
+Content-Type: application/json
+```
 ```jsonc
-// INSERT into glossa_publish_requests via the Supabase connector (anon key).
-// body_en / body_es are the COMPLETE MDX files (frontmatter + imports + body).
 {
-  "issue_id": "<glossa_issues.id, if already created>",
   "slug": "newissue-keyword",
   "issue_no": "N° XX",
-  "body_en": "---\nissue: \"N° XX\"\n...full en.mdx...",
-  "body_es": "---\n...full es.mdx...",   // omit if EN-only
-  "sources_json": { /* the sources.json sidecar */ },
-  "state": "queued"                       // 'queued' fires the dispatch trigger
+  "issue_id": "<glossa_issues.id, or omit>",
+  "body_en": "---\nissue: \"N° XX\"\n...COMPLETE en.mdx (frontmatter + imports + body)...",
+  "body_es": "---\n...COMPLETE es.mdx...",   // omit if EN-only
+  "sources_json": { /* the sources.json sidecar, or omit */ }
 }
 ```
-Then poll the row for the result (it flips `queued → building → done`):
+The response is `{ "ok": true, "id": "<uuid>", "poll": "<sql>" }`. No auth header is required (public function); if your client insists on one, send the anon key.
+
+Then poll for the result (flips `queued → building → done`), via the Supabase connector or a GET on the REST table:
 ```sql
 select state, url_en, url_es, error from glossa_publish_requests where id = '<id>';
 ```
-On `state='done'`, reply with `url_en` / `url_es`. On `state='error'`, report `error`. Round-trip is ~1–2 min (Action build + Vercel deploy).
+On `state='done'`, reply with `url_en` / `url_es`. On `state='error'`, report `error` and re-POST a corrected article. Round-trip ≈ 1–2 min.
+
+*(Alternative, only if a surface can write tables directly: INSERT the same fields into `glossa_publish_requests` with `state='queued'`. The edge-function POST is preferred because it never stalls on large bodies.)*
 
 After publish (any surface), verify the live URLs:
 ```bash
@@ -494,9 +499,9 @@ Those are editorial; just decide. The thesis and the publish step are the gates.
 
 ## Mobile output discipline
 
-On chat/mobile, publishing is a single `INSERT` into `glossa_publish_requests` (the full `en.mdx`/`es.mdx` go in `body_en`/`body_es`), not a file upload — so the old chunked-PUT concerns are gone. Two rules remain:
+On chat/mobile, publishing is a single **POST to the `glossa-enqueue` edge function** (the full `en.mdx`/`es.mdx` go in `body_en`/`body_es`), not a file upload and not a SQL INSERT — so the old chunked-PUT concerns are gone. Two rules remain:
 
-1. **Build the MDX, then publish in one write.** Assemble each file's text, then INSERT the row. If a file is too large for one tool call, build it across calls in sandbox state and INSERT once it's whole.
+1. **Build the MDX, then publish in one POST.** Assemble each file's text, then POST. If a file is too large for one tool call, build it across calls in sandbox state and POST once it's whole.
 2. **Status output, not content output, in chat.** After publishing, reply with the live URLs and nothing else (one sentence only if a framing judgment call needs flagging).
 
 See `references/deployment.md` for the full chat-publish (Supabase queue) flow and the Code/Cowork git flow.
@@ -532,6 +537,6 @@ In the repo `aauml/glossa` (read when you have a checkout — Code/Cowork):
 6. **Review gate:** present the EN/ES draft + source list for Arturo's OK. Do not publish yet (unless he said "ship directly").
 7. **On approval — publish by the surface you're on:**
    - **Code / Cowork (has git):** write the files into a checkout of `aauml/glossa`, `git commit` + `push`. Vercel deploys.
-   - **Chat / mobile (no git):** INSERT the finished MDX into `glossa_publish_requests` (`state='queued'`) via the Supabase connector; poll the row until `state='done'`; the worker commits, deploys, and returns the URLs (see *Deployment*).
+   - **Chat / mobile (no git):** POST the finished MDX to the public `glossa-enqueue` edge function (one call, like `semantic-search`); poll `glossa_publish_requests` by the returned `id` until `state='done'`; the worker commits, deploys, and returns the URLs (see *Deployment*).
 8. Write `glossa_issue_sources` (KB sources with role/claim/verified) and ensure the issue is `status='published'` with `url_en/url_es`, `published_at`, `model`. (The chat publish worker sets the issue's status/URLs for you when `issue_id` is provided.)
 9. Reply with the live URLs (and one sentence on any framing judgment call).

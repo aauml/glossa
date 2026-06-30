@@ -174,37 +174,40 @@ curl -s -o /dev/null -w "HTTP %{http_code}\n" https://glossa.ademas.ai/articles/
 
 ## Deploy flow — chat / mobile (no git): the Supabase publish queue
 
-Chat/mobile cannot push to GitHub. Instead, write the finished article into the Supabase table `glossa_publish_requests`; a GitHub Action (`.github/workflows/glossa-publish.yml`) materializes it into the repo and Vercel deploys. Round-trip ≈ 1–2 min.
+Chat/mobile cannot push to GitHub. Instead, **POST the finished article to the public `glossa-enqueue` edge function** (one HTTP call, like `semantic-search`). The function inserts the queue row server-side; a GitHub Action (`.github/workflows/glossa-publish.yml`) materializes it into the repo and Vercel deploys. Round-trip ≈ 1–2 min. (Do NOT try to compose a big SQL `INSERT` from chat — it stalls on the multi-KB body.)
 
 ### How it works (the bridge)
-1. Chat `INSERT`s a row into `glossa_publish_requests` with `state='queued'` (anon key, RLS allows insert).
+1. Chat `POST`s the article to `…/functions/v1/glossa-enqueue` (public, no JWT). The function inserts a `glossa_publish_requests` row with `state='queued'` using the service key, and returns `{ ok, id }`.
 2. A DB trigger (`glossa_publish_dispatch`, migration 0002) fires `pg_net` → GitHub `repository_dispatch` (`event_type: glossa_publish`), using `github_dispatch_pat` from the Supabase Vault.
-3. `glossa-publish.yml` reads the row with the service key (`scripts/publish_from_supabase.mjs prepare`), writes `src/content/articles/{slug}/{en,es}.mdx` (+ `sources.json`), runs `npm run build` to validate, `git commit` + `push`. Vercel deploys.
+3. `glossa-publish.yml` reads the row with the public anon key (`scripts/publish_from_supabase.mjs prepare`), writes `src/content/articles/{slug}/{en,es}.mdx` (+ `sources.json`), runs `npm run build` to validate, `git commit` + `push`. Vercel deploys.
 4. The worker (`… finalize`) writes `state='done'`, `commit_sha`, `url_en`, `url_es` back to the row, and flips the linked `glossa_issues` to `published`.
 
-### Publish (one INSERT via the Supabase connector)
+### Publish (one POST)
 
+```
+POST https://wtwuvrtmadnlezkbesqp.supabase.co/functions/v1/glossa-enqueue
+Content-Type: application/json
+```
 ```jsonc
-// table: glossa_publish_requests
 {
-  "issue_id": "<glossa_issues.id or null>",
   "slug": "newissue-keyword",
   "issue_no": "N° XX",
+  "issue_id": "<glossa_issues.id, or omit>",
   "body_en": "---\nissue: \"N° XX\"\n...COMPLETE en.mdx (frontmatter + imports + body)...",
-  "body_es": "---\n...COMPLETE es.mdx...",   // omit/null if EN-only
-  "sources_json": { /* the sources.json sidecar object */ },
-  "state": "queued"
+  "body_es": "---\n...COMPLETE es.mdx...",   // omit if EN-only
+  "sources_json": { /* the sources.json sidecar object, or omit */ }
 }
 ```
+Response: `{ "ok": true, "id": "<uuid>", "poll": "<sql>" }`. No auth header required (public); send the anon key only if your client demands one.
 
-`body_en`/`body_es` are the **entire** MDX files — same content as the Code/Cowork flow would commit, just carried in a column instead of a file.
+`body_en`/`body_es` are the **entire** MDX files — same content the Code/Cowork flow would commit, carried in the POST instead of a file.
 
 ### Poll for the result
 
 ```sql
 select state, url_en, url_es, commit_sha, error
 from glossa_publish_requests
-where id = '<inserted id>';
+where id = '<returned id>';
 -- state: queued -> building -> done | error
 ```
 
