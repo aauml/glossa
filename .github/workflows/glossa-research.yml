@@ -1,0 +1,47 @@
+name: Glossa research (Fase 2 — from chat via Supabase)
+
+# Corre la investigación pesada de una solicitud encolada desde el chat (sin git/shell en móvil).
+# Cadena: chat -> POST glossa-research-enqueue -> INSERT glossa_research_requests (state='queued')
+#         -> trigger glossa_research_dispatch (pg_net) -> repository_dispatch [glossa_research]
+#         -> este workflow corre KB + OpenAlex + Tavily(si hay clave) -> escribe el dossier de vuelta.
+#
+# Secretos: NINGUNO obligatorio (Supabase anon pública, KB público, OpenAlex sin clave).
+#           TAVILY_API_KEY es OPCIONAL: si existe como secreto del repo, se activa la frontera web.
+
+on:
+  repository_dispatch:
+    types: [glossa_research]
+  workflow_dispatch:
+    inputs:
+      id:
+        description: 'glossa_research_requests.id'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-research-${{ github.event.client_payload.id || github.event.inputs.id }}
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  # anon key pública (rol "anon"); no es un secreto.
+  SUPABASE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0d3V2cnRtYWRubGV6a2Jlc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzczMDYsImV4cCI6MjA4OTUxMzMwNn0.1eCIlv6URloKHnEzxB2drHtiS2NR_VH_2DHF6YFLerY
+  OPENALEX_MAILTO: glossa@ademas.ai
+  TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Resolve request id
+        id: rid
+        run: echo "id=${{ github.event.client_payload.id || github.event.inputs.id }}" >> "$GITHUB_OUTPUT"
+      - name: Run research
+        run: node scripts/research_from_supabase.mjs "${{ steps.rid.outputs.id }}"
