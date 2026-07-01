@@ -21,17 +21,15 @@ const keyOf = (a) => (a.data.topics || []).join('|');
     <h1 class="cover-wordmark">Glossa<span class="wm-dot">.</span></h1>
     <p class="cover-tagline">Personal annotated readings — the ideas, analysis, and theses are mine; the research, verification, and writing are AI.</p>
     <p class="cover-credo">Every claim is searched, cross-checked, and <strong>verified against real sources</strong> — grounded, not invented.</p>
-    <div class="cover-meta">
-      <span>2026</span>
-      <span class="cover-meta-bar"></span>
-      <span>{enArticles.length} {enArticles.length === 1 ? 'piece' : 'pieces'}</span>
-    </div>
   </section>
 
   <section class="contents">
-    <div class="cover-filter" id="filter">
-      <button class="f on" data-t="all">All</button>
-      {topics.map(t => <button class="f" data-t={t}>{t}</button>)}
+    <div class="cover-filter">
+      <div class="filter-topics" id="filter">
+        <button class="f on" data-t="all">All</button>
+        {topics.map(t => <button class="f" data-t={t}>{t}</button>)}
+      </div>
+      <span class="cover-count">{enArticles.length} {enArticles.length === 1 ? 'piece' : 'pieces'} · 2026</span>
     </div>
 
     {featured && (
