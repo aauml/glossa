@@ -1,0 +1,188 @@
+---
+issue: "N.º 34"
+date: "1 de julio de 2026"
+sortDate: "2026-07-01"
+language: es
+title: "Lo que NeOn recomienda no construir"
+titleHTML: "Lo que NeOn recomienda <em>no construir</em>"
+dek: "Suárez-Figueroa y sus colegas convirtieron la ingeniería de ontologías en una disciplina de reutilización más que de invención: una doctrina hoy atrapada entre los modelos de lenguaje que la automatizan y los escáneres de pitfalls que deciden si el resultado es sólido."
+dekHTML: "Suárez-Figueroa y sus colegas convirtieron la ingeniería de ontologías en una disciplina de reutilización más que de invención: una doctrina hoy atrapada entre los modelos de lenguaje que la automatizan y los escáneres de pitfalls que deciden si el resultado es sólido."
+coverDek: "NeOn es la espina metodológica de una tesis que formaliza el Reglamento de IA de la UE y el marco del NIST como conocimiento estructurado. Esta lectura reconstruye lo que el método pide en realidad —reutilizar antes que crear— y por qué esa doctrina queda hoy entre los modelos que la automatizan y las herramientas que la auditan."
+source: "A partir de Suárez-Figueroa, Gómez-Pérez y Fernández-López, «The NeOn Methodology for Ontology Engineering» · con ocho fuentes acompañantes"
+sourceLabel: "N.º 34 · De la Metodología NeOn"
+track: thesis
+topics:
+  - "Metodología NeOn"
+  - "Reutilización de ontologías"
+  - "Reglamento de IA ↔ NIST RMF"
+  - "Aprendizaje de ontologías con LLM"
+  - "OOPS! y los pitfalls ontológicos"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Orientation from '../../../components/Orientation.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Timeline from '../../../components/exhibits/Timeline.astro';
+import Scorecard from '../../../components/exhibits/Scorecard.astro';
+import Footnote from '../../../components/Footnote.astro';
+import Footnotes from '../../../components/Footnotes.astro';
+
+<Orientation lang="es">
+<p>Cómo una metodología de ingeniería puede hacer que su instrucción central sea <em>reutiliza, no inventes</em>.</p>
+<p>Los dos escenarios de NeOn en que se apoya una tesis: reconvertir una norma en estructura y reutilizar una ontología que otro ya construyó.</p>
+<p>Por qué los grandes modelos de lenguaje se injertan hoy en el propio andamiaje de NeOn — y qué está ahí para atrapar el escáner de <em>pitfalls</em>.</p>
+<p>La distancia entre una ontología que <em>parece</em> sólida y una que <em>lo es</em> — la misma que separa el cumplimiento documentable del real.</p>
+<p>Las ontologías como discurso que una frontera puede volver legal o ilegal.</p>
+</Orientation>
+
+<Lede>Casi toda metodología de ingeniería explica cómo construir algo. La primera instrucción de NeOn es no construirlo: salir a buscar lo que ya existe y reconvertirlo. El consejo suena a evasión. Es lo contrario: una apuesta, hecha en Madrid hace dos décadas, por que el conocimiento formal sea infraestructura pública compartida y no algo que cada proyecto reinventa. Esa apuesta es hoy la espina de una tesis doctoral que convierte el Reglamento de IA de la UE y el marco estadounidense del NIST en conocimiento estructurado y consultable. La tesis toma NeOn precisamente por su disciplina de reutilización. Pero el mismo trabajo de reutilización que NeOn formalizó para expertos humanos es justo lo que ahora automatiza una nueva oleada de modelos de lenguaje — con un escáner automático de errores haciendo de juez de si el resultado se sostiene.</Lede>
+
+<Callback issue="N.º 33" slug="eu-nist-crosswalk" lang="es">Continúa los temas del N.º 33 · donde se mostró dónde se agota el crosswalk entre los dos marcos; esta lectura es el método que hay debajo de ese crosswalk.</Callback>
+
+<Section number="01" title="El método de la <em>reutilización</em>">
+
+<Standfirst>Antes de NeOn existía la costumbre de construir ontologías desde cero. La aportación de NeOn fue tratar esa costumbre como el error.</Standfirst>
+
+<ContextBox label="¿Qué es una ontología?">
+En informática, una ontología es un modelo formal y legible por máquina de un dominio: sus conceptos, las propiedades que portan y las relaciones y restricciones entre ellos, escritos de forma que un razonador pueda inferir. Una norma también nombra conceptos —«sistema de alto riesgo», «proveedor», «riesgo»— pero en prosa. Convertir esa prosa en ontología es lo que permite a una máquina comprobar si un requisito queda cubierto por otro.
+</ContextBox>
+
+NeOn nació de un proyecto europeo de título poco vistoso: «Soporte al ciclo de vida de ontologías en red», financiado por el Sexto Programa Marco de la UE.<Footnote n={1}/> El trabajo lo dirigió el Ontology Engineering Group (OEG) de la Universidad Politécnica de Madrid, con Asunción Gómez-Pérez al frente. Produjo herramientas, una metodología y, con el tiempo, un libro.
+
+Su afirmación central era contraintuitiva para un método de ingeniería. Los enfoques previos suponían que una ontología se construía como un programa: a partir de una especificación, desde cero. NeOn supuso lo contrario. Casi todo el conocimiento que se necesita ya existe en alguna parte —en un tesauro, en un estándar, en otra ontología— y el trabajo real es encontrarlo, juzgarlo y reconvertirlo.
+
+Para hacerlo operativo, NeOn está *basado en escenarios*. Define nueve escenarios para construir redes de ontologías, cada uno con una combinación distinta de reutilización y reingeniería.<Footnote n={2}/> Solo dos importan para una tesis sobre regulación de IA, y nombrarlos con precisión es el asunto entero de esta lectura.
+
+<Timeline
+  label="Un linaje madrileño"
+  title="Treinta años de metodologías de un mismo laboratorio"
+  events={[
+    { year: "1997", label: "METHONTOLOGY — construir desde cero (hoy en desuso)" },
+    { year: "2006", label: "Arranca el proyecto NeOn (UE, FP6-027595)" },
+    { year: "2012", label: "La Metodología NeOn, en forma de libro" },
+    { year: "2014", label: "Se publica el escáner de pitfalls OOPS!" },
+    { year: "2022", label: "Metodología LOT · ontología AIRO (Dublín)" },
+    { year: "2024", label: "NeOn-GPT · LLMs4Life — los LLM automatizan la reutilización" },
+  ]}
+  source="Registro de publicaciones del OEG-UPM; fuentes acompañantes de esta lectura"
+/>
+
+Conviene ver el linaje como linaje. METHONTOLOGY, el método del mismo grupo de 1997, está hoy en desuso. NeOn lo sustituyó. LOT —Linked Open Terms— es la sucesora ligera y ágil que el mismo laboratorio publicó en 2022, y aporta el procedimiento paso a paso que NeOn, un marco de escenarios, dejó abierto a propósito.<Footnote n={3}/> Una tesis defendida en España puede citar esto como tradición metodológica nacional, no como importación.
+
+</Section>
+
+<Section number="02" title="Escenario 2: convertir una <em>norma</em> en estructura">
+
+<Standfirst>El Reglamento de IA es prosa. El marco del NIST es prosa. El Escenario 2 es la disciplina de convertir esa prosa en algo sobre lo que una máquina pueda razonar.</Standfirst>
+
+El Reglamento de IA de la UE (RIA) supera el centenar de artículos. El Marco de Gestión de Riesgos de IA del NIST (AI RMF) —la contraparte voluntaria estadounidense— se organiza en cuatro funciones y decenas de subcategorías.<Footnote n={4}/> Ninguno es una ontología. Ambos son lo que NeOn llama un recurso no ontológico: conocimiento humano estructurado que aún no se ha formalizado.
+
+El Escenario 2 es la reutilización y reingeniería de exactamente esos recursos. El OEG tenía un método basado en patrones para ello años antes de que existiera el RIA —para convertir estándares y esquemas de clasificación en ontologías.<Footnote n={5}/> Una tesis que formaliza los artículos 11 a 14 del Reglamento está ejecutando el Escenario 2 sobre un texto jurídico.
+
+Aquí está el concepto sobre el que se apoya el resto del argumento. Supóngase que se quiere afirmar que un control del NIST «cubre» un requisito del RIA —que una agencia que documenta bajo GOVERN y MAP ha satisfecho, de hecho, el artículo 9—. ¿Cómo se sabría? La respuesta de NeOn es la *pregunta de competencia* —competency question, CQ—: una pregunta llana, en lenguaje natural, que la estructura terminada debe poder responder.
+
+Esas preguntas se escriben primero, en un documento llamado Documento de Especificación de Requisitos de la Ontología (ORSD). Delimitan el trabajo: obligan a nombrar los conceptos y relaciones que harán falta. Y lo validan: al final, o la estructura las responde o no las responde.
+
+El giro que importa es que la validación deja de ser cuestión de gusto. Un crosswalk —tabla de correspondencias— entre dos marcos no es «existe un artículo análogo». Es: *¿puede el mapeo responder si un sistema del tipo PATTERN cumple el requisito de supervisión humana del artículo 14 usando solo documentación del NIST?* Si no puede responderlo, el crosswalk está incompleto —por muchas casillas que marque.
+
+Antes de continuar, conviene sostener la pregunta sobre la que gira la tesis entera: cuando dos normas usan la misma palabra —«riesgo», «supervisión», «documentación»— y significan cosas sutilmente distintas, ¿ha demostrado una tabla que las empareja una cobertura real, o solo su apariencia? La intuición rápida dice cobertura. El método dice: demuéstralo con una pregunta.
+
+<Scorecard
+  label="Los nueve escenarios de NeOn"
+  title="Qué escenarios usa la tesis en realidad"
+  columns={["Se usa aquí"]}
+  rows={[
+    { label: "1 · Construir desde especificación (desde cero)", values: [false] },
+    { label: "2 · Reconvertir recursos no ontológicos — estándares, normas", values: [true] },
+    { label: "3 · Reutilizar recursos ontológicos existentes", values: [true] },
+    { label: "4 · Reutilizar y reconvertir recursos ontológicos", values: [false] },
+    { label: "5 · Reutilizar y fusionar recursos ontológicos", values: [false] },
+    { label: "6 · Fusionar y reconvertir recursos ontológicos", values: [false] },
+    { label: "7 · Reutilizar patrones de diseño ontológico", values: [false] },
+    { label: "8 · Reestructurar recursos ontológicos", values: [false] },
+    { label: "9 · Localizar recursos ontológicos", values: [false] },
+  ]}
+  source="Escenarios según la Metodología NeOn; la selección es de esta tesis"
+/>
+
+</Section>
+
+<Section number="03" title="Escenario 3: reutilizar lo que <em>Dublín</em> ya construyó">
+
+<Standfirst>Se podría definir «sistema de alto riesgo» desde cero. O se podría reutilizar la ontología en la que un grupo de Dublín ya lo hizo.</Standfirst>
+
+El Escenario 3 es la reutilización de recursos ontológicos —estructuras que otro ya formalizó—. Para la regulación de IA, el caso concreto tiene nombre: AIRO, la ontología de riesgos de IA.
+
+AIRO se construyó en el ADAPT Centre del Trinity College de Dublín, por Delaram Golpayegani, Harshvardhan Pandit y Dave Lewis.<Footnote n={6}/> Formaliza los conceptos de riesgo del RIA —sistema, proveedor, alto riesgo, impacto— y los alinea con el estándar de gestión de riesgos ISO 31000. Viene con la maquinaria para usarlos: comprobaciones de restricciones en SHACL —un lenguaje para validar la forma de los datos— y consultas en SPARQL, el lenguaje de consulta de este tipo de conocimiento estructurado. Apúntese a un caso y puede computar si el sistema cae bajo el anexo de alto riesgo del Reglamento.
+
+<ContextBox label="¿Qué es el DPV y quién lo mantiene?">
+El Data Privacy Vocabulary (DPV) es un modelo compartido de conceptos de tratamiento de datos —finalidades, bases jurídicas, derechos— construido en torno al RGPD por un grupo comunitario del World Wide Web Consortium (W3C), el organismo de estándares de la web. Pandit, coautor de AIRO, preside ese grupo y mantiene el DPV. Esto importa abajo: la reutilización no es un préstamo distante entre desconocidos. Es un mismo entorno de investigación construyendo sobre sí mismo.
+</ContextBox>
+
+El detalle que vuelve vívido el Escenario 3 es lo que ocurrió después. AIRO no quedó junto al DPV: se integró en él, como su extensión oficial para el Reglamento de IA.<Footnote n={7}/> AIRO reutiliza el DPV; el DPV absorbe a AIRO. El recurso reutilizable es él mismo producto de reutilización.
+
+Ahí está la doctrina hecha carne. NeOn dice *cómo* reutilizar; AIRO y el DPV son *lo que* se reutiliza; y ambos, plegándose el uno en el otro, muestran que «reutilizar antes que crear» no es coartada para el trabajo endeble. Es el modo en que un campo acumula.
+
+</Section>
+
+<Section number="04" title="Cuando la máquina hace la reutilización — y qué la <em>audita</em>">
+
+<Standfirst>La misma reutilización que NeOn formalizó para expertos es hoy lo que automatizan los modelos de lenguaje. Una herramienta del mismo laboratorio madrileño decide si les salió bien.</Standfirst>
+
+El nombre lo delata: NeOn-GPT. Es un pipeline que injerta grandes modelos de lenguaje en los propios pasos de NeOn —requisitos, reutilización, formalización— y deja que el modelo haga el trabajo que antes hacía un ingeniero humano.<Footnote n={8}/> Un proyecto hermano, LLMs4Life, extiende ese pipeline a las ciencias de la vida, generando ontologías profundas evaluadas contra una de referencia ya existente.<Footnote n={9}/>
+
+La promesa es compresión: prescindir del experto, conservar la estructura. La evidencia es más sobria. Un estudio comparativo de 2025 entre modelos GPT y Perplexity en creación de ontologías los encontró más flojos justo donde una norma es más exigente: en las relaciones de subclase y en el dominio y rango de las propiedades, las piezas que fijan una jerarquía en su sitio.<Footnote n={10}/> Un modelo puede emitir algo que se lee como una ontología y equivocar la jerarquía en silencio.
+
+Ahí entra la auditoría —y ahí la geografía cierra un círculo—. OOPS!, el OntOlogy Pitfall Scanner, lo construyó el mismo grupo OEG de Madrid que construyó NeOn.<Footnote n={11}/> Rastrea una ontología terminada en busca de *pitfalls* —errores recurrentes de modelado—: una clase que parece conectada pero está huérfana, una relación inversa declarada al revés, una disyunción que falta. Su catálogo se ha ampliado después.<Footnote n={12}/> El escáner no certifica la corrección. Señala los lugares donde la estructura probablemente está mal.
+
+<PullQuote attribution="— el pitfall, dicho de otro modo">Una ontología puede pasar todos los controles de superficie y seguir estando conceptualmente rota por debajo.</PullQuote>
+
+Aquí está la bisagra de la lectura entera. Un *pitfall* es la distancia entre una ontología que *parece* sólida y una que *lo es*. Léase esa frase contra la premisa de la propia tesis —que el cumplimiento documentable no es lo mismo que el cumplimiento real— y es la misma distancia, un piso más abajo, en la herramienta. Un crosswalk con *pitfalls* no detectados genera falsa congruencia entre dos marcos: las casillas están marcadas, la inferencia es errónea.
+
+Así que la pregunta que plantea la automatización no es técnica. Es una pregunta sobre la autoridad. Cuando un modelo genera el concepto y un escáner sella la superficie, ¿quién queda para decir qué *significa* el concepto? La respuesta de NeOn era: un experto, que escribe preguntas de competencia y responde del juicio. La respuesta de la automatización aún se está escribiendo.
+
+</Section>
+
+<Section number="05" title="Una ontología es <em>discurso</em>, y una frontera puede prohibirla">
+
+<Standfirst>La última fuente acompañante vuelve político el problema entero — y le entrega a la tesis su espejo más nítido.</Standfirst>
+
+En biomedicina, las ontologías se construyen y publican con una cadena de herramientas compartida, el Ontology Development Kit (ODK), usada en toda la OBO Foundry —una comunidad de ontologías biológicas y biomédicas interoperables—. Un informe reciente sobre esa cadena hace un argumento que suena abstracto hasta que deja de serlo: una ontología es una forma de discurso. Como el código, puede caer bajo leyes sobre la expresión. La misma ontología puede ser lícita en una jurisdicción y estar prohibida en otra.<Footnote n={13}/>
+
+La solución propuesta es un *split world* —mundo escindido—. Se producen ediciones ligeramente divergentes de una misma ontología, cada una ajustada al mandato legal de una jurisdicción, sin contaminar el núcleo global compartido. El núcleo semántico permanece intacto; una variante local absorbe la carga regulatoria.
+
+Léase eso contra la tesis y es un gemelo estructural. Una agencia federal estadounidense que trabaja bajo el marco del NIST quiere producir documentación que satisfaga también el Reglamento de IA de la UE —sin rediseñar sus controles—. Bifurcar el artefacto, conservar el núcleo: interoperabilidad sin duplicación. El *split world* del ODK es un precedente en funcionamiento del patrón abstracto que la tesis defiende.
+
+<ContextBox label="Por qué la sanidad reaparece">
+El mismo método, y la misma tentación de automatizarlo, reaparecen allí donde equivocar un concepto sale caro. En medicina, ontologías como SNOMED CT y la Gene Ontology actúan como el puente semántico que permite auditar datos clínicos y genómicos fragmentados. Un método reciente para construir una ontología médica con mínima participación de expertos se apoya en la reutilización y valida con OOPS! —el mismo escáner—. En ese terreno, un *pitfall* pasado por alto no es un error de contabilidad: viaja hasta una decisión clínica.
+</ContextBox>
+
+Los casos sanitarios no son un desvío. Son la prueba de que el patrón se generaliza: la reutilización como doctrina, la automatización como tentación, el escáner de *pitfalls* como la línea fina entre un artefacto que parece correcto y uno que lo es. Lo que el Reglamento de IA vuelve jurídicamente consecuente, la medicina ya lo volvió clínicamente consecuente.
+
+</Section>
+
+Lo que sigue siendo incierto es si la automatización puede llegar a cargar con la parte del trabajo que hizo de NeOn una metodología y no una herramienta —el juicio experto codificado en una pregunta de competencia— o si solo puede imitar su superficie. Los estudios comparativos dicen imitación, por ahora.
+
+Lo que no es incierto es la forma del asunto. La doctrina de NeOn —reutilizar, reconvertir, validar contra preguntas escritas de antemano— es la espina que la tesis necesita, y la brecha del *pitfall* que expone es real en todos los niveles: en un archivo OWL, en la salida de un modelo, en una tabla que empareja dos normas.
+
+Lo que le queda al lector es un modo de leer el crosswalk que hay debajo de todo esto. No es una lista de equivalencias textuales. Es una reingeniería, en el sentido estricto de NeOn, que o responde a sus preguntas de competencia o no lo hace. Un crosswalk que no puede responderlas es un *pitfall* con las comillas quitadas.
+
+<Footnotes notes={[
+  "Proyecto NeOn, «Lifecycle Support for Networked Ontologies», Sexto Programa Marco de la UE, ayuda FP6-027595. Dirigido por el Ontology Engineering Group (OEG), Universidad Politécnica de Madrid.",
+  "M. C. Suárez-Figueroa, A. Gómez-Pérez, M. Fernández-López, «The NeOn Methodology for Ontology Engineering», en Ontology Engineering in a Networked World (Springer, 2012), doi:10.1007/978-3-642-24794-1_2. Los dos escenarios pertinentes aquí son el 2 (reutilización y reingeniería de recursos no ontológicos) y el 3 (reutilización de recursos ontológicos).",
+  "M. Poveda-Villalón, A. Fernández-Izquierdo, M. Fernández-López, R. García-Castro, «LOT: An industrial oriented ontology engineering framework», Engineering Applications of Artificial Intelligence (2022), doi:10.1016/j.engappai.2022.104755. Adoptada como capa operativa bajo el marco de escenarios de NeOn.",
+  "Marco de Gestión de Riesgos de IA del NIST (AI RMF 1.0), 2023, organizado en las funciones GOVERN, MAP, MEASURE y MANAGE. El Reglamento de IA de la UE es el Reglamento (UE) 2024/1689.",
+  "A. García-Silva, A. Gómez-Pérez, M. C. Suárez-Figueroa, B. Villazón-Terrazas, «A Pattern-Based Approach for Re-engineering Non-Ontological Resources into Ontologies», ASWC 2008 — el método que sustenta el Escenario 2.",
+  "D. Golpayegani, H. J. Pandit, D. Lewis, «AIRO: An Ontology for Representing AI Risks based on the Proposed EU AI Act and ISO Risk Management Standards», SEMANTiCS 2022, doi:10.3233/SSW220008. ADAPT Centre, Trinity College de Dublín.",
+  "La extensión del DPV para el Reglamento de IA (prefijo eu-aiact) integra AIRO y el Vocabulary of AI Risks; publicada por el W3C Data Privacy Vocabularies and Controls Community Group, que preside Pandit.",
+  "«From GPT to Mistral: Cross-Domain Ontology Learning with NeOn-GPT». El pipeline evalúa GPT-4o, Mistral, Llama y DeepSeek en cuatro dominios; la similitud semántica frente a los estándares de referencia ronda entre 0,5 y 0,8.",
+  "«LLMs4Life: Large Language Models for Ontology Learning in Life Sciences», arXiv:2412.02035 — extiende el pipeline NeOn-GPT con prompting avanzado y reutilización de ontologías, evaluado contra la ontología AquaDiva.",
+  "«Evaluation of Effectiveness of Large Language Models in Ontology and Knowledge Graph Creation», SRELS Journal (2025), doi:10.17821/srels/2025/v62i2/171792. Perplexity superó a los modelos GPT en exhaustividad; los modelos GPT mostraron debilidad sistemática en subclases y en dominio/rango de propiedades.",
+  "M. Poveda-Villalón et al., «OOPS! (OntOlogy Pitfall Scanner!): Automated Pitfall Detection in OWL Ontologies», Semantic Web Journal — validador web que cataloga pitfalls recurrentes de modelado. OEG-UPM.",
+  "M. Özacar, «Extending Ontology Pitfalls for Better Ontology Evaluation», Journal of Information Science (2022), doi:10.1177/01655515221110990.",
+  "D. Goutte-Gattat, «The Role of the Ontology Development Kit in Supporting Ontology Compliance in Adverse Legal Landscapes», F1000Research, doi:10.7490/f1000research.1120246.1 — el patrón del «split world» para ediciones de ontología por jurisdicción. Las fuentes de ontología médica y de puente sanitario referidas en §05 son, respectivamente, doi:10.3390/digital5020018 y doi:10.3389/fdgth.2025.1668385.",
+]} />
