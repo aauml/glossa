@@ -1,0 +1,183 @@
+---
+issue: "N° 35"
+date: "13 July 2026"
+sortDate: "2026-07-13"
+language: en
+track: ai-policy
+title: "The doctrine that says the crosswalk should not exist"
+titleHTML: "The doctrine that says the crosswalk should not <em>exist</em>"
+dek: "Michael Kratsios, architect of the White House AI Action Plan, rejects horizontal AI regulation by design — while redefining CAISI as a measurement science agency and quietly entrenching the NIST AI RMF as the only governance language Washington accepts."
+dekHTML: "Michael Kratsios, architect of the White House AI Action Plan, rejects horizontal AI regulation <em>by design</em> — while redefining CAISI as a measurement science agency and quietly entrenching the NIST AI RMF as the only governance language Washington accepts."
+coverDek: "In July 2025 the director of OSTP sat down at CSIS and articulated, with unusual clarity, why the United States will not converge with the EU AI Act: not because the crosswalk is technically hard, but because Washington rejects horizontal regulation as a category. A year later the doctrine has an executive order, a litigation task force, and a legislative blueprint — and, strangely, the NIST AI Risk Management Framework keeps winning anyway. A reading on what political non-convergence means for a thesis about technical interoperability."
+source: "Based on a conversation between Michael Kratsios and Gregory Allen · CSIS, 30 July 2025"
+sourceLabel: "No. 35 · From CSIS"
+topics:
+  - "The AI Action Plan"
+  - "CAISI and measurement science"
+  - "Articles 11–14"
+  - "Federal preemption"
+  - "Regulatory interoperability"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Orientation from '../../../components/Orientation.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import Callback from '../../../components/Callback.astro';
+import Timeline from '../../../components/exhibits/Timeline.astro';
+import Comparison from '../../../components/exhibits/Comparison.astro';
+
+<Orientation lang="en">
+<p>An official doctrine of non-convergence — the most senior American statement to date of why the United States rejects the EU AI Act's horizontal model.</p>
+<p>The distinction between political rejection of a framework and technical rejection of its functions — and why one does not imply the other.</p>
+<p>What the redefinition of CAISI as a "measurement science" agency means for the NIST AI RMF, and for any research project that treats the RMF as a bridge to European law.</p>
+</Orientation>
+
+<Lede>On July 30, 2025, one week after the White House published its AI Action Plan, Michael Kratsios walked onto a stage at the Center for Strategic and International Studies in Washington to explain it. Kratsios directs the Office of Science and Technology Policy; he is the plan's principal architect. His interviewer, Gregory Allen, asked the question that mattered most for anyone studying transatlantic AI governance: some American companies had just agreed to abide by the EU's code of practice for general-purpose AI — so where does the administration stand on international regulatory frameworks? The answer Kratsios gave was not a diplomatic evasion. It was a doctrine, stated as plainly as any American official has stated it: Europe regulates AI horizontally, one law that crosses everything; the United States regulates by use case, sector by sector, agency by agency. The two designs are not variants of a shared idea. They are rivals. And for a thesis built on mapping one onto the other, that afternoon in Washington is the objection that must be answered first.</Lede>
+
+<Callback issue="N° 33" slug="eu-nist-crosswalk" lang="en">Where the EU–NIST crosswalk runs out traced the technical limits of mapping the AI Act onto the NIST framework. This piece examines the political limit — the official American position that the mapping should not be an objective at all.</Callback>
+
+<Section number="01" title="The afternoon the doctrine got a <em>voice</em>">
+
+<Standfirst>Kratsios did not improvise a critique of Brussels. He articulated a settled position — and the vocabulary he chose tells you what the administration thinks regulation is for.</Standfirst>
+
+The setting was deliberate. CSIS had convened the event to unpack the Action Plan, a thirty-page document organized around three pillars — innovation, infrastructure, exports — under one theme: America must win the AI race. Kratsios traced the lineage back to February 2019, when the first Trump administration signed the first American executive order on AI, years before ChatGPT existed. The intervening Biden years he described as government by fear.
+
+Then Allen raised Europe. Vice President Vance had already attacked the EU AI Act at the Paris summit in February 2025. But American model providers were signing the EU's voluntary code of practice anyway, because the European market is too large to walk away from. What, Allen asked, is the administration's position?
+
+Kratsios called the European situation «particularly disappointing». The AI Act, in his telling, was conceived before large language models existed and still sorts the world into «antiquated, high-risk, low-risk buckets». The Commission's difficulty implementing its own law had produced the code of practice — and, he said, the Commission was pressing American firms to sign «like they have our American companies over the barrel of a gun». The line is aggressive, and it is his. It also concedes something quietly: the pressure works because the market power is real.
+
+<ContextBox label="Background — what is the GPAI code of practice?">
+The AI Act's obligations for general-purpose AI models — technical documentation, copyright policies, training-data summaries — began applying in August 2025. To bridge the gap before formal standards exist, the Commission's AI Office drafted a voluntary code of practice: sign it, and compliance is presumed; refuse, and you demonstrate compliance on your own. Most major American providers signed in the summer of 2025, which is precisely the episode behind Allen's question and Kratsios's «barrel of a gun» complaint.
+</ContextBox>
+
+The positive doctrine came next, and it is the sentence this piece is built around. The fundamental difference, Kratsios argued, is that Europeans treat AI regulation as one singular, horizontal law that crosses everything. The American view is that regulation must be «use case sector specific, risk based». The regulator at the FDA who understands AI-powered medical diagnostics should regulate AI-powered medical diagnostics — not, in his phrase, some group somewhere else in government doing AI rules.
+
+Notice what the doctrine does not say. It does not say documentation is useless, or that risk should go unmeasured, or that oversight is bureaucratic theater. It says those functions belong inside sectoral agencies rather than inside one statute. The rejection is architectural. That distinction — between rejecting a building and rejecting the bricks — is the thread to hold through everything that follows.
+
+</Section>
+
+<Section number="02" title="What horizontal actually <em>requires</em>">
+
+<Standfirst>Set the doctrine against Articles 11 through 14 of the AI Act and the disagreement sharpens: the same verbs appear on both sides. What differs is who commands them, and when.</Standfirst>
+
+Consider what the AI Act actually demands of a high-risk system before it reaches the European market. Article 11 requires technical documentation proving compliance, drawn up before deployment. Article 12 requires the system to log its own operation — records that make its behavior reconstructible after the fact. Article 13 requires transparency toward deployers: instructions, capabilities, limitations. Article 14 requires human oversight designed into the system, so that a person can intervene, interpret, or halt it.
+
+Strip away the legal form and these are engineering practices: document, log, disclose, supervise. An American lab that takes the NIST framework seriously performs versions of all four. The FDA demands close analogues for medical devices. Kratsios's own plan directs agencies to evaluate models. Nobody on either side of the Atlantic argues that a consequential system should run undocumented, unlogged, undisclosed, and unsupervised.
+
+Here is the hinge, and it is worth slowing down for. Imagine two inspectors examining the same AI system that screens job applications. The first inspector carries the AI Act. Her question is: *does this system, because it is AI in a listed use, satisfy Articles 11 through 14 — show me the file.*
+
+The second inspector carries the sectoral doctrine. His question is: *does this hiring tool violate employment law — the same law that governs a human recruiter.* The first regulates the technology as a class. The second regulates the conduct within a domain, and treats the technology as incidental.
+
+The two questions can produce identical engineering artifacts — the same documentation, the same logs — while embodying opposite theories of the state. Margot Kaminski, in a 2023 article in the *Boston University Law Review*, gave the conceptual layer its name: choosing risk regulation is itself a framing decision, one that determines which harms become visible and who bears the burden of proving safety. Horizontal risk regulation makes the *system* the object of law. Sectoral regulation keeps the *conduct* as the object and lets the system inherit whatever rules the conduct already had.
+
+Before moving on, hold one question open: if both inspectors can end up demanding the same file, is the disagreement between Brussels and Washington about substance, or about jurisdiction? The quick answer is not the complete one, and the rest of this piece is an attempt at the slower answer.
+
+<Comparison
+  label="Two architectures for the same verbs"
+  leftLabel="Horizontal — EU AI Act"
+  rightLabel="Sectoral — the Kratsios doctrine"
+  rows={[
+    { left: "One statute covers every high-risk use of AI, listed centrally (Annex III).", right: "Each agency — FDA, NHTSA, financial regulators — governs AI inside its own domain." },
+    { left: "Obligations trigger because the system is AI in a listed use.", right: "Obligations trigger because the conduct was already regulated, with or without AI." },
+    { left: "Documentation, logging, transparency, oversight are statutory duties (Arts. 11–14), verified ex ante — before market entry.", right: "Comparable practices arise from sectoral rules or voluntary frameworks, checked ex post — after harm or by market discipline." },
+    { left: "Binding regulation with conformity assessment and CE marking.", right: "Voluntary guidance as default; the NIST AI RMF as the reference vocabulary." },
+    { left: "Feared failure: unaccountable systems reaching people unchecked.", right: "Feared failure: a central regulator freezing innovation it does not understand." },
+  ]}
+/>
+
+<ContextBox label="Background — Articles 11–14, in one breath">
+Within the AI Act's chapter on high-risk systems, Article 11 mandates technical documentation, Article 12 automatic record-keeping, Article 13 transparency and instructions for deployers, and Article 14 human oversight. They sit alongside Article 9, which requires a continuous risk-management system. Together they are the compliance core the thesis maps against the NIST framework's four functions.
+</ContextBox>
+
+</Section>
+
+<Section number="03" title="CAISI, or governance renamed as <em>measurement</em>">
+
+<Standfirst>The most consequential passage of the conversation was not the attack on Brussels. It was Kratsios explaining what the former AI Safety Institute is now for.</Standfirst>
+
+In June 2025 the Commerce Department renamed the U.S. AI Safety Institute. It became the Center for AI Standards and Innovation — CAISI — and the word *safety* disappeared. Allen asked Kratsios to say what the institution is actually for, after a year in which Washington opinion had ranged from indispensable to abolish-it-yesterday.
+
+Kratsios's answer began with a dismissal: the safety era, he said, was an era when nobody could define safety — for some it meant diversity policy, for others it meant chemical and biological threats. But the answer's second half is the part a thesis on the NIST AI Risk Management Framework cannot ignore.
+
+CAISI sits inside NIST, and NIST promulgates standards. How to evaluate a model, Kratsios noted, «is still an open scientific question» — the state of the art is literally a biologist sitting in front of a model, asking it dangerous questions by hand. The institution's purpose, he concluded, is that «it's all about understanding the measurement science of models».
+
+Read that sentence next to the doctrine from Section 01 and something unexpected appears. The administration that rejects horizontal *regulation* has just endorsed horizontal *measurement*. Model evaluation is not sector-specific in Kratsios's telling — it is a metrology problem, one science of measurement that should hold across finance, medicine, and defense, and that NIST should teach «to the world». The horizontal layer survives; it has simply been relocated from law to instrumentation.
+
+This is the second hinge of the piece. Name it: measurement as the neutral language of governance. The NIST AI RMF — the Risk Management Framework, a voluntary standard from January 2023 — is organized around four functions: GOVERN, MAP, MEASURE, MANAGE. It was built on exactly this premise: that organizations who will never accept the same law might still accept the same instruments. When Kratsios strips CAISI down to measurement science, he is not shrinking the RMF's territory. He is ratifying its core function while discarding everything around it.
+
+Ask it as two questions. The AI Act asks: *what must you prove before this system touches a European?* The RMF, in its post-2025 American reading, asks: *what can we measure, and how would anyone know the measurement is sound?* One is a legal threshold. The other is a laboratory practice. The thesis lives in the space where a laboratory practice is offered as evidence for a legal threshold.
+
+<PullQuote>«We cannot allow the evaluation of these risks to be the dominant driving force.»</PullQuote>
+
+The pull-quote is Kratsios on existential risk, and it completes the picture. Evaluation continues — the plan tasks the Department of Energy and the national laboratories with supplying the biologists and the testing infrastructure for CBRN assessments. What changes is rank. Under the previous administration, in his account, risk evaluation drove strategy; under this one, it is one workstream inside a thirty-page plan about winning. Measurement is welcome. Measurement as sovereign is not.
+
+<ContextBox label="Background — the 10^26 threshold Kratsios buried">
+Biden's Executive Order 14110 required developers to notify the government about models trained above 10^26 floating-point operations — a compute threshold meant to flag frontier systems. Kratsios told Allen the number was «pulled out of thin air» and that more than 33 models had already crossed it. The detail matters beyond the score-settling: rejecting fixed numerical triggers while embracing measurement science is the doctrine in miniature — no thresholds written into law, all confidence placed in evolving instruments.
+</ContextBox>
+
+</Section>
+
+<Section number="04" title="The year the doctrine went to <em>work</em>">
+
+<Standfirst>A vigilancia reading published a year after its source owes the reader the sequel. Between that afternoon at CSIS and this July, the doctrine acquired legal machinery — and ran into a paradox it has not resolved.</Standfirst>
+
+At CSIS, Kratsios was candid that the doctrine's domestic front — stopping a «patchwork» of state AI laws — was stalled. The Senate had stripped a ten-year moratorium on state AI regulation from the budget bill by a vote of 99 to 1 that same month. Preemption, he conceded, would mostly be Congress's work.
+
+The administration did not wait for Congress. On December 11, 2025, the president signed Executive Order 14365, which declares fragmented state regulation a threat to national AI policy. The order builds the machinery to dismantle it: a litigation task force at the Justice Department to challenge state AI laws in court, and a condition attached to $42 billion in federal broadband funds for states that enforce «onerous» AI rules. Colorado's algorithmic-discrimination law was named as a target.
+
+On March 20, 2026, the White House followed with a four-page legislative framework. It asks Congress to bar states from regulating AI model development — while explicitly rejecting the creation of any new federal AI regulator, and directing NIST to write standards for content provenance and watermarking.
+
+Then the paradox. The state laws Washington is attacking are, in large part, built out of Washington's own toolbox. Texas's AI governance act, in force since January 1, 2026, recognizes compliance with the NIST AI RMF as a defense. Colorado's law — delayed to June 30, 2026 and legislatively rewritten under pressure this spring — treated the same framework as grounds for a presumption of compliance.
+
+The federal government is litigating against statutes whose compliance core is its own standards agency's document. The RMF is winning in state law and in federal doctrine simultaneously, on opposite sides of the same lawsuits.
+
+Across the Atlantic, the other half of the vigilancia arc. Kratsios had mocked the Commission's «inability to actually implement the act itself». Ten months later the EU conceded the point in legislative form. The Digital Omnibus on AI — politically agreed on May 7, 2026, formally adopted by Parliament and Council in June — defers the high-risk obligations, the very articles this piece maps. Stand-alone Annex III systems now comply by December 2, 2027 instead of August 2, 2026; AI embedded in regulated products, by 2028.
+
+The obligations for general-purpose models and the transparency rules still arrive on schedule this August 2. But the compliance core of the horizontal model now sits sixteen months further away, deferred by its own author.
+
+<Timeline
+  label="From doctrine to machinery"
+  title="Two regulatory architectures, 2019–2027"
+  events={[
+    { year: "Feb 2019", label: "First U.S. executive order on AI (Trump 45)" },
+    { year: "Oct 2023", label: "EO 14110: Biden's safety-centered order, 10^26 threshold" },
+    { year: "Aug 2024", label: "EU AI Act enters into force" },
+    { year: "Jan 2025", label: "EO 14110 rescinded; Action Plan commissioned" },
+    { year: "Jul 2025", label: "AI Action Plan; Kratsios at CSIS; Senate kills moratorium 99–1" },
+    { year: "Dec 2025", label: "EO 14365: preemption machinery, DOJ litigation task force" },
+    { year: "Jan 2026", label: "Texas AI act in force — NIST RMF as legal defense" },
+    { year: "Mar 2026", label: "White House legislative framework: no new regulator, NIST standards" },
+    { year: "Jun 2026", label: "EU adopts Omnibus: high-risk obligations deferred to Dec 2027" },
+  ]}
+/>
+
+</Section>
+
+<Section number="05" title="A crosswalk without a <em>handshake</em>">
+
+<Standfirst>The question the seed posed can now be answered in parts: what survives of a technical interoperability project when one of the two capitals has declared, on the record, that it does not want the bridge?</Standfirst>
+
+Start with what the doctrine actually forecloses. It forecloses a *treaty reading* of the crosswalk — the idea that mapping the AI Act's articles onto the RMF's functions anticipates some coming transatlantic convergence, a shared regime the two governments will one day sign. Kratsios's afternoon at CSIS is primary evidence that no such intention exists in Washington. A thesis that framed its crosswalk as the technical annex to a political rapprochement would be building on sand, and Chapter 1 has to say so in those words.
+
+Now what the doctrine does not foreclose. Every load-bearing element of the crosswalk survived the year intact — several got stronger. The RMF's vocabulary is now legal tender in state statutes. Its custodian institution was re-founded on the one function, measurement, that the mapping actually depends on. The March framework asks NIST to write more standards, not fewer.
+
+And American firms keep signing European codes, because markets, unlike doctrines, are horizontal. The demand for a translation layer between the two regimes comes from the companies that must live in both. It never required the two governments to like each other.
+
+So the honest reformulation for Chapter 1 is this. The crosswalk is not a bridge between two converging wills; it is a shared measurement substrate beneath two architectures that have officially diverged. What Article 11 calls technical documentation and the RMF calls the output of MAP and MEASURE can be functionally equivalent artifacts, even while the legal systems commanding them define compliance in incompatible ways. The thesis should claim exactly that much — functional equivalence at the artifact level — and no more.
+
+It should stop claiming, even implicitly, that equivalence implies or predicts political alignment. The asymmetry of will is not a threat to the research question. Stated plainly, it *is* the research question: normative engineering is precisely what remains possible when politics has ruled out harmonization.
+
+</Section>
+
+<Section number="06" title="Coda — what the record now <em>shows</em>">
+
+What remains uncertain is durability on both flanks. The preemption machinery is in the courts, and a future Congress or administration could re-center federal policy in a season. The EU's deferral to December 2027 buys time for standards that have missed every deadline so far; whether the high-risk regime arrives intact, softened, or deferred again is genuinely open.
+
+What is not uncertain is the record. The most senior technology official in the American government stated, on camera and on the transcript, that the United States rejects horizontal AI regulation as a category — and, in the same conversation, committed his government to horizontal measurement science through NIST. Both statements are now load-bearing facts for any comparative account of AI governance, and they pull in opposite directions on purpose.
+
+What the reader is left with is a distinction to carry into Chapter 1: political interoperability and technical interoperability are different claims with different evidence, and July 30, 2025 is the citation that separates them. The crosswalk this thesis builds does not need Washington's blessing to be true. It needs the artifacts to correspond — and on that question, the doctrine is silent, while the measurement agency it just re-founded keeps supplying the answer.
+
+</Section>

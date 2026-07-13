@@ -1,0 +1,106 @@
+{
+  "slug": "kratsios-no-horizontal-doctrine",
+  "issue": "N° 35",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "CSIS — Unpacking the White House AI Action Plan with OSTP Director Michael Kratsios (transcript, 30 Jul 2025)",
+      "como": "Fuente ancla (transcripción en repo thesis, phd-kb/transcripts)",
+      "role": "primary",
+      "tipo": "transcript",
+      "url": "https://www.csis.org/analysis/unpacking-white-house-ai-action-plan-ostp-director-michael-kratsios",
+      "respalda": "Doctrina 'sector-specific, risk-based, no horizontal'; crítica al AI Act y al Code of Practice; redefinición de CAISI como measurement science; umbral 10^26; preemption",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "Proposal for a Regulation on Artificial Intelligence (AI Act) — COM(2021) 206",
+      "como": "Ancla normativa en KB (Arts. 11–14)",
+      "role": "primary",
+      "tipo": "regulation",
+      "kb_pk": "dbe2154b-b03f-4448-ab27-5a586202cc56",
+      "respalda": "Contenido de los arts. 11 (documentación técnica), 12 (registros), 13 (transparencia), 14 (supervisión humana) y su verificación ex ante",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "NIST — Artificial Intelligence Risk Management Framework (AI RMF 1.0), enero 2023",
+      "como": "Ancla metodológica en KB",
+      "role": "primary",
+      "tipo": "framework",
+      "kb_pk": "e0df9c27-3f53-4550-a49f-a62b9de6e687",
+      "respalda": "Carácter voluntario y funciones GOVERN/MAP/MEASURE/MANAGE; la medición como premisa del marco",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "Kaminski — Regulating the Risks of AI, Boston University Law Review 103, 1347 (2023)",
+      "como": "Capa conceptual en KB",
+      "role": "support",
+      "tipo": "paper",
+      "kb_pk": "319e45b2-c2eb-4830-be83-29b4777ab93a",
+      "respalda": "La elección de la regulación de riesgos como decisión de encuadre que determina daños visibles y carga de la prueba",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "Executive Order 14179 — Removing Barriers to American Leadership in AI (23 Jan 2025)",
+      "como": "Hito normativo en KB",
+      "role": "context",
+      "tipo": "executive_order",
+      "kb_pk": "60160846-da56-45c3-9abe-6a9fdd9c5e7c",
+      "respalda": "Encargo del AI Action Plan tras la rescisión de la EO 14110",
+      "verificada": "si"
+    },
+    {
+      "id": "src-06",
+      "ref": "Executive Order 14365 — Ensuring a National Policy Framework for AI (11 Dec 2025)",
+      "como": "Arco de vigilancia en KB",
+      "role": "support",
+      "tipo": "executive_order",
+      "kb_pk": "9c5d1431-35d1-41cb-ba6a-cecfe2c106b6",
+      "respalda": "AI Litigation Task Force en DOJ; condicionamiento de fondos BEAD ($42B); Colorado señalada como objetivo",
+      "verificada": "si"
+    },
+    {
+      "id": "src-07",
+      "ref": "White House — National AI Legislative Framework (20 Mar 2026)",
+      "como": "Arco de vigilancia en KB",
+      "role": "support",
+      "tipo": "policy",
+      "kb_pk": "c2a21591-408f-4c97-9baf-1a7e1814716e",
+      "respalda": "Preempción legislativa del desarrollo de modelos; rechazo de nuevo regulador; encargo a NIST de estándares de provenance/watermarking",
+      "verificada": "si"
+    },
+    {
+      "id": "src-08",
+      "ref": "Buchalter — White House Issues EO: Ensuring a National Policy Framework for AI (Dec 2025)",
+      "como": "Análisis de la paradoja RMF-estatal en KB",
+      "role": "support",
+      "tipo": "analysis",
+      "kb_pk": "f31117d2-fbbc-4f19-8572-8cb75bafe351",
+      "respalda": "Texas TRAIGA (RMF como defensa afirmativa, vigor 1 ene 2026); Colorado aplazada a jun 2026; la paradoja federal-estatal sobre el RMF",
+      "verificada": "si"
+    },
+    {
+      "id": "src-09",
+      "ref": "Gibson Dunn — EU AI Act Omnibus Agreement: Postponed High-Risk Deadlines (May 2026)",
+      "como": "Verificación web (vigilancia UE)",
+      "role": "support",
+      "tipo": "analysis",
+      "url": "https://www.gibsondunn.com/eu-ai-act-omnibus-agreement-postponed-high-risk-deadlines-and-other-key-changes/",
+      "respalda": "Acuerdo político 7 may 2026; Anexo III aplazado a 2 dic 2027; Anexo I a ago 2028; GPAI y transparencia mantienen 2 ago 2026",
+      "verificada": "si"
+    },
+    {
+      "id": "src-10",
+      "ref": "DLA Piper / Addleshaw Goddard — AI Omnibus formally adopted (Jun 2026)",
+      "como": "Verificación web (adopción formal)",
+      "role": "context",
+      "tipo": "analysis",
+      "url": "https://www.addleshawgoddard.com/en/insights/insights-briefings/2026/technology/eu-ai-act-ai-omnibus-formally-adopted/",
+      "respalda": "Voto del Parlamento 16 jun 2026 y del Consejo 29 jun 2026; publicación en el DOUE prevista en julio",
+      "verificada": "si"
+    }
+  ]
+}
