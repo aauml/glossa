@@ -99,7 +99,7 @@ Glossa does not build a knowledge base, surveillance, memory, or cost tracking. 
 **Boundary rule (do not cross).** PUB reads the KB, never modifies it. Glossa owns only the `glossa_*` tables and the `aauml/glossa` repo.
 - ✅ Read `evaluated_items` (the curated bibliography) and its embeddings.
 - ✅ Read `monitor_findings` (surveillance), `reading_conversations`, `source_validations`.
-- ✅ Write `glossa_seeds`, `glossa_issues`, `glossa_issue_sources`.
+- ✅ Write `glossa_seeds`, `glossa_issues`, `glossa_issue_sources`, `glossa_issue_targets`.
 - ❌ Never write `evaluated_items` or any `pm_*` / KB pipeline table. ❌ Never touch `agent_docs` (read-only mirror populated by `sync-docs.yml`).
 
 **KB-first, then the web.** The curated corpus is the floor of trust; live web/APIs are the frontier. Always query the KB before reaching for Tavily/OpenAlex.
@@ -127,6 +127,7 @@ Every piece leaves a provenance graph: a dated human **seed** → an **issue** m
 
 1. **When you write the seed (on the publish command)** — insert one `glossa_seeds` row (the dated human intention = authorship). Set `mode` (tesis|fuente|pregunta|vigilancia|dialectica|serie), `track`, `thesis` (Arturo's angle, as it emerged in the conversation), and any origin (`origin_finding_id` / `origin_conversation_id` / `origin_kb_id`).
 2. **When work starts** — insert a `glossa_issues` row: `slug`, `issue_no`, `track`, `mode`, `status='researching'`, `seed_id`, and `title_en/title_es/dek_en/dek_es/topics/chapters` as they firm up. Advance `status` through `researching → drafting → review → published`.
+   Also insert the piece’s **targets** in `glossa_issue_targets` (`issue_id`, `work_slug` tesis|art-ail-2027, `section_ref`): for the thesis use the **subsection** (`"1.7"`, `"2.8"`) whenever the piece serves a specific section — chapter-level (`"2"`) only for genuinely chapter-wide pieces; for the article use the section seq (`"3"`). These targets drive the dashboard’s Glossa view (collection grouped by chapter → §section) and the follow-up tracking. If the seed came from a dashboard “Copiar → Glossa” prompt, the target (capítulo · sección · concepto) comes in the prompt header — use it verbatim.
 3. **On publish** — for each KB source used, insert `glossa_issue_sources` (`issue_id`, `source_kb_id` = the `evaluated_items.pk`, `role` primary|support|context|discourse, `claim`, `verified` si|no|parcial). On publish, set the issue's `status='published'`, `url_en/url_es`, `published_at`, `model`.
 
 Web/API sources that are not in the KB still go into the piece's `sources.json` sidecar (see `references/deployment.md` and doc 05); only KB-backed sources get a `glossa_issue_sources` row (it FKs to `evaluated_items`).
