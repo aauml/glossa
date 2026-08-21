@@ -42,12 +42,62 @@ Deno.serve(async (req) => {
     }
 
     const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+
+    // Procedencia opcional en el propio payload.
+    //
+    // Tras la migración 0007, `anon` no puede escribir `glossa_issues` ni
+    // `glossa_issue_targets` — y con razón: abrirlo a anon es abrirlo a internet.
+    // Pero eso dejaba al skill dependiendo de si su conector autentica como
+    // `authenticated` o no. Escribirlo aquí lo resuelve: esta función ya corre
+    // con service key detrás del token, así que la procedencia entra por la
+    // misma puerta que el artículo, y funcione el conector como funcione.
+    const prov = (b.provenance ?? null) as Record<string, unknown> | null;
+    let issueId = (b.issue_id ?? null) as string | null;
+    const escrito: Record<string, unknown> = {};
+
+    if (prov) {
+      try {
+        if (prov.seed && !prov.seed_id) {
+          const { data: seed, error: e } = await sb.from('glossa_seeds')
+            .insert(prov.seed as Record<string, unknown>).select('id').single();
+          if (e) throw new Error(`seed: ${e.message}`);
+          (prov.issue as Record<string, unknown> | undefined) &&
+            ((prov.issue as Record<string, unknown>).seed_id = seed.id);
+          escrito.seed_id = seed.id;
+        }
+        if (prov.issue && !issueId) {
+          const { data: issue, error: e } = await sb.from('glossa_issues')
+            .insert({ ...(prov.issue as Record<string, unknown>), slug, issue_no: issueNo })
+            .select('id').single();
+          if (e) throw new Error(`issue: ${e.message}`);
+          issueId = issue.id;
+          escrito.issue_id = issue.id;
+        }
+        if (issueId && Array.isArray(prov.sources) && prov.sources.length) {
+          const filas = (prov.sources as Record<string, unknown>[]).map(x => ({ ...x, issue_id: issueId }));
+          const { error: e } = await sb.from('glossa_issue_sources').upsert(filas, { onConflict: 'issue_id,source_kb_id' });
+          if (e) throw new Error(`sources: ${e.message}`);
+          escrito.sources = filas.length;
+        }
+        if (issueId && Array.isArray(prov.targets) && prov.targets.length) {
+          const filas = (prov.targets as Record<string, unknown>[]).map(x => ({ ...x, issue_id: issueId }));
+          const { error: e } = await sb.from('glossa_issue_targets').upsert(filas, { onConflict: 'issue_id,work_slug,section_ref' });
+          if (e) throw new Error(`targets: ${e.message}`);
+          escrito.targets = filas.length;
+        }
+      } catch (e) {
+        // La procedencia que falla no debe tumbar la publicación, pero tampoco
+        // desaparecer en silencio: se devuelve para que el chat pueda reportarlo.
+        escrito.error = String(e);
+      }
+    }
+
     const { data, error } = await sb
       .from('glossa_publish_requests')
       .insert({
         slug,
         issue_no: issueNo,
-        issue_id: b.issue_id ?? null,
+        issue_id: issueId,
         body_en: String(b.body_en),
         body_es: b.body_es ?? null,
         sources_json: b.sources_json ?? null,
@@ -57,7 +107,12 @@ Deno.serve(async (req) => {
       .select('id')
       .single();
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS });
-    return new Response(JSON.stringify({ ok: true, id: data.id, poll: `select state, url_en, url_es, error from glossa_publish_requests where id = '${data.id}'` }), { headers: CORS });
+    return new Response(JSON.stringify({
+      ok: true,
+      id: data.id,
+      provenance: prov ? escrito : undefined,
+      poll: `select state, url_en, url_es, error from glossa_publish_requests where id = '${data.id}'`,
+    }), { headers: CORS });
   } catch (e) {
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: CORS });
   }

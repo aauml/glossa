@@ -25,6 +25,23 @@ Descriptor sugerido: *Glossa — lecturas anotadas · IA aplicada, dirección hu
 
 ---
 
+## Procedencia: desde dónde es demostrable
+
+El aparato de fuentes al pie de cada pieza —`sources.json`, renderizado por
+`<Sources>`— **empieza en N° 32 (junio de 2026)**, cuando se creó la capa
+`glossa_*` sobre el KB. Las 41 piezas anteriores son archivo: se investigaron y
+verificaron igual, pero ese trabajo no quedó registrado en un formato
+comprobable, y no se va a reconstruir hacia atrás.
+
+Reconstruirlo significaría o releer 41 piezas fuente por fuente, o inventar un
+registro plausible. Lo segundo destruiría exactamente aquello que el registro
+sirve para demostrar, así que la línea se declara en vez de disimularse.
+
+De N° 32 en adelante, cada pieza publicada lleva sus fuentes con el papel que
+juegan, qué afirmación respaldan y si están verificadas.
+
+---
+
 ## Cómo está organizado
 
 | Doc | Contenido |

@@ -11,16 +11,12 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.7",
-    "@astrojs/react": "^6.0.4",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@fontsource-variable/fraunces": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "@fontsource/spectral": "^5.3.0",
-    "astro": "^7.2.4",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "recharts": "^3.10.1"
+    "astro": "^7.2.4"
   }
 }

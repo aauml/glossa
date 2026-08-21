@@ -40,3 +40,15 @@ Un **grafo de procedencia por artículo**: semilla (humana, fechada) → fuentes
 ## Regla de seguridad
 
 Nunca se piden, revelan, pegan ni guardan tokens, PATs ni secretos en chat ni en archivos. Se usan remotos autenticados, conectores o variables de entorno seguras. Si no hay vía segura, se crean los archivos y se indica qué credencial falta —sin pedirla en claro.
+
+---
+
+## Línea de corte (2026-08-21)
+
+La procedencia demostrable empieza en **N° 32**. Las 41 piezas anteriores son
+archivo histórico: no tienen `sources.json` ni fila en `glossa_issues`, y no se
+van a rellenar. Reconstruir un registro que nadie llevó en su momento solo
+produce un registro inventado, que es peor que no tenerlo.
+
+Estado al declarar la línea: 4 de 45 piezas con sidecar (N° 32, 33, 34, 35),
+4 filas en `glossa_issues`, 37 en `glossa_issue_sources`, 14 en `glossa_issue_targets`.

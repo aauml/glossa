@@ -269,26 +269,18 @@ Five types in `src/components/exhibits/`. All HTML/CSS-based (except Timeline's 
 - `<Document header body={[...]} stamp />` — official-notice mockup, monospace; padding adjusts on mobile
 - `<Comparison leftLabel rightLabel rows={[{left, right}]} />` — two-column on desktop; stacks vertically with section labels on mobile
 
-### Interactive exhibits
+### Interactive exhibits — retirados
 
-Four React components in `src/components/exhibits/interactive/`, rendered as Astro islands with `client:visible` so they only hydrate when scrolled into view.
+Hubo cuatro componentes React (matriz ordenable, gráfico anotado, alternador de
+lecturas, cronología explorable). **Se retiraron el 2026-08-21: ninguna de las 45
+piezas los importaba.** Costaban react, react-dom y recharts —16,7 MB— y, al no
+usarlos ningún artículo, el build no los protegía de romperse en silencio.
 
-- `<InteractiveMatrix client:visible columns={...} rows={[{label, values, context?}]} />` — Scorecard with sortable columns and per-row expandable context paragraphs. Use for thesis correspondence tables (EU AI Act ↔ NIST RMF) where each correspondence has nuance worth a sentence.
-- `<AnnotatedChart client:visible data={...} annotations={[{x, y, label, description?}]} type="line"|"area" />` — Recharts time-series with hoverable annotation markers and a paired annotation list. Use when 3+ inflection points need explanation.
-- `<ComparisonToggle client:visible views={[{label, paragraphs: [...]}]} />` — switch between two or more framings of the same material. Use when the comparison itself is the editorial argument (Lectura A vs Lectura B; plain vs technical reading).
-- `<ExplorableTimeline client:visible events={[{year, label, context?}]} />` — vertical timeline where each event can be expanded for context. Use when events benefit from optional background the reader can choose to read or skip.
-
-Each requires an explicit import at the top of the MDX file:
-
-```mdx
-import InteractiveMatrix from '../../../components/exhibits/interactive/InteractiveMatrix.jsx';
-```
-
-Full prop reference and worked examples in `src/components/exhibits/interactive/README.md`.
-
-### When to reach for interactive
-
-Test: would removing the interaction make the piece worse, or just less shiny? If the latter, use the static version. The interaction has to do work — sorting reveals an ordering, expanding reveals a paragraph that wouldn't fit in the matrix cell, toggling reveals a parallel reading. If it's just "look it moves," ship static.
+No los reinventes. Si una pieza los pide de verdad, se recuperan del historial
+(`git log --diff-filter=D -- src/components/exhibits/interactive`) y se vuelven a
+añadir las dependencias. Mientras tanto, los cinco exhibits estáticos cubren el
+caso, y la regla de siempre aplica: si quitar la interacción solo lo hace menos
+vistoso, no la necesitabas.
 
 Other defaults that don't change:
 
