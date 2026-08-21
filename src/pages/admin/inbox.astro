@@ -2,38 +2,38 @@
 export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
 ---
-<AdminLayout title="Bandeja" tab="bandeja">
+<AdminLayout title="Inbox" tab="inbox">
 
-  <h1>Bandeja</h1>
-  <p class="sub">Lo que quieras meter a mano: un artículo que estás leyendo, un enlace suelto.
-  Entra en la misma cola que los canales y acaba cruzándose con el resto del material del tema.</p>
+  <h1>Inbox</h1>
+  <p class="sub">Anything you want to add by hand: an article you are reading, a loose link.
+  It joins the same queue as the channels and ends up cross-referenced with the rest of the topic.</p>
 
   <div class="admin-msg" style="border-left-color:var(--gold)">
-    El texto que pegues es material de trabajo privado: se usa para analizar y citar corto,
-    y no se republica. Si viene de una suscripción tuya, ahí se queda.
+    Anything you paste is private working material: used to analyse and quote briefly, never republished.
+    If it came from one of your subscriptions, it stays here.
   </div>
 
   <div class="admin-sec">
-    <h2>Añadir</h2>
+    <h2>Add</h2>
     <div id="msg"></div>
     <form class="admin-form" id="alta">
       <div class="admin-row">
-        <label style="flex:2">Enlace <span class="hint">— opcional si pegas el texto</span>
+        <label style="flex:2">Link <span class="hint">— optional if you paste the text</span>
           <input name="url" placeholder="https://…" /></label>
-        <label style="flex:1">Autor <span class="hint">— opcional</span><input name="author" /></label>
+        <label style="flex:1">Author <span class="hint">— optional</span><input name="author" /></label>
       </div>
-      <label>Título<input name="title" placeholder="Cómo lo quieres ver en la lista" /></label>
-      <label>Texto <span class="hint">— pégalo para que se analice a fondo; con solo el enlace se queda en la superficie</span>
-        <textarea name="body_text" placeholder="Pega aquí el artículo…"></textarea></label>
-      <label>Por qué te interesa <span class="hint">— esto orienta el análisis, no es decoración</span>
-        <input name="note" placeholder="p. ej. contradice lo que dijo Hudson la semana pasada" /></label>
-      <div class="admin-acciones"><button class="admin-btn" type="submit">Guardar en la bandeja</button></div>
+      <label>Title<input name="title" placeholder="How you want it listed" /></label>
+      <label>Text <span class="hint">— paste it for a deep read; a link alone stays on the surface</span>
+        <textarea name="body_text" placeholder="Paste the article here…"></textarea></label>
+      <label>Why it matters to you <span class="hint">— this steers the analysis, it is not decoration</span>
+        <input name="note" placeholder="e.g. contradicts what Hudson said last week" /></label>
+      <div class="admin-acciones"><button class="admin-btn" type="submit">Save to inbox</button></div>
     </form>
   </div>
 
   <div class="admin-sec">
-    <h2>En la bandeja</h2>
-    <div id="lista"><span class="admin-vacio">cargando…</span></div>
+    <h2>In the inbox</h2>
+    <div id="lista"><span class="admin-vacio">loading…</span></div>
   </div>
 
 <script>
@@ -41,15 +41,15 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
   const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
   const msg = (id, t, ok) => { document.getElementById(id).innerHTML = `<div class="admin-msg ${ok?'ok':''}">${esc(t)}</div>`; };
-  const ESTADO = { pending:'en cola', running:'procesando', digested:'analizado', skipped:'descartado', error:'error' };
+  const ESTADO = { pending:'queued', running:'procesando', digested:'analizado', skipped:'descartado', error:'error' };
 
   async function pintar() {
     const d = await api('inbox.list');
     const el = document.getElementById('lista');
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    if (!d.items.length) { el.innerHTML = '<span class="admin-vacio">La bandeja está vacía.</span>'; return; }
+    if (!d.items.length) { el.innerHTML = '<span class="admin-vacio">The inbox is empty.</span>'; return; }
     el.innerHTML = `<table class="admin-tabla"><thead><tr>
-        <th>Qué</th><th>Estado</th><th>Entró</th><th></th></tr></thead><tbody>` +
+        <th>What</th><th>State</th><th>Added</th><th></th></tr></thead><tbody>` +
       d.items.map(i => `<tr>
         <td>${esc(i.title)}
           ${i.url && i.url !== 'about:blank' ? `<div class="admin-url">${esc(i.url)}</div>` : ''}
@@ -57,7 +57,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
           ${i.error ? `<div class="admin-nota" style="color:var(--accent)">${esc(i.error)}</div>` : ''}</td>
         <td style="white-space:nowrap">${esc(ESTADO[i.state] || i.state)}</td>
         <td style="white-space:nowrap;color:var(--muted)">${esc((i.published_at||'').slice(0,10))}</td>
-        <td><button class="admin-btn sec" data-d="${i.id}">quitar</button></td>
+        <td><button class="admin-btn sec" data-d="${i.id}">remove</button></td>
       </tr>`).join('') + '</tbody></table>';
     el.querySelectorAll('[data-d]').forEach(b => b.onclick = async () => {
       await api('inbox.delete', { id: b.dataset.d }); pintar(); });
@@ -71,7 +71,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       author: f.author.value.trim(), body_text: f.body_text.value, note: f.note.value.trim() });
     btn.disabled = false;
     if (r.error) { msg('msg', r.error, false); return; }
-    msg('msg', 'Guardado. Se analizará en la próxima pasada.', true); f.reset(); pintar();
+    msg('msg', 'Saved. It will be analysed on the next pass.', true); f.reset(); pintar();
   };
   pintar();
 </script>

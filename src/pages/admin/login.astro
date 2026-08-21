@@ -4,25 +4,25 @@ import '../../styles/admin.css';
 const err = Astro.url.searchParams.get('e');
 ---
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Entrar · Glossa</title>
+<title>Sign in · Glossa</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 </head>
 <body class="admin">
   <main class="admin-main" style="max-width:340px;margin-top:12vh">
     <h1 style="font-size:28px">Glossa<span style="color:var(--accent)">.</span></h1>
-    <p class="sub">Panel de administración.</p>
-    {err && <div class="admin-msg">Contraseña incorrecta.</div>}
+    <p class="sub">Admin panel.</p>
+    {err && <div class="admin-msg">Wrong password.</div>}
     <!-- Sin campo de correo ni pista de a quién pertenece el panel: quien no
          deba entrar tampoco tiene por qué saber de quién es. -->
     <form class="admin-form" method="POST" action="/api/admin/login/">
-      <label>Contraseña
+      <label>Password
         <input type="password" name="password" autocomplete="current-password" autofocus required /></label>
-      <div class="admin-acciones"><button class="admin-btn" type="submit">Entrar</button></div>
+      <div class="admin-acciones"><button class="admin-btn" type="submit">Sign in</button></div>
     </form>
   </main>
 </body>

@@ -2,13 +2,13 @@
 import '../styles/admin.css';
 const { title, tab } = Astro.props;
 const TABS = [
-  { href: '/admin/',         label: 'Estado',  id: 'estado' },
-  { href: '/admin/fuentes/', label: 'Fuentes', id: 'fuentes' },
-  { href: '/admin/bandeja/', label: 'Bandeja', id: 'bandeja' },
+  { href: '/admin/',         label: 'Status',  id: 'status' },
+  { href: '/admin/sources/', label: 'Sources', id: 'sources' },
+  { href: '/admin/inbox/',   label: 'Inbox',   id: 'inbox' },
 ];
 ---
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,7 @@ const TABS = [
   <header class="admin-bar">
     <a class="admin-brand" href="/">Glossa<span style="color:var(--accent)">.</span></a>
     <nav class="admin-tabs">{TABS.map(t => <a href={t.href} class={t.id === tab ? 'on' : ''}>{t.label}</a>)}</nav>
-    <form method="POST" action="/api/admin/logout/"><button class="admin-salir" type="submit">salir</button></form>
+    <form method="POST" action="/api/admin/logout/"><button class="admin-salir" type="submit">sign out</button></form>
   </header>
   <main class="admin-main"><slot /></main>
 </body>

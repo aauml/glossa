@@ -2,40 +2,40 @@
 export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
 ---
-<AdminLayout title="Fuentes" tab="fuentes">
+<AdminLayout title="Sources" tab="sources">
 
-  <h1>Fuentes</h1>
-  <p class="sub">Canales, podcasts y medios que el radar revisa cada noche. Se comprueba que el feed
-  responda antes de guardarlo: una fuente rota que falla en silencio cada noche es peor que un error ahora.</p>
+  <h1>Sources</h1>
+  <p class="sub">Channels, podcasts and outlets the radar checks every night. The feed is verified before it is saved:
+  a broken source failing silently every night is worse than an error now.</p>
 
   <div class="admin-sec">
-    <h2>Añadir</h2>
+    <h2>Add</h2>
     <div id="msg"></div>
     <form class="admin-form" id="alta">
-      <label>Enlace del feed
-        <input name="feed_url" placeholder="https://…/feed.xml  ·  o el enlace del canal de YouTube" required /></label>
+      <label>Feed URL
+        <input name="feed_url" placeholder="https://…/feed.xml  ·  or the YouTube channel URL" required /></label>
       <div class="admin-row">
-        <label style="flex:1">Tipo
+        <label style="flex:1">Type
           <select name="kind">
-            <option value="youtube">Canal de YouTube</option>
+            <option value="youtube">YouTube channel</option>
             <option value="podcast">Podcast</option>
-            <option value="rss">Medio escrito</option>
+            <option value="rss">Written outlet</option>
           </select></label>
-        <label style="flex:2">Nombre <span class="hint">— si lo dejas vacío se toma del feed</span>
+        <label style="flex:2">Name <span class="hint">— taken from the feed if left blank</span>
           <input name="name" /></label>
       </div>
-      <label>Nota <span class="hint">— p. ej. su orientación editorial, para que el análisis la tenga en cuenta</span>
+      <label>Note <span class="hint">— e.g. its editorial leaning, so the analysis accounts for it</span>
         <input name="notes" /></label>
       <div class="admin-acciones">
-        <button class="admin-btn" type="submit">Añadir</button>
-        <button class="admin-btn sec" type="button" id="probar">solo probar el feed</button>
+        <button class="admin-btn" type="submit">Add</button>
+        <button class="admin-btn sec" type="button" id="probar">just test the feed</button>
       </div>
     </form>
   </div>
 
   <div class="admin-sec">
-    <h2>Vigilando</h2>
-    <div id="lista"><span class="admin-vacio">cargando…</span></div>
+    <h2>Watching</h2>
+    <div id="lista"><span class="admin-vacio">loading…</span></div>
   </div>
 
 <script>
@@ -56,42 +56,42 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const d = await api('sources.list');
     const el = document.getElementById('lista');
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    if (!d.sources.length) { el.innerHTML = '<span class="admin-vacio">Todavía no hay ninguna fuente.</span>'; return; }
+    if (!d.sources.length) { el.innerHTML = '<span class="admin-vacio">No sources yet.</span>'; return; }
     el.innerHTML = `<table class="admin-tabla"><thead><tr>
-        <th>Nombre</th><th>Tipo</th><th>Feed</th><th>Revisado</th><th></th></tr></thead><tbody>` +
+        <th>Name</th><th>Type</th><th>Feed</th><th>Checked</th><th></th></tr></thead><tbody>` +
       d.sources.map(s => `<tr class="${s.active ? '' : 'off'}">
         <td>${esc(s.name)}${s.notes ? `<div class="admin-nota">${esc(s.notes)}</div>` : ''}</td>
         <td><span class="admin-kind">${esc(s.kind)}</span></td>
         <td class="admin-url">${esc(s.feed_url)}</td>
         <td style="white-space:nowrap;color:var(--muted)">${s.last_checked_at ? esc(s.last_checked_at.slice(0,10)) : '—'}</td>
-        <td style="white-space:nowrap"><button class="admin-btn sec" data-t="${s.id}" data-a="${s.active?'0':'1'}">${s.active?'pausar':'activar'}</button>
-          &nbsp; <button class="admin-btn sec" data-d="${s.id}" data-n="${esc(s.name)}">quitar</button></td>
+        <td style="white-space:nowrap"><button class="admin-btn sec" data-t="${s.id}" data-a="${s.active?'0':'1'}">${s.active?'pause':'activate'}</button>
+          &nbsp; <button class="admin-btn sec" data-d="${s.id}" data-n="${esc(s.name)}">remove</button></td>
       </tr>`).join('') + '</tbody></table>';
 
     el.querySelectorAll('[data-t]').forEach(b => b.onclick = async () => {
       await api('sources.toggle', { id: b.dataset.t, active: b.dataset.a === '1' }); pintar(); });
     el.querySelectorAll('[data-d]').forEach(b => b.onclick = async () => {
-      if (!confirm(`¿Quitar «${b.dataset.n}»? Los episodios ya digeridos se borran con ella.`)) return;
+      if (!confirm(`Remove “${b.dataset.n}”? Episodes already processed go with it.`)) return;
       await api('sources.delete', { id: b.dataset.d }); pintar(); });
   }
 
   document.getElementById('probar').onclick = async () => {
     const f = document.getElementById('alta');
-    msg('msg', 'comprobando…', true);
+    msg('msg', 'checking…', true);
     const r = await api('sources.check', { feed_url: normalizar(f.feed_url.value.trim(), f.kind.value) });
-    msg('msg', r.ok ? `Responde bien: «${r.nombre || 'sin título'}»` : r.error, r.ok);
+    msg('msg', r.ok ? `Responds fine: “${r.nombre || 'untitled'}”` : r.error, r.ok);
   };
 
   document.getElementById('alta').onsubmit = async (e) => {
     e.preventDefault();
     const f = e.target, btn = f.querySelector('button[type=submit]');
-    btn.disabled = true; msg('msg', 'comprobando el feed…', true);
+    btn.disabled = true; msg('msg', 'checking the feed…', true);
     const r = await api('sources.create', {
       feed_url: normalizar(f.feed_url.value.trim(), f.kind.value),
       kind: f.kind.value, name: f.name.value.trim(), notes: f.notes.value.trim() });
     btn.disabled = false;
     if (r.error) { msg('msg', r.error, false); return; }
-    msg('msg', `Añadida: ${r.source.name}`, true); f.reset(); pintar();
+    msg('msg', `Added: ${r.source.name}`, true); f.reset(); pintar();
   };
   pintar();
 </script>
