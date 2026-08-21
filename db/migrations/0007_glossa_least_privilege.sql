@@ -44,6 +44,7 @@ drop policy if exists glossa_res_auth_update on public.glossa_research_requests;
 
 drop policy if exists glossa_cand_anon_update on public.glossa_candidates;   -- to public; duplicada
 drop policy if exists glossa_cand_anon_select on public.glossa_candidates;   -- to public
+drop policy if exists glossa_cand_read on public.glossa_candidates;
 create policy glossa_cand_read on public.glossa_candidates
   for select to anon, authenticated using (true);
 
@@ -58,17 +59,22 @@ grant select         on public.glossa_issue_targets to anon, authenticated;
 grant insert, delete on public.glossa_issue_targets to authenticated;
 grant all            on public.glossa_issue_targets to service_role;
 
+drop policy if exists glossa_tgt_service_all on public.glossa_issue_targets;
 create policy glossa_tgt_service_all on public.glossa_issue_targets
   for all to service_role using (true) with check (true);
+drop policy if exists glossa_tgt_read on public.glossa_issue_targets;
 create policy glossa_tgt_read on public.glossa_issue_targets
   for select to anon, authenticated using (true);
+drop policy if exists glossa_tgt_auth_insert on public.glossa_issue_targets;
 create policy glossa_tgt_auth_insert on public.glossa_issue_targets
   for insert to authenticated with check (true);
 -- Reasignar el target de una pieza = borrar y volver a insertar (hay unique).
+drop policy if exists glossa_tgt_auth_delete on public.glossa_issue_targets;
 create policy glossa_tgt_auth_delete on public.glossa_issue_targets
   for delete to authenticated using (true);
 
 -- glossa_issues: el skill avanza status seed->researching->drafting->published.
 grant update on public.glossa_issues to authenticated;
+drop policy if exists glossa_issues_auth_update on public.glossa_issues;
 create policy glossa_issues_auth_update on public.glossa_issues
   for update to authenticated using (true) with check (true);

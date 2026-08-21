@@ -44,7 +44,7 @@ create table if not exists public.glossa_candidates (
   work_slug text not null default 'tesis',
   article_seq integer
 );
-comment on table public.glossa_candidates is 'Glossa: propuestas de piezas por capítulo/inciso generadas por generate-glossa-candidates. Pre-seed: al copiar el prompt y ordenar la pieza en Claude se crea el glossa_seed (autoría humana). Regla: no repetir combinación exacta de source_pks.';
+comment on table public.glossa_candidates is 'Glossa: propuestas de piezas por capítulo/inciso generadas por generate-glossa-candidates. Pre-seed: al copiar el prompt y ordenar la pieza en Claude se crea el glossa_seed (autoría humana). sources jsonb: [{pk,title,importance,used_in:[issue_no]}]. Regla: no repetir combinación exacta de source_pks; reutilizar fuentes individuales en mezclas nuevas es válido.';
 
 create index if not exists idx_glossa_candidates_chapter on public.glossa_candidates (chapter_num, status, created_at desc);
 create index if not exists idx_glossa_candidates_work    on public.glossa_candidates (work_slug, status);
