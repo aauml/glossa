@@ -58,6 +58,7 @@ juegan, qué afirmación respaldan y si están verificadas.
 | [docs/10-Modelos-y-Credenciales](docs/10-Modelos-y-Credenciales.md) | Reparto de modelos, OpenRouter, secretos vía 1Password |
 | [docs/11-Integracion-phd-kb](docs/11-Integracion-phd-kb.md) | Glossa como dominio PUB sobre phd-kb; schema aplicado |
 | [docs/12-Runbook-Code](docs/12-Runbook-Code.md) | Pasos para continuar la construcción en Claude Code |
+| [docs/13-Radar](docs/13-Radar.md) | Leer muchas fuentes por tema sin verlas; dónde vive el reloj y cuánto cuesta |
 | [docs/Glosario](docs/Glosario.md) | Términos del proyecto |
 
 ---
