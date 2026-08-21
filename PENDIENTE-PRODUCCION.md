@@ -4,10 +4,10 @@ El código está hecho y el build pasa. Lo que queda toca producción y **no** s
 ejecutado. El orden importa: los pasos 1–4 van juntos o la publicación desde chat
 queda rota (que es como está hoy, desde el 2026-07-01).
 
-## 1. Crear el token (1Password)
-Nuevo item en la bóveda `ademas.ai`: **`Glossa - publish token`**, campo `credential`,
-valor aleatorio largo (`openssl rand -base64 36`). El `op` de esta máquina es de solo
-lectura, así que este paso es manual.
+## 1. Crear el token (1Password) — ÚNICO paso manual
+Bóveda `ademas.ai`, item nuevo de tipo **API Credential** (como el resto de la bóveda),
+título exacto **`Glossa - publish token`**, campo **`credential`** con una contraseña
+generada larga. El `op` de esta máquina es de solo lectura: no puede crear items.
 
 ## 2. Secreto de las edge functions (Supabase)
 En el proyecto `wtwuvrtmadnlezkbesqp`, secreto `GLOSSA_PUBLISH_TOKEN` con ese valor.
@@ -18,8 +18,11 @@ es la cabecera):
     supabase functions deploy glossa-research-enqueue --no-verify-jwt
 
 ## 3. Secreto del repo (GitHub)
-`SUPABASE_SERVICE_KEY` en los secrets de `aauml/glossa` (op item `Supabase thesis`).
-Los dos workflows ya lo esperan. `TAVILY_API_KEY` ya está.
+`SUPABASE_SERVICE_KEY` en los secrets de `aauml/glossa`, con el valor del item
+`Supabase thesis` campo **`secret-key`** (`sb_secret_…`). Ojo: el campo `credential` de
+ese item está VACÍO, y `anon-key` da 401 en UPDATE — es la causa exacta del fallo del
+2026-07-01. Verificado el 2026-08-20: `secret-key` y `service-role-key` responden 204 a
+un UPDATE; `anon-key`, 401. Los dos workflows ya esperan la variable. `TAVILY_API_KEY` ya está.
 
 ## 4. Migraciones
 Aplicar `db/migrations/0006` y `0007` al proyecto `wtwuvrtmadnlezkbesqp`.
