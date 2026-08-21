@@ -43,8 +43,12 @@ export async function sesionValida(valor: string | undefined, secreto: string) {
 export const onRequest = defineMiddleware(async (ctx, next) => {
   const ruta = ctx.url.pathname;
   const esPanel = ruta.startsWith('/admin') && !ruta.startsWith('/admin/login');
-  const esApi = ruta.startsWith('/api/admin') &&
-    !/^\/api\/admin\/(otp|verify)\/?$/.test(ruta);
+  // `login` queda FUERA de la guardia por necesidad: es la puerta. Dejarlo
+  // dentro crea un bucle —hace falta sesión para iniciar sesión— y eso pasó de
+  // verdad al volver de la versión con código por correo: cambié la excepción a
+  // otp|verify y al revertir el handler no revertí esta línea. La contraseña
+  // correcta devolvía 401 y parecía que fallaba la contraseña.
+  const esApi = ruta.startsWith('/api/admin') && !/^\/api\/admin\/login\/?$/.test(ruta);
   if (!esPanel && !esApi) return next();
 
   const secreto = import.meta.env.GLOSSA_ADMIN_SECRET || process.env.GLOSSA_ADMIN_SECRET;
