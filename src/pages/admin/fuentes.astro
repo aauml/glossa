@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fuentes · Glossa</title>
-<meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="/admin.css">
-</head>
-<body class="admin">
-<main class="admin-main">
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Fuentes" tab="fuentes">
+
   <h1>Fuentes</h1>
   <p class="sub">Canales, podcasts y medios que el radar revisa cada noche. Se comprueba que el feed
   responda antes de guardarlo: una fuente rota que falla en silencio cada noche es peor que un error ahora.</p>
@@ -42,10 +37,12 @@
     <h2>Vigilando</h2>
     <div id="lista"><span class="admin-vacio">cargando…</span></div>
   </div>
-</main>
-<script type="module">
-  import { api, esc, barra, msg } from '/panel.js';
-  barra('fuentes.html');
+
+<script>
+  const api = (op, extra = {}) => fetch('/api/admin/op/', { method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
+  const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+  const msg = (id, t, ok) => { document.getElementById(id).innerHTML = `<div class="admin-msg ${ok?'ok':''}">${esc(t)}</div>`; };
 
   // El enlace de un canal de YouTube no es su feed; se convierte aquí para no
   // tener que saberse la URL del RSS.
@@ -98,4 +95,4 @@
   };
   pintar();
 </script>
-</body></html>
+</AdminLayout>

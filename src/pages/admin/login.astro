@@ -1,0 +1,67 @@
+---
+export const prerender = false;
+import '../../styles/admin.css';
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar · Glossa</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body class="admin">
+  <main class="admin-main" style="max-width:360px;margin-top:12vh">
+    <h1 style="font-size:28px">Glossa<span style="color:var(--accent)">.</span></h1>
+    <p class="sub">Panel de administración. Te llega un código al correo.</p>
+    <div id="msg"></div>
+
+    <div id="paso1">
+      <div class="admin-acciones"><button class="admin-btn" id="pedir">Enviarme el código</button></div>
+    </div>
+
+    <form class="admin-form" id="paso2" style="display:none">
+      <label>Código
+        <input name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+               autocomplete="one-time-code" placeholder="6 dígitos" required /></label>
+      <div class="admin-acciones">
+        <button class="admin-btn" type="submit">Entrar</button>
+        <button class="admin-btn sec" type="button" id="reenviar">reenviar</button>
+      </div>
+    </form>
+  </main>
+<script>
+  const msg = (t, ok) => { document.getElementById('msg').innerHTML =
+    `<div class="admin-msg ${ok ? 'ok' : ''}">${String(t).replace(/[<>&]/g, '')}</div>`; };
+
+  async function pedirCodigo(btn) {
+    btn.disabled = true; msg('enviando…', true);
+    const r = await fetch('/api/admin/otp/', { method: 'POST' }).then(r => r.json());
+    btn.disabled = false;
+    if (r.error) { msg(r.error, false); return false; }
+    msg(`Código enviado a ${r.email}. Caduca en una hora.`, true);
+    document.getElementById('paso1').style.display = 'none';
+    document.getElementById('paso2').style.display = 'grid';
+    document.querySelector('#paso2 input').focus();
+    return true;
+  }
+
+  document.getElementById('pedir').onclick = e => pedirCodigo(e.target);
+  document.getElementById('reenviar').onclick = e => pedirCodigo(e.target);
+
+  document.getElementById('paso2').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true;
+    const r = await fetch('/api/admin/verify/', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: e.target.code.value.trim() }),
+    }).then(r => r.json());
+    btn.disabled = false;
+    if (r.error) { msg(r.error, false); return; }
+    location.href = '/admin/';
+  };
+</script>
+</body>
+</html>

@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bandeja · Glossa</title>
-<meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="/admin.css">
-</head>
-<body class="admin">
-<main class="admin-main">
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Bandeja" tab="bandeja">
+
   <h1>Bandeja</h1>
   <p class="sub">Lo que quieras meter a mano: un artículo que estás leyendo, un enlace suelto.
   Entra en la misma cola que los canales y acaba cruzándose con el resto del material del tema.</p>
@@ -40,10 +35,12 @@
     <h2>En la bandeja</h2>
     <div id="lista"><span class="admin-vacio">cargando…</span></div>
   </div>
-</main>
-<script type="module">
-  import { api, esc, barra, msg } from '/panel.js';
-  barra('bandeja.html');
+
+<script>
+  const api = (op, extra = {}) => fetch('/api/admin/op/', { method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
+  const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+  const msg = (id, t, ok) => { document.getElementById(id).innerHTML = `<div class="admin-msg ${ok?'ok':''}">${esc(t)}</div>`; };
   const ESTADO = { pending:'en cola', running:'procesando', digested:'analizado', skipped:'descartado', error:'error' };
 
   async function pintar() {
@@ -78,4 +75,4 @@
   };
   pintar();
 </script>
-</body></html>
+</AdminLayout>
