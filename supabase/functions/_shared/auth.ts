@@ -23,7 +23,18 @@ function timingSafeEqual(a: string, b: string): boolean {
 
 export type AuthResult = { ok: true } | { ok: false; response: Response };
 
-export function requireToken(req: Request, cors: Record<string, string>): AuthResult {
+/**
+ * El token puede llegar por cabecera `x-glossa-token` (preferido) o como campo
+ * `token` del cuerpo JSON.
+ *
+ * Se aceptan los dos porque no todas las superficies pueden fijar una cabecera:
+ * el conector del chat en móvil puede no exponer ese control, y quedarse solo
+ * con la cabecera dejaría la publicación desde el móvil dependiendo de un
+ * detalle del cliente. El cuerpo viaja igualmente por TLS; la diferencia real es
+ * que los cuerpos acaban en más registros, así que prefiere la cabecera si tu
+ * cliente la permite.
+ */
+export function requireToken(req: Request, cors: Record<string, string>, bodyToken?: unknown): AuthResult {
   const expected = Deno.env.get('GLOSSA_PUBLISH_TOKEN') ?? '';
   if (!expected) {
     console.error('GLOSSA_PUBLISH_TOKEN no configurado — rechazando');
@@ -32,11 +43,14 @@ export function requireToken(req: Request, cors: Record<string, string>): AuthRe
       response: new Response(JSON.stringify({ error: 'not configured' }), { status: 503, headers: cors }),
     };
   }
-  const got = req.headers.get('x-glossa-token') ?? '';
+  const got = req.headers.get('x-glossa-token') ?? (typeof bodyToken === 'string' ? bodyToken : '');
   if (!got || !timingSafeEqual(got, expected)) {
     return {
       ok: false,
-      response: new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: cors }),
+      response: new Response(JSON.stringify({
+        error: 'unauthorized',
+        hint: 'manda el token en la cabecera x-glossa-token o en el campo "token" del cuerpo',
+      }), { status: 401, headers: cors }),
     };
   }
   return { ok: true };

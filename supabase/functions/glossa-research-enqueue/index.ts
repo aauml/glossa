@@ -12,11 +12,19 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'POST only' }), { status: 405, headers: CORS });
 
-  const auth = requireToken(req, CORS);
+  // El cuerpo se lee antes de autenticar porque el token puede venir dentro.
+  // Un cuerpo ilegible se rechaza como 400 sin tocar la base.
+  let b: Record<string, unknown>;
+  try {
+    b = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'cuerpo JSON inválido' }), { status: 400, headers: CORS });
+  }
+
+  const auth = requireToken(req, CORS, b?.token);
   if (!auth.ok) return auth.response;
 
   try {
-    const b = await req.json();
     if (!b || !b.query) return new Response(JSON.stringify({ error: 'query is required' }), { status: 400, headers: CORS });
     const query = String(b.query).slice(0, 2000);
     const track = b.track ?? 'general';

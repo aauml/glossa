@@ -464,6 +464,10 @@ POST https://wtwuvrtmadnlezkbesqp.supabase.co/functions/v1/glossa-enqueue
 Content-Type: application/json
 x-glossa-token: <1Password: "Glossa - publish token", vault ademas.ai>
 ```
+Si tu superficie no deja fijar cabeceras (el conector del chat en móvil puede no
+hacerlo), manda el mismo valor como campo `"token"` del cuerpo JSON. Las dos vías
+son equivalentes; la cabecera es preferible porque los cuerpos acaban en más registros.
+```
 ```jsonc
 {
   "slug": "newissue-keyword",
@@ -476,7 +480,7 @@ x-glossa-token: <1Password: "Glossa - publish token", vault ademas.ai>
 ```
 The response is `{ "ok": true, "id": "<uuid>", "poll": "<sql>" }`.
 
-**The `x-glossa-token` header is required.** Without it the endpoint was open to the internet: anyone could publish to the live site. `401` = missing/wrong token; `400` = invalid `slug` (must be `[a-z0-9-]`, 2–80 chars — it becomes a directory) or `issue_no` (must be `N° 33` — it goes into a commit message). Never paste the token into the chat; read it from 1Password or the connector's stored header.
+**The token is required** — by header `x-glossa-token`, or as a `"token"` field in the JSON body if your surface can't set headers. Without it the endpoint was open to the internet: anyone could publish to the live site. `401` = missing/wrong token (the response says which forms are accepted); `400` = invalid `slug` (must be `[a-z0-9-]`, 2–80 chars — it becomes a directory) or `issue_no` (must be `N° 33` — it goes into a commit message). Never paste the token into the chat; read it from 1Password or the connector's stored header.
 
 Then poll for the result (flips `queued → building → done`), via the Supabase connector or a GET on the REST table:
 ```sql

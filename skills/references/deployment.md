@@ -194,6 +194,9 @@ POST https://wtwuvrtmadnlezkbesqp.supabase.co/functions/v1/glossa-enqueue
 Content-Type: application/json
 x-glossa-token: <op item get "Glossa - publish token" --vault ademas.ai --fields credential --reveal>
 ```
+
+The token may travel **either** in that header **or** as a `"token"` field in the JSON body — surfaces that can't set custom headers (the mobile chat connector may be one) use the body form. Prefer the header when you can: request bodies end up in more logs.
+```
 ```jsonc
 {
   "slug": "newissue-keyword",
@@ -206,7 +209,7 @@ x-glossa-token: <op item get "Glossa - publish token" --vault ademas.ai --fields
 ```
 Response: `{ "ok": true, "id": "<uuid>", "poll": "<sql>" }`.
 
-Failure modes worth recognising: `401 unauthorized` = missing or wrong `x-glossa-token`; `400 slug inválido` = the slug is not `[a-z0-9-]`, 2–80 chars (it becomes a directory name); `400 issue_no inválido` = not in `N° 33` form (it goes into a commit message).
+Failure modes worth recognising: `401 unauthorized` = missing or wrong token in both the header and the body (the response repeats which forms are accepted); `400 slug inválido` = the slug is not `[a-z0-9-]`, 2–80 chars (it becomes a directory name); `400 issue_no inválido` = not in `N° 33` form (it goes into a commit message).
 
 `body_en`/`body_es` are the **entire** MDX files — same content the Code/Cowork flow would commit, carried in the POST instead of a file.
 
