@@ -7,9 +7,9 @@ queda como registro de qué se tocó y qué decisiones siguen abiertas.
 
 | Paso | Estado |
 |---|---|
-| Token `Glossa - publish token` en 1Password (bóveda `ademas.ai`, campo `credential`) | ✅ creado por Arturo |
+| Token de publicación de Glossa en 1Password (campo `credential`) | ✅ creado por Arturo |
 | Secreto `GLOSSA_PUBLISH_TOKEN` en las edge functions de Supabase | ✅ HTTP 201 |
-| Secreto `SUPABASE_SERVICE_KEY` en GitHub (`Supabase thesis` → campo `secret-key`) | ✅ |
+| Secreto `SUPABASE_SERVICE_KEY` en GitHub (item del KB compartido → campo `secret-key`) | ✅ |
 | `glossa-enqueue` y `glossa-research-enqueue` redesplegadas con la compuerta | ✅ |
 | Migraciones 0006 y 0007 | ✅ aplicadas |
 | Fusión a `main` y despliegue en Vercel | ✅ |

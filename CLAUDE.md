@@ -4,6 +4,19 @@ Guía para Claude al trabajar en este proyecto. El diseño completo está en [`/
 
 ## Recursos declarados (para Umbrella / Panel Madre)
 
+**Contexto de cartera:** antes de resolver desde cero algo que otro proyecto ya
+resolvió, lee el bloque **glossa** de la sección 7 del informe en
+<https://github.com/aauml/umbrella/blob/main/reports/latest.md> — lista qué
+capacidades ya existen en la cartera y en qué archivo, más las lecciones y
+estándares de otros proyectos que tocan los servicios declarados aquí. Se
+regenera a diario; Umbrella nunca escribe en este repo.
+
+⚠️ **Este repo es público.** Es el único de los siete que lo es. Todo lo que se
+añada a este bloque queda a la vista de cualquiera: no pongas aquí nombres de
+cuentas, correos, identificadores de proyecto de un proveedor, ni nombres de
+items de 1Password. Los proveedores y las rutas del propio repo son públicos de
+todos modos; lo que los distingue de un secreto es que no dicen *cuál* cuenta.
+
 Bloque de inventario cross-proyecto — ver `aauml/umbrella`. Actualizar si cambia el stack.
 
 ```yaml
@@ -41,6 +54,20 @@ resources:
   secrets:
     provider: 1Password
     capability: credential management
+  site_framework:
+    provider: Astro
+    capability: static site generation
+    implemented_in: astro.config.mjs
+  design:
+    provider: hand-rolled CSS variables
+    capability: design system
+    notes: papel crema / tinta cálida, acento oxblood; claro-oscuro por tokens, sin colores literales fuera de la paleta
+    implemented_in: src/styles/global.css
+  components:
+    provider: Astro
+    capability: component library
+    notes: aparato de lectura anotada — Callback, ContextBox, PullQuote, Footnote, Exhibit, ReadingProgress, SizeSwitch
+    implemented_in: src/components/
 ```
 
 **Las rutas de `implemented_in` son relativas a la raíz del repo `aauml/glossa`**, que es la fuente de verdad. La carpeta de Drive es un espejo parcial: solo `docs/`, `db/migrations/` y este archivo. El código (`src/`, `scripts/`, `.github/`, `skills/`, `supabase/`) vive únicamente en el repo.
@@ -57,18 +84,26 @@ Nota: `ai_models` es Anthropic porque el análisis y la redacción los hace Clau
 
 ## 1Password — Acceso a secretos (ya configurado, headless)
 
-`op` (1Password CLI) ya está autenticado de forma global con el service account `claude-code-sandbox` vía `~/.zshenv` (token de solo lectura, en todas las sesiones). No hay que hacer login ni abrir la app de 1Password. Verifícalo: `op whoami` → User Type: SERVICE_ACCOUNT.
+`op` (1Password CLI) ya está autenticado de forma global con un service account de solo lectura vía `~/.zshenv`, en todas las sesiones. No hay que hacer login ni abrir la app de 1Password. Verifícalo: `op whoami` → User Type: SERVICE_ACCOUNT.
 
-Todos los secretos viven en una sola bóveda: `ademas.ai`, organizados por nombre (ej.: `Radius - OpenAI API Key`, `Radius - Neon DATABASE_URL`, `Supabase thesis`).
+Todos los secretos viven en una sola bóveda, organizados por nombre con el
+prefijo del proyecto al que pertenecen. **Los nombres concretos no se escriben
+aquí**: este repo es público, y enumerarlos publicaría el mapa de credenciales
+de los otros seis proyectos, que sí son privados. Descúbrelos en el momento con
+`op item list` y filtra por el prefijo que necesites.
 
 Leer un secreto (úsalo directo en variable, NO lo imprimas en el chat):
 
 ```bash
-KEY=$(op item get "Radius - OpenAI API Key" --vault ademas.ai --fields credential --reveal)
+KEY=$(op item get "<NOMBRE DEL ITEM>" --vault "$OP_VAULT" --fields credential --reveal)
 ```
 
-Ver los campos de un item: `op item get "NOMBRE" --vault ademas.ai --format json`
+Ver los campos de un item: `op item get "<NOMBRE>" --vault "$OP_VAULT" --format json`
 
-Listar/buscar items: `op item list --vault ademas.ai`
+Listar/buscar items: `op item list --vault "$OP_VAULT"`
+
+`OP_VAULT` es la bóveda única de la cartera; su nombre está en el entorno de la
+sesión (`echo $OP_VAULT`) o se ve con `op vault list`. No se escribe en este
+archivo por la misma razón que los nombres de los items.
 
 Es solo lectura (no escribe/edita). Si una sesión vieja pide el master password, ciérrala y abre una nueva (o `exec zsh`) para que tome el token de `~/.zshenv`.
