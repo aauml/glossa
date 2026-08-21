@@ -24,7 +24,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   <script>
     const api = (op, extra = {}) =>
-      fetch('/api/admin/op', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      fetch('/api/admin/op/', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
 
     api('status').then(d => {

@@ -43,7 +43,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   <script>
     const api = (op, extra = {}) =>
-      fetch('/api/admin/op', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      fetch('/api/admin/op/', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
     const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
     const msg = (t, ok) => { document.getElementById('msg').innerHTML = `<div class="admin-msg ${ok ? 'ok' : ''}">${esc(t)}</div>`; };

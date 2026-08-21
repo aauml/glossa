@@ -25,7 +25,7 @@ const TABS = [
     <nav class="admin-tabs">
       {TABS.map(t => <a href={t.href} class={t.id === tab ? 'on' : ''}>{t.label}</a>)}
     </nav>
-    <form method="POST" action="/api/admin/logout"><button class="admin-salir" type="submit">Salir</button></form>
+    <form method="POST" action="/api/admin/logout/"><button class="admin-salir" type="submit">Salir</button></form>
   </header>
   <main class="admin-main">
     <slot />
