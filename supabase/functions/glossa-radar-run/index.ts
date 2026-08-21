@@ -89,17 +89,35 @@ Deno.serve(async (req) => {
     if (erroresFuente?.length) log.fuentes_con_error = erroresFuente;
   }
 
-  // ── 2. Digerir ──────────────────────────────────────────────────────────
+  // ── 2. Clasificar lo que quedó sin tema ─────────────────────────────────
+  // Va ANTES de digerir, y el orden es el arreglo. Al final del bucle, digerir
+  // se comía los 120 s enteros y la clasificación no llegaba nunca: cada pasada
+  // dejaba un episodio más analizado pero sin tema, invisible para los dossiers.
+  // Se veía en los números — los huérfanos subían de 1 a 2 en vez de bajar.
+  // Clasificar es texto y cuesta segundos; digerir cuesta casi un minuto. El
+  // barato primero.
+  const fallos: string[] = [];
+  {
+    const { data: huerfanos } = await sb.rpc('glossa_radar_sin_temas', { limite: 5 });
+    for (const h of huerfanos ?? []) {
+      if (queda() < 20_000) break;
+      try { await asignarTemas(sb, h.id, h.digest); (log.clasificados ||= []).push(h.id); }
+      catch (e) { fallos.push(`temas ${h.id}: ${String(e).slice(0, 80)}`); }
+    }
+  }
+
+  // ── 3. Digerir ──────────────────────────────────────────────────────────
   const { data: pend } = await sb.from('glossa_radar_items')
     .select('id,title,author,url,body_text,origin,source_id,glossa_radar_sources(kind)')
     .eq('state', 'pending').order('published_at', { ascending: false }).limit(8);
 
   const hechos: string[] = [];
-  const fallos: string[] = [];
   for (const item of pend ?? []) {
     // Un episodio tarda ~26 s; si no cabe entero, mejor dejarlo en cola que
     // cortarlo a la mitad y dejar la fila en 'running' para siempre.
-    if (queda() < 35_000) break;
+    // 35 s para el resumen + 15 s para clasificarlo acto seguido. Si no caben
+    // los dos, no se empieza: un episodio sin clasificar es trabajo perdido.
+    if (queda() < 50_000) break;
     const esTexto = item.origin === 'pegado' && !!item.body_text;
     try {
       await sb.from('glossa_radar_items')
@@ -128,7 +146,9 @@ Deno.serve(async (req) => {
         tokens_used: geminiTokens(resp), digested_at: new Date().toISOString(), error: null,
       }).eq('id', item.id);
 
-      if (queda() > 12_000) await asignarTemas(sb, item.id, digest);
+      // Ya se reservó hueco arriba; y si aun así no llega, la próxima pasada lo
+      // recoge en el paso 2, que ahora sí se ejecuta.
+      if (queda() > 10_000) await asignarTemas(sb, item.id, digest);
       hechos.push(String(item.title).slice(0, 60));
     } catch (e) {
       // Si fue capacidad del tramo gratuito, vuelve a la cola: el episodio no
@@ -137,20 +157,6 @@ Deno.serve(async (req) => {
       await sb.from('glossa_radar_items')
         .update({ state: capacidad ? 'pending' : 'error', error: String(e).slice(0, 500) }).eq('id', item.id);
       fallos.push(`${String(item.title).slice(0, 40)}: ${String(e).slice(0, 80)}`);
-    }
-  }
-
-  // ── 3. Rescatar los que quedaron sin temas ──────────────────────────────
-  // Un episodio digerido al filo del presupuesto se queda sin clasificar, y el
-  // bucle de arriba solo mira los que están 'pending': nunca volvería a tocarlo.
-  // Sin esto, un ítem puede quedar analizado pero invisible para los dossiers,
-  // que es peor que no haberlo procesado — porque nada lo delata.
-  if (queda() > 15_000) {
-    const { data: huerfanos } = await sb.rpc('glossa_radar_sin_temas', { limite: 3 });
-    for (const h of huerfanos ?? []) {
-      if (queda() < 12_000) break;
-      try { await asignarTemas(sb, h.id, h.digest); (log.rescatados ||= []).push(h.id); }
-      catch (e) { fallos.push(`temas ${h.id}: ${String(e).slice(0, 80)}`); }
     }
   }
 
