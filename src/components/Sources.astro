@@ -13,7 +13,13 @@ const { slug, lang = 'en' } = Astro.props;
 const sidecars = import.meta.glob('../content/articles/*/sources.json');
 const key = `../content/articles/${slug}/sources.json`;
 const doc = sidecars[key] ? await sidecars[key]() : null;
-const sources = doc?.default?.sources ?? doc?.sources ?? [];
+const sidecar = doc?.default ?? doc ?? {};
+
+// Los sidecars han derivado de forma con el tiempo: uno reparte las fuentes
+// entre `sources` y `web_only` (las que no están en el KB). Un componente de
+// procedencia que descarta fuentes en silencio es peor que no tenerlo, así que
+// se leen las dos listas. El esquema canónico es una sola `sources`.
+const sources = [...(sidecar.sources ?? []), ...(sidecar.web_only ?? [])];
 
 const COPY = {
   en: {
