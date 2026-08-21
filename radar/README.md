@@ -32,9 +32,14 @@ Un episodio de una hora de YouTube:
 | 0,1 fps (el que se usa) | 126.375 — cabe con margen |
 | 0,05 fps | 114.873 — ya no baja: lo que queda es el audio |
 
-Techos: Gemini permite ~500 episodios/día; Apps Script, ~35/día (90 min diarios
-de disparadores a ~2,5 min por episodio). **Ese es el límite real: unos 25-35
-canales.** Con Diesen solo (11/semana) se usa el 4%.
+Medido de verdad sobre un episodio de una hora: **26 segundos y 103.403 tokens**
+(la estimación previa de 2,5 minutos era mía, a ojo, y estaba muy alta).
+
+Techos con ese dato: Apps Script da 90 min/día de disparadores → ~180 episodios
+al día. Gemini da 500 llamadas/día en Flash Lite, y cada episodio gasta dos
+(resumen + temas) → ~250 episodios al día. **El límite real ronda los 180
+episodios diarios, o sea más canales de los que vas a querer seguir.** Con Diesen
+solo (11/semana) se usa el 1%.
 
 ## Instalar
 
@@ -51,6 +56,22 @@ RSS con `<enclosure>` de audio. La prensa escrita entra igual (`kind: 'rss'`) y
 es ~60 veces más barata, pero solo con titular y sumario de sus feeds públicos:
 **los artículos completos de suscripción no se descargan automáticamente.** Para
 esos, se pegan a mano cuando interesen.
+
+## Un fallo que salió al probarlo
+
+La primera prueba real le pasó al modelo un título equivocado (el RSS de un canal
+puede venir sucio, y en mi caso me equivoqué yo al montar la prueba). El modelo
+identificó **bien** por el audio quién hablaba, pero escribió la tesis atribuida
+al nombre del título, no al que había oído.
+
+Atribuir una afirmación a quien no la dijo es el peor fallo posible aquí. El
+prompt ahora dice explícitamente que **el audio manda sobre los metadatos**, y
+hay un campo `title_mismatch` que obliga a declarar la discrepancia en vez de
+resolverla en silencio. Verificado volviendo a pasar el mismo título falso a
+propósito: la tesis ya se atribuye a quien habla, y la discrepancia queda anotada.
+
+Si añades una fuente y ves `title_mismatch` poblado a menudo, ese feed trae mala
+metadata — no es un fallo del radar.
 
 ## Lo que el radar no hace
 

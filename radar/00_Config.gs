@@ -24,9 +24,10 @@ const CFG = {
   // ya no se ahorra: lo que queda es el audio, que es irreducible.
   VIDEO_FPS: 0.1,
 
-  // Apps Script corta a los 6 minutos y un episodio tarda ~2,5. Dos por
-  // ejecución deja margen para que el tercero no muera a medias.
-  ITEMS_PER_RUN: 2,
+  // Apps Script corta a los 6 minutos. Medido: 26 s por episodio (no los 2,5 min
+  // que estimé a ojo), y cada uno gasta 2 llamadas —resumen y temas—. Seis por
+  // ejecución son ~3 min: deja la mitad del margen por si un episodio se atasca.
+  ITEMS_PER_RUN: 6,
 
   // El tramo gratuito devuelve "high demand" con cierta frecuencia. No es un
   // error del episodio: es capacidad. Se reintenta con espera creciente.
