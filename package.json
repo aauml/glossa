@@ -4,8 +4,10 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/check_content.mjs",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check": "node scripts/check_content.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.7",
