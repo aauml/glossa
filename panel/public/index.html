@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estado · Glossa</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body class="admin">
+<main class="admin-main">
+  <h1>Estado</h1>
+  <p class="sub">Qué está vigilando el radar y cuánto lleva digerido. Nada de esto se publica: es material de lectura.</p>
+
+  <div class="admin-sec">
+    <h2>Ahora mismo</h2>
+    <div class="admin-cifras" id="cifras"><span class="admin-vacio">cargando…</span></div>
+  </div>
+
+  <div class="admin-sec">
+    <h2>Publicación automática</h2>
+    <p class="sub" style="margin-bottom:14px">
+      Apagado, el número semanal te espera aquí y sales tú a publicarlo. Encendido, sale solo.
+      Conviene decidirlo <em>después</em> de ver el primer número.
+    </p>
+    <label style="display:flex;gap:9px;align-items:center;font-size:13px">
+      <input type="checkbox" id="auto" /> Publicar el número semanal sin revisión
+    </label>
+  </div>
+</main>
+<script type="module">
+  import { api, barra } from '/panel.js';
+  barra('');
+  api('status').then(d => {
+    const c = document.getElementById('cifras');
+    if (d.error) { c.innerHTML = `<span class="admin-vacio">${d.error}</span>`; return; }
+    const it = d.items || {};
+    const cifra = (n, t) => `<div class="admin-cifra"><b>${n}</b><span>${t}</span></div>`;
+    c.innerHTML = cifra(`${d.sources.active}/${d.sources.total}`, 'fuentes activas')
+      + cifra(it.digested || 0, 'episodios digeridos')
+      + cifra(it.pending || 0, 'en cola')
+      + cifra(d.topics || 0, 'temas vivos')
+      + ((it.error || 0) ? cifra(it.error, 'con error') : '');
+  });
+  const auto = document.getElementById('auto');
+  api('settings.get').then(d => { auto.checked = d.settings?.auto_publish === true; });
+  auto.addEventListener('change', () => api('settings.set', { key: 'auto_publish', value: auto.checked }));
+</script>
+</body></html>
