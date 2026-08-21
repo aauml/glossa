@@ -13,15 +13,23 @@ queda como registro de qué se tocó y qué decisiones siguen abiertas.
 | `glossa-enqueue` y `glossa-research-enqueue` redesplegadas con la compuerta | ✅ |
 | Migraciones 0006 y 0007 | ✅ aplicadas |
 | Fusión a `main` y despliegue en Vercel | ✅ |
-| Prueba de extremo a extremo | ✅ POST → URL en vivo en 20 s |
+| Prueba de extremo a extremo (cabecera) | ✅ POST → URL en vivo en 20 s |
+| Prueba de extremo a extremo (token en el cuerpo, sin cabecera) | ✅ POST → URL en vivo en 30 s |
 
 ### Lo que se probó, y lo que dio
 
 - POST sin cabecera → **401**. Con token incorrecto → **401**.
 - `slug: "../../../.github/workflows/pwn"` → **400**, no escribe nada.
 - `issue_no: 'N° 1"; touch /tmp/pwned; #'` → **400**, no llega al `git commit`.
-- Publicación real de una pieza oculta: `queued → building → done` en 20 s, con
-  `url_en` y `commit_sha` escritos de vuelta. Mensaje de commit limpio. Retirada después.
+- Publicación real de una pieza oculta, por las dos vías: `queued → building → done`
+  en 20–30 s, con `url_en` y `commit_sha` escritos de vuelta. Mensaje de commit limpio.
+  Ambas retiradas después.
+- Cuerpo con MDX inválido (sin frontmatter): el build lo rechaza, **no se commitea nada**,
+  la fila queda en `error` y el sitio no se toca. La validación previa al commit funciona.
+- Cuerpo no-JSON → **400**, sin tocar la base.
+- Nota: Cloudflare, delante de Supabase, bloquea con **403** los cuerpos que contienen
+  firmas conocidas como `etc/passwd` antes de llegar a la función. Es una capa extra,
+  no sustituye la validación: `../../../.github/workflows/…` sí llega, y lo para el 400.
 - `anon` ya no puede hacer UPDATE en las colas (era el fallo del 2026-07-01);
   `secret-key` y `service-role-key` sí.
 
@@ -35,9 +43,10 @@ Content-Type: application/json
 x-glossa-token: <1Password → ademas.ai → "Glossa - publish token" → credential>
 ```
 
-**Pendiente de comprobar en el móvil:** si el conector de claude.ai puede mandar una
-cabecera fija. Si no puede, la alternativa es exigir un JWT de usuario autenticado de
-Supabase en vez de un token propio — pero eso depende de si hay usuarios en Supabase Auth.
+**Si tu superficie no deja fijar cabeceras**, manda el mismo valor como campo `"token"`
+del cuerpo JSON. Las dos vías están probadas de extremo a extremo y son equivalentes; la
+cabecera es preferible porque los cuerpos acaban en más registros. Así no depende de lo
+que el conector del móvil permita.
 
 ## Decisiones abiertas
 
