@@ -8,7 +8,7 @@ Lo que falta necesita **GitHub** (escribir en repos), **secretos vía `op`** y *
 - **Memoria:** hay una fila reciente en `session_summaries` (canal `cowork`) con todo este trabajo.
 
 ## Orden de ejecución
-1. **Entorno:** `op whoami` (→ SERVICE_ACCOUNT) y `op item list --vault ademas.ai`. Probar OpenRouter (snippet del doc 10).
+1. **Entorno:** `op whoami` (→ SERVICE_ACCOUNT) y `op item list --vault "$OP_VAULT"`. Probar OpenRouter (snippet del doc 10).
 2. **Gobernanza en `aauml/thesis`:** aplicar la fila PUB en `AGENTS.md`, el bloque `D-NNN` en `DECISIONS.md` y la entrada de `CHANGELOG.md` (textos listos en el doc 11). Push.
 3. **Repo de Glossa:** crear o renombrar `aauml/lecturas` → `aauml/glossa`; subir esta carpeta (README, docs, `db/migrations`, CLAUDE.md).
 4. **Skill:** evolucionar `lecturas` → `glossa` (leer de `phd-kb`, escribir `glossa_*`, modos/compuertas, bilingüe; alinear con SKILL-CHAT/SKILL-KB).

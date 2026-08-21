@@ -32,13 +32,21 @@ Consecuencias prácticas:
 
 ## Credenciales
 
-Todas en 1Password, bóveda `ademas.ai`. Los **valores nunca** van al chat ni a git; se leen con `op` (ver [CLAUDE.md](../CLAUDE.md)). En el repo, un `.env.example` con los **nombres** de variables, sin valores.
+Todas en 1Password, en la bóveda única de la cartera (`$OP_VAULT`). Los
+**valores nunca** van al chat ni a git; se leen con `op` (ver
+[CLAUDE.md](../CLAUDE.md)). En el repo, un `.env.example` con los **nombres** de
+variables, sin valores.
 
-| Necesidad | Item en la bóveda | Estado |
+⚠️ **Este repo es público**, así que la tabla de abajo dice *qué hace falta*, no
+*cómo se llama el item*. Enumerar los nombres publicaría el mapa de credenciales
+de los otros seis proyectos, que son privados. Localiza cada uno en el momento
+con `op item list` y el prefijo del proyecto.
+
+| Necesidad | Dónde está | Estado |
 |---|---|---|
-| Zoo de modelos baratos | `OpenRouter - API KEy` | ✅ en bóveda |
-| Embeddings (KB) / OpenAI | `Radius - OpenAI API Key` | ✅ (sirve para embeddings) |
-| Base de datos del KB | `Radius - Neon DATABASE_URL` o `Supabase thesis` | ✅ elegir una (ambas soportan pgvector) |
+| Zoo de modelos baratos (OpenRouter) | item propio de Glossa | ✅ en bóveda |
+| Embeddings (KB) / OpenAI | se reutiliza la clave de otro proyecto de la cartera | ✅ (sirve para embeddings) |
+| Base de datos del KB | la Neon o la Supabase del KB compartido | ✅ elegir una (ambas soportan pgvector) |
 | Opus programático (Anthropic API) | — | ⛳ falta (si se llama a Opus por API fuera del chat) |
 | Buscador de agente (Exa / Tavily) | — | ⛳ falta |
 | Publicación (GitHub) | — | ⛳ por definir (conector o git autenticado) |
@@ -46,7 +54,7 @@ Todas en 1Password, bóveda `ademas.ai`. Los **valores nunca** van al chat ni a 
 ## Cómo se consume (desde Claude Code)
 
 ```bash
-KEY=$(op item get "OpenRouter - API KEy" --vault ademas.ai --fields credential --reveal)
+KEY=$(op item get "<ITEM DE OPENROUTER>" --vault "$OP_VAULT" --fields credential --reveal)
 # prueba rápida (no imprime la clave):
 curl -s https://openrouter.ai/api/v1/models -H "Authorization: Bearer $KEY" -o /dev/null -w "%{http_code}\n"
 ```
@@ -56,4 +64,4 @@ curl -s https://openrouter.ai/api/v1/models -H "Authorization: Bearer $KEY" -o /
 - **KB DB:** Neon y Supabase ambos valen (Postgres + pgvector). Elegir **una** para no dispersar el KB.
 - **Material sensible del PhD:** usa proveedores sin *logging* (OpenRouter deja filtrarlos) o ve directo al proveedor.
 - **Alternativa a OpenRouter:** Vercel AI Gateway, ya que el sitio vive en Vercel —un proveedor menos. Validar features/precios al configurarlo.
-- El nombre del item se referencia **exactamente** como está en la bóveda (`OpenRouter - API KEy`). Si lo renombras a algo más limpio, hay que actualizar las referencias.
+- El nombre del item se referencia **exactamente** como está en la bóveda, con su ortografía tal cual (tiene una mayúscula rara a mitad de palabra). Si lo renombras a algo más limpio, hay que actualizar las referencias.

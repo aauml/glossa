@@ -192,7 +192,7 @@ Chat/mobile cannot push to GitHub. Instead, **POST the finished article to the p
 ```
 POST https://wtwuvrtmadnlezkbesqp.supabase.co/functions/v1/glossa-enqueue
 Content-Type: application/json
-x-glossa-token: <op item get "Glossa - publish token" --vault ademas.ai --fields credential --reveal>
+x-glossa-token: <op item get "<ITEM DEL TOKEN DE PUBLICACIÓN>" --vault "$OP_VAULT" --fields credential --reveal>
 ```
 
 The token may travel **either** in that header **or** as a `"token"` field in the JSON body — surfaces that can't set custom headers (the mobile chat connector may be one) use the body form. Prefer the header when you can: request bodies end up in more logs.

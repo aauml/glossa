@@ -462,7 +462,7 @@ Chat / mobile publish (on the publish command — see *Entry modes and gates*) �
 ```
 POST https://wtwuvrtmadnlezkbesqp.supabase.co/functions/v1/glossa-enqueue
 Content-Type: application/json
-x-glossa-token: <1Password: "Glossa - publish token", vault ademas.ai>
+x-glossa-token: <1Password: item del token de publicación de Glossa, en la bóveda de la cartera>
 ```
 Si tu superficie no deja fijar cabeceras (el conector del chat en móvil puede no
 hacerlo), manda el mismo valor como campo `"token"` del cuerpo JSON. Las dos vías
