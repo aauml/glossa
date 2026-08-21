@@ -244,7 +244,9 @@ The design is **quiet long-form**, not magazine cover. No drop caps. No hero kic
 
 The palette and typography are defined once in `src/styles/global.css`. New articles inherit automatically — there's no per-article CSS.
 
-**There is a dark theme.** Inside a hand-written SVG exhibit, reach for the tokens through `style`, never a literal hex — `var()` does not resolve inside a `fill="…"` attribute:
+**Cream is the identity, not a default.** The site serves the cream palette to everyone regardless of their OS setting; a dark theme exists only for readers who ask for it with the masthead toggle (`data-theme="dark"`, remembered in `localStorage`). Do not wire anything to `prefers-color-scheme` — doing so once turned the site dark for most readers without anyone deciding it.
+
+Inside a hand-written SVG exhibit, reach for the tokens through `style`, never a literal hex — `var()` does not resolve inside a `fill="…"` attribute:
 
 ```jsx
 <rect style="fill: var(--bg)" />       // not fill="#F4EDE0"

@@ -1,5 +1,6 @@
 ---
 import SizeSwitch from './SizeSwitch.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
 // `langs` son los idiomas que existen para esta pieza. Un idioma ausente se
 // pinta apagado en vez de enlazar a una página que no se genera.
 const { lang, slug, langs = ['en', 'es'] } = Astro.props;
@@ -23,6 +24,7 @@ const ORDER = ['en', 'es'];
         ))}
       </span>
       <SizeSwitch separator />
+      <ThemeSwitch separator />
     </span>
   </div>
 </header>

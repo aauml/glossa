@@ -1,5 +1,6 @@
 ---
 import SizeSwitch from './SizeSwitch.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
 // La portada no tenía conmutador de idioma porque solo existía en inglés.
 const { lang = 'en' } = Astro.props;
 const LANGS = [{ code: 'en', label: 'EN', href: '/' }, { code: 'es', label: 'ES', href: '/es/' }];
@@ -19,6 +20,7 @@ const LANGS = [{ code: 'en', label: 'EN', href: '/' }, { code: 'es', label: 'ES'
         ))}
       </span>
       <SizeSwitch separator />
+      <ThemeSwitch separator />
     </span>
   </div>
 </header>

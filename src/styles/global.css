@@ -1,7 +1,14 @@
-/* Paleta. Los valores claros son la definición base; el bloque oscuro de más
- * abajo redefine solo los tokens, porque ninguna regla del resto del fichero
- * usa un color literal. Tres estados: elección explícita (data-theme), y el
- * ajuste "sistema" por defecto, que solo distingue por prefers-color-scheme. */
+/* Paleta.
+ *
+ * El papel crema es la identidad de Glossa, no un tema por defecto: se sirve
+ * igual a todo el mundo, con independencia de cómo tenga el sistema operativo
+ * quien lee. El oscuro existe para quien lo pide, y solo se aplica cuando el
+ * lector lo elige en el mastelero (`data-theme="dark"` sobre <html>, recordado
+ * en localStorage). NO se engancha a prefers-color-scheme: hacerlo convertía el
+ * sitio en oscuro para la mayoría sin que nadie lo hubiera decidido.
+ *
+ * El resto del fichero no usa ni un color literal, así que el tema entero se
+ * cambia redefiniendo estos tokens. */
 :root {
   --bg: #F4EDE0;
   --surface: #ECE2D0;
@@ -17,29 +24,13 @@
   --highlight: #FAF4E8;
   --shadow: rgba(26, 26, 26, 0.06);
   --reader-scale: 1;
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 /* Oscuro: papel crema invertido a tinta cálida. El oxblood se aclara para
  * mantener el contraste sobre fondo oscuro sin cambiar de familia de color. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #16130F;
-    --surface: #1F1B16;
-    --surface-dark: #2A241C;
-    --ink: #EDE6D8;
-    --ink-soft: #D9D1C2;
-    --muted: #9C9384;
-    --rule: #EDE6D8;
-    --rule-soft: #3A342B;
-    --accent: #D98A7A;
-    --accent-soft: #C77463;
-    --gold: #D2A64A;
-    --highlight: #1F1B16;
-    --shadow: rgba(0, 0, 0, 0.45);
-  }
-}
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #16130F;
   --surface: #1F1B16;
   --surface-dark: #2A241C;
@@ -573,29 +564,6 @@ h2.section-title em { font-style: italic; font-weight: 500; }
  * ninguna pieza ya publicada. Las piezas nuevas deberían usar los tokens.
  * (Ver skills/references/deployment.md § Exhibit components.) */
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) svg { color: var(--ink); }
-  [fill="#F4EDE0" i] { fill: var(--bg); }
-  [stroke="#F4EDE0" i] { stroke: var(--bg); }
-  [fill="#ECE2D0" i] { fill: var(--surface); }
-  [stroke="#ECE2D0" i] { stroke: var(--surface); }
-  [fill="#FAF4E8" i] { fill: var(--highlight); }
-  [stroke="#FAF4E8" i] { stroke: var(--highlight); }
-  [fill="#1A1A1A" i] { fill: var(--ink); }
-  [stroke="#1A1A1A" i] { stroke: var(--ink); }
-  [fill="#2A2A2A" i] { fill: var(--ink-soft); }
-  [stroke="#2A2A2A" i] { stroke: var(--ink-soft); }
-  [fill="#5C5C5C" i] { fill: var(--muted); }
-  [stroke="#5C5C5C" i] { stroke: var(--muted); }
-  [fill="#C8C2B5" i] { fill: var(--rule-soft); }
-  [stroke="#C8C2B5" i] { stroke: var(--rule-soft); }
-  [fill="#7A1F1F" i] { fill: var(--accent); }
-  [stroke="#7A1F1F" i] { stroke: var(--accent); }
-  [fill="#A14848" i] { fill: var(--accent-soft); }
-  [stroke="#A14848" i] { stroke: var(--accent-soft); }
-  [fill="#B8860B" i] { fill: var(--gold); }
-  [stroke="#B8860B" i] { stroke: var(--gold); }
-}
 :root[data-theme="dark"] svg { color: var(--ink); }
 :root[data-theme="dark"] {
   [fill="#F4EDE0" i] { fill: var(--bg); }
@@ -619,3 +587,8 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   [fill="#B8860B" i] { fill: var(--gold); }
   [stroke="#B8860B" i] { stroke: var(--gold); }
 }
+
+/* Interruptor de tema — mismo peso visual que el de tamaño de texto. */
+.theme-switch { background: none; border: none; cursor: pointer; padding: 6px; color: var(--muted); display: inline-flex; align-items: center; min-width: 28px; min-height: 28px; transition: color 0.15s ease; }
+.theme-switch:hover { color: var(--ink); }
+.theme-switch svg { display: block; }

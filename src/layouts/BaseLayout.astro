@@ -58,6 +58,12 @@ const OG_LOCALE = { en: 'en_US', es: 'es_ES' };
       if (legacy) { s = legacy; localStorage.setItem('glossa-text-size', legacy); }
     }
     document.documentElement.setAttribute('data-text-size', s || 'md');
+
+    // Tema. Crema salvo que el lector haya pedido oscuro; NO se mira el sistema
+    // operativo. Va aquí, en el <head>, para que el atributo esté puesto antes
+    // del primer pintado: hacerlo al final del body enseña un fogonazo crema.
+    document.documentElement.setAttribute('data-theme',
+      localStorage.getItem('glossa-theme') === 'dark' ? 'dark' : 'light');
   } catch (e) {}
 })();
 </script>
@@ -66,6 +72,22 @@ const OG_LOCALE = { en: 'en_US', es: 'es_ES' };
 <slot />
 <script is:inline>
 (function(){
+  // --- tema ---
+  var themeBtns = document.querySelectorAll('[data-theme-toggle]');
+  function paintTheme(t){
+    themeBtns.forEach(function(b){ b.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false'); });
+  }
+  paintTheme(document.documentElement.getAttribute('data-theme'));
+  themeBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      try { localStorage.setItem('glossa-theme', t); } catch(e){}
+      paintTheme(t);
+    });
+  });
+
+  // --- tamaño de texto ---
   var btns = document.querySelectorAll('.text-size-switch button');
   function paint(s){ btns.forEach(function(b){ b.classList.toggle('active', b.dataset.size === s); }); }
   var cur = document.documentElement.getAttribute('data-text-size') || 'md';

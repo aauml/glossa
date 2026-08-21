@@ -289,7 +289,7 @@ One entry per source:
 
 ## Exhibit colours and dark mode
 
-The site has a dark theme now (`prefers-color-scheme`, plus an explicit `data-theme`). The palette lives once in `src/styles/global.css` as tokens; nothing else should name a colour.
+The site has a dark theme, opt-in only: cream ships to everyone, and the masthead toggle sets `data-theme="dark"` on `<html>` (remembered in `localStorage`). Nothing keys off `prefers-color-scheme`. The palette lives once in `src/styles/global.css` as tokens; nothing else should name a colour.
 
 For **new** hand-written SVG inside an MDX piece, use the tokens through `style`, not through the presentation attribute — `var()` does not resolve in `fill="…"`:
 
