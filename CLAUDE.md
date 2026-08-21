@@ -1,6 +1,12 @@
 # Glossa — CLAUDE.md
 
-Guía para Claude al trabajar en este proyecto. El diseño completo está en [`/docs`](docs/).
+Guía para Claude al trabajar en este proyecto. El índice completo del diseño está
+en [README.md](README.md), que enlaza los catorce documentos de [`docs/`](docs/).
+
+> El índice vive en el README y se alcanza desde aquí a propósito: el recorrido de
+> documentos de Umbrella arranca en este archivo, y un enlace a un *directorio* no
+> es un fichero, así que los catorce salían como huérfanos aunque el README los
+> listara. Si añades un documento, enlázalo desde el README.
 
 ## Recursos declarados (para Umbrella / Panel Madre)
 
@@ -40,6 +46,7 @@ resources:
     provider: GitHub
     capability: repository / CI-CD
     implemented_in: .github/workflows/glossa-publish.yml
+    conforms_to: [STANDARD-DOC-ENTRYPOINT, STANDARD-PUBLISHED-OUTPUT]
   research_sources:
     - provider: OpenAlex
       capability: search / benchmarking
@@ -107,3 +114,22 @@ sesión (`echo $OP_VAULT`) o se ve con `op vault list`. No se escribe en este
 archivo por la misma razón que los nombres de los items.
 
 Es solo lectura (no escribe/edita). Si una sesión vieja pide el master password, ciérrala y abre una nueva (o `exec zsh`) para que tome el token de `~/.zshenv`.
+
+## Qué genera este proyecto y quién lo lee
+
+Exigido por `STANDARD-PUBLISHED-OUTPUT` de la cartera: todo lo que se produce
+necesita un consumidor **nombrado** y una prueba de que puede alcanzarlo. "Está
+disponible por si alguien lo quiere" no es un consumidor.
+
+| Se genera | Quién lo lee | Qué lo demuestra |
+|---|---|---|
+| Las 90 páginas del sitio | cualquiera, en `glossa.ademas.ai` | `scripts/check_content.mjs` en prebuild + los enlaces de la portada |
+| `rss.xml` y `rss-es.xml` | lectores por RSS | `<link rel="alternate">` en cada página y en el sitemap |
+| `sources.json` de cada pieza | el lector, al pie del artículo | `src/components/Sources.astro` lo renderiza; sin sidecar no pinta nada |
+| Resúmenes y dossiers del radar (`glossa_radar_*`) | Arturo, en `/admin` | el panel es su única vista; **antes de existir no los leía nadie** |
+
+Esa última fila es justo el fallo que describe el estándar. Los dossiers del
+radar se diseñaron sin lector: se habrían generado cada noche sin que nadie los
+abriera, dando la falsa impresión de que el sistema funcionaba. El panel es lo
+que convierte esa salida en algo consumido. Si algún día se retira el panel, hay
+que retirar también lo que lo alimenta.
