@@ -1,3 +1,7 @@
+/* Paleta. Los valores claros son la definición base; el bloque oscuro de más
+ * abajo redefine solo los tokens, porque ninguna regla del resto del fichero
+ * usa un color literal. Tres estados: elección explícita (data-theme), y el
+ * ajuste "sistema" por defecto, que solo distingue por prefers-color-scheme. */
 :root {
   --bg: #F4EDE0;
   --surface: #ECE2D0;
@@ -11,7 +15,44 @@
   --accent-soft: #A14848;
   --gold: #B8860B;
   --highlight: #FAF4E8;
+  --shadow: rgba(26, 26, 26, 0.06);
   --reader-scale: 1;
+  color-scheme: light dark;
+}
+
+/* Oscuro: papel crema invertido a tinta cálida. El oxblood se aclara para
+ * mantener el contraste sobre fondo oscuro sin cambiar de familia de color. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16130F;
+    --surface: #1F1B16;
+    --surface-dark: #2A241C;
+    --ink: #EDE6D8;
+    --ink-soft: #D9D1C2;
+    --muted: #9C9384;
+    --rule: #EDE6D8;
+    --rule-soft: #3A342B;
+    --accent: #D98A7A;
+    --accent-soft: #C77463;
+    --gold: #D2A64A;
+    --highlight: #1F1B16;
+    --shadow: rgba(0, 0, 0, 0.45);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16130F;
+  --surface: #1F1B16;
+  --surface-dark: #2A241C;
+  --ink: #EDE6D8;
+  --ink-soft: #D9D1C2;
+  --muted: #9C9384;
+  --rule: #EDE6D8;
+  --rule-soft: #3A342B;
+  --accent: #D98A7A;
+  --accent-soft: #C77463;
+  --gold: #D2A64A;
+  --highlight: #1F1B16;
+  --shadow: rgba(0, 0, 0, 0.45);
 }
 html[data-text-size="sm"] { --reader-scale: 0.92; }
 html[data-text-size="md"] { --reader-scale: 1; }
@@ -37,7 +78,7 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 .masthead-inner { max-width: 980px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; }
 .masthead-section { color: var(--muted); font-weight: 500; text-decoration: none; transition: color 0.15s ease; }
 .masthead-section:hover { color: var(--ink); }
-.masthead-brand { color: var(--ink); font-weight: 500; letter-spacing: 0.01em; text-transform: none; font-size: 15px; font-family: 'Fraunces', 'Spectral', serif; }
+.masthead-brand { color: var(--ink); font-weight: 500; letter-spacing: 0.01em; text-transform: none; font-size: 15px; font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif; }
 .wm-dot { color: var(--accent); }
 .masthead-meta { color: var(--muted); display: inline-flex; align-items: center; gap: 14px; }
 
@@ -58,7 +99,7 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 
 /* ======== Cover ======== */
 .cover { max-width: 980px; margin: 0 auto; padding: 48px 32px 34px; border-bottom: 0.5px solid var(--rule-soft); }
-.cover-wordmark { font-family: 'Fraunces', 'Spectral', serif; font-weight: 500; font-size: clamp(52px, 9.5vw, 104px); line-height: 0.95; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 20px; }
+.cover-wordmark { font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif; font-weight: 500; font-size: clamp(52px, 9.5vw, 104px); line-height: 0.95; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 20px; }
 .cover-tagline { font-family: 'Spectral', serif; font-weight: 300; font-style: italic; font-size: calc(clamp(16px, 1.7vw, 19px) * var(--reader-scale)); line-height: 1.5; color: var(--ink-soft); max-width: 600px; margin-bottom: 14px; }
 .cover-why { font-family: 'Spectral', serif; font-weight: 300; font-size: calc(clamp(14px, 1.5vw, 16px) * var(--reader-scale)); line-height: 1.6; color: var(--ink-soft); max-width: 580px; margin-bottom: 18px; }
 .cover-credo { font-family: 'IBM Plex Sans', sans-serif; font-weight: 400; font-size: calc(12.5px * var(--reader-scale)); line-height: 1.55; letter-spacing: 0.01em; color: var(--muted); max-width: 560px; margin-bottom: 18px; padding-left: 14px; border-left: 2px solid var(--accent); }
@@ -107,7 +148,7 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 /* ---- Featured (most recent) ---- */
 .article-card.featured { padding: 8px 0 30px; }
 .article-card.featured .featured-tag { font-family: 'IBM Plex Sans', sans-serif; font-size: calc(9px * var(--reader-scale)); letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
-.article-card.featured .article-card-title { font-family: 'Fraunces', 'Spectral', serif; font-weight: 500; font-size: calc(clamp(28px, 4.4vw, 40px) * var(--reader-scale)); line-height: 1.12; letter-spacing: -0.015em; }
+.article-card.featured .article-card-title { font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif; font-weight: 500; font-size: calc(clamp(28px, 4.4vw, 40px) * var(--reader-scale)); line-height: 1.12; letter-spacing: -0.015em; }
 .article-card.featured .article-card-dek { font-size: calc(clamp(16px, 1.9vw, 18px) * var(--reader-scale)); }
 .article-card[hidden] { display: none; }
 
@@ -377,7 +418,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
-  box-shadow: 0 1px 3px rgba(26, 26, 26, 0.06);
+  box-shadow: 0 1px 3px var(--shadow);
 }
 .reading-progress.is-visible {
   opacity: 1;
@@ -470,4 +511,111 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 @media (max-width: 640px) {
   .orientation { padding: 16px 18px 14px; margin: 6px 0 24px; }
   .orientation p { padding-left: 16px; text-indent: -16px; }
+}
+
+
+/* Idioma sin traducción: se muestra apagado en vez de enlazar a un 404. */
+.lang-absent { color: var(--muted); opacity: 0.4; cursor: default; }
+
+/* El sitio es de lectura larga: quien pide menos movimiento no debería recibir
+ * transiciones de subrayado ni el barrido del indicador de progreso. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Foco visible: los botones del cambio de tamaño y los enlaces del mastelero
+ * no tenían indicador propio y heredaban el del navegador, invisible sobre
+ * fondo crema en algunos temas. */
+:where(a, button):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ======== Aparato de procedencia ======== */
+/* El sidecar sources.json existía desde el principio y no se renderizaba nunca.
+ * Registro, no adorno: mismo tono que las notas al pie, sin competir con el
+ * cuerpo del texto. */
+
+.sources { max-width: 620px; margin: 0 auto; padding: 8px 32px 72px; }
+.sources-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); font-weight: 600; padding-bottom: 10px; border-bottom: 0.5px solid var(--rule); margin-bottom: 14px; }
+.sources-note { font-family: 'IBM Plex Sans', sans-serif; font-size: 11.5px; line-height: 1.55; color: var(--muted); margin-bottom: 20px; }
+.sources-list { list-style: none; padding: 0; margin: 0; counter-reset: src; }
+.sources-item { position: relative; padding: 0 0 16px 30px; margin-bottom: 16px; border-bottom: 0.5px solid var(--rule-soft); counter-increment: src; }
+.sources-item:last-child { border-bottom: none; margin-bottom: 0; }
+.sources-item::before { content: counter(src, decimal-leading-zero); position: absolute; left: 0; top: 2px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: var(--muted); }
+.sources-ref { font-family: 'Spectral', serif; font-size: calc(14.5px * var(--reader-scale)); line-height: 1.5; color: var(--ink); }
+.sources-ref a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 0.5px; text-underline-offset: 2px; }
+.sources-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; margin-top: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.sources-role { font-weight: 600; }
+.sources-verified.is-si { color: var(--ink); }
+.sources-verified.is-parcial { color: var(--gold); }
+.sources-verified.is-no { color: var(--accent-soft); }
+.sources-kb { border: 0.5px solid var(--rule-soft); padding: 1px 5px; letter-spacing: 0.12em; }
+.sources-claim { font-family: 'Spectral', serif; font-style: italic; font-size: calc(13.5px * var(--reader-scale)); line-height: 1.55; color: var(--ink-soft); margin-top: 7px; }
+.cover-empty { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--muted); padding: 28px 0; }
+.footer-links { display: inline-flex; gap: 16px; }
+
+@media (max-width: 720px) {
+  .sources { padding: 8px 22px 56px; }
+}
+
+
+/* ======== Exhibits en modo oscuro ======== */
+/* Los SVG de los exhibits —12 piezas publicadas y Timeline.astro— llevan la
+ * paleta clara escrita a mano en atributos como fill="#1A1A1A". Un atributo de
+ * presentación es una declaración CSS de prioridad mínima, así que una regla
+ * normal lo pisa: esto recolorea todos los exhibits en oscuro sin reescribir
+ * ninguna pieza ya publicada. Las piezas nuevas deberían usar los tokens.
+ * (Ver skills/references/deployment.md § Exhibit components.) */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) svg { color: var(--ink); }
+  [fill="#F4EDE0" i] { fill: var(--bg); }
+  [stroke="#F4EDE0" i] { stroke: var(--bg); }
+  [fill="#ECE2D0" i] { fill: var(--surface); }
+  [stroke="#ECE2D0" i] { stroke: var(--surface); }
+  [fill="#FAF4E8" i] { fill: var(--highlight); }
+  [stroke="#FAF4E8" i] { stroke: var(--highlight); }
+  [fill="#1A1A1A" i] { fill: var(--ink); }
+  [stroke="#1A1A1A" i] { stroke: var(--ink); }
+  [fill="#2A2A2A" i] { fill: var(--ink-soft); }
+  [stroke="#2A2A2A" i] { stroke: var(--ink-soft); }
+  [fill="#5C5C5C" i] { fill: var(--muted); }
+  [stroke="#5C5C5C" i] { stroke: var(--muted); }
+  [fill="#C8C2B5" i] { fill: var(--rule-soft); }
+  [stroke="#C8C2B5" i] { stroke: var(--rule-soft); }
+  [fill="#7A1F1F" i] { fill: var(--accent); }
+  [stroke="#7A1F1F" i] { stroke: var(--accent); }
+  [fill="#A14848" i] { fill: var(--accent-soft); }
+  [stroke="#A14848" i] { stroke: var(--accent-soft); }
+  [fill="#B8860B" i] { fill: var(--gold); }
+  [stroke="#B8860B" i] { stroke: var(--gold); }
+}
+:root[data-theme="dark"] svg { color: var(--ink); }
+:root[data-theme="dark"] {
+  [fill="#F4EDE0" i] { fill: var(--bg); }
+  [stroke="#F4EDE0" i] { stroke: var(--bg); }
+  [fill="#ECE2D0" i] { fill: var(--surface); }
+  [stroke="#ECE2D0" i] { stroke: var(--surface); }
+  [fill="#FAF4E8" i] { fill: var(--highlight); }
+  [stroke="#FAF4E8" i] { stroke: var(--highlight); }
+  [fill="#1A1A1A" i] { fill: var(--ink); }
+  [stroke="#1A1A1A" i] { stroke: var(--ink); }
+  [fill="#2A2A2A" i] { fill: var(--ink-soft); }
+  [stroke="#2A2A2A" i] { stroke: var(--ink-soft); }
+  [fill="#5C5C5C" i] { fill: var(--muted); }
+  [stroke="#5C5C5C" i] { stroke: var(--muted); }
+  [fill="#C8C2B5" i] { fill: var(--rule-soft); }
+  [stroke="#C8C2B5" i] { stroke: var(--rule-soft); }
+  [fill="#7A1F1F" i] { fill: var(--accent); }
+  [stroke="#7A1F1F" i] { stroke: var(--accent); }
+  [fill="#A14848" i] { fill: var(--accent-soft); }
+  [stroke="#A14848" i] { stroke: var(--accent-soft); }
+  [fill="#B8860B" i] { fill: var(--gold); }
+  [stroke="#B8860B" i] { stroke: var(--gold); }
 }

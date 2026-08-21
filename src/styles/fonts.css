@@ -1,0 +1,38 @@
+/* Fuentes autoalojadas.
+ *
+ * Antes venían de fonts.googleapis.com, lo que enviaba la IP de cada lector a
+ * Google en cada visita — mientras el pie de la portada promete "No tracking".
+ * Además era una hoja de estilo bloqueante contra un tercer dominio. Ahora los
+ * ficheros los sirve Vercel junto al resto del sitio.
+ *
+ * Solo se importan los pesos y estilos que usa global.css; añadir uno nuevo
+ * implica añadir aquí su import, o el navegador lo sintetizará. Y solo el
+ * subconjunto latino: el sitio es EN/ES, y los paquetes traen además cirílico,
+ * griego y vietnamita que nadie de aquí llega a pedir.
+ */
+
+/* Fraunces — wordmark y titular destacado (variable: cubre 400-600; el paquete no separa subconjuntos). */
+@import '@fontsource-variable/fraunces/opsz.css';
+
+/* Spectral — cuerpo de texto. */
+@import '@fontsource/spectral/latin-300.css';
+@import '@fontsource/spectral/latin-300-italic.css';
+@import '@fontsource/spectral/latin-400.css';
+@import '@fontsource/spectral/latin-400-italic.css';
+@import '@fontsource/spectral/latin-500.css';
+@import '@fontsource/spectral/latin-500-italic.css';
+@import '@fontsource/spectral/latin-600.css';
+@import '@fontsource/spectral/latin-700.css';
+@import '@fontsource/spectral/latin-800.css';
+
+/* IBM Plex Sans — etiquetas, mastelero, metadatos. */
+@import '@fontsource/ibm-plex-sans/latin-300.css';
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-sans/latin-700.css';
+
+/* IBM Plex Mono — exhibits tipo documento. */
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-600.css';

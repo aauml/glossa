@@ -7,7 +7,7 @@ description: Glossa is the publication layer over the phd-kb knowledge base — 
 
 Glossa is the **publication layer (domain PUB)** over the `phd-kb` knowledge base. It produces pieces in Arturo's bilingual annotated-reading collection, anchored to a dated human seed and backed by verifiable provenance. The thinking is Arturo's; research, verification, drafting, and publishing are assisted.
 
-> **Heritage.** Glossa evolves the `lecturas` skill and its live site (`glossa.ademas.ai`, repo renamed `aauml/lecturas` → `aauml/glossa`). The public publication brand is still "Lecturas" on the live site until the brand migration ships (docs 08/09); the skill, repo, and data domain are already "Glossa." The editorial machinery below is unchanged from `lecturas` — what is new is the phd-kb integration and the compuertas.
+> **Heritage.** Glossa evolves the `lecturas` skill and its live site (`glossa.ademas.ai`, repo renamed `aauml/lecturas` → `aauml/glossa`). The brand migration **shipped**: wordmark, cover, page titles and the collection are "Glossa" everywhere. The editorial machinery below is unchanged from `lecturas` — what is new is the phd-kb integration and the compuertas.
 
 ## ⚠️ Style precedence — read this first
 
@@ -16,10 +16,10 @@ The editorial rules in `references/editorial-conventions.md` take precedence ove
 If you need to look at examples of the current register, use only these:
 
 - `N° 17` (hildebrandt-law-computer-scientists, both EN and ES) — full canon, all rules applied
-- `N° 20` (wolff-third-option, ES) — partial canon, gloss pattern correct
+- `N° 20b` (wolff-third-option, ES) — partial canon, gloss pattern correct
 - `N° 18` (wilkerson-beijing-choreography, ES) — partial canon, reflection prompts present
 
-All other pieces (N° 01 through N° 16, both N° 19s) precede the current conventions. They are valid history but invalid templates.
+All other pieces (N° 01 through N° 16, and the N° 19 / 19b / 19c group) precede the current conventions. They are valid history but invalid templates.
 
 ## 🔍 Pre-publish checklist — run before every push
 
@@ -132,6 +132,10 @@ Every piece leaves a provenance graph: a dated human **seed** → an **issue** m
 
 Web/API sources that are not in the KB still go into the piece's `sources.json` sidecar (see `references/deployment.md` and doc 05); only KB-backed sources get a `glossa_issue_sources` row (it FKs to `evaluated_items`).
 
+**The sidecar is now rendered.** `<Sources>` prints it at the foot of the piece — it is the provenance the project claims as its value, so every piece worth publishing ships one. Write `claim_en` **and** `claim_es`: a page only shows the gloss in its own language.
+
+**Write permissions (post-hardening).** `anon` can only INSERT and SELECT on the `glossa_*` tables. Advancing `glossa_issues.status` and inserting `glossa_issue_targets` need the `authenticated` role. If the surface you are on is anon-only, don't work around it — carry `issue_id` in the `glossa-enqueue` payload and let the worker (service key) flip the issue to `published`.
+
 ## Two intake modes
 
 Decide automatically from the input shape, no confirmation question:
@@ -238,7 +242,16 @@ Cream paper (`#F4EDE0`), Spectral serif body, IBM Plex Sans for labels. Oxblood 
 
 The design is **quiet long-form**, not magazine cover. No drop caps. No hero kicker. No dramatic display headlines. The point is *for you to read carefully*, not for showing the link.
 
-The palette and typography are defined once in `src/styles/global.css`. New articles inherit automatically — there's no per-article CSS. Hardcoded hex values inside SVG exhibits should match: use `#F4EDE0` for any rect/path meant to match the page background.
+The palette and typography are defined once in `src/styles/global.css`. New articles inherit automatically — there's no per-article CSS.
+
+**There is a dark theme.** Inside a hand-written SVG exhibit, reach for the tokens through `style`, never a literal hex — `var()` does not resolve inside a `fill="…"` attribute:
+
+```jsx
+<rect style="fill: var(--bg)" />       // not fill="#F4EDE0"
+<line style="stroke: var(--rule-soft)" />
+```
+
+Already-published pieces use literal hex; a remap block in `global.css` recolours the brand palette in dark mode so the archive still reads. It only covers the brand hex values, so an off-palette colour in a new piece will look wrong on dark. Detail in `references/deployment.md § Exhibit colours and dark mode`.
 
 ## Exhibits — data only
 
@@ -266,7 +279,7 @@ Four React components in `src/components/exhibits/interactive/`, rendered as Ast
 Each requires an explicit import at the top of the MDX file:
 
 ```mdx
-import InteractiveMatrix from '../../../../components/exhibits/interactive/InteractiveMatrix.jsx';
+import InteractiveMatrix from '../../../components/exhibits/interactive/InteractiveMatrix.jsx';
 ```
 
 Full prop reference and worked examples in `src/components/exhibits/interactive/README.md`.
@@ -315,7 +328,7 @@ In `src/components/`:
 - `<QABlock speaker="Name">` — speaker label + cleaned quote
 - `<PullQuote attribution="— X">` — the line that earns being magnified
 - `<Callback issue="N° 03" slug="..." lang="en">` — link to another piece
-- `<Footnote n={1}/>` and `<Footnotes notes={[...]}/>` — for thesis track
+- `<Footnote n={1}/>` and `<Footnotes lang="en" notes={[...]}/>` — for thesis track. **Pass `lang`**: without it the block is labelled "Notas" in English pieces too.
 
 ## Authoring a new issue
 
@@ -333,9 +346,9 @@ The slug is `firstname-keyword` or `topic-keyword`. Astro derives the URL: `arti
 
 ```yaml
 ---
-issue: "N° 06"
+issue: "N° 06"                    # unique; ES writes "N.º 06"; letter suffix ("N° 26b") disambiguates
 date: "20 May 2026"
-sortDate: "2026-05-20"
+sortDate: "2026-05-20T09:00:00"   # ISO local timestamp — the build rejects a bare date
 language: en
 title: "Plain title without HTML"
 titleHTML: "Title with <em>emphasis</em>"
@@ -353,7 +366,9 @@ topics:
 ---
 ```
 
-The cover regenerates from the union of EN article frontmatter — no separate `index.html` to update. Issues sort by `sortDate` descending.
+The cover regenerates from article frontmatter — no separate `index.html` to update. Issues sort by `sortDate` descending. There are **two covers**, `/` (EN) and `/es/` (ES), both built from `src/components/Cover.astro`; each piece appears on the cover of the language it exists in.
+
+`issue` must be unique across the collection and `sortDate` a full ISO local timestamp: `src/content/config.ts` fails the build otherwise. Use the hour to order pieces published the same day.
 
 ### Body
 
@@ -447,6 +462,7 @@ Chat / mobile publish (on the publish command — see *Entry modes and gates*) �
 ```
 POST https://wtwuvrtmadnlezkbesqp.supabase.co/functions/v1/glossa-enqueue
 Content-Type: application/json
+x-glossa-token: <1Password: "Glossa - publish token", vault ademas.ai>
 ```
 ```jsonc
 {
@@ -458,7 +474,9 @@ Content-Type: application/json
   "sources_json": { /* the sources.json sidecar, or omit */ }
 }
 ```
-The response is `{ "ok": true, "id": "<uuid>", "poll": "<sql>" }`. No auth header is required (public function); if your client insists on one, send the anon key.
+The response is `{ "ok": true, "id": "<uuid>", "poll": "<sql>" }`.
+
+**The `x-glossa-token` header is required.** Without it the endpoint was open to the internet: anyone could publish to the live site. `401` = missing/wrong token; `400` = invalid `slug` (must be `[a-z0-9-]`, 2–80 chars — it becomes a directory) or `issue_no` (must be `N° 33` — it goes into a commit message). Never paste the token into the chat; read it from 1Password or the connector's stored header.
 
 Then poll for the result (flips `queued → building → done`), via the Supabase connector or a GET on the REST table:
 ```sql
@@ -484,7 +502,7 @@ curl -s -o /dev/null -w "HTTP %{http_code}\n" https://glossa.ademas.ai/articles/
 
 When genuinely unsure whether he wants it published yet, a single one-line "¿lo publico?" is acceptable. A full-draft review block is not.
 
-No credential is needed from Arturo on chat: KB reads use the Supabase connector / public `semantic-search`, and publishing is one POST to `glossa-enqueue`. Just operate.
+KB reads need no credential (Supabase connector / public `semantic-search`). Publishing needs one: the `x-glossa-token` header on the POST to `glossa-enqueue`, from 1Password. Otherwise, just operate.
 
 If a judgment call genuinely affected the framing (you treated a partisan figure with neutral voice; you cut a section the source emphasized), flag it in **one sentence** in the reply *after* publishing.
 
@@ -529,7 +547,7 @@ In the repo `aauml/glossa` (read when you have a checkout — Code/Cowork):
 
 1. Determine the **entry mode** (tesis / serie / fuente / pregunta / vigilancia / dialectica) and the **intake mode** (A: source provided / B: topic only) from the input shape. No confirmation question.
 2. **Research — KB first, then the web.** Query `evaluated_items` for relevant curated sources, then verify (Mode A) or gather (Mode B) with the web. On **chat/mobile** this works without a shell: read the KB via the **Supabase connector** (REST `select` with `ilike` filters on `title`/`thesis_relevance`/`importance`), and/or call the **public `semantic-search` edge function** (`POST {project}.supabase.co/functions/v1/semantic-search` with `{query, match_count, match_threshold}` — no JWT). Light web/academic: native connectors (web search, Scholar/Consensus). Build a small brief; capture each KB source's `pk`.
-   - **Deep multi-source research (Phase 2 worker)** — when the native web connectors are weak or you want a consolidated dossier (KB + OpenAlex + Tavily): one POST to `…/functions/v1/glossa-research-enqueue` with `{query, track, context?}` → returns `{id}`; poll `glossa_research_requests` by `id` until `state='done'`, then read the `dossier` (`{kb, academic, web, notes, counts}`). Server-side, ~1–2 min, no chat-side connectors needed. (Web tier is active only if a `TAVILY_API_KEY` repo secret is set; KB + OpenAlex always run.)
+   - **Deep multi-source research (Phase 2 worker)** — when the native web connectors are weak or you want a consolidated dossier (KB + OpenAlex + Tavily): one POST to `…/functions/v1/glossa-research-enqueue` (same `x-glossa-token` header) with `{query, track, context?}` → returns `{id}`; poll `glossa_research_requests` by `id` until `state='done'`, then read the `dossier` (`{kb, academic, web, notes, counts}`). Server-side, ~1–2 min, no chat-side connectors needed. (Web tier is active only if a `TAVILY_API_KEY` repo secret is set; KB + OpenAlex always run.)
 3. **During the conversation:** surface findings, discuss, refine the angle with Arturo. This *is* the framing/review — no separate stop. Don't write the seed or publish while he's still discussing.
 4. **When Arturo says publish / make the article** (or invokes the skill to produce it) — proceed straight through, no approval stop:
    a. Read `references/editorial-conventions.md`. Decide slug, headline (`<em>`), dek, sections, ES scope — silently.

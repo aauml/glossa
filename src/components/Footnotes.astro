@@ -1,8 +1,10 @@
 ---
-const { notes = [] } = Astro.props;
+// El rótulo estaba fijo en «Notas», también en las piezas en inglés.
+const { notes = [], lang = 'es' } = Astro.props;
+const LABEL = { en: 'Notes', es: 'Notas' };
 ---
 <aside class="footnotes">
-  <div class="footnotes-label">Notas</div>
+  <div class="footnotes-label">{LABEL[lang] ?? LABEL.es}</div>
   <ol>
     {notes.map((note, i) => (
       <li id={`fn-${i + 1}`} set:html={note} />

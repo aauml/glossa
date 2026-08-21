@@ -55,11 +55,11 @@ const items = resolved.map((e, i) => ({
     {/* Desktop: horizontal SVG axis with foreignObject labels */}
     <div class="timeline-horizontal">
       <svg viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label={title || label}>
-        <line x1={padX} y1={axisY} x2={W - padX} y2={axisY} stroke="#1A1A1A" stroke-width="0.8"/>
+        <line x1={padX} y1={axisY} x2={W - padX} y2={axisY} stroke="#1A1A1A" style="stroke: var(--ink)" stroke-width="0.8"/>
         {items.map(e => (
           <g>
-            <circle cx={e._x} cy={axisY} r="4" fill="#7A1F1F"/>
-            <line x1={e._x} y1={axisY - 4} x2={e._x} y2={axisY - 28 - e._row * rowGap} stroke="#C8C2B5" stroke-width="0.6"/>
+            <circle cx={e._x} cy={axisY} r="4" fill="#7A1F1F" style="fill: var(--accent)"/>
+            <line x1={e._x} y1={axisY - 4} x2={e._x} y2={axisY - 28 - e._row * rowGap} stroke="#C8C2B5" style="stroke: var(--rule-soft)" stroke-width="0.6"/>
             <foreignObject x={e._x - 70} y={axisY - 28 - e._row * rowGap - 28} width="140" height="32">
               <div xmlns="http://www.w3.org/1999/xhtml" class="timeline-h-label">{e.label}</div>
             </foreignObject>

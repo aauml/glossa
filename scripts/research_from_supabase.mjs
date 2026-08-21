@@ -4,29 +4,34 @@
 // Tolerante a fallos: cada fuente va en su try/catch; el dossier incluye lo que respondió.
 //
 // Uso: node scripts/research_from_supabase.mjs <request_id>
-// Env: SUPABASE_URL, SUPABASE_KEY (anon pública), OPENALEX_MAILTO?, TAVILY_API_KEY? (opcional)
+// Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, OPENALEX_MAILTO?, TAVILY_API_KEY? (opcional)
+//
+// La clave es la service key (secreto del repo): el worker necesita UPDATE sobre
+// glossa_research_requests para escribir el dossier, y anon ya no lo tiene.
 
 const [, , id] = process.argv;
 const URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
-const KEY = process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
+const KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_KEY || '';
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAILTO = process.env.OPENALEX_MAILTO || 'glossa@ademas.ai';
 const TAVILY = process.env.TAVILY_API_KEY || '';
 
-if (!URL || !KEY) { console.error('Missing SUPABASE_URL / SUPABASE_KEY'); process.exit(1); }
+if (!URL || !KEY) { console.error('Missing SUPABASE_URL / SUPABASE_SERVICE_KEY'); process.exit(1); }
 if (!id) { console.error('usage: research_from_supabase.mjs <request_id>'); process.exit(1); }
+if (!UUID_RE.test(id)) { console.error(`request id inválido: ${id}`); process.exit(1); }
 
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
 const T = `${URL}/rest/v1/glossa_research_requests`;
 
 async function getRow() {
-  const r = await fetch(`${T}?id=eq.${id}&select=*`, { headers: H });
+  const r = await fetch(`${T}?id=eq.${encodeURIComponent(id)}&select=*`, { headers: H });
   if (!r.ok) throw new Error(`get ${r.status}: ${await r.text()}`);
   const rows = await r.json();
   if (!rows.length) throw new Error(`request not found: ${id}`);
   return rows[0];
 }
 async function patch(body) {
-  const r = await fetch(`${T}?id=eq.${id}`, { method: 'PATCH', headers: H, body: JSON.stringify(body) });
+  const r = await fetch(`${T}?id=eq.${encodeURIComponent(id)}`, { method: 'PATCH', headers: H, body: JSON.stringify(body) });
   if (!r.ok) throw new Error(`patch ${r.status}: ${await r.text()}`);
 }
 

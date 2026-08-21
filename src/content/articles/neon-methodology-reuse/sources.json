@@ -1,0 +1,83 @@
+{
+  "slug": "neon-methodology-reuse",
+  "issue": "N° 34",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "Suárez-Figueroa, Gómez-Pérez & Fernández-López — The NeOn Methodology for Ontology Engineering",
+      "url": "https://doi.org/10.1007/978-3-642-24794-1_2",
+      "role": "primary",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "From GPT to Mistral: Cross-Domain Ontology Learning with NeOn-GPT",
+      "url": "https://openalex.org/W7164460387",
+      "role": "discourse",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "LLMs4Life: Large Language Models for Ontology Learning in Life Sciences",
+      "url": "https://doi.org/10.48550/arXiv.2412.02035",
+      "role": "discourse",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "Evaluation of Effectiveness of Large Language Models in Ontology and Knowledge Graph Creation",
+      "url": "https://doi.org/10.17821/srels/2025/v62i2/171792",
+      "role": "support",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "OOPS! (OntOlogy Pitfall Scanner): Automated Pitfall Detection in OWL Ontologies",
+      "url": "https://www.semantic-web-journal.net/system/files/swj989.pdf",
+      "role": "support",
+      "verificada": "si"
+    },
+    {
+      "id": "src-06",
+      "ref": "Extending Ontology Pitfalls for Better Ontology Evaluation",
+      "url": "https://doi.org/10.1177/01655515221110990",
+      "role": "support",
+      "verificada": "si"
+    },
+    {
+      "id": "src-07",
+      "ref": "Ontologies as the Semantic Bridge Between Artificial Intelligence and Healthcare",
+      "url": "https://doi.org/10.3389/fdgth.2025.1668385",
+      "role": "context",
+      "verificada": "si"
+    },
+    {
+      "id": "src-08",
+      "ref": "The Role of the Ontology Development Kit in Supporting Ontology Compliance in Adverse Legal Landscapes",
+      "url": "https://doi.org/10.7490/f1000research.1120246.1",
+      "role": "context",
+      "verificada": "si"
+    },
+    {
+      "id": "src-09",
+      "ref": "A Methodology for Building a Medical Ontology with Limited Domain Expert Involvement",
+      "url": "https://doi.org/10.3390/digital5020018",
+      "role": "context",
+      "verificada": "si"
+    },
+    {
+      "id": "src-10",
+      "ref": "NeOn Project (FP6-027595) — OEG-UPM",
+      "url": "https://oeg.fi.upm.es/index.php/en/completedprojects/8-neon/index.html",
+      "role": "context",
+      "verificada": "si"
+    },
+    {
+      "id": "src-11",
+      "ref": "AIRO (DPV EU AI Act extension) — W3C DPVCG",
+      "url": "https://w3c.github.io/dpv/2.0/legal/eu/aiact/",
+      "role": "context",
+      "verificada": "si"
+    }
+  ]
+}

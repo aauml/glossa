@@ -4,19 +4,31 @@ import ArticleLayout from '../../../../layouts/ArticleLayout.astro';
 
 export async function getStaticPaths() {
   const articles = await getCollection('articles');
+
+  // Qué idiomas existe realmente para cada slug. El conmutador de idioma pintaba
+  // siempre EN · ES, así que las piezas sin traducción enlazaban a una URL que
+  // no se genera nunca (404 en producción: trump-weaponization-fund/es/).
+  const langsBySlug = new Map();
+  for (const entry of articles) {
+    const [slug, langWithExt] = entry.id.split('/');
+    const lang = langWithExt.replace(/\.mdx$/, '');
+    if (!langsBySlug.has(slug)) langsBySlug.set(slug, new Set());
+    langsBySlug.get(slug).add(lang);
+  }
+
   return articles.map(entry => {
     const [slug, langWithExt] = entry.id.split('/');
     const lang = langWithExt.replace(/\.mdx$/, '');
     return {
       params: { slug, lang },
-      props: { entry, slug, lang },
+      props: { entry, slug, lang, langs: [...langsBySlug.get(slug)].sort() },
     };
   });
 }
 
-const { entry, slug, lang } = Astro.props;
+const { entry, slug, lang, langs } = Astro.props;
 const { Content } = await render(entry);
 ---
-<ArticleLayout entry={entry} slug={slug} lang={lang}>
+<ArticleLayout entry={entry} slug={slug} lang={lang} langs={langs}>
   <Content />
 </ArticleLayout>

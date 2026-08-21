@@ -55,7 +55,8 @@ src/
 ## Auth — two surfaces, two paths
 
 - **Code / Cowork (has git):** an authenticated git remote (the `aauml` user via `gh`, or a checkout). Write files, `git commit`, `git push`. No PAT handling in the conversation.
-- **Chat / mobile (NO git):** publishing goes through Supabase. The chat writes the MDX into `glossa_publish_requests` (anon key, via the Supabase connector); a GitHub Action (`glossa-publish.yml`) holds the real secrets (`OP_SERVICE_ACCOUNT_TOKEN` → 1Password → Supabase service key) and does the commit/push. **No GitHub PAT is needed or used on chat.** Do not attempt the GitHub Contents API from mobile.
+- **Chat / mobile (NO git):** publishing goes through Supabase. The chat POSTs the MDX to the `glossa-enqueue` edge function **with the `x-glossa-token` header** (1Password → `ademas.ai` → `Glossa - publish token`); a GitHub Action (`glossa-publish.yml`) holds the Supabase service key and does the commit/push. **No GitHub PAT is needed or used on chat.** Do not attempt the GitHub Contents API from mobile.
+  The token is the only gate on that endpoint. Without it the function used to accept anything, which meant anyone who read this public repo could publish to the live site. Never paste the token into the conversation — read it with `op` or from the connector's stored header.
 
 ## Frontmatter spec
 
@@ -63,9 +64,13 @@ Required fields:
 
 ```yaml
 ---
-issue: "N° 06"                # display label
+issue: "N° 06"                # display label; must be unique across the collection.
+                              # EN uses "N° 06", ES uses "N.º 06". A letter suffix
+                              # ("N° 26b") disambiguates numbers reused in the past.
 date: "20 May 2026"           # display date
-sortDate: "2026-05-20"        # ISO date for sort; lexicographic
+sortDate: "2026-05-20T09:00:00"  # ISO local timestamp; the build rejects anything else.
+                              # Use the hour to order several pieces of the same day
+                              # (the old 2026-05-20b/c/d suffixes are gone).
 language: en                  # or es
 title: "Plain title text"
 titleHTML: "Title with <em>emphasis</em>"
@@ -177,9 +182,9 @@ curl -s -o /dev/null -w "HTTP %{http_code}\n" https://glossa.ademas.ai/articles/
 Chat/mobile cannot push to GitHub. Instead, **POST the finished article to the public `glossa-enqueue` edge function** (one HTTP call, like `semantic-search`). The function inserts the queue row server-side; a GitHub Action (`.github/workflows/glossa-publish.yml`) materializes it into the repo and Vercel deploys. Round-trip ≈ 1–2 min. (Do NOT try to compose a big SQL `INSERT` from chat — it stalls on the multi-KB body.)
 
 ### How it works (the bridge)
-1. Chat `POST`s the article to `…/functions/v1/glossa-enqueue` (public, no JWT). The function inserts a `glossa_publish_requests` row with `state='queued'` using the service key, and returns `{ ok, id }`.
+1. Chat `POST`s the article to `…/functions/v1/glossa-enqueue` with the `x-glossa-token` header (no Supabase JWT — the gate is the token). The function validates `slug` and `issue_no`, inserts a `glossa_publish_requests` row with `state='queued'` using the service key, and returns `{ ok, id }`.
 2. A DB trigger (`glossa_publish_dispatch`, migration 0002) fires `pg_net` → GitHub `repository_dispatch` (`event_type: glossa_publish`), using `github_dispatch_pat` from the Supabase Vault.
-3. `glossa-publish.yml` reads the row with the public anon key (`scripts/publish_from_supabase.mjs prepare`), writes `src/content/articles/{slug}/{en,es}.mdx` (+ `sources.json`), runs `npm run build` to validate, `git commit` + `push`. Vercel deploys.
+3. `glossa-publish.yml` reads the row with the Supabase service key from repo Secrets (`scripts/publish_from_supabase.mjs prepare`), re-validates the slug, writes `src/content/articles/{slug}/{en,es}.mdx` (+ `sources.json`), runs `npm run build` to validate, `git commit` + `push`. Vercel deploys.
 4. The worker (`… finalize`) writes `state='done'`, `commit_sha`, `url_en`, `url_es` back to the row, and flips the linked `glossa_issues` to `published`.
 
 ### Publish (one POST)
@@ -187,6 +192,7 @@ Chat/mobile cannot push to GitHub. Instead, **POST the finished article to the p
 ```
 POST https://wtwuvrtmadnlezkbesqp.supabase.co/functions/v1/glossa-enqueue
 Content-Type: application/json
+x-glossa-token: <op item get "Glossa - publish token" --vault ademas.ai --fields credential --reveal>
 ```
 ```jsonc
 {
@@ -195,10 +201,12 @@ Content-Type: application/json
   "issue_id": "<glossa_issues.id, or omit>",
   "body_en": "---\nissue: \"N° XX\"\n...COMPLETE en.mdx (frontmatter + imports + body)...",
   "body_es": "---\n...COMPLETE es.mdx...",   // omit if EN-only
-  "sources_json": { /* the sources.json sidecar object, or omit */ }
+  "sources_json": { /* the sources.json sidecar object, or omit — see below */ }
 }
 ```
-Response: `{ "ok": true, "id": "<uuid>", "poll": "<sql>" }`. No auth header required (public); send the anon key only if your client demands one.
+Response: `{ "ok": true, "id": "<uuid>", "poll": "<sql>" }`.
+
+Failure modes worth recognising: `401 unauthorized` = missing or wrong `x-glossa-token`; `400 slug inválido` = the slug is not `[a-z0-9-]`, 2–80 chars (it becomes a directory name); `400 issue_no inválido` = not in `N° 33` form (it goes into a commit message).
 
 `body_en`/`body_es` are the **entire** MDX files — same content the Code/Cowork flow would commit, carried in the POST instead of a file.
 
@@ -252,3 +260,40 @@ Edit, commit, push. Vercel rebuilds. Every issue picks up the change.
 - No "ask for a token" — the PAT is long-lived
 - No representational SVGs (maps, portraits, scenes) — refused
 - No prefixed length targets — source-driven
+
+
+## The `sources.json` sidecar — now reader-facing
+
+It used to be an internal record that nothing rendered. `<Sources>` (in `ArticleLayout`) now prints it at the foot of the piece: it is the provenance the README promises, so write it for a reader, not for yourself.
+
+One entry per source:
+
+```jsonc
+{
+  "id": "src-01",
+  "ref": "Author — Title (publication, year)",   // shown as the citation line
+  "url": "https://…",                            // optional; makes `ref` a link
+  "role": "primary",                             // primary | support | context | discourse
+  "verificada": "si",                            // si | parcial | no
+  "kb_pk": "<evaluated_items.pk>",               // optional; renders the "KB" chip
+  "claim_en": "What this source actually backs, in English.",
+  "claim_es": "Qué respalda esta fuente, en español."
+}
+```
+
+**Write `claim_en` and `claim_es`.** A piece only shows the gloss written in its own language — the old Spanish-only `respalda` key still works for ES, but leaves the English page with a bare citation. Legacy keys (`respalda`, `como`, `tipo`) are read but not rendered.
+
+
+## Exhibit colours and dark mode
+
+The site has a dark theme now (`prefers-color-scheme`, plus an explicit `data-theme`). The palette lives once in `src/styles/global.css` as tokens; nothing else should name a colour.
+
+For **new** hand-written SVG inside an MDX piece, use the tokens through `style`, not through the presentation attribute — `var()` does not resolve in `fill="…"`:
+
+```jsx
+<rect style="fill: var(--bg)" />
+<line style="stroke: var(--rule-soft)" />
+<circle style="fill: var(--accent)" />
+```
+
+The 12 already-published pieces write the light palette as literal hex (`fill="#1A1A1A"`). A block at the end of `global.css` remaps those exact values to their dark tokens with attribute selectors, so the archive renders correctly without being rewritten. **That remap covers only the brand palette** — an off-palette hex in a new piece will stay light-mode and look wrong on a dark background. Use the tokens.

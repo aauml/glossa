@@ -45,8 +45,18 @@
       root.classList.toggle('is-visible', ratio > 0.02 && ratio < 0.99);
     }
 
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update, { passive: true });
+    // Scroll dispara muchas veces por fotograma; leer getBoundingClientRect en
+    // cada evento fuerza un reflujo sincrónico por evento. Coalescemos a uno
+    // por fotograma, que es lo máximo que el usuario puede llegar a ver.
+    let queued = false;
+    function onScroll() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; update(); });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
     update();
   })();
 </script>

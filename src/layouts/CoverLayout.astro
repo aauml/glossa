@@ -1,8 +1,23 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import CoverMasthead from '../components/CoverMasthead.astro';
+
+const { lang = 'en' } = Astro.props;
+
+const META = {
+  en: {
+    title: 'Glossa · Annotated readings',
+    description: 'Personal annotated readings. I direct, AI executes. The ideas, analysis, and arguments are mine; the research, verification, and writing are done by AI. Every claim is traced to a real source. Grounded, not invented.',
+  },
+  es: {
+    title: 'Glossa · Lecturas anotadas',
+    description: 'Lecturas anotadas personales. Yo dirijo, la IA ejecuta. Las ideas, el análisis y los argumentos son míos; la investigación, la verificación y la redacción las hace la IA. Cada afirmación se traza hasta una fuente real. Fundamentado, no inventado.',
+  },
+};
+
+const ALTERNATES = [{ lang: 'en', href: '/' }, { lang: 'es', href: '/es/' }];
 ---
-<BaseLayout title="Glossa · Annotated readings" description="Personal annotated readings. I direct, AI executes. The ideas, analysis, and arguments are mine; the research, verification, and writing are done by AI. Every claim is traced to a real source. Grounded, not invented.">
-  <CoverMasthead />
+<BaseLayout title={META[lang].title} description={META[lang].description} lang={lang} alternates={ALTERNATES}>
+  <CoverMasthead lang={lang} />
   <slot />
 </BaseLayout>
