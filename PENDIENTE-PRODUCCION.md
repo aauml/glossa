@@ -57,10 +57,14 @@ que el conector del móvil permita.
 - **Backfill de procedencia.** 41 de 45 piezas no tienen fila en `glossa_issues`; 41 no
   tienen `sources.json`. O se rellenan, o se declara que la procedencia empieza en N° 32.
 - **Exhibits interactivos.** Los cuatro compilan contra React 19 / recharts 3 (probado
-  con una página temporal), pero ningún artículo los importa, así que el build no los
-  protege. O se usan, o se retiran con react, react-dom y recharts.
-- **`glossa_issues.model`.** Se escribe solo si el workflow declara `GLOSSA_MODEL`.
-  Decidir si se puebla o se retira la columna.
+  con una página temporal), pero **0 de 45 artículos los importan**, así que el build no
+  los protege de romperse en silencio. Cuestan 16,7 MB en `node_modules` (recharts 9,3 +
+  react-dom 7,1) y arrastran tres dependencias por una capacidad sin usar. O se usan, o
+  se retiran con react, react-dom y recharts.
+- ~~**`glossa_issues.model`**~~ **RESUELTO.** No hacía falta decidir nada: la columna ya
+  está poblada en las 4 filas, la escribe el skill al crear el issue (N° 32-34
+  `claude-opus-4-8`, N° 35 `claude-fable-5`). El worker solo la toca si el workflow
+  declara `GLOSSA_MODEL`, precisamente para no pisar ese valor.
 - **`sortDate` empatados.** 16 piezas comparten hora, así que su orden relativo en la
   portada es arbitrario (estable, pero no intencionado). `npm run check` lo avisa.
   Se arregla dando horas distintas cuando importe el orden.
