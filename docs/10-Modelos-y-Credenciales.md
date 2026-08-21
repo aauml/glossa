@@ -1,6 +1,30 @@
 # 10 · Modelos y credenciales
 
-## Reparto de modelos
+## Estado actual (2026-08-20) — antes de leer el plan
+
+**Este repo no llama a ninguna API de LLM.** Ni `scripts/`, ni las edge functions, ni los
+workflows. El modelo que produce las piezas es **Claude ejecutando `skills/SKILL.md`** desde
+la superficie que se esté usando (Code, Cowork, chat); el reparto de abajo es el plan al que
+se quiere llegar, no lo que corre hoy.
+
+| Pieza | Plan (abajo) | Hoy |
+|---|---|---|
+| Análisis y redacción | Anthropic API (Opus) | Claude ejecutando el skill, sin API propia |
+| Carga barata (triaje, ranking) | OpenRouter | no existe |
+| Embeddings del KB | proveedor dedicado y fijo | los pone `thesis-repo`: `vector(384)` vía su edge function `generate-embeddings` |
+| Búsqueda web | Exa (decidido) | Tavily (opcional) + OpenAlex sin clave |
+
+Consecuencias prácticas:
+- `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY` y `OPENAI_API_KEY` están declaradas en
+  `.env.example` y **ningún archivo las lee**. La única clave que se consume de verdad es
+  `TAVILY_API_KEY`, y es opcional.
+- La columna `glossa_issues.model` existe desde la migración 0001 y solo se escribe si el
+  workflow declara `GLOSSA_MODEL`. Si no se va a poblar, retirarla.
+- El KB es **`vector(384)`**, no las 1536 dimensiones nativas de `text-embedding-3`. Antes de
+  dar por bueno "OpenAI text-embedding-3" hay que confirmar con `aauml/thesis` qué modelo lo
+  generó: cambiarlo obliga a reindexar 43.758 chunks.
+
+## Reparto de modelos (plan)
 
 - **OpenRouter → el zoo de modelos baratos, para la carga.** Triaje y resumen de muchas fuentes, ranking de relevancia, limpieza de transcripciones, etiquetado del KB, verificación cruzada multi-modelo. Sirve igual para Glossa y para el PhD.
 - **Anthropic directo (NO vía OpenRouter) → Opus** para el análisis y la redacción final, y para Citations/caching. El premium se queda directo.

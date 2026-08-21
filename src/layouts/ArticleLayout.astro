@@ -2,7 +2,8 @@
 import BaseLayout from './BaseLayout.astro';
 import ArticleMasthead from '../components/ArticleMasthead.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
-const { entry, slug, lang } = Astro.props;
+import Sources from '../components/Sources.astro';
+const { entry, slug, lang, langs = ['en', 'es'] } = Astro.props;
 const { data } = entry;
 
 // Word count and reading-time calculation.
@@ -27,9 +28,12 @@ const localeTag = lang === 'es' ? 'es-ES' : 'en-US';
 const wordCountFormatted = wordCount.toLocaleString(localeTag);
 const wordsLabel = lang === 'es' ? 'palabras' : 'words';
 const readLabel = lang === 'es' ? 'min de lectura' : 'min read';
+
+// hreflang recíproco: solo los idiomas que existen para esta pieza.
+const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${code}/` }));
 ---
-<BaseLayout title={`${data.title} · Lecturas`} description={data.dek}>
-  <ArticleMasthead lang={lang} slug={slug} />
+<BaseLayout title={`${data.title} · Glossa`} description={data.dek} lang={lang} alternates={alternates}>
+  <ArticleMasthead lang={lang} slug={slug} langs={langs} />
   <section class="hero">
     <h1 class="hero-headline" set:html={data.titleHTML} />
     <p class="hero-dek" set:html={data.dekHTML || data.dek} />
@@ -50,5 +54,6 @@ const readLabel = lang === 'es' ? 'min de lectura' : 'min read';
   <article class="article">
     <slot />
   </article>
+  <Sources slug={slug} lang={lang} />
   <ReadingProgress />
 </BaseLayout>

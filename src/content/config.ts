@@ -1,11 +1,20 @@
 import { defineCollection, z } from 'astro:content';
 
+// `sortDate` ordena la portada. Llevaba sufijos manuales (2026-06-30b/c/d) para
+// desempatar piezas del mismo día, mezclados con algún ISO completo: el orden
+// dependía de comparar cadenas de formatos distintos. Ahora es siempre un
+// timestamp local y el build falla si alguien vuelve al formato antiguo.
+const SORT_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
+// `issue` identifica la pieza en la colección. El sufijo de letra desambigua
+// números reutilizados en su día (N° 26, N° 26b…).
+const ISSUE = /^N\.?[°º] \d{1,3}[a-z]?$/;
+
 const articles = defineCollection({
   type: 'content',
   schema: z.object({
-    issue: z.string(),
+    issue: z.string().regex(ISSUE, 'issue debe ser "N° 33" (EN) o "N.º 33" (ES), con sufijo de letra opcional'),
     date: z.string(),
-    sortDate: z.string(),
+    sortDate: z.string().regex(SORT_DATE, 'sortDate debe ser ISO local completo, p. ej. "2026-06-30T09:00:00"'),
     title: z.string(),
     titleHTML: z.string(),
     dek: z.string(),

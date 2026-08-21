@@ -1,11 +1,24 @@
 ---
 import SizeSwitch from './SizeSwitch.astro';
+// La portada no tenía conmutador de idioma porque solo existía en inglés.
+const { lang = 'en' } = Astro.props;
+const LANGS = [{ code: 'en', label: 'EN', href: '/' }, { code: 'es', label: 'ES', href: '/es/' }];
 ---
 <header class="masthead">
   <div class="masthead-inner">
     <span class="masthead-brand">Glossa<span class="wm-dot">.</span></span>
     <span class="masthead-meta">
-      <SizeSwitch />
+      <span class="lang-switch">
+        {LANGS.map((l, i) => (
+          <>
+            {i > 0 && <span class="lang-sep">·</span>}
+            {l.code === lang
+              ? <span class="lang-active">{l.label}</span>
+              : <a href={l.href} class="lang-link">{l.label}</a>}
+          </>
+        ))}
+      </span>
+      <SizeSwitch separator />
     </span>
   </div>
 </header>

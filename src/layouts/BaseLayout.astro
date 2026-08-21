@@ -1,18 +1,66 @@
 ---
+import '../styles/fonts.css';
 import '../styles/global.css';
-const { title, description } = Astro.props;
+
+// `lang` gobierna el atributo del <html>. Estaba fijo en "en", así que las 43
+// piezas en español se anunciaban como inglesas a lectores de pantalla, al
+// silabeo del navegador y a los buscadores.
+const {
+  title,
+  description,
+  lang = 'en',
+  // Traducciones existentes de esta página, para hreflang recíproco.
+  alternates = [],
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL('/og.png', Astro.site).href;
+const OG_LOCALE = { en: 'en_US', es: 'es_ES' };
 ---
 <!DOCTYPE html>
-<html lang="en">
+<html lang={lang}>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{title}</title>
 {description && <meta name="description" content={description} />}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script is:inline>(function(){try{var s=localStorage.getItem('lecturas-text-size')||'md';document.documentElement.setAttribute('data-text-size',s);}catch(e){}})();</script>
+<link rel="canonical" href={canonical} />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" type="application/rss+xml" title="Glossa — English" href="/rss.xml" />
+<link rel="alternate" type="application/rss+xml" title="Glossa — español" href="/rss-es.xml" />
+
+{alternates.map(a => <link rel="alternate" hreflang={a.lang} href={new URL(a.href, Astro.site).href} />)}
+{alternates.length > 0 && (
+  <link rel="alternate" hreflang="x-default" href={new URL(alternates[0].href, Astro.site).href} />
+)}
+
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="Glossa" />
+<meta property="og:locale" content={OG_LOCALE[lang] ?? 'en_US'} />
+<meta property="og:title" content={title} />
+{description && <meta property="og:description" content={description} />}
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+{description && <meta name="twitter:description" content={description} />}
+<meta name="twitter:image" content={ogImage} />
+
+<script is:inline>
+(function(){
+  try {
+    // Clave renombrada tras el rebrand; migramos la antigua una sola vez para
+    // no perder la preferencia de quien ya venía leyendo.
+    var s = localStorage.getItem('glossa-text-size');
+    if (!s) {
+      var legacy = localStorage.getItem('lecturas-text-size');
+      if (legacy) { s = legacy; localStorage.setItem('glossa-text-size', legacy); }
+    }
+    document.documentElement.setAttribute('data-text-size', s || 'md');
+  } catch (e) {}
+})();
+</script>
 </head>
 <body>
 <slot />
@@ -20,7 +68,7 @@ const { title, description } = Astro.props;
 (function(){
   var btns = document.querySelectorAll('.text-size-switch button');
   function paint(s){ btns.forEach(function(b){ b.classList.toggle('active', b.dataset.size === s); }); }
-  var cur = localStorage.getItem('lecturas-text-size') || 'md';
+  var cur = document.documentElement.getAttribute('data-text-size') || 'md';
   paint(cur);
 
   // Capture the text element near the reading sweet spot of the viewport.
@@ -54,7 +102,7 @@ const { title, description } = Astro.props;
       var anchor = captureAnchor();
       var s = b.dataset.size;
       document.documentElement.setAttribute('data-text-size', s);
-      try { localStorage.setItem('lecturas-text-size', s); } catch(e){}
+      try { localStorage.setItem('glossa-text-size', s); } catch(e){}
       paint(s);
       restoreAnchor(anchor);
       // The scrollBy above will fire a scroll event that ReadingProgress

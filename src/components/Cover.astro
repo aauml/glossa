@@ -1,0 +1,126 @@
+---
+import { articlesByLang, topTopics } from '../lib/collection.js';
+
+// Portada compartida por las dos lenguas. Antes solo existía en inglés y la
+// lógica vivía inline en index.astro, así que una portada española habría sido
+// una copia condenada a divergir.
+const { lang } = Astro.props;
+
+const COPY = {
+  en: {
+    tagline: 'Personal annotated readings. I direct, AI executes.',
+    why: "Most of what I find isn't worth the reading time: short takes, cluttered with ads and distractions. So I built this agent to make the readings I actually want — long-form, grounded, source-verified — useful not just as information, but as study.",
+    credoHTML: 'The ideas, analysis, and arguments are mine; the research, verification, and writing are done by AI. Every claim is searched, cross-checked, and traced to a real source. <strong>Grounded, not invented.</strong>',
+    vision: "Eventually, I'll open Glossa so anyone can create their own. Validating and verifying each reading takes real resources; I'm working on optimizing that. The larger aim: to foster long-form reading.",
+    all: 'All',
+    piece: 'piece',
+    pieces: 'pieces',
+    featured: 'Most recent',
+    empty: 'No pieces under that topic yet.',
+    footer: 'Personal · No ads · No tracking',
+    other: { code: 'es', label: 'ES', href: '/es/' },
+  },
+  es: {
+    tagline: 'Lecturas anotadas personales. Yo dirijo, la IA ejecuta.',
+    why: 'Casi nada de lo que encuentro compensa el tiempo de lectura: textos breves, saturados de anuncios y distracciones. Por eso construí este agente, para hacer las lecturas que de verdad quiero —largas, fundamentadas, con las fuentes verificadas— útiles no solo como información, sino como estudio.',
+    credoHTML: 'Las ideas, el análisis y los argumentos son míos; la investigación, la verificación y la redacción las hace la IA. Cada afirmación se busca, se contrasta y se traza hasta una fuente real. <strong>Fundamentado, no inventado.</strong>',
+    vision: 'Con el tiempo abriré Glossa para que cualquiera pueda crear las suyas. Validar y verificar cada lectura cuesta recursos reales; estoy trabajando en optimizarlo. El objetivo de fondo: fomentar la lectura larga.',
+    all: 'Todos',
+    piece: 'pieza',
+    pieces: 'piezas',
+    featured: 'Lo más reciente',
+    empty: 'Todavía no hay piezas con ese tema.',
+    footer: 'Personal · Sin anuncios · Sin rastreo',
+    other: { code: 'en', label: 'EN', href: '/' },
+  },
+};
+
+const t = COPY[lang];
+const articles = await articlesByLang(lang);
+const topics = topTopics(articles);
+const [featured, ...rest] = articles;
+const keyOf = (a) => (a.data.topics || []).join('|');
+const href = (a) => `/articles/${a.slug}/${lang}/`;
+---
+<section class="cover">
+  <h1 class="cover-wordmark">Glossa<span class="wm-dot">.</span></h1>
+  <p class="cover-tagline">{t.tagline}</p>
+  <p class="cover-why">{t.why}</p>
+  <p class="cover-credo" set:html={t.credoHTML} />
+  <p class="cover-vision">{t.vision}</p>
+</section>
+
+<section class="contents">
+  <div class="cover-filter">
+    <div class="filter-topics" id="filter">
+      <button class="f on" data-t="all">{t.all}</button>
+      {topics.map(x => <button class="f" data-t={x}>{x}</button>)}
+    </div>
+    <span class="cover-count">{articles.length} {articles.length === 1 ? t.piece : t.pieces} · 2026</span>
+  </div>
+
+  {featured && (
+    <a class="article-card featured" href={href(featured)} data-topics={keyOf(featured)}>
+      <div class="featured-tag">{t.featured}</div>
+      <div class="article-card-meta">
+        <span class="article-card-number">{featured.data.issue}</span>
+        <span class="article-card-date">{featured.data.date}</span>
+        {featured.data.track && featured.data.track !== 'general' && <span class="article-card-track">{featured.data.track}</span>}
+      </div>
+      <h2 class="article-card-title" set:html={featured.data.titleHTML} />
+      <p class="article-card-dek" set:html={featured.data.coverDek} />
+      <ul class="article-card-topics">
+        {featured.data.topics.map(x => <li>{x}</li>)}
+      </ul>
+    </a>
+  )}
+
+  <div id="list">
+    {rest.map((a) => (
+      <a class="article-card" href={href(a)} data-topics={keyOf(a)}>
+        <div class="article-card-meta">
+          <span class="article-card-number">{a.data.issue}</span>
+          <span class="article-card-date">{a.data.date}</span>
+          {a.data.track && a.data.track !== 'general' && <span class="article-card-track">{a.data.track}</span>}
+        </div>
+        <h2 class="article-card-title" set:html={a.data.titleHTML} />
+        <p class="article-card-dek" set:html={a.data.coverDek} />
+        <ul class="article-card-topics">
+          {a.data.topics.map(x => <li>{x}</li>)}
+        </ul>
+      </a>
+    ))}
+  </div>
+
+  <p class="cover-empty" hidden>{t.empty}</p>
+</section>
+
+<footer class="footer">
+  <span>{t.footer}</span>
+  <span class="footer-links">
+    <a href={t.other.href}>{t.other.label}</a>
+    <a href={lang === 'es' ? '/rss-es.xml' : '/rss.xml'}>RSS</a>
+    <a href="https://github.com/aauml/glossa">github</a>
+  </span>
+</footer>
+
+<script is:inline>
+  (function () {
+    var btns = document.querySelectorAll('.cover-filter .f');
+    var cards = document.querySelectorAll('.article-card[data-topics]');
+    var empty = document.querySelector('.cover-empty');
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var t = b.dataset.t;
+        btns.forEach(function (x) { x.classList.toggle('on', x === b); });
+        var shown = 0;
+        cards.forEach(function (c) {
+          var has = t === 'all' || ('|' + c.dataset.topics + '|').indexOf('|' + t + '|') > -1;
+          if (has) { c.removeAttribute('hidden'); shown++; } else { c.setAttribute('hidden', ''); }
+        });
+        // Antes, un filtro sin resultados dejaba la lista en blanco sin explicar por qué.
+        if (empty) { if (shown === 0) empty.removeAttribute('hidden'); else empty.setAttribute('hidden', ''); }
+      });
+    });
+  })();
+</script>

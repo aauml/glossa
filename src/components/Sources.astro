@@ -1,0 +1,64 @@
+---
+// Aparato de procedencia al pie de la pieza.
+//
+// El sidecar `sources.json` se venía escribiendo (el worker de publicación lo
+// materializa desde la cola) pero no lo leía nadie: la prueba que el README
+// declara como el valor del portafolio no llegaba al lector. Esto la renderiza.
+//
+// Silencioso por diseño: una pieza sin sidecar no pinta nada, así que las 42
+// piezas de archivo no cambian hasta que se les haga backfill.
+
+const { slug, lang = 'en' } = Astro.props;
+
+const sidecars = import.meta.glob('../content/articles/*/sources.json');
+const key = `../content/articles/${slug}/sources.json`;
+const doc = sidecars[key] ? await sidecars[key]() : null;
+const sources = doc?.default?.sources ?? doc?.sources ?? [];
+
+const COPY = {
+  en: {
+    label: 'Sources',
+    note: 'Every claim in this piece was checked against these. Roles: primary carries the argument, support corroborates, context frames, discourse is quoted as position.',
+    verified: { si: 'verified', parcial: 'partly verified', no: 'unverified' },
+    roles: { primary: 'primary', support: 'support', context: 'context', discourse: 'discourse' },
+  },
+  es: {
+    label: 'Fuentes',
+    note: 'Cada afirmación de esta pieza se contrastó con estas. Papeles: primaria sostiene el argumento, apoyo corrobora, contexto encuadra, discurso se cita como posición.',
+    verified: { si: 'verificada', parcial: 'verificada en parte', no: 'sin verificar' },
+    roles: { primary: 'primaria', support: 'apoyo', context: 'contexto', discourse: 'discurso' },
+  },
+};
+const t = COPY[lang] ?? COPY.en;
+
+// El sidecar nació como registro interno: `respalda` está escrito en español y
+// no tiene equivalente inglés. Mostrarlo en la página EN metía español en medio
+// del texto, así que solo se pinta la glosa que existe para ESE idioma. Los
+// sidecars nuevos deben traer `claim_en` y `claim_es` (ver references/deployment.md).
+const claimOf = (s) => (lang === 'es'
+  ? (s.claim_es ?? s.respalda)
+  : (s.claim_en ?? s.claim));
+---
+{sources.length > 0 && (
+  <aside class="sources" aria-labelledby="sources-label">
+    <div class="sources-label" id="sources-label">{t.label}</div>
+    <p class="sources-note">{t.note}</p>
+    <ol class="sources-list">
+      {sources.map((s) => (
+        <li class="sources-item">
+          <div class="sources-ref">
+            {s.url ? <a href={s.url} rel="noopener noreferrer">{s.ref}</a> : s.ref}
+          </div>
+          <div class="sources-meta">
+            {s.role && <span class="sources-role">{t.roles[s.role] ?? s.role}</span>}
+            {s.verificada && (
+              <span class={`sources-verified is-${s.verificada}`}>{t.verified[s.verificada] ?? s.verificada}</span>
+            )}
+            {s.kb_pk && <span class="sources-kb" title="En el corpus curado (phd-kb)">KB</span>}
+          </div>
+          {claimOf(s) && <p class="sources-claim">{claimOf(s)}</p>}
+        </li>
+      ))}
+    </ol>
+  </aside>
+)}

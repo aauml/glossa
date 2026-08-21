@@ -1,6 +1,9 @@
 ---
+// El separador vivía fuera de la raíz del componente, así que en la portada
+// (donde no hay conmutador de idioma delante) salía un «·» huérfano.
+const { separator = false } = Astro.props;
 ---
-<span class="masthead-meta-sep">·</span>
+{separator && <span class="masthead-meta-sep">·</span>}
 <span class="text-size-switch" role="group" aria-label="Text size">
   <button data-size="sm" type="button" aria-label="Small">A</button>
   <button data-size="md" type="button" aria-label="Medium">A</button>
