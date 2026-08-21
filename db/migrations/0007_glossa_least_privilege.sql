@@ -6,8 +6,8 @@
 -- Qué corrige:
 --   1) La cola de publicación deja de ser escribible por `anon` a ciegas. El
 --      worker ya no usa la anon key; escribe con la service key desde Secrets.
---   2) Las políticas duplicadas y las que apuntan a `public` (que incluye a
---      `anon` Y a `service_role`) se sustituyen por políticas por rol explícito.
+--   2) Las políticas duplicadas y las que apuntan a `public` se sustituyen por
+--      políticas por rol explícito, SIN tocar quién puede escribir.
 --   3) Se devuelven las escrituras de procedencia que `skills/SKILL.md` necesita
 --      (avanzar el estado de un issue, registrar targets) SOLO a `authenticated`.
 --
@@ -33,25 +33,19 @@ drop policy if exists glossa_res_anon_update on public.glossa_research_requests;
 drop policy if exists glossa_res_auth_update on public.glossa_research_requests;
 
 -- ─────────────────────────────────────────────────────────────
--- 2) glossa_candidates — quitar el duplicado y el rol `public`
+-- 2) glossa_candidates — solo quitar el duplicado exacto
 -- ─────────────────────────────────────────────────────────────
+-- Esta tabla la consume el dashboard de `aauml/thesis` (marcar un candidato como
+-- copiado/descartado), no la ruta de publicación de Glossa. Tenía DOS políticas
+-- de UPDATE idénticas, una sobre el rol `public` y otra sobre `anon,authenticated`.
+-- Se elimina la de `public` —redundante y más amplia de lo que nadie pidió— y se
+-- deja intacta la otra: restringir el UPDATE a `authenticated` rompería el
+-- dashboard, y esa decisión no es de este repo.
 
-drop policy if exists glossa_cand_anon_select on public.glossa_candidates;  -- era to public
-drop policy if exists glossa_cand_anon_update on public.glossa_candidates;  -- era to public
-drop policy if exists glossa_candidates_anon_update on public.glossa_candidates;
-
-revoke all on public.glossa_candidates from anon, authenticated;
-grant select         on public.glossa_candidates to anon, authenticated;
-grant update         on public.glossa_candidates to authenticated;
-grant all            on public.glossa_candidates to service_role;
-
-create policy glossa_cand_service_all_v2 on public.glossa_candidates
-  for all to service_role using (true) with check (true);
+drop policy if exists glossa_cand_anon_update on public.glossa_candidates;   -- to public; duplicada
+drop policy if exists glossa_cand_anon_select on public.glossa_candidates;   -- to public
 create policy glossa_cand_read on public.glossa_candidates
   for select to anon, authenticated using (true);
--- Marcar un candidato como copiado/descartado es la interacción del dashboard.
-create policy glossa_cand_auth_update on public.glossa_candidates
-  for update to authenticated using (true) with check (true);
 
 -- ─────────────────────────────────────────────────────────────
 -- 3) Procedencia — escrituras que el skill necesita, por rol explícito
