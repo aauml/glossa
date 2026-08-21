@@ -563,3 +563,59 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 @media (max-width: 720px) {
   .sources { padding: 8px 22px 56px; }
 }
+
+
+/* ======== Exhibits en modo oscuro ======== */
+/* Los SVG de los exhibits —12 piezas publicadas y Timeline.astro— llevan la
+ * paleta clara escrita a mano en atributos como fill="#1A1A1A". Un atributo de
+ * presentación es una declaración CSS de prioridad mínima, así que una regla
+ * normal lo pisa: esto recolorea todos los exhibits en oscuro sin reescribir
+ * ninguna pieza ya publicada. Las piezas nuevas deberían usar los tokens.
+ * (Ver skills/references/deployment.md § Exhibit components.) */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) svg { color: var(--ink); }
+  [fill="#F4EDE0" i] { fill: var(--bg); }
+  [stroke="#F4EDE0" i] { stroke: var(--bg); }
+  [fill="#ECE2D0" i] { fill: var(--surface); }
+  [stroke="#ECE2D0" i] { stroke: var(--surface); }
+  [fill="#FAF4E8" i] { fill: var(--highlight); }
+  [stroke="#FAF4E8" i] { stroke: var(--highlight); }
+  [fill="#1A1A1A" i] { fill: var(--ink); }
+  [stroke="#1A1A1A" i] { stroke: var(--ink); }
+  [fill="#2A2A2A" i] { fill: var(--ink-soft); }
+  [stroke="#2A2A2A" i] { stroke: var(--ink-soft); }
+  [fill="#5C5C5C" i] { fill: var(--muted); }
+  [stroke="#5C5C5C" i] { stroke: var(--muted); }
+  [fill="#C8C2B5" i] { fill: var(--rule-soft); }
+  [stroke="#C8C2B5" i] { stroke: var(--rule-soft); }
+  [fill="#7A1F1F" i] { fill: var(--accent); }
+  [stroke="#7A1F1F" i] { stroke: var(--accent); }
+  [fill="#A14848" i] { fill: var(--accent-soft); }
+  [stroke="#A14848" i] { stroke: var(--accent-soft); }
+  [fill="#B8860B" i] { fill: var(--gold); }
+  [stroke="#B8860B" i] { stroke: var(--gold); }
+}
+:root[data-theme="dark"] svg { color: var(--ink); }
+:root[data-theme="dark"] {
+  [fill="#F4EDE0" i] { fill: var(--bg); }
+  [stroke="#F4EDE0" i] { stroke: var(--bg); }
+  [fill="#ECE2D0" i] { fill: var(--surface); }
+  [stroke="#ECE2D0" i] { stroke: var(--surface); }
+  [fill="#FAF4E8" i] { fill: var(--highlight); }
+  [stroke="#FAF4E8" i] { stroke: var(--highlight); }
+  [fill="#1A1A1A" i] { fill: var(--ink); }
+  [stroke="#1A1A1A" i] { stroke: var(--ink); }
+  [fill="#2A2A2A" i] { fill: var(--ink-soft); }
+  [stroke="#2A2A2A" i] { stroke: var(--ink-soft); }
+  [fill="#5C5C5C" i] { fill: var(--muted); }
+  [stroke="#5C5C5C" i] { stroke: var(--muted); }
+  [fill="#C8C2B5" i] { fill: var(--rule-soft); }
+  [stroke="#C8C2B5" i] { stroke: var(--rule-soft); }
+  [fill="#7A1F1F" i] { fill: var(--accent); }
+  [stroke="#7A1F1F" i] { stroke: var(--accent); }
+  [fill="#A14848" i] { fill: var(--accent-soft); }
+  [stroke="#A14848" i] { stroke: var(--accent-soft); }
+  [fill="#B8860B" i] { fill: var(--gold); }
+  [stroke="#B8860B" i] { stroke: var(--gold); }
+}

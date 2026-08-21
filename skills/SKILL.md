@@ -242,7 +242,16 @@ Cream paper (`#F4EDE0`), Spectral serif body, IBM Plex Sans for labels. Oxblood 
 
 The design is **quiet long-form**, not magazine cover. No drop caps. No hero kicker. No dramatic display headlines. The point is *for you to read carefully*, not for showing the link.
 
-The palette and typography are defined once in `src/styles/global.css`. New articles inherit automatically — there's no per-article CSS. Hardcoded hex values inside SVG exhibits should match: use `#F4EDE0` for any rect/path meant to match the page background.
+The palette and typography are defined once in `src/styles/global.css`. New articles inherit automatically — there's no per-article CSS.
+
+**There is a dark theme.** Inside a hand-written SVG exhibit, reach for the tokens through `style`, never a literal hex — `var()` does not resolve inside a `fill="…"` attribute:
+
+```jsx
+<rect style="fill: var(--bg)" />       // not fill="#F4EDE0"
+<line style="stroke: var(--rule-soft)" />
+```
+
+Already-published pieces use literal hex; a remap block in `global.css` recolours the brand palette in dark mode so the archive still reads. It only covers the brand hex values, so an off-palette colour in a new piece will look wrong on dark. Detail in `references/deployment.md § Exhibit colours and dark mode`.
 
 ## Exhibits — data only
 

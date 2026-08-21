@@ -1,4 +1,5 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 // `sortDate` ordena la portada. Llevaba sufijos manuales (2026-06-30b/c/d) para
 // desempatar piezas del mismo día, mezclados con algún ISO completo: el orden
@@ -10,7 +11,10 @@ const SORT_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
 const ISSUE = /^N\.?[°º] \d{1,3}[a-z]?$/;
 
 const articles = defineCollection({
-  type: 'content',
+  // Content Layer (Astro 6+): la API `type: 'content'` con carpeta implícita
+  // se retiró. El `id` que produce este loader es "{slug}/{lang}" — sin la
+  // extensión que traía la API vieja, y el código ya la recortaba igualmente.
+  loader: glob({ pattern: '**/[^_]*.mdx', base: './src/content/articles' }),
   schema: z.object({
     issue: z.string().regex(ISSUE, 'issue debe ser "N° 33" (EN) o "N.º 33" (ES), con sufijo de letra opcional'),
     date: z.string(),

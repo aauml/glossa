@@ -282,3 +282,18 @@ One entry per source:
 ```
 
 **Write `claim_en` and `claim_es`.** A piece only shows the gloss written in its own language — the old Spanish-only `respalda` key still works for ES, but leaves the English page with a bare citation. Legacy keys (`respalda`, `como`, `tipo`) are read but not rendered.
+
+
+## Exhibit colours and dark mode
+
+The site has a dark theme now (`prefers-color-scheme`, plus an explicit `data-theme`). The palette lives once in `src/styles/global.css` as tokens; nothing else should name a colour.
+
+For **new** hand-written SVG inside an MDX piece, use the tokens through `style`, not through the presentation attribute — `var()` does not resolve in `fill="…"`:
+
+```jsx
+<rect style="fill: var(--bg)" />
+<line style="stroke: var(--rule-soft)" />
+<circle style="fill: var(--accent)" />
+```
+
+The 12 already-published pieces write the light palette as literal hex (`fill="#1A1A1A"`). A block at the end of `global.css` remaps those exact values to their dark tokens with attribute selectors, so the archive renders correctly without being rewritten. **That remap covers only the brand palette** — an off-palette hex in a new piece will stay light-mode and look wrong on a dark background. Use the tokens.
