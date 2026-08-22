@@ -40,9 +40,10 @@ env:
 jobs:
   weekly:
     runs-on: ubuntu-latest
-    # El guion se rinde a los 35 min y explica por qué; esto es el corte duro por
-    # detrás, para que el mensaje útil salga antes que el seco del runner.
-    timeout-minutes: 50
+    # Holgado porque el guion reintenta ante un 429 con esperas de hasta 15 min:
+    # la cuenta admite una petición a la vez y el hueco puede tardar en soltarse.
+    # El guion se rinde primero y explica por qué; esto es el corte duro de atrás.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

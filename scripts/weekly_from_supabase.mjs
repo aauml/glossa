@@ -305,26 +305,44 @@ const t0 = Date.now();
 // (UND_ERR_HEADERS_TIMEOUT) y este modelo razona durante ~950 s antes de emitir
 // nada. Falló en la primera prueba real, en silencio y sin llegar a la API.
 // `node:https` deja el tiempo en nuestras manos.
-const raw = await new Promise((ok, ko) => {
-  const cuerpo = JSON.stringify({ model: MODELO, max_tokens: 64000,
-    messages: [{ role: 'user', content: PROMPT }] });
-  const req = https.request({
-    hostname: 'api.moonshot.ai', path: '/v1/chat/completions', method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(cuerpo),
-               Authorization: `Bearer ${MOONSHOT}` },
-  }, res => {
-    let b = '';
-    res.setEncoding('utf8');
-    res.on('data', c => { b += c; });
-    res.on('end', () => (res.statusCode < 300 ? ok(b)
-      : ko(new Error(`moonshot ${res.statusCode}: ${b.slice(0, 400)}`))));
+// La cuenta admite UNA petición a la vez. Sin reintento, cualquier solape
+// —una corrida anterior que aún no soltó el hueco, un «Rebuild» a mano mientras
+// corre el domingo— tira el número entero con un 429. Pasó en la segunda prueba
+// de publicación automática: la corrida previa seguía ocupando el turno.
+async function pedirAKimi(intento = 0) {
+  return await new Promise((ok, ko) => {
+    const cuerpo = JSON.stringify({ model: MODELO, max_tokens: 64000,
+      messages: [{ role: 'user', content: PROMPT }] });
+    const req = https.request({
+      hostname: 'api.moonshot.ai', path: '/v1/chat/completions', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(cuerpo),
+                 Authorization: `Bearer ${MOONSHOT}` },
+    }, res => {
+      let b = '';
+      res.setEncoding('utf8');
+      res.on('data', c => { b += c; });
+      res.on('end', () => (res.statusCode < 300 ? ok(b)
+        : ko(Object.assign(new Error(`moonshot ${res.statusCode}: ${b.slice(0, 400)}`),
+                           { status: res.statusCode }))));
+    });
+    req.on('error', ko);
+    // 35 minutos, por debajo de los 50 del workflow para que el error lo dé este
+    // guion —que sabe decir qué pasó— y no un corte seco del runner.
+    req.setTimeout(35 * 60_000, () => req.destroy(new Error('sin respuesta en 35 min')));
+    req.end(cuerpo);
+  }).catch(async (e) => {
+    const transitorio = e.status === 429 || e.status === 503;
+    if (!transitorio || intento >= 4) throw e;
+    // Esperas largas a propósito: si el hueco lo tiene otra corrida, puede tardar
+    // veinte minutos en soltarlo. Reintentar a los dos segundos solo gasta turnos.
+    const espera = [60, 180, 420, 900][intento] * 1000;
+    console.log(`  ${String(e.message).slice(0, 70)} — reintento en ${espera / 60000} min`);
+    await new Promise(r => setTimeout(r, espera));
+    return pedirAKimi(intento + 1);
   });
-  req.on('error', ko);
-  // 35 minutos, por debajo de los 50 del workflow para que el error lo dé este
-  // guion —que sabe decir qué pasó— y no un corte seco del runner.
-  req.setTimeout(35 * 60_000, () => req.destroy(new Error('sin respuesta en 35 min')));
-  req.end(cuerpo);
-});
+}
+
+const raw = await pedirAKimi();
 const d = JSON.parse(raw);
 const uso = d.usage || {};
 const msg = d.choices?.[0]?.message || {};
