@@ -374,5 +374,26 @@ await sb('glossa_radar_weekly?on_conflict=week_start', {
   method: 'POST', body: JSON.stringify(fila),
   headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
 });
+
+// ── Publicar solo, si procede ──────────────────────────────────────────────
+//
+// Tres condiciones, y las tres tienen que darse: el interruptor encendido, el
+// fusible en verde, y el número no publicado ya. Un fallo grave del fusible NO
+// se puede saltar por aquí — una persona sí puede publicar igualmente desde el
+// panel, la automatización no. Esa asimetría es el diseño: quien lee sabe cosas
+// que el fusible no.
+if (ajus.auto_publish === true) {
+  if (graves.length) {
+    console.log(`No se publica solo: el fusible marcó ${graves.length} fallo(s). Espera en el panel.`);
+  } else {
+    await sb(`glossa_radar_weekly?week_start=eq.${iso(desde)}`, {
+      method: 'PATCH', headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify({ state: 'publicado', published_at: new Date().toISOString() }),
+    });
+    console.log(`PUBLICADO en https://glossa.ademas.ai/weekly/${iso(desde)}/`);
+  }
+} else {
+  console.log('Queda en borrador: la publicación automática está apagada.');
+}
 console.log(`Número guardado como borrador · ${iso(desde)} → ${iso(weekEnd)}`);
 console.log(`Titular: ${numero.headline}`);

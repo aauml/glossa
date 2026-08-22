@@ -46,11 +46,26 @@ const CORTE = new Date(Date.now() - 7 * 864e5);
  * problema que los Shorts en YouTube con otra cara: material que no es material
  * consumiendo cuota.
  */
-function pasaFiltro(hallazgo, req = [], exc = []) {
-  const heno = `${hallazgo.title ?? ''} ${hallazgo.content ?? ''}`.toLowerCase();
-  if (req.length && !req.every(k => heno.includes(String(k).toLowerCase()))) return false;
-  if (exc.length && exc.some(k => heno.includes(String(k).toLowerCase()))) return false;
-  return true;
+function pasaFiltro(hallazgo, req = [], exc = [], persona = false) {
+  const titulo = String(hallazgo.title ?? '').toLowerCase();
+  const cuerpo = `${titulo} ${hallazgo.content ?? ''} ${hallazgo.raw_content ?? ''}`.toLowerCase();
+  if (exc.length && exc.some(k => cuerpo.includes(String(k).toLowerCase()))) return false;
+  if (!req.length) return true;
+  if (!req.every(k => cuerpo.includes(String(k).toLowerCase()))) return false;
+
+  // Para una PERSONA no basta con que su nombre aparezca: tiene que ser material
+  // sobre ella o de ella, no un artículo donde se la nombra de pasada.
+  //
+  // Medido: dos entradas buenas traían el nombre en el título y lo repetían 28 y
+  // 44 veces. Dos malas lo mencionaban 1 y 3 veces, y la de una vez decía
+  // literalmente «una versión del realismo que va más allá de la versión burda de
+  // John Mearsheimer» — otro autor citándolo para distanciarse de él.
+  if (!persona) return true;
+  return req.every(k => {
+    const kk = String(k).toLowerCase();
+    if (titulo.includes(kk)) return true;                    // en el título: es suyo
+    return cuerpo.split(kk).length - 1 >= 5;                  // o lo bastante presente
+  });
 }
 
 // Páginas que hablan de QUIÉN es alguien, no de qué dijo. Buscar «John
@@ -136,7 +151,7 @@ for (const f of fuentes) {
     for (const h of hallazgos) {
       if (!h.url) continue;
       if (esReferencia(h.url)) { descartados++; continue; }
-      if (!pasaFiltro(h, req, exc)) { descartados++; continue; }
+      if (!pasaFiltro(h, req, exc, f.kind === 'persona')) { descartados++; continue; }
       const texto = h.raw_content || h.content;
       if (!texto || texto.length < 400) { descartados++; continue; }
 
