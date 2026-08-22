@@ -561,8 +561,13 @@ Deno.serve(async (req) => {
 
       // ── Número semanal ───────────────────────────────────────────────────
       case 'weekly.latest': {
+        // Por fecha de ESCRITURA, no por semana cubierta. Cuando el reloj pasó de
+        // los lunes a los domingos, la semana cambió de empezar en lunes a empezar
+        // en domingo, y quedó una fila del formato viejo con `week_start`
+        // posterior. Ordenando por semana, el panel enseñaba el número retirado.
         const { data, error } = await db.from('glossa_radar_weekly')
-          .select('*').order('week_start', { ascending: false }).limit(1).maybeSingle();
+          .select('*').order('generated_at', { ascending: false, nullsFirst: false })
+          .limit(1).maybeSingle();
         if (error) throw error;
         return ok({ issue: data });
       }
