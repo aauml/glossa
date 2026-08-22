@@ -132,23 +132,81 @@ for (const s of rotas ?? []) {
 // ── 4. Trabajos que están fallando ─────────────────────────────────────────
 // Lo que de verdad hacía falta hoy: el número falló dos domingos seguidos y no
 // lo dijo nadie.
+// Las tres reglas vienen del checklist de thesis (`phd-agents/docs/
+// REVISION-SISTEMA.md`), que lleva tiempo corriendo y ya sabe dónde están los
+// puntos ciegos. Las dos últimas yo no las tenía:
+//
+//   · «un paso que se come el timeout muere como CANCELLED, no como failure — y
+//     las reglas que solo miran failure no lo ven». Mi primera versión miraba
+//     solo `failure`, así que un número muerto por tiempo era invisible.
+//   · «un workflow cuyo último run falló y lleva >48h sin volver a correr» y «un
+//     workflow programado que lleva más de su cadencia sin correr». Mirar solo
+//     las últimas corridas no ve al que DEJÓ de correr — y GitHub apaga los
+//     horarios de un repo sin actividad.
+const MAL = new Set(['failure', 'cancelled', 'timed_out', 'startup_failure']);
+const CADENCIA_H = { 'glossa-weekly.yml': 24 * 8, 'glossa-cotejo.yml': 24 * 8,
+                     'glossa-monitores.yml': 30, 'glossa-consejo.yml': 24 * 8,
+                     'glossa-vigilante.yml': 8 };
+
 if (GH) {
-  for (const wf of ['glossa-weekly.yml', 'glossa-cotejo.yml', 'glossa-monitores.yml']) {
+  for (const [wf, cadencia] of Object.entries(CADENCIA_H)) {
+    if (wf === 'glossa-vigilante.yml') continue;      // no se vigila a sí mismo
     try {
+      const cab = { Authorization: `Bearer ${GH}`, Accept: 'application/vnd.github+json',
+                    'User-Agent': 'glossa-vigilante' };
+
+      // Un trabajo recién creado todavía no ha tenido su turno. Sin esto, el día
+      // que se añaden tres relojes el panel abre con tres alarmas falsas — y así
+      // es exactamente como un vigilante se vuelve algo que se ignora.
+      const meta = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${wf}`, { headers: cab });
+      if (!meta.ok) continue;
+      const info = await meta.json();
+      const horasDesdeQueExiste = (Date.now() - new Date(info.created_at)) / 36e5;
+      if (info.state !== 'active') {
+        await anotar({ clase: 'trabajo_desactivado', sujeto: wf, gravedad: 'grave',
+          detalle: `GitHub lo tiene en «${info.state}» — no va a correr solo`,
+          evidencia: { estado: info.state } });
+        continue;
+      }
+
       const r = await fetch(
-        `https://api.github.com/repos/${REPO}/actions/workflows/${wf}/runs?per_page=3&status=completed`,
-        { headers: { Authorization: `Bearer ${GH}`, Accept: 'application/vnd.github+json',
-                     'User-Agent': 'glossa-vigilante' } });
+        `https://api.github.com/repos/${REPO}/actions/workflows/${wf}/runs?per_page=5`, { headers: cab });
       if (!r.ok) continue;
       const runs = (await r.json()).workflow_runs ?? [];
-      if (!runs.length) continue;
-      const fallos = runs.filter(x => x.conclusion === 'failure');
-      if (runs[0].conclusion === 'failure') {
+      const hechas = runs.filter(x => x.status === 'completed');
+
+      // Dejó de correr del todo. Es el punto ciego que las otras dos reglas no ven,
+      // porque no hay ninguna corrida nueva que mirar.
+      const ultima = runs[0];
+      const horas = ultima ? (Date.now() - new Date(ultima.created_at)) / 36e5 : Infinity;
+      // Se le da una cadencia entera de margen desde que existe antes de exigirle
+      // haber corrido.
+      const estrenando = horasDesdeQueExiste < cadencia * 1.2;
+      if (!estrenando && (!ultima || horas > cadencia * 1.5)) {
+        await anotar({
+          clase: 'trabajo_parado', sujeto: wf, gravedad: 'grave',
+          detalle: ultima
+            ? `lleva ${Math.round(horas)} h sin correr y su cadencia es de ${cadencia} h`
+            : 'no ha corrido nunca',
+          evidencia: { horas: Math.round(horas), cadencia },
+        });
+        continue;
+      }
+
+      if (!hechas.length) continue;
+      const malas = hechas.filter(x => MAL.has(x.conclusion));
+      if (MAL.has(hechas[0].conclusion)) {
+        // Falló y no ha vuelto a intentarlo: el peor caso, porque parece quieto.
+        const desdeUltimo = (Date.now() - new Date(hechas[0].created_at)) / 36e5;
+        const abandonado = desdeUltimo > 48;
         await anotar({
           clase: 'trabajo_fallando', sujeto: wf,
-          gravedad: fallos.length >= 2 ? 'grave' : 'aviso',
-          detalle: `la última corrida falló${fallos.length >= 2 ? ` y ${fallos.length} de las 3 últimas también` : ''}`,
-          evidencia: { ultimas: runs.map(x => ({ cuando: x.created_at, resultado: x.conclusion, url: x.html_url })) },
+          gravedad: (malas.length >= 2 || abandonado) ? 'grave' : 'aviso',
+          detalle: `la última corrida acabó en «${hechas[0].conclusion}»` +
+            (malas.length >= 2 ? ` y ${malas.length} de las ${hechas.length} últimas también` : '') +
+            (abandonado ? `, y lleva ${Math.round(desdeUltimo)} h sin reintentarse` : ''),
+          evidencia: { ultimas: hechas.slice(0, 3).map(x =>
+            ({ cuando: x.created_at, resultado: x.conclusion, url: x.html_url })) },
         });
       }
     } catch { /* si GitHub no contesta, no es una anomalía del sistema */ }

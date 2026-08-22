@@ -187,6 +187,51 @@ mirar los campos del item antes de sospechar del proveedor.
 
 ---
 
+## Reutilizar lo de la cartera
+
+### Umbrella enruta por capacidad DECLARADA: lo que no declaras, no te llega
+_Applies to: GitHub · repository / CI-CD_
+
+**Síntoma** — Se construyó un vigilante de salud del sistema desde cero. Thesis ya
+tenía uno mejor: `phd-agents/system_review`, con seis bloques, su checklist en un
+documento aparte como fuente de verdad, y una tabla de modos de fallo conocidos.
+**Causa** — El informe de Umbrella sí dice «esto ya está resuelto en otro
+proyecto», pero solo para las capacidades que el proyecto declara. Glossa nunca
+declaró vigilancia ni salud del sistema, así que nada de eso se enrutó — y el
+bloque de Glossa recibía sesenta lecciones sobre Vercel y Supabase y ninguna
+sobre monitorización.
+**Arreglo** — Declarar la capacidad ANTES de construirla, no después. Y cuando se
+empieza una capacidad entera nueva, mirar los nombres de los agentes de los otros
+proyectos directamente: la lista de directorios de `phd-agents/` decía
+`workflow_failure_monitor` y `system_review` a la vista, y aun así se construyó de
+nuevo.
+
+### Una regla que solo mira `failure` no ve un trabajo muerto por tiempo
+_Applies to: GitHub · repository / CI-CD_
+
+**Síntoma** — Un vigilante en verde sobre un sistema parado.
+**Causa** — Un paso que agota su `timeout-minutes` acaba en `cancelled`, no en
+`failure`. Y un trabajo que dejó de programarse no produce ninguna corrida que
+mirar, así que una regla que examina «las últimas N corridas» no ve nada raro:
+no hay nada.
+**Arreglo** — Tres reglas, no una: conclusión mala incluye `cancelled`,
+`timed_out` y `startup_failure`; avisar de un trabajo que lleva más de su cadencia
+sin correr; y comprobar `state !== 'active'`, porque GitHub apaga los horarios de
+un repo inactivo. Las tres están en el checklist de thesis
+(`phd-agents/docs/REVISION-SISTEMA.md`), que ya las había pagado.
+
+### Un vigilante con falsas alarmas es un vigilante que se ignora
+_Applies to: GitHub · repository / CI-CD_
+
+**Síntoma** — El día que se añadieron tres relojes nuevos, el panel abrió con tres
+alarmas de «no ha corrido nunca».
+**Causa** — Eran ciertas y eran inútiles: los tres se habían creado dos horas
+antes y su turno no había llegado.
+**Arreglo** — No exigirle a un trabajo haber corrido antes de que pase una
+cadencia entera desde que existe. Es la misma lección que el fusible: acusar mal
+es peor que no acusar, porque lo que se rompe es la confianza en el aviso, y
+entonces ya no protege de nada.
+
 ## Publicar
 
 ### Todo lo que se genera necesita un lector nombrado, y comprobado

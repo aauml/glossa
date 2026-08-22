@@ -76,6 +76,13 @@ resources:
     capability: search / benchmarking
     notes: el RSS de YouTube devolvió 404 para todos los canales el 2026-08-21 y no volvió
     implemented_in: supabase/functions/_shared/feeds.ts
+  monitoring:
+    provider: GitHub Actions
+    capability: monitoring / health checks
+    notes: vigilante cada 4 h; detecta, recupera lo pasajero y anota lo demás.
+           Se declara a propósito — thesis ya tenía `phd-agents/system_review` y
+           no llegó nunca porque Umbrella enruta por capacidad declarada
+    implemented_in: scripts/vigilante_from_supabase.mjs
   secrets:
     provider: 1Password
     capability: credential management
