@@ -114,6 +114,18 @@
   font-size: .79rem; line-height: 1.5; color: var(--muted); text-indent: 0;
 }
 
+/* Los enlaces a los episodios de los que salió la pieza. Discretos y en línea:
+   están para quien quiera ir, no para interrumpir a quien esté leyendo. */
+.weekly .src .fuente {
+  display: inline-block; margin: .35rem .5rem 0 0; color: var(--muted);
+  text-decoration: none; border-bottom: 1px solid var(--rule-soft);
+  padding-bottom: .1rem; transition: color .18s ease, border-color .18s ease;
+}
+.weekly .src .mas { color: var(--muted); font-size: .74rem; }
+.weekly .src .fuente:hover, .weekly .src .fuente:focus-visible {
+  color: var(--accent); border-color: var(--accent);
+}
+
 /* Volver al índice, al final de cada sección: donde el lector decide si sigue. */
 .weekly .up {
   display: inline-block; margin-top: var(--w2); font-family: var(--w-display);

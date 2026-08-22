@@ -607,6 +607,15 @@ Deno.serve(async (req) => {
         return ok({ cotejos: data ?? [] });
       }
 
+      case 'aprendizaje': {
+        // Lo que el sistema sabe de sí mismo por haberlo medido, no por opinar.
+        const [{ data: hist }, { data: cal }] = await Promise.all([
+          db.rpc('glossa_radar_historial_fuentes'),
+          db.rpc('glossa_radar_calibracion'),
+        ]);
+        return ok({ historial: hist ?? [], calibracion: cal ?? [] });
+      }
+
       case 'budget': {
         const [{ data: gasto }, { data: ajus }] = await Promise.all([
           db.rpc('glossa_radar_presupuesto'),

@@ -112,14 +112,46 @@ for (const e of enlaces) {
   peso[e.item_id] = (peso[e.item_id] || 0) + (e.relevance === 'central' ? 3 : 1);
 }
 
-const ficha = x => ({
-  title: x.title, channel: canal(x), when: String(x.published_at).slice(0, 10),
-  speakers: x.digest?.speakers || [x.author],
-  title_mismatch: x.digest?.title_mismatch || null,
-  thesis: x.digest?.thesis, framing: x.digest?.framing,
-  claims: (x.digest?.claims || []).slice(0, 6).map(c => ({ c: c.claim, status: c.status })),
-  quotes: (x.digest?.quotes || []).slice(0, 2).map(q => ({ q: q.text, who: q.who })),
-});
+// Los cotejos del sábado, indexados por episodio y posición de la afirmación.
+// El número los recibe como HECHOS, no como sugerencias: los decidió el código y
+// una pasada aparte, y volver a juzgarlos aquí sería deshacer el trabajo.
+const cotejos = await sb(
+  `glossa_radar_cotejos?select=item_id,claim_idx,verdict,verdict_reason,url,source_domain,` +
+  `published_date,independence&created_at=gte.${new Date(Date.now() - 10 * 864e5).toISOString()}&limit=500`);
+// Cómo le ha ido a cada fuente cuando se la ha comprobado. Es un recuento, no un
+// juicio, y es lo único que ninguna lectura del canal puede dar: «de 7
+// afirmaciones comprobadas, ninguna documentada, 1 contradicha».
+const historial = await sb('rpc/glossa_radar_historial_fuentes', { method: 'POST', body: '{}' })
+  .catch(() => []);
+
+const porClaim = {};
+for (const c of cotejos ?? []) porClaim[`${c.item_id}:${c.claim_idx}`] = c;
+if (cotejos?.length) console.log(`  ${cotejos.length} cotejos de esta semana`);
+
+// Cada episodio lleva un id corto. El modelo lo cita en `sources`, y al pintar
+// se convierte en un enlace al original. Sin esto no hay forma de llegar a la
+// fuente desde el número, que en una publicación cuya premisa es la procedencia
+// es una omisión seria.
+const idCorto = new Map();
+const ficha = (x, i) => {
+  const eid = `e${i + 1}`;
+  idCorto.set(eid, { url: x.url, title: x.title, channel: canal(x) });
+  return {
+    id: eid,
+    title: x.title, channel: canal(x), when: String(x.published_at).slice(0, 10),
+    speakers: x.digest?.speakers || [x.author],
+    title_mismatch: x.digest?.title_mismatch || null,
+    thesis: x.digest?.thesis, framing: x.digest?.framing,
+    claims: (x.digest?.claims || []).slice(0, 6).map((c, k) => {
+      const cot = porClaim[`${x.id}:${k}`];
+      return { c: c.claim, status: c.status,
+               ...(cot ? { check: { verdict: cot.verdict, why: cot.verdict_reason,
+                                    doc: cot.source_domain, when: cot.published_date,
+                                    independence: cot.independence } } : {}) };
+    }),
+    quotes: (x.digest?.quotes || []).slice(0, 2).map(q => ({ q: q.text, who: q.who })),
+  };
+};
 
 const ordenados = [...items].sort((a, b) =>
   (peso[b.id] || 0) - (peso[a.id] || 0) ||
@@ -127,8 +159,8 @@ const ordenados = [...items].sort((a, b) =>
 
 const material = [];
 let coste = 0;
-for (const x of ordenados) {
-  const f = ficha(x);
+for (const [orden, x] of ordenados.entries()) {
+  const f = ficha(x, orden);
   const n = JSON.stringify(f).length / 4;
   if (coste + n > TOPE_TOKENS) continue;
   material.push(f); coste += n;
@@ -166,6 +198,18 @@ ${bullets(cruzan)}
 Same-day batches:
 ${bullets(tandas)}
 
+TRACK RECORD — what happened when these sources' claims were checked against
+outside documents, counted over time. Not an opinion about them; a count.
+${bullets((historial ?? []).slice(0, 8).map(h =>
+  `${h.name}: ${h.comprobadas} claims checked — ${h.documentadas} documented, ` +
+  `${h.repetidas} only repeated elsewhere, ${h.contradichas} contradicted`))}
+
+CROSS-CHECKS — some claims below carry a \`check\` field. Each was searched
+against documents OUTSIDE this list of sources. The verdicts were decided by code
+and by a separate pass; they are findings, not suggestions. Do not re-adjudicate
+them, and do not soften them.
+${cotejos?.length ? `  ${cotejos.length} claims were checked this week.` : '  (nothing was checked this week)'}
+
 Write a magazine issue. Return ONLY JSON:
 {
  "headline": "a thesis, not a label. Under 12 words.",
@@ -175,7 +219,8 @@ Write a magazine issue. Return ONLY JSON:
     "title":"short, specific",
     "dek":"one line for the index, under 18 words",
     "body":"400-550 words of CONTINUOUS PROSE. Markdown paragraphs only.",
-    "sources_note":"one or two sentences: who this came from, and say so plainly if the provenance weakens it"}
+    "sources_note":"one or two sentences: who this came from, and say so plainly if the provenance weakens it",
+    "sources":["the ids of the episodes this piece drew on, e.g. e3, e12 — ids only, from the material above"]}
  ],
  "closing": ["4-6 items. Each: what NOBODY in the material said, and why it matters."],
  "colophon": "80-120 words on how much of this week came through how few channels."
@@ -204,6 +249,26 @@ RULES — the first is the one that matters:
 - No bullet lists inside "body". No section labels like "Where they clash". Prose.
 - Never say how many episodes or voices a topic had.
 - English throughout.
+- "sources" carries the ids of the episodes the piece actually used. They become
+  links back to the original, so a reader can go and hear it. Ids only, exactly as
+  given; never invent one, and never list an episode you did not use.
+
+CROSS-CHECK RULES — these govern what you may claim about evidence:
+- A claim may be wrapped in <span class="doc"> ONLY if its \`check.verdict\` is
+  "documenta". No cross-check means no gold marking, however solid the claim reads.
+- "repite" means the claim was found elsewhere and the elsewhere is downstream, or
+  from the same orbit. Write it as repetition and say where it repeats from. NEVER
+  as confirmation — that is the exact error this publication exists to avoid.
+- "contradice" MUST appear in the prose. A contradicted claim presented without its
+  contradiction is the worst thing this issue can contain. Name the document.
+- The TRACK RECORD is context, not a verdict on anyone. Small counts mean little:
+  do not call a source unreliable off three checks. What it is for is proportion —
+  a claim from a source whose claims have not once survived checking deserves more
+  hedging than one from a source whose have, and the issue should read that way
+  without ever saying so as an accusation.
+- "sin_hallazgo" licenses one specific sentence — that the claim could not be traced
+  to any document — and only where such a check exists. The absence of a check is
+  NOT evidence of absence; say nothing about claims that were never checked.
 
 WRITING CONSTRAINTS — these exist because earlier drafts failed on them:
 - Keep sentences short enough to read once. Two subordinate clauses is the ceiling.
@@ -282,7 +347,9 @@ if (actual && (actual.topic_count || 0) > secciones.length) {
 
 const fila = {
   week_start: iso(desde), week_end: iso(weekEnd),
-  body: numero, state: 'borrador',
+  // El mapa de ids va con el cuerpo: sin él, `sources: ["e3"]` no lleva a
+  // ninguna parte cuando se pinta.
+  body: { ...numero, sources_index: Object.fromEntries(idCorto) }, state: 'borrador',
   item_count: items.length, topic_count: secciones.length,
   tokens_used: uso.total_tokens ?? null,
   generated_at: new Date().toISOString(),

@@ -60,6 +60,13 @@ export const LEYENDA = `
  */
 export function renderIssue(body = {}) {
   const piezas = body.pieces;
+  // Cada pieza dice de qué episodios salió. Se pintan como flechas discretas
+  // detrás de la nota de procedencia, y se cortan a seis: una pieza citó
+  // veintiuno, y veintiuna flechas dejan de ser discretas para convertirse en un
+  // muro. Lo que importa es poder ir, no ver el inventario.
+  // En una publicación cuya premisa es poder rastrear lo que se dice, no poder
+  // llegar a la fuente era una omisión seria.
+  const enlaces = body.sources_index ?? {};
   if (!Array.isArray(piezas) || !piezas.length) {
     return `<p class="weekly-viejo">This issue was written in the old format
       (${(body.sections || []).length} boxed sections). Rebuild it to get the
@@ -80,7 +87,16 @@ export function renderIssue(body = {}) {
       <h2>${esc(p.title)}</h2>
       ${p.dek ? `<p class="dek">${esc(p.dek)}</p>` : ''}
       ${prosa(p.body)}
-      ${p.sources_note ? `<p class="src">${esc(p.sources_note)}</p>` : ''}
+      ${p.sources_note || (p.sources || []).length ? `<p class="src">${esc(p.sources_note || '')}
+        ${(p.sources || []).slice(0, 6).map(id => {
+          const e = enlaces[id];
+          // Un id que no existe se calla. El modelo puede inventarse uno, y un
+          // enlace roto en el pie de una pieza es peor que no tener enlace.
+          if (!e?.url) return '';
+          return `<a class="fuente" href="${esc(e.url)}" target="_blank" rel="noopener"
+            title="${esc(e.title || '')}">${esc(e.channel || 'source')}<span aria-hidden="true"> ↗</span></a>`;
+        }).join('')}${(p.sources || []).length > 6
+          ? `<span class="mas">and ${(p.sources || []).length - 6} more</span>` : ''}</p>` : ''}
       <a class="up" href="#contents">↑ Contents</a>
     </article>`).join('');
 

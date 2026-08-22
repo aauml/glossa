@@ -49,6 +49,18 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     <div id="cot-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
+  <!-- ── Lo que ha aprendido de sí mismo ────────────────────────────────── -->
+  <section class="admin-sec">
+    <h2>What checking has taught it</h2>
+    <p class="sub" style="margin-bottom:14px">
+      Counted, not judged. The left table is how each source's claims fare when searched
+      against outside records. The right one is whether the reading stage is calling things
+      "documented" that turn out not to be — which is the one error that would put a false
+      gold mark on a public page.
+    </p>
+    <div id="apr-lista"><span class="admin-vacio">loading…</span></div>
+  </section>
+
   <!-- ── Números y ajustes ──────────────────────────────────────────────── -->
   <section class="admin-sec">
     <h2>Right now</h2>
@@ -270,6 +282,43 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         ${filas}</table>`;
   }
 
+  // ── Lo que ha aprendido de sí mismo ─────────────────────────────────────
+  async function pintarAprendizaje() {
+    const d = await api('aprendizaje');
+    const el = $('apr-lista');
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    if (!d.historial.length && !d.calibracion.length) {
+      el.innerHTML = '<span class="admin-vacio">Nothing checked yet.</span>'; return;
+    }
+    const hist = d.historial.map(h => `<tr>
+      <td>${esc(h.name)}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums">${h.comprobadas}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums">${h.documentadas || '—'}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)">${h.repetidas || '—'}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums${
+        h.contradichas ? ';color:var(--accent)' : ''}">${h.contradichas || '—'}</td>
+    </tr>`).join('');
+    const cal = d.calibracion.map(c => `<tr>
+      <td><span class="admin-kind">${esc(c.etiqueta_analisis)}</span></td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums">${c.comprobadas}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums">${c.confirmadas || '—'}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)">${c.solo_repetidas || '—'}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums${
+        c.contradichas ? ';color:var(--accent)' : ''}">${c.contradichas || '—'}</td>
+    </tr>`).join('');
+    el.innerHTML = `
+      <table class="admin-tabla" style="margin-bottom:30px">
+        <tr><th>Source</th><th style="text-align:right">Checked</th>
+            <th style="text-align:right">Documented</th><th style="text-align:right">Only repeated</th>
+            <th style="text-align:right">Contradicted</th></tr>${hist}</table>
+      <h3 style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">
+        Is the reading stage calling it right?</h3>
+      <table class="admin-tabla">
+        <tr><th>It labelled the claim</th><th style="text-align:right">Checked</th>
+            <th style="text-align:right">Held up</th><th style="text-align:right">Only repeated</th>
+            <th style="text-align:right">Contradicted</th></tr>${cal}</table>`;
+  }
+
   // ── Lo que se lleva gastado ─────────────────────────────────────────────
   // Contando llamadas, no dinero: lo que aprieta son cuotas. Solo Kimi tiene
   // precio de verdad, y solo Kimi lleva cifra en dólares.
@@ -304,6 +353,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarCola(); pintarFuentes(); pintarCotejos(); pintarEstado(); pintarGasto();
+  pintarCola(); pintarFuentes(); pintarCotejos(); pintarAprendizaje(); pintarEstado(); pintarGasto();
 </script>
 </AdminLayout>
