@@ -18,6 +18,11 @@ const COPY = {
     featured: 'Most recent',
     empty: 'No pieces under that topic yet.',
     footer: 'Personal · No ads · No tracking',
+    weekly: {
+      tag: 'Every Sunday',
+      title: 'The Weekly',
+      dek: 'What a week of listening adds up to — and, at the end, what none of it said.',
+    },
     other: { code: 'es', label: 'ES', href: '/es/' },
   },
   es: {
@@ -31,6 +36,11 @@ const COPY = {
     featured: 'Lo más reciente',
     empty: 'Todavía no hay piezas con ese tema.',
     footer: 'Personal · Sin anuncios · Sin rastreo',
+    weekly: {
+      tag: 'Cada domingo',
+      title: 'El semanal',
+      dek: 'A qué suma una semana de escuchar — y, al final, qué no dijo ninguna de las voces.',
+    },
     other: { code: 'en', label: 'EN', href: '/' },
   },
 };
@@ -58,6 +68,12 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
     </div>
     <span class="cover-count">{articles.length} {articles.length === 1 ? t.piece : t.pieces} · 2026</span>
   </div>
+
+  <a class="cover-weekly" href="/weekly/">
+    <span class="cover-weekly-tag">{t.weekly.tag}</span>
+    <span class="cover-weekly-title">{t.weekly.title}</span>
+    <span class="cover-weekly-dek">{t.weekly.dek}</span>
+  </a>
 
   {featured && (
     <a class="article-card featured" href={href(featured)} data-topics={keyOf(featured)}>
@@ -99,8 +115,6 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
   <span>{t.footer}</span>
   <span class="footer-links">
     <a href={t.other.href}>{t.other.label}</a>
-    <a href={lang === 'es' ? '/rss-es.xml' : '/rss.xml'}>RSS</a>
-    <a href="https://github.com/aauml/glossa">github</a>
   </span>
 </footer>
 

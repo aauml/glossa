@@ -28,7 +28,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   <!-- ── La cola ────────────────────────────────────────────────────────── -->
   <section class="admin-sec">
-    <h2>In the queue</h2>
+    <h2>What you added</h2>
     <div id="q-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
@@ -111,20 +111,34 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   };
 
   // ── La cola ─────────────────────────────────────────────────────────────
-  const ESTADO = { pending: 'queued', running: 'reading', digested: 'read',
-                   skipped: 'skipped', error: 'error' };
+  // Antes decía «queued» y «read», que no explican nada por sí solos. Ahora cada
+  // estado dice qué le pasó al elemento y qué falta.
+  const ESTADO = { pending: 'waiting to be read', running: 'being read now',
+                   digested: 'read — in this week\'s material', skipped: 'set aside',
+                   error: 'could not be read' };
+
+  // De dónde vino: el canal si lo tiene, el dominio si lo pegaste, y «typed in»
+  // si no había enlace. Antes se pintaba la URL entera, que ocupa tres líneas y
+  // no contesta a la pregunta.
+  function procedencia(i) {
+    if (i.glossa_radar_sources?.name) return i.glossa_radar_sources.name;
+    if (i.author) return i.author;
+    if (i.url && i.url !== 'about:blank') {
+      try { return new URL(i.url).hostname.replace(/^www\./, ''); } catch { return i.url.slice(0, 30); }
+    }
+    return 'typed in';
+  }
 
   async function pintarCola() {
     const d = await api('queue.list');
     if (d.error) { listaQ.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     if (!d.items.length) { listaQ.innerHTML = '<span class="admin-vacio">Nothing waiting.</span>'; return; }
     listaQ.innerHTML = `<table class="admin-tabla">
-      <tr><th>What</th><th>State</th><th>Added</th><th></th></tr>
+      <tr><th>Title</th><th>Source</th><th>State</th><th>Added</th><th></th></tr>
       ${d.items.map(i => `<tr>
         <td>${esc(i.title)}
-          ${i.url && i.url !== 'about:blank' ? `<div class="admin-url">${esc(i.url)}</div>` : ''}
-          ${i.glossa_radar_sources?.name ? `<div class="admin-nota">${esc(i.glossa_radar_sources.name)}</div>` : ''}
           ${i.error ? `<div class="admin-nota" style="color:var(--accent)">${esc(i.error)}</div>` : ''}</td>
+        <td style="color:var(--muted)">${esc(procedencia(i))}</td>
         <td><span class="admin-kind">${esc(ESTADO[i.state] || i.state)}</span></td>
         <td style="white-space:nowrap;color:var(--muted)">${esc(hace(i.published_at))}</td>
         <td>${i.origin !== 'feed'
@@ -160,8 +174,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <tr><th>Name</th><th style="white-space:nowrap">In queue</th>
             <th style="white-space:nowrap">Read, 7d</th><th>Checked</th><th></th></tr>
         ${filas.map(s => `<tr class="${s.active ? '' : 'off'}">
-          <td>${esc(s.name)}
-            ${s.notes ? `<div class="admin-nota">${esc(s.notes)}</div>` : ''}</td>
+          <td>${esc(s.name)}</td>
           <td style="text-align:right;font-variant-numeric:tabular-nums">${
             s.pendientes ? `<strong>${s.pendientes}</strong>` : '—'}</td>
           <td style="text-align:right;color:var(--muted);font-variant-numeric:tabular-nums">${

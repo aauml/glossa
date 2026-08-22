@@ -171,6 +171,62 @@ async function buscarFeed(origen: string) {
   return null;
 }
 
+/**
+ * Baja un artículo y saca su título y su texto.
+ *
+ * Hace falta porque Gemini NO puede abrir una URL cualquiera: su `fileUri` solo
+ * entiende YouTube. Un enlace pelado a un periódico se le mandaba tal cual y
+ * devolvía «400 INVALID_ARGUMENT», que no dice nada de la causa. Si el texto no
+ * viaja con el elemento, no hay nada que analizar.
+ *
+ * Lo que hay detrás de un muro de pago no se va a obtener así, y está bien: se
+ * guarda lo que sea público y se ve en el panel que salió corto. Para lo de pago
+ * está pegar el texto, que es lo que un suscriptor ya tiene delante.
+ */
+async function extraerArticulo(url: string) {
+  try {
+    const r = await fetch(url, {
+      redirect: 'follow', signal: AbortSignal.timeout(15_000),
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Glossa/1.0)' },
+    });
+    if (!r.ok) return { error: `the page responded ${r.status}` };
+    let html = (await r.text()).slice(0, 400_000);
+
+    const meta = (prop: string) =>
+      new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]+content=["']([^"']{1,300})["']`, 'i')
+        .exec(html)?.[1];
+    const titulo = meta('og:title') ?? /<title[^>]*>([^<]{1,300})</i.exec(html)?.[1];
+    const autor  = meta('article:author') ?? meta('author');
+    const sitio  = meta('og:site_name');
+
+    // Fuera lo que no es el artículo. Sin esto el texto empieza con el menú de
+    // navegación —el caso real fue «Skip to contentSkip to site index»— y el
+    // análisis se cree que eso es el principio de la pieza.
+    html = html
+      .replace(/<(script|style|noscript|svg|iframe|form)\b[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<(nav|header|footer|aside)\b[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<!--[\s\S]*?-->/g, ' ');
+
+    // Si hay <article>, es lo que buscamos; si no, el cuerpo entero.
+    const art = /<article\b[^>]*>([\s\S]*?)<\/article>/i.exec(html)?.[1] ?? html;
+    const texto = art
+      .replace(/<br\s*\/?>|<\/p>|<\/div>|<\/h[1-6]>/gi, '\n')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+      .replace(/&#39;|&rsquo;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      .split('\n').map(l => l.replace(/[ \t]+/g, ' ').trim()).filter(l => l.length > 2)
+      .join('\n').slice(0, 120_000);
+
+    return {
+      titulo: titulo?.trim(), autor: autor?.trim(), sitio: sitio?.trim(),
+      texto: texto.length > 200 ? texto : undefined,
+      corto: texto.length <= 200,
+    };
+  } catch (e) {
+    return { error: `could not read the page: ${String(e).slice(0, 120)}` };
+  }
+}
+
 async function clasificar(texto: string): Promise<Resuelto> {
   const t = String(texto ?? '').trim();
   if (!t) return { as: 'elemento', label: 'nothing to add' };
@@ -181,10 +237,14 @@ async function clasificar(texto: string): Promise<Resuelto> {
   // Un enlace en la primera línea y texto debajo: el caso de pegar un artículo
   // entero con su procedencia. Es lo más rico que puede entrar.
   if (url && lineas.length > 1 && ES_URL.test(lineas[0])) {
+    // La primera línea de un pegado suele ser el menú de navegación —el caso
+    // real fue «Skip to contentSkip to site index»—, así que como título se
+    // busca la primera línea que parezca una frase.
+    const titular = lineas.slice(1).find(l => l.length > 20 && l.split(/\s+/).length > 3);
     return {
       as: 'elemento', url, body_text: lineas.slice(1).join('\n'),
       label: 'an article, with its text',
-      name: lineas[1].slice(0, 120),
+      name: (titular ?? lineas[1]).slice(0, 200),
     };
   }
 
@@ -348,15 +408,49 @@ Deno.serve(async (req) => {
 
         // Elemento suelto: entra en la misma cola que todo lo demás.
         const url = r.url ?? (ES_URL.test(texto) ? texto : null);
-        const cuerpo = r.body_text ?? null;
+        let cuerpo = r.body_text ?? null;
+        let titulo = r.name ?? null;
+        let autor = (b.author as string) ?? null;
+        let aviso: string | undefined;
+
         if (!url && !cuerpo) return bad('a link or the text is required');
+
+        // Un enlace SIN texto hay que bajarlo aquí. Gemini solo sabe abrir URLs
+        // de YouTube; cualquier otra le llega como `fileUri` y devuelve un
+        // «400 INVALID_ARGUMENT» que no dice por qué. Y de paso salen el título
+        // y el medio de verdad, en vez de dejar la URL cruda como título.
+        const esYoutube = url ? /(?:youtube\.com|youtu\.be)\//.test(url) : false;
+        if (url && !cuerpo && !esYoutube) {
+          const art = await extraerArticulo(url);
+          titulo = art.titulo ?? titulo;
+          autor = autor ?? art.autor ?? art.sitio ?? null;
+
+          // Sin texto no hay nada que analizar, y encolarlo solo aplaza el fallo:
+          // acabaría en Gemini como si fuera un vídeo y devolvería un 400. Los
+          // periódicos de pago responden 403 a cualquier robot —lo hace el NYT—
+          // así que se rechaza aquí y se dice qué hacer, que es pegar el texto
+          // que un suscriptor ya tiene delante.
+          if (!art.texto) {
+            let host = url;
+            try { host = new URL(url).hostname.replace(/^www\./, ''); } catch { /* nada */ }
+            return bad(art.error?.includes('403') || art.error?.includes('401')
+              ? `${host} blocks automated readers. Open it and paste the text in — a link alone gives us nothing to read.`
+              : `nothing readable at that link${art.error ? ` (${art.error})` : ''}. Paste the text instead.`);
+          }
+          cuerpo = art.texto;
+        }
+
+        if (!titulo && url) {
+          // Último recurso: el nombre del sitio, no la URL entera.
+          try { titulo = new URL(url).hostname.replace(/^www\./, ''); } catch { /* nada */ }
+        }
 
         const { data, error } = await db.from('glossa_radar_items').insert({
           source_id: null, origin: 'pegado',
           external_id: url ?? ('pegado:' + await huella(cuerpo!)),
           url: url ?? 'about:blank',
-          title: (r.name || url || cuerpo || '').slice(0, 300) || '(sin título)',
-          author: b.author ?? null,
+          title: (titulo || cuerpo || '').slice(0, 300) || '(sin título)',
+          author: autor,
           body_text: cuerpo,
           published_at: new Date().toISOString(),
           state: 'pending',
@@ -365,7 +459,7 @@ Deno.serve(async (req) => {
           if ((error as { code?: string }).code === '23505') return bad('that is already in the queue');
           throw error;
         }
-        return ok({ as: 'elemento', item: data, label: r.label });
+        return ok({ as: 'elemento', item: data, label: r.label, aviso });
       }
 
       // ── El panel ─────────────────────────────────────────────────────────

@@ -596,6 +596,28 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 /* Entrada al panel. Discreta a propósito: mismo peso que el resto del mastelero.
    Para quien no sea Arturo es un enlace que pide un código y no lleva a ningún
    sitio, así que no merece más presencia que eso. */
-.masthead-weekly, .masthead-panel { color: var(--muted); transition: color 0.15s ease; }
-.masthead-weekly:hover { color: var(--accent); }
+.masthead-panel { color: var(--muted); transition: color 0.15s ease; }
 .masthead-panel:hover { color: var(--accent); }
+
+
+/* La revista semanal, dentro del índice y no en la cabecera: es algo que se lee,
+   no una utilidad del sitio. Se distingue de las piezas por la regla superior y
+   el rótulo, no por un color distinto — sigue siendo Glossa. */
+.cover-weekly {
+  display: block; text-decoration: none; color: inherit;
+  border-top: 2px solid var(--ink); padding: 18px 0 22px; margin-bottom: 8px;
+}
+.cover-weekly-tag {
+  display: block; font-family: 'IBM Plex Sans', sans-serif; font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+}
+.cover-weekly-title {
+  display: block; font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif;
+  font-weight: 400; font-size: clamp(26px, 4vw, 34px); line-height: 1.08;
+  letter-spacing: -0.015em; margin-bottom: 6px;
+}
+.cover-weekly-dek {
+  display: block; font-size: calc(15px * var(--reader-scale)); line-height: 1.5;
+  color: var(--ink-soft); max-width: 52ch;
+}
+.cover-weekly:hover .cover-weekly-title { color: var(--accent); }
