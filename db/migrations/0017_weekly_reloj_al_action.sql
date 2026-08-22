@@ -1,0 +1,23 @@
+-- 0017 — el número semanal se escribe fuera, así que el reloj también se va.
+--
+-- `glossa-weekly-run` corre dentro de una edge function, y ahí el techo son
+-- 150 segundos. Se midieron seis modelos escribiendo el mismo número:
+--
+--     Gemini 3 Flash    45 s      GPT-5           104 s
+--     Grok 4.6         169 s      Sonnet 5        170 s
+--     Kimi K2.6        326 s      Kimi K3         952 s
+--
+-- Sólo cabía el más flojo, y ese fue exactamente el problema del primer número:
+-- escribía sobre el mundo en vez de sobre la evidencia, que es el único trabajo
+-- que justifica que Glossa exista. El modelo elegido —Kimi K3— tarda dieciséis
+-- minutos, así que el reloj se muda a un GitHub Action, que tiene seis horas.
+--
+-- Se retira el cron; NO se retira la función. `glossa-weekly-run` sigue
+-- desplegada para que el botón «Rebuild» del panel tenga algo que llamar
+-- mientras no se conecte al Action.
+--
+-- El Action corre los domingos a las 11:00 UTC (04:00 en California, 03:00 en
+-- invierno) y cubre la semana recién cerrada, de domingo a sábado. Antes era
+-- los lunes a las 08:00 UTC, cuando la semana llevaba ya un día empezada.
+
+select cron.unschedule('glossa-weekly');

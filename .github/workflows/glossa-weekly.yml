@@ -1,0 +1,54 @@
+name: Glossa weekly (número semanal)
+
+# Escribe el número de la semana y lo deja en BORRADOR para revisarlo en /admin.
+#
+# Por qué el reloj está aquí y no en pg_cron: escribir el número tarda más que
+# los 150 s de una edge function. Se midieron seis modelos sobre el mismo
+# material —Gemini 45 s, GPT-5 104 s, Grok 169 s, Sonnet 170 s, Kimi K2.6 326 s,
+# Kimi K3 952 s— y sólo el más flojo cabía. Un Action tiene seis horas.
+#
+# Domingos 11:00 UTC = 04:00 en California (03:00 en invierno). La semana que
+# cubre es la que acaba de cerrarse: domingo a sábado.
+#
+# Secretos: SUPABASE_SERVICE_KEY (ya existe), MOONSHOT_API_KEY (nuevo).
+
+on:
+  schedule:
+    - cron: '0 11 * * 0'
+  workflow_dispatch:
+    inputs:
+      week_end:
+        description: 'Rehacer otra semana (YYYY-MM-DD, el día siguiente al último que se incluye). Vacío = la semana recién cerrada.'
+        required: false
+      model:
+        description: 'Modelo (kimi-k3 por defecto; kimi-k2.6 es 3x más rápido)'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-weekly
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    # K3 tardó 952 s en la medición. 40 minutos deja margen de sobra sin que un
+    # cuelgue se quede corriendo toda la tarde.
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Write the issue
+        env:
+          WEEK_END: ${{ github.event.inputs.week_end }}
+          WEEKLY_MODEL: ${{ github.event.inputs.model }}
+        run: node scripts/weekly_from_supabase.mjs
