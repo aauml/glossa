@@ -1,0 +1,42 @@
+name: Glossa monitores (fuentes por búsqueda)
+
+# Las fuentes que no tienen feed: temas y personas. Un canal se sondea porque
+# sabes su URL; un tema hay que buscarlo.
+#
+# Diario a las 06:00 UTC, pero cada fuente tiene su propio turno (`next_run_at`)
+# según su `schedule`, así que un tema semanal se busca una vez por semana aunque
+# esto corra todos los días. El reloj diario solo pregunta a quién le toca.
+#
+# Vive aquí y no en una edge function porque Tavily con `include_raw_content`
+# devuelve artículos enteros y varias consultas seguidas pasan de los 150 s.
+#
+# Secretos: SUPABASE_SERVICE_KEY, TAVILY_API_KEY (cuenta propia de Glossa desde
+# 2026-08-22; compartirla con otro proyecto los dejaba peleando por la cuota).
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-monitores
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+
+jobs:
+  monitores:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/monitores_from_supabase.mjs
