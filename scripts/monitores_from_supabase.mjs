@@ -33,6 +33,10 @@ async function sb(path, init = {}) {
 // Cada cuánto le toca a cada fuente. Copiado de `SCHEDULE_DELTAS`.
 const CADA = { daily: 1, weekly: 7, biweekly: 14, monthly: 30 };
 
+// La misma ventana que usa el radar para los feeds (BACKFILL_DIAS = 7). Lo que
+// caiga fuera no puede salir en el número, así que analizarlo es tirar cuota.
+const CORTE = new Date(Date.now() - 7 * 864e5);
+
 /**
  * La compuerta de relevancia, y es lo más valioso de todo esto.
  *
@@ -66,14 +70,20 @@ const esReferencia = (url) => {
 
 async function buscar(fuente) {
   // Tanto de un tema como de una persona interesa lo que ha PASADO, no lo que
-  // son. Las dos van en modo noticias; lo que cambia es la ventana y la
-  // profundidad, porque una persona habla menos a menudo que lo que ocurre en un
-  // país entero.
+  // son. Las dos van en modo noticias.
+  //
+  // Y las dos con la MISMA ventana que el radar (BACKFILL_DIAS = 7, más un día
+  // de margen para que nada caiga en el hueco entre dos corridas). Traer tres
+  // semanas de una persona parecía generoso y era desperdicio: el número cubre
+  // siete días, así que lo más viejo se analizaba —gastando cuota— para no poder
+  // aparecer nunca. Si alguien no habló esta semana, no sale esta semana.
   const persona = fuente.kind === 'persona';
   const cuerpo = {
     query: '', topic: 'news',
-    days: persona ? 21 : 8,
+    days: 8,
     max_results: persona ? 8 : 5,
+    // Una persona habla menos a menudo que lo que ocurre en un país entero, así
+    // que en la misma ventana hay que buscar más fino para encontrarla.
     search_depth: persona ? 'advanced' : 'basic',
     include_raw_content: true,
     ...(fuente.domains?.length ? { include_domains: fuente.domains } : {}),
@@ -134,6 +144,13 @@ for (const f of fuentes) {
       // años. Y sellarla con la de hoy la metería en el número de esta semana,
       // que es justo lo que se quiso evitar al guardar la fecha real.
       if (!h.published_date) { descartados++; continue; }
+
+      // Y la fecha se COMPRUEBA, no se da por buena. Pidiendo `days: 8` volvió
+      // un artículo del 25 de julio: el filtro del buscador no es estricto. Sin
+      // esto, cinco de cada ocho hallazgos se analizaban —gastando cuota— para
+      // caer fuera de la ventana del número y no aparecer nunca.
+      const cuando = new Date(h.published_date);
+      if (isNaN(cuando) || cuando < CORTE) { descartados++; continue; }
 
       filas.push({
         source_id: f.id, origin: 'busqueda',
