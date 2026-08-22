@@ -1,0 +1,41 @@
+name: Glossa subtítulos (leer en vez de mirar)
+
+# Para saber qué se dijo en un episodio se le mandaba el VÍDEO a un modelo.
+# YouTube ya escribió ese texto y lo regala. Medido sobre los mismos episodios:
+# 7.621 tokens contra 65.918, 17.315 contra 77.888, 30.978 contra 118.447.
+#
+# No toca el radar: deja el texto puesto y el radar, que decide por el dato y no
+# por la etiqueta, lo analiza como texto. Lo que no tenga subtítulos sigue yendo
+# por el camino del vídeo.
+#
+# Cada 30 min, por delante del radar, que digiere cada 15. Vive aquí porque
+# `yt-dlp` es un binario y una edge function no puede ejecutarlo.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-subtitulos
+  cancel-in-progress: true
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
+jobs:
+  subtitulos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Install yt-dlp
+        run: pipx install yt-dlp || pip install --user yt-dlp
+      - run: node scripts/subtitulos_from_supabase.mjs
