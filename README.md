@@ -61,6 +61,14 @@ juegan, qué afirmación respaldan y si están verificadas.
 | [docs/13-Radar](docs/13-Radar.md) | Leer muchas fuentes por tema sin verlas; dónde vive el reloj y cuánto cuesta |
 | [docs/Glosario](docs/Glosario.md) | Términos del proyecto |
 
+Y dos archivos que no son diseño sino experiencia, en la raíz porque los lee
+también quien no viene a construir Glossa:
+
+| Archivo | Para qué |
+|---|---|
+| [LESSONS.md](LESSONS.md) | Lo que costó aprender, en el formato que Umbrella enruta al resto de la cartera |
+| [DECISIONS.md](DECISIONS.md) | Decisiones de arquitectura con su porqué, para no revertirlas por accidente |
+
 ---
 
 ## Estado

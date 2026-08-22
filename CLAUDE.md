@@ -53,11 +53,29 @@ resources:
       implemented_in: scripts/research_from_supabase.mjs
     - provider: Tavily
       capability: search / benchmarking
+      notes: cuenta propia de Glossa desde 2026-08-22; compartirla con otro proyecto
+             habría dejado a ambos peleando por la misma cuota (ver D-009)
       implemented_in: scripts/research_from_supabase.mjs
   ai_models:
-    provider: Anthropic
-    capability: LLM
-    implemented_in: skills/SKILL.md
+    - provider: Anthropic
+      capability: LLM
+      notes: análisis y redacción de las piezas, con Claude ejecutando skills/SKILL.md
+      implemented_in: skills/SKILL.md
+    - provider: Google Gemini
+      capability: LLM
+      notes: tramo gratuito; escucha los episodios y los clasifica por tema
+      implemented_in: supabase/functions/_shared/gemini.ts
+      intentional: true
+    - provider: Moonshot (Kimi)
+      capability: LLM
+      notes: escribe el número semanal; elegido midiendo seis modelos, ver D-005
+      implemented_in: scripts/weekly_from_supabase.mjs
+      intentional: true
+  media_discovery:
+    provider: YouTube Data API
+    capability: search / benchmarking
+    notes: el RSS de YouTube devolvió 404 para todos los canales el 2026-08-21 y no volvió
+    implemented_in: supabase/functions/_shared/feeds.ts
   secrets:
     provider: 1Password
     capability: credential management
@@ -87,7 +105,12 @@ Nota: lo más reutilizable de este repo es **publicar desde una superficie sin s
 
 Nota (2026-08-20, corrige lo anterior): el worker **no** corre *secretless*. Se intentó con la anon key pública y falló de las dos maneras posibles — dejó de funcionar el 2026-07-01 cuando `anon` perdió el UPDATE, y mientras funcionó era la misma apertura que permitía a cualquiera encolar una publicación. Ahora: la cola la escribe la **service key** desde GitHub Secrets, y la edge function `glossa-enqueue` exige la cabecera `x-glossa-token`. Si vas a reutilizar el patrón, cópialo con la compuerta, no sin ella.
 
-Nota: `ai_models` es Anthropic porque el análisis y la redacción los hace Claude ejecutando `skills/SKILL.md` — **no hay ninguna llamada a una API de LLM en el código**. `.env.example` declara `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY` y `OPENAI_API_KEY` (plan del doc 10), pero ningún archivo los usa todavía; por eso no se declaran aquí como recursos. Ver la tabla plan-vs-estado al principio del doc 10.
+Nota (corrige lo anterior): hasta el 2026-08-21 no había **ninguna** llamada a
+una API de LLM en el código — el análisis y la redacción los hacía Claude
+ejecutando `skills/SKILL.md`. Ya no. El radar llama a Gemini para escuchar los
+episodios, y el número semanal llama a Kimi desde un GitHub Action. La redacción
+de las piezas sigue siendo Claude en conversación; lo que se automatizó es la
+lectura previa y la revista.
 
 ## 1Password — Acceso a secretos (ya configurado, headless)
 
