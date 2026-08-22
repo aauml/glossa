@@ -17,6 +17,7 @@ import '../../styles/weekly.css';
     <a class="admin-btn" id="ver" hidden target="_blank" rel="noopener">View live page</a>
   </div>
   <p class="admin-nota" id="meta"></p>
+  <div id="fusible"></div>
 
   <div id="issue" class="weekly"><span class="admin-vacio">loading…</span></div>
   <a href="#contents" id="weekly-top" aria-label="Back to contents">↑</a>
@@ -58,7 +59,29 @@ import '../../styles/weekly.css';
     const publicado = actual.state === 'publicado';
 
     document.getElementById('meta').textContent =
-      `${actual.week_start} → ${actual.week_end} · ${actual.item_count} episodes · ${actual.state}`;
+      `${actual.week_start} → ${actual.week_end} · ${actual.item_count} episodes` +
+      `${actual.cotejo_count ? ` · ${actual.cotejo_count} claims cross-checked` : ''} · ${actual.state}`;
+
+    // El fusible, junto al botón. Corre el mismo código que corrió al escribir el
+    // número: si aquí dijera otra cosa, no serviría de nada.
+    const f = actual.fuse;
+    const caja = document.getElementById('fusible');
+    if (!f) { caja.innerHTML = ''; }
+    else {
+      const graves = (f.fallos || []).filter(x => x.grave);
+      const avisos = (f.fallos || []).filter(x => !x.grave);
+      caja.innerHTML = graves.length
+        ? `<div class="admin-msg" style="margin-bottom:20px">
+             <strong>The fuse would hold this back.</strong> You can publish it anyway — it only
+             blocks the automatic path.
+             ${graves.map(x => `<div class="admin-nota">✗ <strong>${esc(x.regla)}</strong> — ${esc(x.detalle)}</div>`).join('')}
+             ${avisos.map(x => `<div class="admin-nota" style="opacity:.7">· ${esc(x.regla)} — ${esc(x.detalle)}</div>`).join('')}
+           </div>`
+        : `<div class="admin-msg ok" style="margin-bottom:20px">
+             The fuse passes this issue${avisos.length ? `, with ${avisos.length} thing(s) worth a look` : ''}.
+             ${avisos.map(x => `<div class="admin-nota">· ${esc(x.regla)} — ${esc(x.detalle)}</div>`).join('')}
+           </div>`;
+    }
     bp.hidden = false;
     bp.textContent = publicado ? 'Withdraw' : 'Publish';
     ver.hidden = !publicado;

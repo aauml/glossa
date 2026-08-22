@@ -569,6 +569,17 @@ Deno.serve(async (req) => {
       // Publicar y retirar. Un solo campo, pero es la única compuerta que tiene
       // este sistema entre lo que escribe un modelo y lo que lee cualquiera.
       case 'weekly.publish': {
+        // Una persona puede publicar un número que el fusible marcó; la
+        // automatización no. Esa asimetría es deliberada: el fusible comprueba lo
+        // que una máquina puede comprobar, y quien lea el número sabe cosas que
+        // él no. Lo que no puede pasar es que salga solo con fallos dentro.
+        if (b.automatico === true) {
+          const { data: w } = await db.from('glossa_radar_weekly')
+            .select('fuse').eq('week_start', b.week_start).maybeSingle();
+          const graves = ((w?.fuse as { fallos?: { grave: boolean }[] })?.fallos ?? [])
+            .filter(f => f.grave);
+          if (graves.length) return bad(`the fuse blocked it: ${graves.length} failure(s)`, 409);
+        }
         const { data, error } = await db.from('glossa_radar_weekly')
           .update({ state: 'publicado', published_at: new Date().toISOString() })
           .eq('week_start', b.week_start).select('week_start,state').single();

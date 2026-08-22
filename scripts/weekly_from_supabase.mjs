@@ -16,6 +16,7 @@
 
 import https from 'node:https';
 import { ajustes, uso as gastoActual, apuntar, cabeCoste } from '../src/lib/presupuesto.js';
+import { revisar } from '../src/lib/fusible.js';
 
 const URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
@@ -345,7 +346,19 @@ if (actual && (actual.topic_count || 0) > secciones.length) {
   process.exit(0);
 }
 
+// El fusible, antes de guardar. Corre igual aquí, junto al botón de publicar y
+// en la vía automática: si los tres no dan el mismo veredicto, no sirve de nada.
+const veredicto = revisar(numero, { items, cotejos: cotejos ?? [] });
+const graves = veredicto.fallos.filter(f => f.grave);
+console.log(graves.length
+  ? `  fusible: ${graves.length} fallo(s) grave(s) — no puede publicarse solo`
+  : `  fusible: pasa${veredicto.fallos.length ? ` (${veredicto.fallos.length} aviso(s))` : ''}`);
+for (const f of veredicto.fallos.slice(0, 6))
+  console.log(`    ${f.grave ? '✗' : '·'} ${f.regla}: ${String(f.detalle).slice(0, 88)}`);
+
 const fila = {
+  fuse: { ...veredicto, ran_at: new Date().toISOString() },
+  cotejo_count: (cotejos ?? []).length,
   week_start: iso(desde), week_end: iso(weekEnd),
   // El mapa de ids va con el cuerpo: sin él, `sources: ["e3"]` no lleva a
   // ninguna parte cuando se pinta.
