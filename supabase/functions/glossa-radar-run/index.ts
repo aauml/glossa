@@ -138,7 +138,14 @@ Deno.serve(async (req) => {
         : {
             fileData: { fileUri: item.url },
             // Solo el vídeo se muestrea: el audio de un podcast no tiene fotogramas.
-            ...((item as any).glossa_radar_sources?.kind === 'youtube' ? { videoMetadata: { fps: VIDEO_FPS } } : {}),
+            //
+            // Se mira la URL del ELEMENTO, no el `kind` de su fuente. Un enlace de
+            // YouTube pegado a mano no tiene fuente —`source_id` es null— así que la
+            // unión no devolvía nada, no se fijaba `fps`, y el vídeo entraba a
+            // resolución completa: 332.772 tokens medidos contra un tope de 250.000
+            // por minuto. Fallaba, se leía como falta de capacidad y volvía a la cola
+            // para siempre. Con una sola caja de entrada eso pasa de raro a habitual.
+            ...(/(?:youtube\.com|youtu\.be)\//.test(String(item.url)) ? { videoMetadata: { fps: VIDEO_FPS } } : {}),
           };
 
       const resp = await gemini(MODELO_DIGEST, {

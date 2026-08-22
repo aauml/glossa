@@ -2,45 +2,216 @@
 export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
 ---
-<AdminLayout title="Status" tab="status">
+<AdminLayout title="Feed" tab="feed">
+  <h1>Feed</h1>
+  <p class="sub">
+    One box for everything. A channel, a podcast, an article, text you pasted, or just a
+    subject you want followed — drop it in and it works out what it was. Everything ends up
+    in the same queue and is read in turn.
+  </p>
 
-  <h1>Status</h1>
-  <p class="sub">What the radar is watching and how much it has processed. None of this gets published — it is reading material.</p>
+  <!-- ── La caja ────────────────────────────────────────────────────────── -->
+  <section class="admin-sec">
+    <form id="in-form" class="admin-form">
+      <label>
+        <textarea id="in-caja" rows="3" required
+          placeholder="A link, a whole article pasted in, or a subject to follow"></textarea>
+      </label>
+      <p class="admin-nota" id="in-resuelto"></p>
+      <div class="admin-acciones">
+        <button class="admin-btn" type="submit" id="in-add">Add</button>
+        <span id="in-alt"></span>
+      </div>
+    </form>
+    <div id="in-msg"></div>
+  </section>
 
-  <div class="admin-sec">
+  <!-- ── La cola ────────────────────────────────────────────────────────── -->
+  <section class="admin-sec">
+    <h2>In the queue</h2>
+    <div id="q-lista"><span class="admin-vacio">loading…</span></div>
+  </section>
+
+  <!-- ── Lo que se vigila ───────────────────────────────────────────────── -->
+  <section class="admin-sec">
+    <h2>Watching</h2>
+    <div id="src-lista"><span class="admin-vacio">loading…</span></div>
+  </section>
+
+  <!-- ── Números y ajustes ──────────────────────────────────────────────── -->
+  <section class="admin-sec">
     <h2>Right now</h2>
-    <div class="admin-cifras" id="cifras"><span class="admin-vacio">loading…</span></div>
-  </div>
-
-  <div class="admin-sec">
-    <h2>Automatic publishing</h2>
-    <p class="sub" style="margin-bottom:14px">
-      Off, the weekly issue waits here and you publish it yourself. On, it goes out on its own.
-      Best decided <em>after</em> seeing the first issue.
-    </p>
-    <label style="display:flex;gap:9px;align-items:center;font-size:13px">
-      <input type="checkbox" id="auto" /> Publish the weekly issue without review
+    <div class="admin-cifras" id="st-cifras"><span class="admin-vacio">loading…</span></div>
+    <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
+      <input type="checkbox" id="st-auto" />
+      <span>Publish the weekly issue without review</span>
     </label>
-  </div>
+    <p class="admin-nota" style="margin-top:4px">
+      Off until the checks that make it safe are in place.
+    </p>
+  </section>
 
 <script>
-  const api = (op, extra = {}) => fetch('/api/admin/op/', { method: 'POST',
-    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
-  const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
-  const msg = (id, t, ok) => { document.getElementById(id).innerHTML = `<div class="admin-msg ${ok?'ok':''}">${esc(t)}</div>`; };
-  api('status').then(d => {
-    const c = document.getElementById('cifras');
-    if (d.error) { c.innerHTML = `<span class="admin-vacio">${d.error}</span>`; return; }
+  import { api, esc, msg, delegar } from '../../lib/panel.js';
+  import { hace } from '../../lib/tiempo.js';
+
+  const $ = (id) => document.getElementById(id);
+  const cajaMsg = $('in-msg'), resuelto = $('in-resuelto'), alt = $('in-alt');
+  const listaQ = $('q-lista'), listaSrc = $('src-lista');
+
+  // ── La caja ─────────────────────────────────────────────────────────────
+  // El servidor decide qué es; aquí solo se enseña lo que decidió. Adivinar en
+  // silencio sería lo peor de los dos mundos: sin formulario que rellenar, pero
+  // tampoco forma de saber qué se guardó.
+  let forzado = null;              // {as, kind} si el usuario corrigió la conjetura
+  let ultimoPeek = '';
+
+  async function mirar() {
+    const t = $('in-caja').value.trim();
+    if (t === ultimoPeek) return;
+    ultimoPeek = t;
+    forzado = null; alt.innerHTML = '';
+    if (!t) { resuelto.textContent = ''; return; }
+
+    resuelto.textContent = 'working out what that is…';
+    const r = await api('intake.peek', { texto: t });
+    if (r.error) { resuelto.textContent = ''; msg(cajaMsg, r.error, false); return; }
+
+    resuelto.innerHTML = `→ ${esc(r.label)}`;
+    alt.innerHTML = (r.alternativas || []).map((a, i) =>
+      `<button class="admin-btn sec" type="button" data-alt="${i}"
+         data-as="${esc(a.as)}" data-kind="${esc(a.kind || '')}">${esc(a.label)}</button>`).join(' ');
+  }
+
+  $('in-caja').addEventListener('blur', mirar);
+  $('in-caja').addEventListener('paste', () => setTimeout(mirar, 60));
+
+  delegar(alt, '[data-alt]', (b) => {
+    forzado = { as: b.dataset.as, kind: b.dataset.kind || undefined };
+    resuelto.innerHTML = `→ ${esc(b.textContent)} <span style="color:var(--muted)">(your call)</span>`;
+    alt.innerHTML = '';
+  });
+
+  $('in-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const t = $('in-caja').value.trim();
+    if (!t) return;
+    $('in-add').disabled = true;
+    msg(cajaMsg, 'reading it…', true);
+    const r = await api('intake.add', { texto: t, ...(forzado || {}) });
+    $('in-add').disabled = false;
+    if (r.error) { msg(cajaMsg, r.error, false); return; }
+    msg(cajaMsg, r.as === 'fuente'
+      ? `Now watching: ${r.source.name}`
+      : `In the queue: ${r.item.title.slice(0, 70)}`, true);
+    $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
+    forzado = null; ultimoPeek = '';
+    pintarCola(); pintarFuentes(); pintarEstado();
+  };
+
+  // ── La cola ─────────────────────────────────────────────────────────────
+  const ESTADO = { pending: 'queued', running: 'reading', digested: 'read',
+                   skipped: 'skipped', error: 'error' };
+
+  async function pintarCola() {
+    const d = await api('queue.list');
+    if (d.error) { listaQ.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    if (!d.items.length) { listaQ.innerHTML = '<span class="admin-vacio">Nothing waiting.</span>'; return; }
+    listaQ.innerHTML = `<table class="admin-tabla">
+      <tr><th>What</th><th>State</th><th>Added</th><th></th></tr>
+      ${d.items.map(i => `<tr>
+        <td>${esc(i.title)}
+          ${i.url && i.url !== 'about:blank' ? `<div class="admin-url">${esc(i.url)}</div>` : ''}
+          ${i.glossa_radar_sources?.name ? `<div class="admin-nota">${esc(i.glossa_radar_sources.name)}</div>` : ''}
+          ${i.error ? `<div class="admin-nota" style="color:var(--accent)">${esc(i.error)}</div>` : ''}</td>
+        <td><span class="admin-kind">${esc(ESTADO[i.state] || i.state)}</span></td>
+        <td style="white-space:nowrap;color:var(--muted)">${esc(hace(i.published_at))}</td>
+        <td>${i.origin !== 'feed'
+          ? `<button class="admin-btn sec" data-del="${i.id}">remove</button>` : ''}</td>
+      </tr>`).join('')}</table>`;
+  }
+
+  delegar(listaQ, '[data-del]', async (b) => {
+    b.disabled = true;
+    const r = await api('inbox.delete', { id: b.dataset.del });
+    if (r.error) msg(cajaMsg, r.error, false);
+    pintarCola();
+  });
+
+  // ── Lo que se vigila ────────────────────────────────────────────────────
+  // Agrupado por cómo se sondea, que es lo que de verdad las diferencia.
+  const GRUPOS = [
+    ['youtube', 'YouTube'], ['podcast', 'Podcasts'], ['rss', 'Outlets'],
+    ['persona', 'People'],  ['tema', 'Topics'],
+  ];
+
+  async function pintarFuentes() {
+    const d = await api('sources.panel');
+    if (d.error) { listaSrc.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    if (!d.sources.length) { listaSrc.innerHTML = '<span class="admin-vacio">Nothing being watched yet.</span>'; return; }
+
+    listaSrc.innerHTML = GRUPOS.map(([k, etiqueta]) => {
+      const filas = d.sources.filter(s => s.kind === k);
+      if (!filas.length) return '';           // un grupo vacío no se pinta
+      return `<h3 style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+                         color:var(--muted);margin:26px 0 6px">${etiqueta}</h3>
+        <table class="admin-tabla">
+        <tr><th>Name</th><th style="white-space:nowrap">In queue</th>
+            <th style="white-space:nowrap">Read, 7d</th><th>Checked</th><th></th></tr>
+        ${filas.map(s => `<tr class="${s.active ? '' : 'off'}">
+          <td>${esc(s.name)}
+            ${s.notes ? `<div class="admin-nota">${esc(s.notes)}</div>` : ''}</td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums">${
+            s.pendientes ? `<strong>${s.pendientes}</strong>` : '—'}</td>
+          <td style="text-align:right;color:var(--muted);font-variant-numeric:tabular-nums">${
+            s.procesados_7d || '—'}</td>
+          <td style="white-space:nowrap;color:var(--muted)">${esc(hace(s.last_checked_at))}</td>
+          <td style="white-space:nowrap">
+            <button class="admin-btn sec" data-t="${s.id}" data-a="${s.active ? '0' : '1'}"
+              >${s.active ? 'pause' : 'activate'}</button>
+            &nbsp;<button class="admin-btn sec" data-d="${s.id}" data-n="${esc(s.name)}">remove</button>
+          </td></tr>`).join('')}</table>`;
+    }).join('');
+  }
+
+  delegar(listaSrc, '[data-t]', async (b) => {
+    b.disabled = true;
+    await api('sources.toggle', { id: b.dataset.t, active: b.dataset.a === '1' });
+    pintarFuentes(); pintarEstado();
+  });
+  delegar(listaSrc, '[data-d]', async (b) => {
+    if (!confirm(`Remove “${b.dataset.n}”? Episodes already read go with it.`)) return;
+    b.disabled = true;
+    await api('sources.delete', { id: b.dataset.d });
+    pintarFuentes(); pintarCola(); pintarEstado();
+  });
+
+  // ── Números ─────────────────────────────────────────────────────────────
+  async function pintarEstado() {
+    const d = await api('status');
+    const c = $('st-cifras');
+    if (d.error) { c.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     const it = d.items || {};
-    const cifra = (n, t) => `<div class="admin-cifra"><b>${n}</b><span>${t}</span></div>`;
-    c.innerHTML = cifra(`${d.sources.active}/${d.sources.total}`, 'active sources')
-      + cifra(it.digested || 0, 'episodes processed')
-      + cifra(it.pending || 0, 'queued')
+    const cifra = (n, t) => `<div class="admin-cifra"><b>${esc(n)}</b><span>${esc(t)}</span></div>`;
+    c.innerHTML = cifra(`${d.sources.active}/${d.sources.total}`, 'watched')
+      + cifra(d.semana || 0, 'arrived this week')
+      + cifra(it.pending || 0, 'waiting')
+      + cifra(it.digested || 0, 'read in total')
       + cifra(d.topics || 0, 'live topics')
       + ((it.error || 0) ? cifra(it.error, 'with errors') : '');
-  });
-  const auto = document.getElementById('auto');
-  api('settings.get').then(d => { auto.checked = d.settings?.auto_publish === true; });
-  auto.addEventListener('change', () => api('settings.set', { key: 'auto_publish', value: auto.checked }));
+  }
+
+  (async () => {
+    const s = await api('settings.get');
+    $('st-auto').checked = s.settings?.auto_publish === true;
+  })();
+  $('st-auto').onchange = async (e) => {
+    const r = await api('settings.set', { key: 'auto_publish', value: e.target.checked });
+    msg(cajaMsg, r.error || (e.target.checked
+      ? 'The weekly issue will go out without review.'
+      : 'The weekly issue will wait for you.'), !r.error);
+  };
+
+  pintarCola(); pintarFuentes(); pintarEstado();
 </script>
 </AdminLayout>

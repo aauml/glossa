@@ -1,11 +1,12 @@
 ---
 import '../styles/admin.css';
 const { title, tab } = Astro.props;
+// Dos pestañas: lo que entra y lo que sale. Antes eran cuatro —Status, Sources,
+// Inbox, Weekly— y alimentar el sistema obligaba a saber de antemano en cuál de
+// las tres caía lo que tenías en la mano.
 const TABS = [
-  { href: '/admin/',         label: 'Status',  id: 'status' },
-  { href: '/admin/sources/', label: 'Sources', id: 'sources' },
-  { href: '/admin/inbox/',   label: 'Inbox',   id: 'inbox' },
-  { href: '/admin/weekly/',  label: 'Weekly',  id: 'weekly' },
+  { href: '/admin/',        label: 'Feed',   id: 'feed' },
+  { href: '/admin/weekly/', label: 'Weekly', id: 'weekly' },
 ];
 ---
 <!DOCTYPE html>
