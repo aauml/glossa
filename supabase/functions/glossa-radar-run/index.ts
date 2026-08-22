@@ -147,7 +147,16 @@ Deno.serve(async (req) => {
       if (!agotado.includes('gemini')) agotado.push('gemini');
       break;   // lo pendiente sigue pendiente, que es lo que ya pasa cuando no cabe en el tiempo
     }
-    const esTexto = item.origin === 'pegado' && !!item.body_text;
+    // Si HAY texto, se usa el texto. El origen no decide esto.
+    //
+    // Antes preguntaba por `origin === 'pegado'`, y al añadir las fuentes por
+    // búsqueda quedaron seis elementos con su artículo entero guardado —hasta
+    // 85.000 caracteres— a los que se les mandaba la URL a Gemini como si fueran
+    // un vídeo. Gemini solo sabe abrir YouTube, así que devolvía «400
+    // INVALID_ARGUMENT» y ahí se quedaban. Es el mismo fallo que ya costó el
+    // artículo del NYT, cometido otra vez por preguntar por la etiqueta en vez de
+    // por el dato.
+    const esTexto = !!item.body_text;
     try {
       await sb.from('glossa_radar_items')
         .update({ state: 'running', started_at: new Date().toISOString() }).eq('id', item.id);
