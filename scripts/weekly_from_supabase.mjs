@@ -105,7 +105,16 @@ const tandas = Object.entries(porDia).filter(([, n]) => n >= 5)
 // Así que se prioriza en vez de truncar por la cola. Un episodio vale por los
 // temas donde es CENTRAL: eso es lo que la etapa de clasificación ya decidió
 // leyendo el contenido, y es mejor señal que la fecha.
-const TOPE_TOKENS = Number(process.env.WEEKLY_TOKEN_BUDGET || 90_000);
+// Bajado de 90.000 a 55.000 tras un fallo en producción. El material creció a 166
+// episodios y 71.260 tokens, y K3 pasó de los treinta minutos de tiempo máximo
+// que tenía puesto. El presupuesto es el control que manda aquí: a más material,
+// más tarda, y el material va a seguir creciendo —al ritmo actual, 294 episodios
+// por semana—.
+//
+// No se pierde nada por bajarlo: el número son cinco piezas de quinientas
+// palabras pase lo que pase, y lo que se recorta es lo MENOS conectado con los
+// temas vivos, que es lo que menos iba a aparecer.
+const TOPE_TOKENS = Number(process.env.WEEKLY_TOKEN_BUDGET || 55_000);
 
 const enlaces = await sb(`glossa_radar_item_topics?select=item_id,relevance,topic_id&limit=5000`);
 const peso = {};
@@ -311,8 +320,9 @@ const raw = await new Promise((ok, ko) => {
       : ko(new Error(`moonshot ${res.statusCode}: ${b.slice(0, 400)}`))));
   });
   req.on('error', ko);
-  // Sin actividad en 30 min es que algo murió; el máximo medido fue 952 s.
-  req.setTimeout(30 * 60_000, () => req.destroy(new Error('sin respuesta en 30 min')));
+  // 35 minutos, por debajo de los 50 del workflow para que el error lo dé este
+  // guion —que sabe decir qué pasó— y no un corte seco del runner.
+  req.setTimeout(35 * 60_000, () => req.destroy(new Error('sin respuesta en 35 min')));
   req.end(cuerpo);
 });
 const d = JSON.parse(raw);

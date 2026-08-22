@@ -40,9 +40,9 @@ env:
 jobs:
   weekly:
     runs-on: ubuntu-latest
-    # K3 tardó 952 s en la medición. 40 minutos deja margen de sobra sin que un
-    # cuelgue se quede corriendo toda la tarde.
-    timeout-minutes: 40
+    # El guion se rinde a los 35 min y explica por qué; esto es el corte duro por
+    # detrás, para que el mensaje útil salga antes que el seco del runner.
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
