@@ -25,17 +25,47 @@ async function huella(s: string) {
   return Array.from(new Uint8Array(buf)).slice(0, 12).map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * Un enlace de canal de YouTube no es su feed, y la forma en que la gente copia
+ * un canal —`youtube.com/@handle`— ni siquiera contiene el id del canal. Hay que
+ * resolverlo pidiendo la página, cosa que el navegador no puede hacer por CORS;
+ * por eso vive aquí. Salió probándolo: pegar el @handle daba "no es un RSS".
+ */
+async function resolverYouTube(url: string) {
+  if (/\/feeds\/videos\.xml/.test(url)) return url;
+  const canal = /youtube\.com\/channel\/(UC[\w-]+)/.exec(url);
+  if (canal) return `https://www.youtube.com/feeds/videos.xml?channel_id=${canal[1]}`;
+  if (!/youtube\.com\/(@|c\/|user\/)/.test(url)) return url;
+  try {
+    const r = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      redirect: 'follow', signal: AbortSignal.timeout(12_000),
+    });
+    if (!r.ok) return url;
+    const html = await r.text();
+    // OJO con el orden. `"channelId"` aparece decenas de veces en la página —una
+    // por cada vídeo recomendado— y coger la primera devolvía el canal de OTRO.
+    // Habría dado de alta un canal distinto al pedido sin que nadie lo notara.
+    // `canonical`, `externalId` y `browseId` sí identifican LA página.
+    const id =
+      /<link rel="canonical" href="https:\/\/www\.youtube\.com\/channel\/(UC[\w-]+)"/.exec(html) ||
+      /"externalId":"(UC[\w-]+)"/.exec(html) ||
+      /"browseId":"(UC[\w-]+)"/.exec(html);
+    return id ? `https://www.youtube.com/feeds/videos.xml?channel_id=${id[1]}` : url;
+  } catch { return url; }
+}
+
 /** Un feed debe responder y parecer XML antes de darlo de alta. */
 async function feedResponde(url: string) {
   try {
     const r = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(10_000) });
-    if (!r.ok) return { ok: false, error: `el feed respondió ${r.status}` };
+    if (!r.ok) return { ok: false, error: `the feed responded ${r.status}` };
     const txt = (await r.text()).slice(0, 2000);
-    if (!/<(rss|feed)\b/i.test(txt)) return { ok: false, error: 'la URL responde pero no es un RSS/Atom' };
+    if (!/<(rss|feed)\b/i.test(txt)) return { ok: false, error: 'that URL responds but is not an RSS/Atom feed' };
     const nombre = (txt.match(/<title[^>]*>([^<]{1,120})</i) || [])[1];
     return { ok: true, nombre: nombre ? nombre.trim() : undefined };
   } catch (e) {
-    return { ok: false, error: `no se pudo leer el feed: ${String(e).slice(0, 120)}` };
+    return { ok: false, error: `could not read the feed: ${String(e).slice(0, 120)}` };
   }
 }
 
@@ -44,7 +74,7 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return bad('POST only', 405);
 
   let b: Record<string, unknown>;
-  try { b = await req.json(); } catch { return bad('cuerpo JSON inválido'); }
+  try { b = await req.json(); } catch { return bad('invalid JSON body'); }
 
   const auth = requireToken(req, CORS, b?.token);
   if (!auth.ok) return auth.response;
@@ -59,14 +89,17 @@ Deno.serve(async (req) => {
         if (error) throw error;
         return ok({ sources: data });
       }
-      case 'sources.check':
-        return ok(await feedResponde(String(b.feed_url || '')));
+      case 'sources.check': {
+        const url = await resolverYouTube(String(b.feed_url || '').trim());
+        return ok({ ...(await feedResponde(url)), feed_url: url });
+      }
 
       case 'sources.create': {
-        const feed_url = String(b.feed_url || '').trim();
-        if (!/^https?:\/\//i.test(feed_url)) return bad('la URL debe empezar por http(s)://');
+        const bruta = String(b.feed_url || '').trim();
+        if (!/^https?:\/\//i.test(bruta)) return bad('the URL must start with http(s)://');
+        const feed_url = await resolverYouTube(bruta);
         const kind = String(b.kind || 'rss');
-        if (!['youtube', 'podcast', 'rss'].includes(kind)) return bad('tipo inválido');
+        if (!['youtube', 'podcast', 'rss'].includes(kind)) return bad('invalid type');
         // Se comprueba antes de guardar: una fuente rota que falla cada noche en
         // silencio es peor que un error ahora.
         const chequeo = await feedResponde(feed_url);
@@ -75,7 +108,7 @@ Deno.serve(async (req) => {
           .insert({ kind, feed_url, name: String(b.name || chequeo.nombre || feed_url).slice(0, 120),
                     homepage: b.homepage ?? null, notes: b.notes ?? null })
           .select().single();
-        if (error) return bad(error.code === '23505' ? 'esa fuente ya está dada de alta' : error.message);
+        if (error) return bad(error.code === '23505' ? 'that source is already registered' : error.message);
         return ok({ source: data });
       }
       case 'sources.toggle': {
@@ -94,7 +127,7 @@ Deno.serve(async (req) => {
       case 'inbox.add': {
         const url = String(b.url || '').trim();
         const texto = String(b.body_text || '').trim();
-        if (!url && !texto) return bad('hace falta un enlace o el texto');
+        if (!url && !texto) return bad('a link or the text is required');
         const { data, error } = await db.from('glossa_radar_items').insert({
           source_id: null,
           origin: 'pegado',
@@ -108,7 +141,7 @@ Deno.serve(async (req) => {
           note: b.note ?? null,
           state: 'pending',
         }).select('id,title').single();
-        if (error) return bad(error.code === '23505' ? 'eso ya está en la bandeja' : error.message);
+        if (error) return bad(error.code === '23505' ? 'that is already in the inbox' : error.message);
         return ok({ item: data });
       }
       case 'inbox.list': {
@@ -172,7 +205,7 @@ Deno.serve(async (req) => {
       }
 
       default:
-        return bad(`operación desconocida: ${b.op}`);
+        return bad(`unknown operation: ${b.op}`);
     }
   } catch (e) {
     return bad(String(e).slice(0, 300), 500);
