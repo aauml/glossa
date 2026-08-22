@@ -7,14 +7,15 @@ name: Glossa weekly (número semanal)
 # material —Gemini 45 s, GPT-5 104 s, Grok 169 s, Sonnet 170 s, Kimi K2.6 326 s,
 # Kimi K3 952 s— y sólo el más flojo cabía. Un Action tiene seis horas.
 #
-# Domingos 11:00 UTC = 04:00 en California (03:00 en invierno). La semana que
-# cubre es la que acaba de cerrarse: domingo a sábado.
+# Domingos 10:00 UTC = 03:00 en California, 02:00 en invierno. De madrugada y a
+# tiempo: el número está escrito cuando empieza el domingo, no el lunes. La
+# semana que cubre es la que acaba de cerrarse, de domingo a sábado.
 #
 # Secretos: SUPABASE_SERVICE_KEY (ya existe), MOONSHOT_API_KEY (nuevo).
 
 on:
   schedule:
-    - cron: '0 11 * * 0'
+    - cron: '0 10 * * 0'
   workflow_dispatch:
     inputs:
       week_end:
