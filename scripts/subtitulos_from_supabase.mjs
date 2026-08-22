@@ -95,11 +95,16 @@ for (const it of pendientes) {
       console.log(`  · sin subtítulos       ${it.title.slice(0, 52)}`);
     }
   } catch (e) {
+    // El motivo va entero. «Command failed» no dice nada, y la primera vez que
+    // esto falló hubo que volver a lanzarlo solo para averiguar por qué: la causa
+    // útil venía en `stderr`, que es justo lo que el mensaje se comía.
+    const motivo = String(e.stderr || e.message || e).replace(/\s+/g, ' ').trim();
     await sb(`glossa_radar_items?id=eq.${it.id}`, {
       method: 'PATCH', headers: { Prefer: 'return=minimal' },
       body: JSON.stringify({ captions_at: new Date().toISOString() }) });
     sinSubs++;
-    console.log(`  · no se pudo           ${it.title.slice(0, 44)} — ${String(e.message ?? e).slice(0, 46)}`);
+    console.log(`  · no se pudo  ${it.title.slice(0, 38)}`);
+    console.log(`      ${motivo.slice(0, 300)}`);
   } finally {
     rmSync(carpeta, { recursive: true, force: true });
   }
