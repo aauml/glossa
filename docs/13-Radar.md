@@ -25,6 +25,21 @@ secretos y sus propios límites. **Hubo una versión en Apps Script** (retirada 
 2026-08-21, recuperable del historial): funcionaba, pero dejó de tener sentido en
 cuanto el panel existió.
 
+## El RSS de YouTube murió; se usa la API oficial
+
+El 2026-08-21, el endpoint `/feeds/videos.xml` empezó a devolver **404 para todos
+los canales** —el de Google y el de TED incluidos— mientras el resto de
+youtube.com seguía respondiendo. Había funcionado esa misma tarde. Nunca estuvo
+documentado: era una conveniencia que YouTube podía retirar sin aviso, y la retiró.
+
+El descubrimiento de canales pasa a la **YouTube Data API v3**, que sí está
+soportada. Cuesta **1 unidad por canal comprobado** de las 10.000 diarias
+gratuitas — unas 5.000 comprobaciones al día, muy por encima de lo que esto va a
+necesitar. Los podcasts y la prensa siguen por RSS, que en su caso funciona.
+
+Detalle que ahorra una llamada: la lista de "subidas" de un canal es su propio id
+con `UU` en vez de `UC`, así que no hace falta preguntarla.
+
 ## Los números, medidos
 
 Un episodio de una hora de YouTube:

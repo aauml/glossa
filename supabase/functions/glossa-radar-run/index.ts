@@ -12,7 +12,7 @@
 // Nada de aquí se publica. Es material de lectura privado.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { CORS, requireToken } from '../_shared/auth.ts';
-import { parsearFeed, partirInvitado } from '../_shared/feeds.ts';
+import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube } from '../_shared/feeds.ts';
 import { gemini, geminiJson, geminiTokens, MODELO_DIGEST, VIDEO_FPS } from '../_shared/gemini.ts';
 import { promptDigest, promptTemas } from '../_shared/prompts.ts';
 
@@ -60,9 +60,19 @@ Deno.serve(async (req) => {
     let erroresFuente: string[] | undefined;
     for (const src of fuentes ?? []) {
       try {
-        const r = await fetch(src.feed_url, { signal: AbortSignal.timeout(15_000) });
-        if (!r.ok) throw new Error(`feed ${r.status}`);
-        const filas = parsearFeed(await r.text(), src.kind)
+        // YouTube va por su API oficial desde que el RSS dejó de responder;
+        // podcasts y prensa siguen por RSS, que en su caso sí funciona.
+        let entradas;
+        if (src.kind === 'youtube') {
+          const canal = idDeCanal(src.feed_url);
+          if (!canal) throw new Error('no se reconoce el id del canal en la URL guardada');
+          entradas = await episodiosYouTube(canal, Deno.env.get('GLOSSA_YOUTUBE_KEY')!);
+        } else {
+          const r = await fetch(src.feed_url, { signal: AbortSignal.timeout(15_000) });
+          if (!r.ok) throw new Error(`feed ${r.status}`);
+          entradas = parsearFeed(await r.text(), src.kind);
+        }
+        const filas = entradas
           .filter(e => new Date(e.published_at) >= corte)
           .map(e => ({
             source_id: src.id, origin: 'feed', external_id: e.external_id, url: e.url,

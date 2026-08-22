@@ -10,6 +10,7 @@
 // token, no un JWT de Supabase.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { CORS, requireToken } from '../_shared/auth.ts';
+import { idDeCanal } from '../_shared/feeds.ts';
 
 const sb = () => createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -33,6 +34,7 @@ async function huella(s: string) {
  */
 async function resolverYouTube(url: string) {
   if (/\/feeds\/videos\.xml/.test(url)) return url;
+  if (/youtube\.com\/channel\/UC[\w-]+/.test(url)) return url;
   const canal = /youtube\.com\/channel\/(UC[\w-]+)/.exec(url);
   if (canal) return `https://www.youtube.com/feeds/videos.xml?channel_id=${canal[1]}`;
   if (!/youtube\.com\/(@|c\/|user\/)/.test(url)) return url;
@@ -51,8 +53,33 @@ async function resolverYouTube(url: string) {
       /<link rel="canonical" href="https:\/\/www\.youtube\.com\/channel\/(UC[\w-]+)"/.exec(html) ||
       /"externalId":"(UC[\w-]+)"/.exec(html) ||
       /"browseId":"(UC[\w-]+)"/.exec(html);
-    return id ? `https://www.youtube.com/feeds/videos.xml?channel_id=${id[1]}` : url;
+    // Se guarda la URL del canal, no la del RSS: ese endpoint murió y la URL
+    // canónica del canal es la que sigue siendo válida.
+    return id ? `https://www.youtube.com/channel/${id[1]}` : url;
   } catch { return url; }
+}
+
+/**
+ * Un canal de YouTube se comprueba contra la API oficial, no contra el RSS: ese
+ * endpoint devuelve 404 desde el 2026-08-21 para todos los canales.
+ */
+async function canalResponde(url: string) {
+  const canal = idDeCanal(url);
+  if (!canal) return { ok: false, error: 'could not work out the channel id from that URL' };
+  const key = Deno.env.get('GLOSSA_YOUTUBE_KEY');
+  if (!key) return { ok: false, error: 'YouTube API key not configured' };
+  try {
+    const r = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${canal}&key=${key}`,
+      { signal: AbortSignal.timeout(12_000) });
+    const d = await r.json();
+    if (!r.ok) return { ok: false, error: `YouTube API: ${String(d?.error?.message ?? r.status).slice(0, 120)}` };
+    const it = (d.items ?? [])[0];
+    if (!it) return { ok: false, error: 'no channel with that id' };
+    return { ok: true, nombre: it.snippet?.title, videos: it.statistics?.videoCount };
+  } catch (e) {
+    return { ok: false, error: `could not reach the YouTube API: ${String(e).slice(0, 100)}` };
+  }
 }
 
 /** Un feed debe responder y parecer XML antes de darlo de alta. */
@@ -91,7 +118,8 @@ Deno.serve(async (req) => {
       }
       case 'sources.check': {
         const url = await resolverYouTube(String(b.feed_url || '').trim());
-        return ok({ ...(await feedResponde(url)), feed_url: url });
+        const esYT = String(b.kind || '') === 'youtube' || !!idDeCanal(url);
+        return ok({ ...(esYT ? await canalResponde(url) : await feedResponde(url)), feed_url: url });
       }
 
       case 'sources.create': {
@@ -102,7 +130,7 @@ Deno.serve(async (req) => {
         if (!['youtube', 'podcast', 'rss'].includes(kind)) return bad('invalid type');
         // Se comprueba antes de guardar: una fuente rota que falla cada noche en
         // silencio es peor que un error ahora.
-        const chequeo = await feedResponde(feed_url);
+        const chequeo = kind === 'youtube' ? await canalResponde(feed_url) : await feedResponde(feed_url);
         if (!chequeo.ok) return bad(chequeo.error!);
         const { data, error } = await db.from('glossa_radar_sources')
           .insert({ kind, feed_url, name: String(b.name || chequeo.nombre || feed_url).slice(0, 120),

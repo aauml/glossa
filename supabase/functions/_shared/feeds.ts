@@ -62,3 +62,46 @@ export function partirInvitado(title: string) {
   const m = /^([^:]{3,60}):\s*(.+)$/.exec(title || '');
   return m ? m[1].trim() : null;
 }
+
+// ── YouTube por la API oficial ────────────────────────────────────────────
+//
+// El endpoint de RSS de YouTube (/feeds/videos.xml) empezó a devolver 404 para
+// TODOS los canales el 2026-08-21 —el de Google y el de TED incluidos— mientras
+// el resto de youtube.com seguía respondiendo. Nunca estuvo documentado: era una
+// conveniencia que podían retirar sin aviso, y la retiraron.
+//
+// La Data API sí está soportada. Coste: 1 unidad por comprobación de 10.000
+// diarias, o sea unas 5.000 comprobaciones al día — muy por encima de lo que
+// este radar va a necesitar nunca.
+
+/** El id del canal, venga como URL de canal o como la vieja URL de RSS. */
+export function idDeCanal(url: string): string | null {
+  return (/[?&]channel_id=(UC[\w-]+)/.exec(url) ||
+          /youtube\.com\/channel\/(UC[\w-]+)/.exec(url) ||
+          /^(UC[\w-]+)$/.exec(url.trim()))?.[1] ?? null;
+}
+
+/**
+ * La lista de "subidas" de un canal es su propio id con UU en vez de UC. Es una
+ * convención estable de YouTube, y aprovecharla ahorra una llamada por canal.
+ */
+export const listaDeSubidas = (canal: string) => 'UU' + canal.slice(2);
+
+export async function episodiosYouTube(canalId: string, apiKey: string): Promise<Entrada[]> {
+  const u = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
+  u.searchParams.set('part', 'snippet');
+  u.searchParams.set('playlistId', listaDeSubidas(canalId));
+  u.searchParams.set('maxResults', '30');
+  u.searchParams.set('key', apiKey);
+
+  const r = await fetch(u, { signal: AbortSignal.timeout(15_000) });
+  const d = await r.json();
+  if (!r.ok) throw new Error(`youtube ${r.status}: ${String(d?.error?.message ?? '').slice(0, 120)}`);
+
+  return (d.items ?? []).map((i: any) => ({
+    external_id: i.snippet.resourceId.videoId,
+    url: `https://www.youtube.com/watch?v=${i.snippet.resourceId.videoId}`,
+    title: i.snippet.title,
+    published_at: i.snippet.publishedAt,
+  }));
+}
