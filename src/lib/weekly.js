@@ -84,7 +84,15 @@ export function renderIssue(body = {}) {
     <article class="piece" id="${slug(p.title)}">
       <p class="kicker">${String(i + 1).padStart(2, '0')} · of ${piezas.length}${
         p.subject ? ` · <span class="subj">${esc(p.subject)}</span>` : ''}</p>
-      <h2>${esc(p.title)}</h2>
+      <h2>${esc(p.title)}${(() => {
+        // Al final del título, apuntando al episodio principal de los que usó.
+        // Ahí es donde se busca cuando algo te llama la atención y quieres oírlo,
+        // no al pie después de leer los seiscientos palabras.
+        const e = enlaces[(p.sources || [])[0]];
+        return e?.url
+          ? ` <a class="ir" href="${esc(e.url)}" target="_blank" rel="noopener"
+               title="${esc(e.title || 'source')}" aria-label="Open the source"> ↗</a>` : '';
+      })()}</h2>
       ${p.dek ? `<p class="dek">${esc(p.dek)}</p>` : ''}
       ${prosa(p.body)}
       ${p.sources_note || (p.sources || []).length ? `<p class="src">${esc(p.sources_note || '')}

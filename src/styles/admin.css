@@ -94,3 +94,25 @@ table.admin-tabla tr.off td { opacity: 0.45; }
   .admin-bar, .admin-main { padding-left: 18px; padding-right: 18px; }
   .admin-row { flex-direction: column; gap: 14px; }
 }
+
+/* Grupos plegables. Veinte canales de YouTube abiertos empujan todo lo demás
+   fuera de la pantalla; plegados, la página cabe de un vistazo. */
+details.grupo { margin-bottom: 14px; }
+details.grupo > summary,
+.admin-sec > details > summary {
+  cursor: pointer; list-style: none;
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); padding: 6px 0; border-bottom: 0.5px solid var(--rule-soft);
+}
+details.grupo > summary::-webkit-details-marker,
+.admin-sec > details > summary::-webkit-details-marker { display: none; }
+details.grupo > summary::before,
+.admin-sec > details > summary::before { content: "▸ "; }
+details.grupo[open] > summary::before,
+.admin-sec > details[open] > summary::before { content: "▾ "; }
+details.grupo > summary:hover,
+.admin-sec > details > summary:hover { color: var(--accent); }
+
+/* El título de una sección puede llevar una cuenta a su derecha, en el mismo
+   renglón: es el dato que se busca al mirarla. */
+.admin-sec h2 .admin-kind { margin-left: 8px; text-transform: none; letter-spacing: 0.04em; }

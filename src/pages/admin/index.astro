@@ -5,9 +5,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 <AdminLayout title="Feed" tab="feed">
   <h1>Feed</h1>
   <p class="sub">
-    One box for everything. A channel, a podcast, an article, text you pasted, or just a
-    subject you want followed — drop it in and it works out what it was. Everything ends up
-    in the same queue and is read in turn.
+    One box for everything. A channel, a podcast, an article, text you pasted, or a subject
+    you want followed — drop it in and it works out what it was.
   </p>
 
   <!-- ── La caja ────────────────────────────────────────────────────────── -->
@@ -28,62 +27,34 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   <!-- ── La cola ────────────────────────────────────────────────────────── -->
   <section class="admin-sec">
-    <h2>What you added</h2>
+    <h2>Queue <span id="q-cuenta" class="admin-kind"></span></h2>
     <div id="q-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
-  <!-- ── Lo que se vigila ───────────────────────────────────────────────── -->
+  <!-- ── Lo que se sigue ────────────────────────────────────────────────── -->
   <section class="admin-sec">
-    <h2>Watching</h2>
+    <h2>Following <span id="src-cuenta" class="admin-kind"></span></h2>
     <div id="src-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
-  <!-- ── Lo comprobado fuera ────────────────────────────────────────────── -->
+  <!-- ── Lo de dentro ───────────────────────────────────────────────────
+       Cerrado por defecto. Nada de esto se usa a diario: son las cuentas del
+       sistema y la única forma de deshacer una corrección del comité. Quitarlo
+       del todo dejaría una corrección aplicada sin manera de revertirla. -->
   <section class="admin-sec">
-    <h2>Checked against outside documents</h2>
-    <p class="sub" style="margin-bottom:14px">
-      Every Saturday, the claims most likely to be repeated as fact are searched against
-      records outside this list of sources. Agreement among voices that share a school is
-      alignment; this is the only thing that can tell you it is more than that.
-    </p>
-    <div id="cot-lista"><span class="admin-vacio">loading…</span></div>
-  </section>
-
-  <!-- ── Lo que ha aprendido de sí mismo ────────────────────────────────── -->
-  <section class="admin-sec">
-    <h2>What checking has taught it</h2>
-    <p class="sub" style="margin-bottom:14px">
-      Counted, not judged. The left table is how each source's claims fare when searched
-      against outside records. The right one is whether the reading stage is calling things
-      "documented" that turn out not to be — which is the one error that would put a false
-      gold mark on a public page.
-    </p>
-    <div id="apr-lista"><span class="admin-vacio">loading…</span></div>
-  </section>
-
-  <!-- ── El consejo ─────────────────────────────────────────────────────── -->
-  <section class="admin-sec">
-    <h2>Corrections the committee has made</h2>
-    <p class="sub" style="margin-bottom:14px">
-      When the measuring says a stage is calling things wrong, three other models — never
-      the one being corrected — vote on a one-line fix. They can only write into named
-      slots, never rewrite a rule, and every one of them reverts here in a click.
-    </p>
-    <div id="con-lista"><span class="admin-vacio">loading…</span></div>
-  </section>
-
-  <!-- ── Números y ajustes ──────────────────────────────────────────────── -->
-  <section class="admin-sec">
-    <h2>Right now</h2>
-    <div class="admin-cifras" id="st-cifras"><span class="admin-vacio">loading…</span></div>
-    <p class="admin-nota" id="st-gasto" style="margin-top:18px"></p>
-    <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
-      <input type="checkbox" id="st-auto" />
-      <span>Publish the weekly issue without review</span>
-    </label>
-    <p class="admin-nota" style="margin-top:4px">
-      Off until the checks that make it safe are in place.
-    </p>
+    <details id="tripas">
+      <summary>Under the hood</summary>
+      <div style="margin-top:20px">
+        <div class="admin-cifras" id="st-cifras"><span class="admin-vacio">…</span></div>
+        <p class="admin-nota" id="st-gasto" style="margin-top:16px"></p>
+        <p class="admin-nota" id="st-cotejo" style="margin-top:8px"></p>
+        <div id="con-lista" style="margin-top:20px"></div>
+        <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
+          <input type="checkbox" id="st-auto" />
+          <span>Publish the weekly issue without review</span>
+        </label>
+      </div>
+    </details>
   </section>
 
 <script>
@@ -94,30 +65,28 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   const cajaMsg = $('in-msg'), resuelto = $('in-resuelto'), alt = $('in-alt');
   const listaQ = $('q-lista'), listaSrc = $('src-lista');
 
+  // La flechita al final del título. Abre en otra pestaña porque salir del panel
+  // para ver una fuente y tener que volver atrás es peor que no tener el enlace.
+  const flecha = (url, titulo = '') => url && url !== 'about:blank'
+    ? ` <a href="${esc(url)}" target="_blank" rel="noopener" title="${esc(titulo)}"
+         style="text-decoration:none;color:var(--muted)">↗</a>` : '';
+
   // ── La caja ─────────────────────────────────────────────────────────────
-  // El servidor decide qué es; aquí solo se enseña lo que decidió. Adivinar en
-  // silencio sería lo peor de los dos mundos: sin formulario que rellenar, pero
-  // tampoco forma de saber qué se guardó.
-  let forzado = null;              // {as, kind} si el usuario corrigió la conjetura
-  let ultimoPeek = '';
+  let forzado = null, ultimoPeek = '';
 
   async function mirar() {
     const t = $('in-caja').value.trim();
     if (t === ultimoPeek) return;
-    ultimoPeek = t;
-    forzado = null; alt.innerHTML = '';
+    ultimoPeek = t; forzado = null; alt.innerHTML = '';
     if (!t) { resuelto.textContent = ''; return; }
-
     resuelto.textContent = 'working out what that is…';
     const r = await api('intake.peek', { texto: t });
     if (r.error) { resuelto.textContent = ''; msg(cajaMsg, r.error, false); return; }
-
     resuelto.innerHTML = `→ ${esc(r.label)}`;
     alt.innerHTML = (r.alternativas || []).map((a, i) =>
       `<button class="admin-btn sec" type="button" data-alt="${i}"
          data-as="${esc(a.as)}" data-kind="${esc(a.kind || '')}">${esc(a.label)}</button>`).join(' ');
   }
-
   $('in-caja').addEventListener('blur', mirar);
   $('in-caja').addEventListener('paste', () => setTimeout(mirar, 60));
 
@@ -136,47 +105,37 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const r = await api('intake.add', { texto: t, ...(forzado || {}) });
     $('in-add').disabled = false;
     if (r.error) { msg(cajaMsg, r.error, false); return; }
-    msg(cajaMsg, r.as === 'fuente'
-      ? `Now watching: ${r.source.name}`
-      : `In the queue: ${r.item.title.slice(0, 70)}`, true);
+    msg(cajaMsg, r.as === 'fuente' ? `Now following: ${r.source.name}`
+                                   : `Queued: ${r.item.title.slice(0, 70)}`, true);
     $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
     forzado = null; ultimoPeek = '';
-    pintarCola(); pintarFuentes(); pintarEstado();
+    pintarCola(); pintarFuentes(); pintarTripas();
   };
 
   // ── La cola ─────────────────────────────────────────────────────────────
-  // Antes decía «queued» y «read», que no explican nada por sí solos. Ahora cada
-  // estado dice qué le pasó al elemento y qué falta.
-  const ESTADO = { pending: 'waiting to be read', running: 'being read now',
-                   digested: 'read — in this week\'s material', skipped: 'set aside',
-                   error: 'could not be read' };
+  const ESTADO = { pending: 'waiting', running: 'reading now', digested: 'read',
+                   skipped: 'set aside', error: 'failed' };
 
-  // De dónde vino: el canal si lo tiene, el dominio si lo pegaste, y «typed in»
-  // si no había enlace. Antes se pintaba la URL entera, que ocupa tres líneas y
-  // no contesta a la pregunta.
   function procedencia(i) {
     if (i.glossa_radar_sources?.name) return i.glossa_radar_sources.name;
     if (i.author) return i.author;
-    if (i.url && i.url !== 'about:blank') {
-      try { return new URL(i.url).hostname.replace(/^www\./, ''); } catch { return i.url.slice(0, 30); }
-    }
-    return 'typed in';
+    try { return new URL(i.url).hostname.replace(/^www\./, ''); } catch { return 'typed in'; }
   }
 
   async function pintarCola() {
     const d = await api('queue.list');
     if (d.error) { listaQ.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    if (!d.items.length) { listaQ.innerHTML = '<span class="admin-vacio">Nothing waiting.</span>'; return; }
+    const esperando = d.items.filter(i => i.state === 'pending' || i.state === 'running').length;
+    $('q-cuenta').textContent = esperando ? `${esperando} waiting` : 'all read';
+    if (!d.items.length) { listaQ.innerHTML = '<span class="admin-vacio">Nothing here.</span>'; return; }
     listaQ.innerHTML = `<table class="admin-tabla">
-      <tr><th>Title</th><th>Source</th><th>State</th><th>Added</th><th></th></tr>
       ${d.items.map(i => `<tr>
-        <td>${esc(i.title)}
+        <td>${esc(i.title)}${flecha(i.url, i.title)}
           ${i.error ? `<div class="admin-nota" style="color:var(--accent)">${esc(i.error)}</div>` : ''}</td>
-        <td style="color:var(--muted)">${esc(procedencia(i))}</td>
+        <td style="color:var(--muted);white-space:nowrap">${esc(procedencia(i))}</td>
         <td><span class="admin-kind">${esc(ESTADO[i.state] || i.state)}</span></td>
-        <td style="white-space:nowrap;color:var(--muted)">${esc(hace(i.published_at))}</td>
-        <td>${i.origin !== 'feed'
-          ? `<button class="admin-btn sec" data-del="${i.id}">remove</button>` : ''}</td>
+        <td style="color:var(--muted);white-space:nowrap">${esc(hace(i.published_at))}</td>
+        <td>${i.origin !== 'feed' ? `<button class="admin-btn sec" data-del="${i.id}">remove</button>` : ''}</td>
       </tr>`).join('')}</table>`;
   }
 
@@ -187,8 +146,9 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     pintarCola();
   });
 
-  // ── Lo que se vigila ────────────────────────────────────────────────────
-  // Agrupado por cómo se sondea, que es lo que de verdad las diferencia.
+  // ── Lo que se sigue ─────────────────────────────────────────────────────
+  // Un grupo por tipo, plegable, con su cuenta. Veinte canales de YouTube
+  // abiertos empujan todo lo demás fuera de la pantalla.
   const GRUPOS = [
     ['youtube', 'YouTube'], ['podcast', 'Podcasts'], ['rss', 'Outlets'],
     ['persona', 'People'],  ['tema', 'Topics'],
@@ -197,215 +157,107 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   async function pintarFuentes() {
     const d = await api('sources.panel');
     if (d.error) { listaSrc.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    if (!d.sources.length) { listaSrc.innerHTML = '<span class="admin-vacio">Nothing being watched yet.</span>'; return; }
+    const pend = d.sources.reduce((n, s) => n + Number(s.pendientes || 0), 0);
+    $('src-cuenta').textContent = `${d.sources.length} · ${pend} in queue`;
+    if (!d.sources.length) { listaSrc.innerHTML = '<span class="admin-vacio">Nothing yet.</span>'; return; }
 
     listaSrc.innerHTML = GRUPOS.map(([k, etiqueta]) => {
       const filas = d.sources.filter(s => s.kind === k);
-      if (!filas.length) return '';           // un grupo vacío no se pinta
-      return `<h3 style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-                         color:var(--muted);margin:26px 0 6px">${etiqueta}</h3>
-        <table class="admin-tabla">
-        <tr><th>Name</th><th style="white-space:nowrap">In queue</th>
-            <th style="white-space:nowrap">Read, 7d</th><th>Checked</th><th></th></tr>
+      if (!filas.length) return '';
+      const enCola = filas.reduce((n, s) => n + Number(s.pendientes || 0), 0);
+      return `<details class="grupo"${enCola ? ' open' : ''}>
+        <summary>${etiqueta} <span class="admin-kind">${filas.length}${
+          enCola ? ` · ${enCola} in queue` : ''}</span></summary>
+        <table class="admin-tabla" style="margin-top:6px">
         ${filas.map(s => `<tr class="${s.active ? '' : 'off'}">
-          <td>${esc(s.name)}</td>
+          <td>${esc(s.name)}${flecha(s.feed_url, s.name)}</td>
           <td style="text-align:right;font-variant-numeric:tabular-nums">${
             s.pendientes ? `<strong>${s.pendientes}</strong>` : '—'}</td>
           <td style="text-align:right;color:var(--muted);font-variant-numeric:tabular-nums">${
             s.procesados_7d || '—'}</td>
-          <td style="white-space:nowrap;color:var(--muted)">${esc(hace(s.last_checked_at))}</td>
+          <td style="color:var(--muted);white-space:nowrap">${esc(hace(s.last_checked_at))}</td>
           <td style="white-space:nowrap">
             <button class="admin-btn sec" data-t="${s.id}" data-a="${s.active ? '0' : '1'}"
               >${s.active ? 'pause' : 'activate'}</button>
             &nbsp;<button class="admin-btn sec" data-d="${s.id}" data-n="${esc(s.name)}">remove</button>
-          </td></tr>`).join('')}</table>`;
+          </td></tr>`).join('')}</table></details>`;
     }).join('');
   }
 
   delegar(listaSrc, '[data-t]', async (b) => {
     b.disabled = true;
     await api('sources.toggle', { id: b.dataset.t, active: b.dataset.a === '1' });
-    pintarFuentes(); pintarEstado();
+    pintarFuentes();
   });
   delegar(listaSrc, '[data-d]', async (b) => {
-    if (!confirm(`Remove “${b.dataset.n}”? Episodes already read go with it.`)) return;
+    if (!confirm(`Stop following “${b.dataset.n}”? Episodes already read go with it.`)) return;
     b.disabled = true;
     await api('sources.delete', { id: b.dataset.d });
-    pintarFuentes(); pintarCola(); pintarEstado();
+    pintarFuentes(); pintarCola();
   });
 
-  // ── Números ─────────────────────────────────────────────────────────────
-  async function pintarEstado() {
-    const d = await api('status');
-    const c = $('st-cifras');
-    if (d.error) { c.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    const it = d.items || {};
-    const cifra = (n, t) => `<div class="admin-cifra"><b>${esc(n)}</b><span>${esc(t)}</span></div>`;
-    c.innerHTML = cifra(`${d.sources.active}/${d.sources.total}`, 'watched')
-      + cifra(d.semana || 0, 'arrived this week')
-      + cifra(it.pending || 0, 'waiting')
-      + cifra(it.digested || 0, 'read in total')
-      + cifra(d.topics || 0, 'live topics')
-      + ((it.error || 0) ? cifra(it.error, 'with errors') : '');
-  }
+  // ── Lo de dentro ────────────────────────────────────────────────────────
+  // Se pinta solo al abrirlo: son cinco consultas que nadie necesita al entrar.
+  let tripasPintadas = false;
+  $('tripas').addEventListener('toggle', () => {
+    if ($('tripas').open && !tripasPintadas) { tripasPintadas = true; pintarTripas(); }
+  });
 
-  // ── Lo comprobado fuera ─────────────────────────────────────────────────
-  // `contradice` primero y en acento: es el veredicto más valioso y el que hay
-  // que ver sin buscarlo. `repite` no es corroboración y el orden lo dice.
-  const VEREDICTO = {
-    contradice:     ['contradicted by', 1],
-    documenta:      ['documented by', 2],
-    repite:         ['only repeated by', 3],
-    no_concluyente: ['nothing conclusive', 4],
-    sin_hallazgo:   ['no document found', 5],
-  };
+  async function pintarTripas() {
+    if (!tripasPintadas) return;
+    const [e, g, c, con, s] = await Promise.all([
+      api('status'), api('budget'), api('cotejos.list'), api('consejo.list'), api('settings.get')]);
 
-  async function pintarCotejos() {
-    const d = await api('cotejos.list');
-    const el = $('cot-lista');
-    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    if (!d.cotejos.length) {
-      el.innerHTML = '<span class="admin-vacio">Nothing checked yet — it runs on Saturdays.</span>';
-      return;
+    if (!e.error) {
+      const it = e.items || {};
+      const cifra = (n, t) => `<div class="admin-cifra"><b>${esc(n)}</b><span>${esc(t)}</span></div>`;
+      $('st-cifras').innerHTML = cifra(e.semana || 0, 'this week')
+        + cifra(it.pending || 0, 'waiting') + cifra(it.digested || 0, 'read in total')
+        + cifra(e.topics || 0, 'topics') + ((it.error || 0) ? cifra(it.error, 'failed') : '');
     }
-    const cuenta = {};
-    for (const c of d.cotejos) cuenta[c.verdict] = (cuenta[c.verdict] || 0) + 1;
-    const resumen = Object.entries(cuenta)
-      .sort((a, b) => (VEREDICTO[a[0]]?.[1] ?? 9) - (VEREDICTO[b[0]]?.[1] ?? 9))
-      .map(([k, n]) => `${n} ${VEREDICTO[k]?.[0] ?? k}`).join('  ·  ');
-
-    const filas = [...d.cotejos]
-      .sort((a, b) => (VEREDICTO[a.verdict]?.[1] ?? 9) - (VEREDICTO[b.verdict]?.[1] ?? 9))
-      .map(c => `<tr>
-        <td>${esc(c.claim_text)}
-          ${c.verdict_reason ? `<div class="admin-nota">${esc(c.verdict_reason)}</div>` : ''}</td>
-        <td style="white-space:nowrap"><span class="admin-kind"${
-          c.verdict === 'contradice' ? ' style="color:var(--accent)"' : ''
-        }>${esc(VEREDICTO[c.verdict]?.[0] ?? c.verdict)}</span></td>
-        <td style="color:var(--muted);white-space:nowrap">${
-          c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.source_domain || 'source')}</a>` : '—'}</td>
-        <td style="color:var(--muted);white-space:nowrap">${esc(c.independence || '')}</td>
-      </tr>`).join('');
-
-    el.innerHTML = `<p class="admin-nota" style="margin-bottom:12px">${esc(resumen)}</p>
-      <table class="admin-tabla">
-        <tr><th>Claim</th><th>Outcome</th><th>Document</th><th>Independence</th></tr>
-        ${filas}</table>`;
-  }
-
-  // ── Lo que ha aprendido de sí mismo ─────────────────────────────────────
-  async function pintarAprendizaje() {
-    const d = await api('aprendizaje');
-    const el = $('apr-lista');
-    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    if (!d.historial.length && !d.calibracion.length) {
-      el.innerHTML = '<span class="admin-vacio">Nothing checked yet.</span>'; return;
+    if (!g.error && g.uso?.length) {
+      const V = { gemini: ['hoy', 'cap_gemini_dia', '/day'], youtube: ['hoy', 'cap_youtube_dia', '/day'],
+                  tavily: ['mes', 'cap_tavily_mes', '/mo'] };
+      $('st-gasto').textContent = g.uso.map(u => u.proveedor === 'moonshot'
+        ? `kimi $${Number(u.coste_mes).toFixed(2)}/mo`
+        : `${u.proveedor} ${u[(V[u.proveedor] || ['mes'])[0]]}${
+            V[u.proveedor]?.[1] && g.topes[V[u.proveedor][1]] ? `/${g.topes[V[u.proveedor][1]]}` : ''}${
+            (V[u.proveedor] || [, , '/mo'])[2]}`).join('  ·  ');
     }
-    const hist = d.historial.map(h => `<tr>
-      <td>${esc(h.name)}</td>
-      <td style="text-align:right;font-variant-numeric:tabular-nums">${h.comprobadas}</td>
-      <td style="text-align:right;font-variant-numeric:tabular-nums">${h.documentadas || '—'}</td>
-      <td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)">${h.repetidas || '—'}</td>
-      <td style="text-align:right;font-variant-numeric:tabular-nums${
-        h.contradichas ? ';color:var(--accent)' : ''}">${h.contradichas || '—'}</td>
-    </tr>`).join('');
-    const cal = d.calibracion.map(c => `<tr>
-      <td><span class="admin-kind">${esc(c.etiqueta_analisis)}</span></td>
-      <td style="text-align:right;font-variant-numeric:tabular-nums">${c.comprobadas}</td>
-      <td style="text-align:right;font-variant-numeric:tabular-nums">${c.confirmadas || '—'}</td>
-      <td style="text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)">${c.solo_repetidas || '—'}</td>
-      <td style="text-align:right;font-variant-numeric:tabular-nums${
-        c.contradichas ? ';color:var(--accent)' : ''}">${c.contradichas || '—'}</td>
-    </tr>`).join('');
-    el.innerHTML = `
-      <table class="admin-tabla" style="margin-bottom:30px">
-        <tr><th>Source</th><th style="text-align:right">Checked</th>
-            <th style="text-align:right">Documented</th><th style="text-align:right">Only repeated</th>
-            <th style="text-align:right">Contradicted</th></tr>${hist}</table>
-      <h3 style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">
-        Is the reading stage calling it right?</h3>
-      <table class="admin-tabla">
-        <tr><th>It labelled the claim</th><th style="text-align:right">Checked</th>
-            <th style="text-align:right">Held up</th><th style="text-align:right">Only repeated</th>
-            <th style="text-align:right">Contradicted</th></tr>${cal}</table>`;
-  }
-
-  // ── El consejo ──────────────────────────────────────────────────────────
-  async function pintarConsejo() {
-    const d = await api('consejo.list');
-    const el = $('con-lista');
-    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-
-    const activas = Object.entries(d.ranuras || {}).filter(([, v]) => v && String(v).trim());
-    const enVigor = activas.length
-      ? `<div class="admin-msg" style="margin-bottom:16px">${activas.map(([k, v]) =>
-          `<strong>${esc(k.replace('prompt_calibracion_', ''))}</strong>: ${esc(v)}`).join('<br>')}</div>`
-      : '<p class="admin-nota" style="margin-bottom:14px">No correction is in force — every stage is running as originally written.</p>';
-
-    if (!d.deliberaciones.length) {
-      el.innerHTML = enVigor + '<span class="admin-vacio">The committee has not been convened yet.</span>';
-      return;
+    if (!c.error) {
+      const n = {};
+      for (const x of c.cotejos) n[x.verdict] = (n[x.verdict] || 0) + 1;
+      $('st-cotejo').textContent = c.cotejos.length
+        ? `Cross-checks: ${Object.entries(n).map(([k, v]) => `${v} ${k}`).join(' · ')}`
+        : 'No claims cross-checked yet.';
     }
-    el.innerHTML = enVigor + `<table class="admin-tabla">
-      <tr><th>What triggered it</th><th>Votes</th><th>Outcome</th><th></th></tr>
-      ${d.deliberaciones.map(c => `<tr${c.revertido_at ? ' class="off"' : ''}>
-        <td>${esc(c.convocado_por)}
-          <div class="admin-nota">${esc(hace(c.created_at))}</div></td>
-        <td>${(c.votos || []).map(v => `<div class="admin-nota">
-            <strong>${esc(v.casa)}</strong>: ${v.error ? 'failed' : (v.cambiar ? 'change' : 'leave it')}
-            ${v.razon ? ` — ${esc(String(v.razon).slice(0, 90))}` : ''}</div>`).join('')}</td>
-        <td>${c.decision
-          ? `<span class="admin-kind">applied</span><div class="admin-nota">${esc(c.decision)}</div>`
-          : `<span class="admin-kind">no change</span>`}
-          <div class="admin-nota" style="color:var(--muted)">${esc(c.motivo || '')}</div></td>
-        <td>${c.aplicado
-          ? `<button class="admin-btn sec" data-rev="${c.id}" data-ran="${esc(c.ranura)}">revert</button>`
-          : (c.revertido_at ? '<span class="admin-nota">reverted</span>' : '')}</td>
-      </tr>`).join('')}</table>`;
+    if (!con.error) {
+      const activas = Object.entries(con.ranuras || {}).filter(([, v]) => v && String(v).trim());
+      $('con-lista').innerHTML = activas.length
+        ? `<div class="admin-msg">${activas.map(([k, v]) =>
+            `<strong>Correction in force</strong> (${esc(k.replace('prompt_calibracion_', ''))}): ${esc(v)}
+             <button class="admin-btn sec" data-rev="${esc(
+               (con.deliberaciones.find(x => x.aplicado && x.ranura === k) || {}).id || '')}"
+               data-ran="${esc(k)}">revert</button>`).join('<br>')}</div>`
+        : `<p class="admin-nota">No correction in force · ${con.deliberaciones.length} committee session(s)</p>`;
+    }
+    $('st-auto').checked = s.settings?.auto_publish === true;
   }
 
   delegar($('con-lista'), '[data-rev]', async (b) => {
-    if (!confirm('Revert this correction? The stage goes back to how it was originally written.')) return;
+    if (!confirm('Revert this correction?')) return;
     b.disabled = true;
     const r = await api('consejo.revertir', { id: b.dataset.rev, ranura: b.dataset.ran });
-    if (r.error) msg(cajaMsg, r.error, false); else msg(cajaMsg, 'Reverted.', true);
-    pintarConsejo();
+    msg(cajaMsg, r.error || 'Reverted.', !r.error);
+    pintarTripas();
   });
 
-  // ── Lo que se lleva gastado ─────────────────────────────────────────────
-  // Contando llamadas, no dinero: lo que aprieta son cuotas. Solo Kimi tiene
-  // precio de verdad, y solo Kimi lleva cifra en dólares.
-  const ETIQUETA = { gemini: 'gemini', youtube: 'youtube', tavily: 'tavily', moonshot: 'kimi' };
-  const VENTANA  = { gemini: ['hoy', 'cap_gemini_dia', '/day'], youtube: ['hoy', 'cap_youtube_dia', '/day'],
-                     tavily: ['mes', 'cap_tavily_mes', '/mo'] };
-
-  async function pintarGasto() {
-    const d = await api('budget');
-    const el = $('st-gasto');
-    if (d.error || !d.uso?.length) { el.textContent = 'Nothing spent yet.'; return; }
-    const partes = d.uso.map(u => {
-      if (u.proveedor === 'moonshot') {
-        const tope = d.topes.cap_moonshot_mes_usd;
-        return `kimi $${Number(u.coste_mes).toFixed(2)}${tope ? ` / $${tope}` : ''}/mo`;
-      }
-      const [ventana, clave, sufijo] = VENTANA[u.proveedor] || ['mes', null, '/mo'];
-      const tope = clave ? d.topes[clave] : null;
-      return `${ETIQUETA[u.proveedor] || u.proveedor} ${u[ventana]}${tope ? `/${tope}` : ''}${sufijo}`;
-    });
-    el.textContent = partes.join('  ·  ');
-  }
-
-  (async () => {
-    const s = await api('settings.get');
-    $('st-auto').checked = s.settings?.auto_publish === true;
-  })();
   $('st-auto').onchange = async (e) => {
     const r = await api('settings.set', { key: 'auto_publish', value: e.target.checked });
     msg(cajaMsg, r.error || (e.target.checked
-      ? 'The weekly issue will go out without review.'
-      : 'The weekly issue will wait for you.'), !r.error);
+      ? 'The weekly issue will go out without review.' : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarCola(); pintarFuentes(); pintarCotejos(); pintarAprendizaje(); pintarConsejo(); pintarEstado(); pintarGasto();
+  pintarCola(); pintarFuentes();
 </script>
 </AdminLayout>
