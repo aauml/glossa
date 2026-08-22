@@ -96,15 +96,32 @@ export function renderIssue(body = {}) {
       ${p.dek ? `<p class="dek">${esc(p.dek)}</p>` : ''}
       ${prosa(p.body)}
       ${p.sources_note || (p.sources || []).length ? `<p class="src">${esc(p.sources_note || '')}
-        ${(p.sources || []).slice(0, 6).map(id => {
-          const e = enlaces[id];
-          // Un id que no existe se calla. El modelo puede inventarse uno, y un
-          // enlace roto en el pie de una pieza es peor que no tener enlace.
-          if (!e?.url) return '';
-          return `<a class="fuente" href="${esc(e.url)}" target="_blank" rel="noopener"
-            title="${esc(e.title || '')}">${esc(e.channel || 'source')}<span aria-hidden="true"> ↗</span></a>`;
-        }).join('')}${(p.sources || []).length > 6
-          ? `<span class="mas">and ${(p.sources || []).length - 6} more</span>` : ''}</p>` : ''}
+        ${(() => {
+          // Un canal, un enlace. Antes salía «Chris Cillizza ↗Chris Cillizza ↗Chris
+          // Cillizza ↗» pegados, porque la pieza usó tres episodios suyos: eso no
+          // informa de nada y estorba. Se agrupa por canal, con su cuenta si hubo
+          // varios, y el enlace lleva al primero.
+          const porCanal = new Map();
+          for (const id of p.sources || []) {
+            const e = enlaces[id];
+            if (!e?.url) continue;                     // un id inventado se calla
+            const k = e.channel || 'source';
+            if (!porCanal.has(k)) porCanal.set(k, { ...e, n: 0 });
+            porCanal.get(k).n++;
+          }
+          const todos = [...porCanal.entries()];
+          if (!todos.length) return '';
+          const pinta = ([k, e]) =>
+            `<a class="fuente" href="${esc(e.url)}" target="_blank" rel="noopener"
+               title="${esc(e.title || '')}">${esc(k)}${e.n > 1 ? ` <span class="n">${e.n}</span>` : ''}<span aria-hidden="true"> ↗</span></a>`;
+          const primeros = todos.slice(0, 6).map(pinta).join('');
+          const resto = todos.slice(6);
+          // Los que sobran se despliegan de verdad. «and 12 more» sin poder abrirlo
+          // solo dice que hay algo que no puedes ver.
+          return resto.length
+            ? `${primeros}<details class="mas"><summary>and ${resto.length} more</summary>${resto.map(pinta).join('')}</details>`
+            : primeros;
+        })()}</p>` : ''}
       <a class="up" href="#contents">↑ Contents</a>
     </article>`).join('');
 
@@ -123,7 +140,6 @@ export function renderIssue(body = {}) {
   ${cierre ? `<section class="closing">
     <h2>What nobody said</h2>
     <ul>${cierre}</ul>
-    ${body.colophon ? `<div class="colophon">${prosa(body.colophon)}</div>` : ''}
   </section>` : ''}`;
 }
 

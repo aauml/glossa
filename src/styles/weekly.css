@@ -129,7 +129,21 @@
   text-decoration: none; border-bottom: 1px solid var(--rule-soft);
   padding-bottom: .1rem; transition: color .18s ease, border-color .18s ease;
 }
-.weekly .src .mas { color: var(--muted); font-size: .74rem; }
+.weekly .src .fuente .n {
+  font-variant-numeric: tabular-nums; opacity: .55; font-size: .9em;
+}
+
+/* Los que no caben, desplegables de verdad. «and 12 more» sin poder abrirlo solo
+   dice que hay algo que no puedes ver. */
+.weekly .src details.mas { display: inline; }
+.weekly .src details.mas > summary {
+  display: inline; cursor: pointer; list-style: none;
+  color: var(--muted); font-size: .78rem;
+  border-bottom: 1px dotted var(--rule-soft);
+}
+.weekly .src details.mas > summary::-webkit-details-marker { display: none; }
+.weekly .src details.mas > summary:hover { color: var(--accent); }
+.weekly .src details.mas[open] > summary { color: var(--accent); }
 .weekly .src .fuente:hover, .weekly .src .fuente:focus-visible {
   color: var(--accent); border-color: var(--accent);
 }
@@ -156,11 +170,6 @@
 .weekly .closing ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--w2); }
 .weekly .closing li { padding-left: var(--w3); position: relative; text-wrap: pretty; }
 .weekly .closing li::before { content: "—"; position: absolute; left: 0; color: var(--accent); font-family: var(--w-display); }
-.weekly .colophon {
-  margin-top: var(--w4); padding-top: var(--w2); border-top: 1px solid var(--rule-soft);
-  font-size: .82rem; line-height: 1.55; color: var(--muted);
-}
-.weekly .colophon p { margin: 0; }
 .weekly-viejo { color: var(--muted); font-style: italic; }
 
 /* ── Flecha flotante ─────────────────────────────────────────────────── */

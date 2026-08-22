@@ -223,8 +223,7 @@ Write a magazine issue. Return ONLY JSON:
     "sources_note":"one or two sentences: who this came from, and say so plainly if the provenance weakens it",
     "sources":["the ids of the episodes this piece drew on, e.g. e3, e12 — ids only, from the material above"]}
  ],
- "closing": ["4-6 items. Each: what NOBODY in the material said, and why it matters."],
- "colophon": "80-120 words on how much of this week came through how few channels."
+ "closing": ["4-6 items. Each: what NOBODY in the material said, and why it matters."]
 }
 
 RULES — the first is the one that matters:
@@ -248,7 +247,11 @@ RULES — the first is the one that matters:
 - Look ACROSS pieces for contradictions between speakers that nobody in the material
   noticed. That is the most valuable thing you can find.
 - No bullet lists inside "body". No section labels like "Where they clash". Prose.
-- Never say how many episodes or voices a topic had.
+- Never say how many episodes, voices or channels there were — not in a piece, not
+  anywhere. The reader came for what the week meant, not for a tour of the machinery
+  that read it. The concentration of sources is context for HOW you write, not
+  something to report: it should show in how much weight you give a claim, never in
+  a paragraph counting who filed what.
 - English throughout.
 - "sources" carries the ids of the episodes the piece actually used. They become
   links back to the original, so a reader can go and hear it. Ids only, exactly as
