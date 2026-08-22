@@ -160,7 +160,8 @@ Write a magazine issue. Return ONLY JSON:
  "headline": "a thesis, not a label. Under 12 words.",
  "standfirst": "60-90 words. What made this week different. Not a list of what follows.",
  "pieces": [
-   {"title":"short, specific",
+   {"subject":"what this piece is ABOUT, 2-4 words, as a reader would name it",
+    "title":"short, specific",
     "dek":"one line for the index, under 18 words",
     "body":"400-550 words of CONTINUOUS PROSE. Markdown paragraphs only.",
     "sources_note":"one or two sentences: who this came from, and say so plainly if the provenance weakens it"}
@@ -173,6 +174,14 @@ RULES — the first is the one that matters:
 - COINCIDING IS NOT CORROBORATING. If voices share a school or a channel, say so in
   the prose. Only treat agreement as confirmation when it survives opposite priors.
 - Merge the raw topics into 4-5 pieces. Thin topics get folded in, not given a section.
+- The sections are whatever this week produced. There is no standing list and no
+  section is owed a place: if nothing on a subject arrived, it simply is not here.
+- "subject" is a plain label so a reader scanning the contents knows what each piece
+  covers before reading the title — the title alone rarely says. Name the actual
+  thing: "Iran war", "AI policy", "White House staffing", "Mexico politics",
+  "Israel-Turkey". NEVER a generic bucket like "politics", "economy", "analysis",
+  "geopolitics" or "media" — a label that could sit on any piece tells the reader
+  nothing. Two pieces may share a subject only if they genuinely cover the same one.
 - Mark epistemic status IN THE PROSE using these inline spans, exactly:
     <span class="doc">…</span>   traceable to a named document or body
     <span class="attr">…</span>  attributed to a third party, unverified

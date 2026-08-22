@@ -192,15 +192,37 @@ Deno.serve(async (req) => {
         if (error) throw error;
         return ok({ issue: data });
       }
+      // Publicar y retirar. Un solo campo, pero es la única compuerta que tiene
+      // este sistema entre lo que escribe un modelo y lo que lee cualquiera.
+      case 'weekly.publish': {
+        const { data, error } = await db.from('glossa_radar_weekly')
+          .update({ state: 'publicado', published_at: new Date().toISOString() })
+          .eq('week_start', b.week_start).select('week_start,state').single();
+        if (error) throw error;
+        return ok(data);
+      }
+      case 'weekly.unpublish': {
+        const { data, error } = await db.from('glossa_radar_weekly')
+          .update({ state: 'borrador' })
+          .eq('week_start', b.week_start).select('week_start,state').single();
+        if (error) throw error;
+        return ok(data);
+      }
+      case 'weekly.list': {
+        const { data, error } = await db.from('glossa_radar_weekly')
+          .select('week_start,week_end,state,topic_count,item_count,generated_at')
+          .order('week_start', { ascending: false }).limit(30);
+        if (error) throw error;
+        return ok({ issues: data ?? [] });
+      }
+
       case 'weekly.rebuild': {
-        // Se delega en glossa-weekly-run, que es quien sabe armarlo. Tarda ~60 s:
-        // el panel avisa de la espera en vez de parecer colgado.
-        const r = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/glossa-weekly-run`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-glossa-token': Deno.env.get('GLOSSA_PUBLISH_TOKEN')! },
-          body: JSON.stringify({ semana: b.semana ?? null }),
-        });
-        return new Response(await r.text(), { status: r.status, headers: CORS });
+        // Lo escribe el Action, no una edge function: el modelo tarda ~16 min y
+        // aquí el techo son 150 s. Esto sólo aprieta el botón; el resultado
+        // aparece en la base cuando termine, y el panel lo recoge al recargar.
+        const r = await db.rpc('glossa_weekly_dispatch', { semana: b.semana ?? null });
+        if (r.error) throw r.error;
+        return ok({ lanzado: true, nota: 'El número tarda unos 15 minutos. Vuelve a cargar esta página entonces.' });
       }
 
       // ── Estado general ───────────────────────────────────────────────────

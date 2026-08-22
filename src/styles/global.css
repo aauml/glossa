@@ -596,5 +596,6 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 /* Entrada al panel. Discreta a propósito: mismo peso que el resto del mastelero.
    Para quien no sea Arturo es un enlace que pide un código y no lleva a ningún
    sitio, así que no merece más presencia que eso. */
-.masthead-panel { color: var(--muted); transition: color 0.15s ease; }
+.masthead-weekly, .masthead-panel { color: var(--muted); transition: color 0.15s ease; }
+.masthead-weekly:hover { color: var(--accent); }
 .masthead-panel:hover { color: var(--accent); }

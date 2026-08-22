@@ -1,0 +1,63 @@
+---
+export const prerender = false;
+import '../../../styles/global.css';
+import '../../../styles/weekly.css';
+import { renderIssue, fecha } from '../../../lib/weekly.js';
+
+const { week } = Astro.params;
+
+// Lee con la llave pública, no con la de servicio. La política de la migración
+// 0018 sólo deja ver las filas publicadas, así que un borrador devuelve 404 aquí
+// aunque alguien acierte la URL. La compuerta vive en la base, no en esta página.
+const URL_SB = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
+const ANON = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+
+let issue = null;
+if (URL_SB && ANON && /^\d{4}-\d{2}-\d{2}$/.test(week ?? '')) {
+  const r = await fetch(
+    `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body,state&week_start=eq.${week}&state=eq.publicado`,
+    { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
+  if (r.ok) issue = (await r.json())[0] ?? null;
+}
+if (!issue) return new Response(null, { status: 404 });
+
+const b = issue.body ?? {};
+const titulo = b.headline ?? 'Weekly issue';
+const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{titulo} · Glossa</title>
+  <meta name="description" content={b.standfirst?.slice(0, 180) ?? ''}>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href={`https://glossa.ademas.ai/weekly/${issue.week_start}/`} />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={titulo} />
+  <meta property="og:description" content={b.standfirst?.slice(0, 180) ?? ''} />
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <a class="masthead-brand" href="/">Glossa</a>
+      <span>Weekly · {desde} – {hasta}</span>
+    </div>
+  </header>
+
+  <main class="weekly" set:html={renderIssue(b)} />
+  <a href="#contents" id="weekly-top" aria-label="Back to contents">↑</a>
+
+  <script is:inline>
+    (function () {
+      var b = document.getElementById('weekly-top'), i = document.getElementById('contents');
+      if (!b || !i) return;
+      if (!('IntersectionObserver' in window)) { b.classList.add('on'); return; }
+      new IntersectionObserver(function (e) {
+        b.classList.toggle('on', !e[0].isIntersecting && e[0].boundingClientRect.top < 0);
+      }, { threshold: 0 }).observe(i);
+    })();
+  </script>
+</body>
+</html>

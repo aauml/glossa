@@ -1,0 +1,67 @@
+---
+export const prerender = false;
+import '../../styles/global.css';
+import '../../styles/weekly.css';
+import { fecha } from '../../lib/weekly.js';
+
+// Existe para que el enlace de la portada no pueda apuntar a un 404. Si no hay
+// ningún número publicado, esta página lo dice; antes prefería enlazar al último
+// número directamente, y eso rompía el primer día.
+const URL_SB = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
+const ANON = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+
+let numeros = [];
+if (URL_SB && ANON) {
+  const r = await fetch(
+    `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body&state=eq.publicado&order=week_start.desc&limit=52`,
+    { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
+  if (r.ok) numeros = await r.json();
+}
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly · Glossa</title>
+  <meta name="description" content="What a week of listening adds up to, and what it does not." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://glossa.ademas.ai/weekly/" />
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <a class="masthead-brand" href="/">Glossa</a>
+      <span>Weekly</span>
+    </div>
+  </header>
+
+  <main class="weekly">
+    <h1 class="hed">Weekly</h1>
+    <div class="stand">
+      <p>What a week of listening adds up to — and, at the end of each issue, what
+      none of it said. Sections are whatever the week produced; there is no standing
+      list of topics.</p>
+    </div>
+
+    {numeros.length === 0 ? (
+      <p class="weekly-viejo">No issue has been published yet.</p>
+    ) : (
+      <nav class="toc">
+        <h2>Issues</h2>
+        <ol>
+          {numeros.map((n, i) => (
+            <li><a href={`/weekly/${n.week_start}/`}>
+              <span class="n">{String(numeros.length - i).padStart(2, '0')}</span>
+              <span>
+                <span class="subj">{fecha(n.week_start)} – {fecha(n.week_end)}</span>
+                <span class="t">{n.body?.headline ?? 'Untitled'}</span>
+                <span class="d">{(n.body?.standfirst ?? '').split(/\s+/).slice(0, 24).join(' ')}…</span>
+              </span></a></li>
+          ))}
+        </ol>
+      </nav>
+    )}
+  </main>
+</body>
+</html>

@@ -1,78 +1,93 @@
 ---
 export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import '../../styles/weekly.css';
 ---
 <AdminLayout title="Weekly" tab="weekly">
   <h1>Weekly issue</h1>
   <p class="sub">
-    What the week's material adds up to, one section per topic. It stays a draft until you
-    publish it — nothing goes out on its own unless you turned that on under Status.
+    Exactly as it will read once published — same renderer, same stylesheet. If the draft
+    looked different from the live page, reviewing it would prove nothing.
   </p>
+
   <div id="msg"></div>
-  <div class="admin-acciones" style="margin-bottom:26px">
+  <div class="admin-acciones" style="margin-bottom:8px">
     <button class="admin-btn" id="rebuild">Rebuild this week</button>
+    <button class="admin-btn" id="publish" hidden></button>
+    <a class="admin-btn" id="ver" hidden target="_blank" rel="noopener">View live page</a>
   </div>
-  <div id="issue"><span class="admin-vacio">loading…</span></div>
+  <p class="admin-nota" id="meta"></p>
+
+  <div id="issue" class="weekly"><span class="admin-vacio">loading…</span></div>
+  <a href="#contents" id="weekly-top" aria-label="Back to contents">↑</a>
 
 <script>
+  import { renderIssue } from '../../lib/weekly.js';
+
   const api = (op, extra = {}) => fetch('/api/admin/op/', { method: 'POST',
     headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
-  const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
-  const msg = (t, ok) => { document.getElementById('msg').innerHTML = `<div class="admin-msg ${ok?'ok':''}">${esc(t)}</div>`; };
-  const lista = (a, f) => (a || []).length ? `<ul style="margin:6px 0 0 16px">${a.map(f).join('')}</ul>` : '';
+  const esc = (s) => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+  const msg = (t, ok) => { document.getElementById('msg').innerHTML =
+    `<div class="admin-msg ${ok ? 'ok' : ''}">${esc(t)}</div>`; };
 
-  function seccion(s) {
-    return `<div class="admin-sec">
-      <h2>${esc(s.topic)} <span style="text-transform:none;letter-spacing:0;color:var(--muted)">
-        · ${s.n_items} episodes, ${s.n_voces} voices</span></h2>
-      <p style="max-width:70ch">${esc(s.summary)}</p>
+  let actual = null;
 
-      ${(s.converged||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px">Where they converge</h3>
-        ${lista(s.converged, c => `<li style="margin-bottom:7px">${esc(c.point)}
-          <div class="admin-nota">${esc((c.sources||[]).join(', '))} —
-          <strong style="color:${c.independent ? 'var(--ink)' : 'var(--accent)'}">
-          ${c.independent ? 'independent' : 'not independent'}</strong>: ${esc(c.note)}</div></li>`)}` : ''}
-
-      ${(s.conflicts||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px">Where they clash</h3>
-        ${lista(s.conflicts, c => `<li style="margin-bottom:7px">${esc(c.point)}
-          ${lista(c.positions, p => `<li class="admin-nota">${esc(p.who)}: ${esc(p.says)}</li>`)}</li>`)}` : ''}
-
-      ${(s.blind_spots||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:18px">Nobody is saying</h3>
-        ${lista(s.blind_spots, b => `<li style="margin-bottom:4px">${esc(b)}</li>`)}` : ''}
-
-      ${(s.unverified||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px">Unverified</h3>
-        ${lista(s.unverified, u => `<li style="margin-bottom:4px">${esc(u.claim)}
-          <span class="admin-nota">— ${esc(u.who)} · check: ${esc(u.checkable)}</span></li>`)}` : ''}
-
-      ${(s.angles||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px">Possible angles</h3>
-        ${lista(s.angles, a => `<li style="margin-bottom:5px"><strong>${esc(a.angle)}</strong>
-          <span class="admin-nota">— ${esc(a.why)}</span></li>`)}` : ''}
-    </div>`;
+  // La flecha sólo aparece cuando el índice ya quedó atrás. Se arma tras pintar,
+  // porque antes de eso el índice no existe en la página.
+  function armarFlecha() {
+    const b = document.getElementById('weekly-top');
+    const i = document.getElementById('contents');
+    if (!b || !i || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(
+      (e) => b.classList.toggle('on', !e[0].isIntersecting && e[0].boundingClientRect.top < 0),
+      { threshold: 0 }).observe(i);
   }
 
   async function pintar() {
     const d = await api('weekly.latest');
     const el = document.getElementById('issue');
+    const bp = document.getElementById('publish');
+    const ver = document.getElementById('ver');
+
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    if (!d.issue) { el.innerHTML = '<span class="admin-vacio">No issue yet. Rebuild once there is a week of material.</span>'; return; }
-    const w = d.issue, b = w.body || {};
-    el.innerHTML =
-      `<p class="admin-nota" style="margin-bottom:18px">${esc(w.week_start)} → ${esc(w.week_end)} ·
-        ${w.topic_count} topics · ${w.item_count} episodes · <strong>${esc(w.state)}</strong></p>` +
-      (b.intro ? `<p style="max-width:70ch;margin-bottom:10px">${esc(b.intro)}</p>` : '') +
-      (b.hilo ? `<p class="admin-nota" style="max-width:70ch;margin-bottom:26px">${esc(b.hilo)}</p>` : '') +
-      (b.sections || []).map(seccion).join('');
+    if (!d.issue) {
+      el.innerHTML = '<span class="admin-vacio">No issue yet. Rebuild once there is a week of material.</span>';
+      return;
+    }
+    actual = d.issue;
+    const publicado = actual.state === 'publicado';
+
+    document.getElementById('meta').textContent =
+      `${actual.week_start} → ${actual.week_end} · ${actual.item_count} episodes · ${actual.state}`;
+    bp.hidden = false;
+    bp.textContent = publicado ? 'Withdraw' : 'Publish';
+    ver.hidden = !publicado;
+    ver.href = `/weekly/${actual.week_start}/`;
+
+    el.innerHTML = renderIssue(actual.body || {});
+    armarFlecha();
   }
 
   document.getElementById('rebuild').onclick = async (e) => {
-    e.target.disabled = true; msg('rebuilding — this takes about a minute…', true);
+    e.target.disabled = true;
+    msg('Asked GitHub to write it. It takes about 15 minutes — reload then.', true);
     const r = await api('weekly.rebuild');
     e.target.disabled = false;
+    if (r.error) msg(r.error, false);
+  };
+
+  document.getElementById('publish').onclick = async (e) => {
+    if (!actual) return;
+    const publicando = actual.state !== 'publicado';
+    if (publicando && !confirm('Publish this issue at glossa.ademas.ai? Anyone will be able to read it.')) return;
+    e.target.disabled = true;
+    const r = await api(publicando ? 'weekly.publish' : 'weekly.unpublish', { week_start: actual.week_start });
+    e.target.disabled = false;
     if (r.error) { msg(r.error, false); return; }
-    msg(r.vacio || `Done: ${r.topic_count} topics, ${r.item_count} episodes.` +
-        (r.sin_entrada ? ` (no intro: ${r.sin_entrada})` : ''), true);
+    msg(publicando ? 'Published.' : 'Withdrawn — back to draft.', true);
     pintar();
   };
+
   pintar();
 </script>
 </AdminLayout>
