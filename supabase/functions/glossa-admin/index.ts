@@ -599,6 +599,14 @@ Deno.serve(async (req) => {
         return ok({ lanzado: true, nota: 'El número tarda unos 15 minutos. Vuelve a cargar esta página entonces.' });
       }
 
+      case 'cotejos.list': {
+        const { data, error } = await db.from('glossa_radar_cotejos')
+          .select('claim_text,verdict,verdict_reason,source_domain,url,independence,gate,created_at')
+          .order('created_at', { ascending: false }).limit(40);
+        if (error) throw error;
+        return ok({ cotejos: data ?? [] });
+      }
+
       case 'budget': {
         const [{ data: gasto }, { data: ajus }] = await Promise.all([
           db.rpc('glossa_radar_presupuesto'),

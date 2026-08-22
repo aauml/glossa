@@ -38,6 +38,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     <div id="src-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
+  <!-- ── Lo comprobado fuera ────────────────────────────────────────────── -->
+  <section class="admin-sec">
+    <h2>Checked against outside documents</h2>
+    <p class="sub" style="margin-bottom:14px">
+      Every Saturday, the claims most likely to be repeated as fact are searched against
+      records outside this list of sources. Agreement among voices that share a school is
+      alignment; this is the only thing that can tell you it is more than that.
+    </p>
+    <div id="cot-lista"><span class="admin-vacio">loading…</span></div>
+  </section>
+
   <!-- ── Números y ajustes ──────────────────────────────────────────────── -->
   <section class="admin-sec">
     <h2>Right now</h2>
@@ -215,6 +226,50 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       + ((it.error || 0) ? cifra(it.error, 'with errors') : '');
   }
 
+  // ── Lo comprobado fuera ─────────────────────────────────────────────────
+  // `contradice` primero y en acento: es el veredicto más valioso y el que hay
+  // que ver sin buscarlo. `repite` no es corroboración y el orden lo dice.
+  const VEREDICTO = {
+    contradice:     ['contradicted by', 1],
+    documenta:      ['documented by', 2],
+    repite:         ['only repeated by', 3],
+    no_concluyente: ['nothing conclusive', 4],
+    sin_hallazgo:   ['no document found', 5],
+  };
+
+  async function pintarCotejos() {
+    const d = await api('cotejos.list');
+    const el = $('cot-lista');
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    if (!d.cotejos.length) {
+      el.innerHTML = '<span class="admin-vacio">Nothing checked yet — it runs on Saturdays.</span>';
+      return;
+    }
+    const cuenta = {};
+    for (const c of d.cotejos) cuenta[c.verdict] = (cuenta[c.verdict] || 0) + 1;
+    const resumen = Object.entries(cuenta)
+      .sort((a, b) => (VEREDICTO[a[0]]?.[1] ?? 9) - (VEREDICTO[b[0]]?.[1] ?? 9))
+      .map(([k, n]) => `${n} ${VEREDICTO[k]?.[0] ?? k}`).join('  ·  ');
+
+    const filas = [...d.cotejos]
+      .sort((a, b) => (VEREDICTO[a.verdict]?.[1] ?? 9) - (VEREDICTO[b.verdict]?.[1] ?? 9))
+      .map(c => `<tr>
+        <td>${esc(c.claim_text)}
+          ${c.verdict_reason ? `<div class="admin-nota">${esc(c.verdict_reason)}</div>` : ''}</td>
+        <td style="white-space:nowrap"><span class="admin-kind"${
+          c.verdict === 'contradice' ? ' style="color:var(--accent)"' : ''
+        }>${esc(VEREDICTO[c.verdict]?.[0] ?? c.verdict)}</span></td>
+        <td style="color:var(--muted);white-space:nowrap">${
+          c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.source_domain || 'source')}</a>` : '—'}</td>
+        <td style="color:var(--muted);white-space:nowrap">${esc(c.independence || '')}</td>
+      </tr>`).join('');
+
+    el.innerHTML = `<p class="admin-nota" style="margin-bottom:12px">${esc(resumen)}</p>
+      <table class="admin-tabla">
+        <tr><th>Claim</th><th>Outcome</th><th>Document</th><th>Independence</th></tr>
+        ${filas}</table>`;
+  }
+
   // ── Lo que se lleva gastado ─────────────────────────────────────────────
   // Contando llamadas, no dinero: lo que aprieta son cuotas. Solo Kimi tiene
   // precio de verdad, y solo Kimi lleva cifra en dólares.
@@ -249,6 +304,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarCola(); pintarFuentes(); pintarEstado(); pintarGasto();
+  pintarCola(); pintarFuentes(); pintarCotejos(); pintarEstado(); pintarGasto();
 </script>
 </AdminLayout>

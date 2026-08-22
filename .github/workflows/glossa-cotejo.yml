@@ -1,0 +1,41 @@
+name: Glossa cotejo (verificación cruzada)
+
+# Sale a comprobar fuera lo que se afirma dentro. Es la razón de ser del
+# proyecto: sin esto, «nadie lo respaldó» significa solo «nadie lo respaldó entre
+# las fuentes que ya escuchamos».
+#
+# Sábado 09:00 UTC, un día ANTES del número. Separado del guion semanal a
+# propósito: ese ya tarda 16 minutos y es lo que no puede volverse frágil.
+# Corriendo un día antes, el número siempre lee un cotejo terminado en vez de
+# competir con uno a medias.
+#
+# Secretos: SUPABASE_SERVICE_KEY, TAVILY_API_KEY, GEMINI_API_KEY.
+
+on:
+  schedule:
+    - cron: '0 9 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-cotejo
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+jobs:
+  cotejo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/cotejo_from_supabase.mjs
