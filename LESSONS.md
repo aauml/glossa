@@ -106,6 +106,27 @@ siempre una muestra de lo que un filtro nuevo tira, no solo de lo que deja pasar
 
 ---
 
+### YouTube sirve los subtítulos a tu ordenador y no a un servidor
+_Applies to: search / benchmarking_
+
+**Síntoma** — `yt-dlp` baja los subtítulos sin problema desde un portátil y
+devuelve «Sign in to confirm you're not a bot» desde un GitHub Action.
+**Causa** — YouTube distingue direcciones residenciales de centros de datos. La
+misma orden, el mismo vídeo, distinto resultado según de dónde salga.
+**Arreglo** — Ninguno que merezca la pena. Se puede pasar con las cookies de tu
+sesión, y ahí es donde hay que pararse: automatizar el acceso con la sesión de
+una persona es lo que esos términos prohíben y lo que hace que se cancelen
+cuentas. Es la misma línea que con los periódicos de pago, y se traza igual.
+
+Lo importante es que el ahorro que prometía no era dinero: los tokens de vídeo
+salen del tramo gratuito y el consumo va por 84 llamadas diarias de 500. Era
+holgura y velocidad. **Medir el ahorro antes de perseguirlo habría evitado
+construirlo**: cuatro veces menos de algo que sobra no es una mejora, es una
+optimización de lo que no aprieta.
+
+El camino queda montado y apagado de hecho: si algún día se ejecuta desde una
+máquina con dirección residencial, funciona sin tocar nada.
+
 ## Supabase
 
 ### Un índice parcial no puede arbitrar un `ON CONFLICT`

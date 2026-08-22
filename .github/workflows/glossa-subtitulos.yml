@@ -11,9 +11,17 @@ name: Glossa subtítulos (leer en vez de mirar)
 # Cada 30 min, por delante del radar, que digiere cada 15. Vive aquí porque
 # `yt-dlp` es un binario y una edge function no puede ejecutarlo.
 
+# SIN HORARIO, a propósito. YouTube responde «Sign in to confirm you're not a
+# bot» a las direcciones de centro de datos, así que desde aquí no baja nada.
+# Correr cada media hora para fallar siempre es gastar por gastar.
+#
+# Se queda a mano porque desde una máquina con dirección residencial SÍ funciona
+# —probado— y porque el día que eso cambie no hay nada que reescribir.
+#
+# Y el ahorro que prometía no era dinero: los tokens de vídeo salen del tramo
+# gratuito y el consumo va por 84 llamadas diarias de 500. Era holgura, y la
+# holgura sobra.
 on:
-  schedule:
-    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 permissions:
