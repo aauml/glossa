@@ -9,6 +9,14 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     you want followed — drop it in and it works out what it was.
   </p>
 
+  <!-- ── Esta semana, de un vistazo ─────────────────────────────────────
+       Arriba del todo porque es la pregunta con la que se entra: ¿va bien? Las
+       cuentas del sistema —gasto, cotejos, comité— siguen abajo y plegadas;
+       esas no se miran a diario. -->
+  <div class="admin-cifras" id="st-cifras" style="margin-bottom:34px">
+    <span class="admin-vacio">loading…</span>
+  </div>
+
   <!-- ── La caja ────────────────────────────────────────────────────────── -->
   <section class="admin-sec">
     <form id="in-form" class="admin-form">
@@ -45,8 +53,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     <details id="tripas">
       <summary>Under the hood</summary>
       <div style="margin-top:20px">
-        <div class="admin-cifras" id="st-cifras"><span class="admin-vacio">…</span></div>
-        <p class="admin-nota" id="st-gasto" style="margin-top:16px"></p>
+        <p class="admin-nota" id="st-gasto"></p>
         <p class="admin-nota" id="st-cotejo" style="margin-top:8px"></p>
         <div id="con-lista" style="margin-top:20px"></div>
         <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
@@ -109,7 +116,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
                                    : `Queued: ${r.item.title.slice(0, 70)}`, true);
     $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
     forzado = null; ultimoPeek = '';
-    pintarCola(); pintarFuentes(); pintarTripas();
+    pintarCifras(); pintarCola(); pintarFuentes(); pintarTripas();
   };
 
   // ── La cola ─────────────────────────────────────────────────────────────
@@ -203,18 +210,28 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if ($('tripas').open && !tripasPintadas) { tripasPintadas = true; pintarTripas(); }
   });
 
+  // ── Esta semana ─────────────────────────────────────────────────────────
+  async function pintarCifras() {
+    const e = await api('status');
+    const el = $('st-cifras');
+    if (e.error) { el.innerHTML = `<span class="admin-vacio">${esc(e.error)}</span>`; return; }
+    const it = e.items || {};
+    const cifra = (n, t, acento) => `<div class="admin-cifra"><b${
+      acento ? ' style="color:var(--accent)"' : ''}>${esc(n)}</b><span>${esc(t)}</span></div>`;
+    el.innerHTML =
+        cifra(e.semana || 0, 'picked up this week')
+      + cifra(it.pending || 0, 'waiting to be read')
+      + cifra(it.digested || 0, 'read in total')
+      + cifra(e.sources?.active ?? 0, 'sources followed')
+      + cifra(e.topics || 0, 'topics alive')
+      + ((it.error || 0) ? cifra(it.error, 'failed', true) : '');
+  }
+
   async function pintarTripas() {
     if (!tripasPintadas) return;
-    const [e, g, c, con, s] = await Promise.all([
-      api('status'), api('budget'), api('cotejos.list'), api('consejo.list'), api('settings.get')]);
+    const [g, c, con, s] = await Promise.all([
+      api('budget'), api('cotejos.list'), api('consejo.list'), api('settings.get')]);
 
-    if (!e.error) {
-      const it = e.items || {};
-      const cifra = (n, t) => `<div class="admin-cifra"><b>${esc(n)}</b><span>${esc(t)}</span></div>`;
-      $('st-cifras').innerHTML = cifra(e.semana || 0, 'this week')
-        + cifra(it.pending || 0, 'waiting') + cifra(it.digested || 0, 'read in total')
-        + cifra(e.topics || 0, 'topics') + ((it.error || 0) ? cifra(it.error, 'failed') : '');
-    }
     if (!g.error && g.uso?.length) {
       const V = { gemini: ['hoy', 'cap_gemini_dia', '/day'], youtube: ['hoy', 'cap_youtube_dia', '/day'],
                   tavily: ['mes', 'cap_tavily_mes', '/mo'] };
@@ -258,6 +275,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       ? 'The weekly issue will go out without review.' : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarCola(); pintarFuentes();
+  pintarCifras(); pintarCola(); pintarFuentes();
 </script>
 </AdminLayout>
