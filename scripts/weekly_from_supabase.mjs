@@ -15,6 +15,7 @@
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, MOONSHOT_API_KEY.
 
 import https from 'node:https';
+import { ajustes, uso as gastoActual, apuntar, cabeCoste } from '../src/lib/presupuesto.js';
 
 const URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
@@ -44,6 +45,16 @@ const desde   = new Date(finDia); desde.setUTCDate(desde.getUTCDate() - 7);
 const weekEnd = new Date(finDia); weekEnd.setUTCDate(weekEnd.getUTCDate() - 1);
 
 console.log(`Semana ${iso(desde)} → ${iso(weekEnd)}`);
+
+// Kimi es lo único que cuesta dinero aquí, así que es lo único con tope en
+// dólares. Alcanzarlo no es un error: se sale sin escribir y se dice por qué.
+const ajus = await ajustes(URL, KEY);
+const gasto = await gastoActual(URL, KEY);
+if (!cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd')) {
+  console.log(`Tope mensual alcanzado: $${gasto.moonshot?.coste_mes} de ` +
+              `$${ajus.cap_moonshot_mes_usd}. No se escribe el número.`);
+  process.exit(0);
+}
 
 const items = await sb(
   `glossa_radar_items?select=id,title,author,url,published_at,digest,glossa_radar_sources(name)` +
@@ -246,6 +257,13 @@ if (!txt) {
 }
 txt = txt.replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
 txt = txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1);
+// Precios de Moonshot por millón de tokens, agosto 2026. Si cambian, esta cifra
+// miente en silencio — por eso el tope de verdad se mide contra el saldo de la
+// cuenta y esto solo sirve para verlo venir.
+const COSTE = (uso) => (uso.prompt_tokens ?? 0) / 1e6 * 0.60
+                     + (uso.completion_tokens ?? 0) / 1e6 * 2.50;
+await apuntar(URL, KEY, 'moonshot', 1, uso.total_tokens ?? 0, COSTE(uso));
+
 const numero = JSON.parse(txt);
 const secciones = numero.pieces || [];
 console.log(`  ${secciones.length} piezas · ${secciones.reduce((n, p) => n + String(p.body || '').split(/\s+/).length, 0)} palabras`);

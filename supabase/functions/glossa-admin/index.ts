@@ -505,6 +505,19 @@ Deno.serve(async (req) => {
         return ok({ lanzado: true, nota: 'El número tarda unos 15 minutos. Vuelve a cargar esta página entonces.' });
       }
 
+      case 'budget': {
+        const [{ data: gasto }, { data: ajus }] = await Promise.all([
+          db.rpc('glossa_radar_presupuesto'),
+          db.from('glossa_radar_settings').select('key,value'),
+        ]);
+        return ok({
+          uso: gasto ?? [],
+          topes: Object.fromEntries((ajus ?? [])
+            .filter((r: { key: string }) => r.key.startsWith('cap_'))
+            .map((r: { key: string; value: unknown }) => [r.key, r.value])),
+        });
+      }
+
       // ── Estado general ───────────────────────────────────────────────────
       case 'status': {
         const { data, error } = await db.rpc('glossa_radar_estado');

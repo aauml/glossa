@@ -15,6 +15,7 @@ import { CORS, requireToken } from '../_shared/auth.ts';
 import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube } from '../_shared/feeds.ts';
 import { gemini, geminiJson, geminiTokens, MODELO_DIGEST, VIDEO_FPS } from '../_shared/gemini.ts';
 import { promptDigest, promptTemas } from '../_shared/prompts.ts';
+import { ajustes, uso, apuntar, cabe } from '../_shared/presupuesto.ts';
 
 const PRESUPUESTO_MS = 120_000;   // de los 150 s disponibles; el resto es margen
 const BACKFILL_DIAS  = 7;         // al dar de alta una fuente, no procesar su archivo
@@ -33,6 +34,13 @@ Deno.serve(async (req) => {
   const queda = () => PRESUPUESTO_MS - (Date.now() - t0);
   const sb = db();
   const log: Record<string, any> = {};
+
+  // Los topes se leen una vez por pasada. Alcanzar uno no es un error: se salta
+  // el trabajo y se dice en el registro. El elemento no tiene la culpa y mañana
+  // entrará sin problema, así que nunca se le pone `state='error'`.
+  const ajus = await ajustes(sb);
+  const gasto = await uso(sb);
+  const agotado: string[] = [];
 
   // ── 0. Rescatar los atascados ───────────────────────────────────────────
   // Una pasada marca 'running' antes de llamar a Gemini. Si la función muere
@@ -53,7 +61,10 @@ Deno.serve(async (req) => {
   if (zombis?.length) log.rescatados_atascados = zombis.length;
 
   // ── 1. Descubrir ────────────────────────────────────────────────────────
-  if (b.skip_discover !== true) {
+  if (b.skip_discover !== true && !cabe(gasto, ajus, 'youtube', 'cap_youtube_dia')) {
+    agotado.push('youtube');
+    log.presupuesto_agotado = agotado;
+  } else if (b.skip_discover !== true) {
     const { data: fuentes } = await sb.from('glossa_radar_sources').select('*').eq('active', true);
     const corte = new Date(Date.now() - BACKFILL_DIAS * 864e5);
     let nuevos = 0;
@@ -89,6 +100,8 @@ Deno.serve(async (req) => {
           nuevos += data?.length ?? 0;
         }
         await sb.from('glossa_radar_sources').update({ last_checked_at: new Date().toISOString() }).eq('id', src.id);
+        // Dos unidades por canal: la lista de subidas y las duraciones.
+        if (src.kind === 'youtube') await apuntar(sb, 'youtube', 2);
       } catch (e) {
         // Una fuente rota no debe parar al resto, pero tampoco desaparecer: se
         // devuelve en la respuesta para que se vea desde el panel.
@@ -128,6 +141,10 @@ Deno.serve(async (req) => {
     // 35 s para el resumen + 15 s para clasificarlo acto seguido. Si no caben
     // los dos, no se empieza: un episodio sin clasificar es trabajo perdido.
     if (queda() < 50_000) break;
+    if (!cabe(gasto, ajus, 'gemini', 'cap_gemini_dia')) {
+      if (!agotado.includes('gemini')) agotado.push('gemini');
+      break;   // lo pendiente sigue pendiente, que es lo que ya pasa cuando no cabe en el tiempo
+    }
     const esTexto = item.origin === 'pegado' && !!item.body_text;
     try {
       await sb.from('glossa_radar_items')
@@ -153,6 +170,9 @@ Deno.serve(async (req) => {
         generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 4096 },
       });
       const digest = geminiJson(resp);
+      await apuntar(sb, 'gemini', 1, geminiTokens(resp));
+      gasto.gemini = { ...(gasto.gemini ?? { proveedor: 'gemini', hoy: 0, semana: 0, mes: 0, coste_mes: 0 }),
+                       hoy: Number(gasto.gemini?.hoy ?? 0) + 1 };
 
       if (digest.skip) {
         await sb.from('glossa_radar_items').update({ state: 'skipped', digested_at: new Date().toISOString() }).eq('id', item.id);
@@ -177,6 +197,7 @@ Deno.serve(async (req) => {
     }
   }
 
+  if (agotado.length) log.presupuesto_agotado = agotado;
   log.digeridos = hechos;
   if (fallos.length) log.fallos = fallos;
   log.ms = Date.now() - t0;
@@ -193,6 +214,7 @@ async function asignarTemas(sb: any, itemId: string, digest: any) {
     generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 1024 },
   });
   const r = geminiJson(resp);
+  await apuntar(sb, 'gemini', 1, geminiTokens(resp));
 
   const porSlug: Record<string, string> = {};
   for (const t of existentes ?? []) porSlug[t.slug] = t.id;

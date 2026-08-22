@@ -42,6 +42,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   <section class="admin-sec">
     <h2>Right now</h2>
     <div class="admin-cifras" id="st-cifras"><span class="admin-vacio">loading…</span></div>
+    <p class="admin-nota" id="st-gasto" style="margin-top:18px"></p>
     <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
       <input type="checkbox" id="st-auto" />
       <span>Publish the weekly issue without review</span>
@@ -201,6 +202,29 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       + ((it.error || 0) ? cifra(it.error, 'with errors') : '');
   }
 
+  // ── Lo que se lleva gastado ─────────────────────────────────────────────
+  // Contando llamadas, no dinero: lo que aprieta son cuotas. Solo Kimi tiene
+  // precio de verdad, y solo Kimi lleva cifra en dólares.
+  const ETIQUETA = { gemini: 'gemini', youtube: 'youtube', tavily: 'tavily', moonshot: 'kimi' };
+  const VENTANA  = { gemini: ['hoy', 'cap_gemini_dia', '/day'], youtube: ['hoy', 'cap_youtube_dia', '/day'],
+                     tavily: ['mes', 'cap_tavily_mes', '/mo'] };
+
+  async function pintarGasto() {
+    const d = await api('budget');
+    const el = $('st-gasto');
+    if (d.error || !d.uso?.length) { el.textContent = 'Nothing spent yet.'; return; }
+    const partes = d.uso.map(u => {
+      if (u.proveedor === 'moonshot') {
+        const tope = d.topes.cap_moonshot_mes_usd;
+        return `kimi $${Number(u.coste_mes).toFixed(2)}${tope ? ` / $${tope}` : ''}/mo`;
+      }
+      const [ventana, clave, sufijo] = VENTANA[u.proveedor] || ['mes', null, '/mo'];
+      const tope = clave ? d.topes[clave] : null;
+      return `${ETIQUETA[u.proveedor] || u.proveedor} ${u[ventana]}${tope ? `/${tope}` : ''}${sufijo}`;
+    });
+    el.textContent = partes.join('  ·  ');
+  }
+
   (async () => {
     const s = await api('settings.get');
     $('st-auto').checked = s.settings?.auto_publish === true;
@@ -212,6 +236,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarCola(); pintarFuentes(); pintarEstado();
+  pintarCola(); pintarFuentes(); pintarEstado(); pintarGasto();
 </script>
 </AdminLayout>
