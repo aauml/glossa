@@ -183,8 +183,11 @@ async function asignarTemas(sb: any, itemId: string, digest: any) {
 
   for (const t of r.new ?? []) {
     if (!porSlug[t.slug]) {
-      const { data } = await sb.from('glossa_radar_topics')
+      const { data, error } = await sb.from('glossa_radar_topics')
         .insert({ slug: t.slug, label: t.label, description: t.description }).select('id').single();
+      // Sin esto, un tema que no se puede crear deja el episodio sin clasificar
+      // y el rescate lo reintenta en bucle, cada vez, sin decir por qué.
+      if (error) throw new Error(`tema ${t.slug}: ${error.message}`);
       if (data) porSlug[t.slug] = data.id;
     }
     if (porSlug[t.slug]) enlaces.push({ item_id: itemId, topic_id: porSlug[t.slug], relevance: t.relevance });

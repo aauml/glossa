@@ -1,0 +1,78 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Weekly" tab="weekly">
+  <h1>Weekly issue</h1>
+  <p class="sub">
+    What the week's material adds up to, one section per topic. It stays a draft until you
+    publish it — nothing goes out on its own unless you turned that on under Status.
+  </p>
+  <div id="msg"></div>
+  <div class="admin-acciones" style="margin-bottom:26px">
+    <button class="admin-btn" id="rebuild">Rebuild this week</button>
+  </div>
+  <div id="issue"><span class="admin-vacio">loading…</span></div>
+
+<script>
+  const api = (op, extra = {}) => fetch('/api/admin/op/', { method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
+  const esc = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+  const msg = (t, ok) => { document.getElementById('msg').innerHTML = `<div class="admin-msg ${ok?'ok':''}">${esc(t)}</div>`; };
+  const lista = (a, f) => (a || []).length ? `<ul style="margin:6px 0 0 16px">${a.map(f).join('')}</ul>` : '';
+
+  function seccion(s) {
+    return `<div class="admin-sec">
+      <h2>${esc(s.topic)} <span style="text-transform:none;letter-spacing:0;color:var(--muted)">
+        · ${s.n_items} episodes, ${s.n_voces} voices</span></h2>
+      <p style="max-width:70ch">${esc(s.summary)}</p>
+
+      ${(s.converged||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px">Where they converge</h3>
+        ${lista(s.converged, c => `<li style="margin-bottom:7px">${esc(c.point)}
+          <div class="admin-nota">${esc((c.sources||[]).join(', '))} —
+          <strong style="color:${c.independent ? 'var(--ink)' : 'var(--accent)'}">
+          ${c.independent ? 'independent' : 'not independent'}</strong>: ${esc(c.note)}</div></li>`)}` : ''}
+
+      ${(s.conflicts||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px">Where they clash</h3>
+        ${lista(s.conflicts, c => `<li style="margin-bottom:7px">${esc(c.point)}
+          ${lista(c.positions, p => `<li class="admin-nota">${esc(p.who)}: ${esc(p.says)}</li>`)}</li>`)}` : ''}
+
+      ${(s.blind_spots||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:18px">Nobody is saying</h3>
+        ${lista(s.blind_spots, b => `<li style="margin-bottom:4px">${esc(b)}</li>`)}` : ''}
+
+      ${(s.unverified||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px">Unverified</h3>
+        ${lista(s.unverified, u => `<li style="margin-bottom:4px">${esc(u.claim)}
+          <span class="admin-nota">— ${esc(u.who)} · check: ${esc(u.checkable)}</span></li>`)}` : ''}
+
+      ${(s.angles||[]).length ? `<h3 style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px">Possible angles</h3>
+        ${lista(s.angles, a => `<li style="margin-bottom:5px"><strong>${esc(a.angle)}</strong>
+          <span class="admin-nota">— ${esc(a.why)}</span></li>`)}` : ''}
+    </div>`;
+  }
+
+  async function pintar() {
+    const d = await api('weekly.latest');
+    const el = document.getElementById('issue');
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    if (!d.issue) { el.innerHTML = '<span class="admin-vacio">No issue yet. Rebuild once there is a week of material.</span>'; return; }
+    const w = d.issue, b = w.body || {};
+    el.innerHTML =
+      `<p class="admin-nota" style="margin-bottom:18px">${esc(w.week_start)} → ${esc(w.week_end)} ·
+        ${w.topic_count} topics · ${w.item_count} episodes · <strong>${esc(w.state)}</strong></p>` +
+      (b.intro ? `<p style="max-width:70ch;margin-bottom:10px">${esc(b.intro)}</p>` : '') +
+      (b.hilo ? `<p class="admin-nota" style="max-width:70ch;margin-bottom:26px">${esc(b.hilo)}</p>` : '') +
+      (b.sections || []).map(seccion).join('');
+  }
+
+  document.getElementById('rebuild').onclick = async (e) => {
+    e.target.disabled = true; msg('rebuilding — this takes about a minute…', true);
+    const r = await api('weekly.rebuild');
+    e.target.disabled = false;
+    if (r.error) { msg(r.error, false); return; }
+    msg(r.vacio || `Done: ${r.topic_count} topics, ${r.item_count} episodes.` +
+        (r.sin_entrada ? ` (no intro: ${r.sin_entrada})` : ''), true);
+    pintar();
+  };
+  pintar();
+</script>
+</AdminLayout>

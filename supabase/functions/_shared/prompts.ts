@@ -74,3 +74,65 @@ export function promptTemas(digest: any, existentes: { slug: string; label: stri
     '  (inútil de tan estrecho).',
   ].join('\n');
 }
+
+/**
+ * Una sección del número: el estado de un tema a partir de varias voces.
+ *
+ * La regla que gobierna esto es la primera de la lista y no es cosmética. En un
+ * canal de entrevistas los invitados suelen compartir escuela; que coincidan
+ * mide alineación, no confirmación. Un dossier que presente "tres fuentes lo
+ * confirman" estaría fabricando confianza falsa, que es justo lo contrario de
+ * lo que Glossa dice hacer.
+ */
+export function promptSeccion(tema: { label: string }, material: unknown[], anterior: unknown | null) {
+  return [
+    `Estado del tema «${tema.label}» a partir de material de varias voces.`,
+    'Quien lo va a leer no ha visto ninguno de estos episodios. Escribe para eso.',
+    '',
+    'MATERIAL DE ESTE PERIODO:',
+    JSON.stringify(material),
+    '',
+    anterior ? 'SECCIÓN ANTERIOR (para decir qué cambió):\n' + JSON.stringify(anterior) : '(no hay sección anterior)',
+    '',
+    'Devuelve SOLO JSON:',
+    '{',
+    '  "summary":"qué está pasando con este tema, 150-250 palabras, en español",',
+    '  "converged":[{"point":"tesis que apareció en más de una voz","sources":["quién"],',
+    '                "independent": true|false, "note":"por qué es o no es corroboración independiente"}],',
+    '  "conflicts":[{"point":"sobre qué discrepan","positions":[{"who":"","says":""}]}],',
+    '  "new_since_last":["qué es nuevo respecto a la sección anterior"],',
+    '  "unverified":[{"claim":"afirmación que circula sin respaldo","who":"","checkable":"qué consultar"}],',
+    '  "blind_spots":["qué no está diciendo ninguna de estas voces y sería relevante"],',
+    '  "angles":[{"angle":"ángulo posible para una pieza","why":"qué lo hace interesante"}]',
+    '}',
+    '',
+    'Reglas, y la primera es la que importa:',
+    '- **Coincidir no es corroborar.** Si varias voces comparten escuela o encuadre, que digan',
+    '  lo mismo mide alineación, no confirmación. Marca `independent: false` y explícalo en `note`.',
+    '  Solo `true` cuando vengan de órbitas distintas y aporten evidencia separada.',
+    '- No promedies las posiciones para fabricar un consenso. Si discrepan, el desacuerdo ES el hallazgo.',
+    '- `blind_spots` es lo más valioso: qué falta cuando todos miran al mismo sitio.',
+    '- Nada de adjetivos de valoración. Describe encuadres, no los califiques.',
+    '- Esto es ANÁLISIS, no un resumen del contenido ajeno. Cita corto y atribuido, nunca',
+    '  párrafos enteros: un refrito no sirve, y además el material es de terceros.',
+    '- Entre 2 y 4 ángulos, y que se sostengan por escrito — no titulares.',
+  ].filter(Boolean).join('\n');
+}
+
+/** La entrada del número: qué tiene de particular esta semana. */
+export function promptIntro(secciones: { tema: string; summary: string }[]) {
+  return [
+    'Escribe la entrada de un número semanal que reúne estas secciones.',
+    '',
+    JSON.stringify(secciones),
+    '',
+    'Devuelve SOLO JSON: {"intro":"…","hilo":"…"}',
+    '',
+    '- `intro`: 80-120 palabras en español. Qué tuvo de particular la semana, no una lista',
+    '  de lo que viene después. Si el lector solo lee esto, debe saber qué pasó.',
+    '- `hilo`: una frase. Si algo cruzó varios temas —el mismo supuesto, el mismo actor,',
+    '  la misma fecha— dilo. Si no lo cruzó, dilo también: inventar un hilo que no existe',
+    '  es peor que reconocer que fue una semana dispersa.',
+    '- Sin adjetivos de valoración y sin cerrar con un resumen de lo ya dicho.',
+  ].join('\n');
+}

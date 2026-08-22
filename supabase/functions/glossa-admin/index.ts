@@ -124,6 +124,24 @@ Deno.serve(async (req) => {
         return ok({ deleted: true });
       }
 
+      // ── Número semanal ───────────────────────────────────────────────────
+      case 'weekly.latest': {
+        const { data, error } = await db.from('glossa_radar_weekly')
+          .select('*').order('week_start', { ascending: false }).limit(1).maybeSingle();
+        if (error) throw error;
+        return ok({ issue: data });
+      }
+      case 'weekly.rebuild': {
+        // Se delega en glossa-weekly-run, que es quien sabe armarlo. Tarda ~60 s:
+        // el panel avisa de la espera en vez de parecer colgado.
+        const r = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/glossa-weekly-run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-glossa-token': Deno.env.get('GLOSSA_PUBLISH_TOKEN')! },
+          body: JSON.stringify({ semana: b.semana ?? null }),
+        });
+        return new Response(await r.text(), { status: r.status, headers: CORS });
+      }
+
       // ── Estado general ───────────────────────────────────────────────────
       case 'status': {
         const [srcs, items, topics] = await Promise.all([
