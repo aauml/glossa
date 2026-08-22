@@ -39,6 +39,8 @@ Deno.serve(async (req) => {
   // el trabajo y se dice en el registro. El elemento no tiene la culpa y mañana
   // entrará sin problema, así que nunca se le pone `state='error'`.
   const ajus = await ajustes(sb);
+  // Lo que el consejo haya corregido. Vacío = como siempre.
+  const calibracion = String(ajus.prompt_calibracion_digest ?? '');
   const gasto = await uso(sb);
   const agotado: string[] = [];
 
@@ -166,7 +168,7 @@ Deno.serve(async (req) => {
           };
 
       const resp = await gemini(MODELO_DIGEST, {
-        contents: [{ parts: [{ text: promptDigest(item as any, esTexto) }, parte] }],
+        contents: [{ parts: [{ text: promptDigest(item as any, esTexto, calibracion) }, parte] }],
         generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 4096 },
       });
       const digest = geminiJson(resp);

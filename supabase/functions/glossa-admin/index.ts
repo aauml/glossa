@@ -616,6 +616,28 @@ Deno.serve(async (req) => {
         return ok({ historial: hist ?? [], calibracion: cal ?? [] });
       }
 
+      case 'consejo.list': {
+        const { data, error } = await db.from('glossa_radar_consejo')
+          .select('id,convocado_por,ranura,votos,decision,motivo,aplicado,revertido_at,created_at')
+          .order('created_at', { ascending: false }).limit(20);
+        if (error) throw error;
+        const { data: aj } = await db.from('glossa_radar_settings')
+          .select('key,value').like('key', 'prompt_calibracion_%');
+        return ok({ deliberaciones: data ?? [],
+                    ranuras: Object.fromEntries((aj ?? []).map((r: { key: string; value: unknown }) => [r.key, r.value])) });
+      }
+      case 'consejo.revertir': {
+        // Devolver la ranura a vacío ES el comportamiento original. Por eso
+        // revertir es un clic y no una migración.
+        const { error: e1 } = await db.from('glossa_radar_settings')
+          .upsert({ key: String(b.ranura), value: '', updated_at: new Date().toISOString() });
+        if (e1) throw e1;
+        const { error: e2 } = await db.from('glossa_radar_consejo')
+          .update({ aplicado: false, revertido_at: new Date().toISOString() }).eq('id', b.id);
+        if (e2) throw e2;
+        return ok({ revertido: true });
+      }
+
       case 'budget': {
         const [{ data: gasto }, { data: ajus }] = await Promise.all([
           db.rpc('glossa_radar_presupuesto'),

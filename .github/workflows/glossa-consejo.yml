@@ -1,0 +1,45 @@
+name: Glossa consejo (autocorrección con contrapeso)
+
+# Cuando la medición dice que una etapa calibra mal, convoca a un comité de OTROS
+# modelos para decidir qué corregir. La regla, copiada de thesis (D-038): el
+# comité es contrapeso y no puede corregir sus propios deberes — quien analiza es
+# Gemini, así que Gemini no vota sobre cómo analizar.
+#
+# Domingo 08:00 UTC: después del cotejo del sábado, que es lo que le da qué
+# medir, y ANTES del número de las 10:00, para que este ya escriba con la
+# corrección puesta si la hubo.
+#
+# Solo escribe en ranuras con nombre, nunca reescribe un prompt, y todo se
+# revierte con un clic desde el panel.
+#
+# Secretos: SUPABASE_SERVICE_KEY, MOONSHOT_API_KEY, DEEPSEEK_API_KEY, OPENAI_API_KEY.
+
+on:
+  schedule:
+    - cron: '0 8 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-consejo
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+  DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+jobs:
+  consejo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/consejo_from_supabase.mjs

@@ -61,6 +61,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     <div id="apr-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
+  <!-- ── El consejo ─────────────────────────────────────────────────────── -->
+  <section class="admin-sec">
+    <h2>Corrections the committee has made</h2>
+    <p class="sub" style="margin-bottom:14px">
+      When the measuring says a stage is calling things wrong, three other models — never
+      the one being corrected — vote on a one-line fix. They can only write into named
+      slots, never rewrite a rule, and every one of them reverts here in a click.
+    </p>
+    <div id="con-lista"><span class="admin-vacio">loading…</span></div>
+  </section>
+
   <!-- ── Números y ajustes ──────────────────────────────────────────────── -->
   <section class="admin-sec">
     <h2>Right now</h2>
@@ -319,6 +330,48 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
             <th style="text-align:right">Contradicted</th></tr>${cal}</table>`;
   }
 
+  // ── El consejo ──────────────────────────────────────────────────────────
+  async function pintarConsejo() {
+    const d = await api('consejo.list');
+    const el = $('con-lista');
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+
+    const activas = Object.entries(d.ranuras || {}).filter(([, v]) => v && String(v).trim());
+    const enVigor = activas.length
+      ? `<div class="admin-msg" style="margin-bottom:16px">${activas.map(([k, v]) =>
+          `<strong>${esc(k.replace('prompt_calibracion_', ''))}</strong>: ${esc(v)}`).join('<br>')}</div>`
+      : '<p class="admin-nota" style="margin-bottom:14px">No correction is in force — every stage is running as originally written.</p>';
+
+    if (!d.deliberaciones.length) {
+      el.innerHTML = enVigor + '<span class="admin-vacio">The committee has not been convened yet.</span>';
+      return;
+    }
+    el.innerHTML = enVigor + `<table class="admin-tabla">
+      <tr><th>What triggered it</th><th>Votes</th><th>Outcome</th><th></th></tr>
+      ${d.deliberaciones.map(c => `<tr${c.revertido_at ? ' class="off"' : ''}>
+        <td>${esc(c.convocado_por)}
+          <div class="admin-nota">${esc(hace(c.created_at))}</div></td>
+        <td>${(c.votos || []).map(v => `<div class="admin-nota">
+            <strong>${esc(v.casa)}</strong>: ${v.error ? 'failed' : (v.cambiar ? 'change' : 'leave it')}
+            ${v.razon ? ` — ${esc(String(v.razon).slice(0, 90))}` : ''}</div>`).join('')}</td>
+        <td>${c.decision
+          ? `<span class="admin-kind">applied</span><div class="admin-nota">${esc(c.decision)}</div>`
+          : `<span class="admin-kind">no change</span>`}
+          <div class="admin-nota" style="color:var(--muted)">${esc(c.motivo || '')}</div></td>
+        <td>${c.aplicado
+          ? `<button class="admin-btn sec" data-rev="${c.id}" data-ran="${esc(c.ranura)}">revert</button>`
+          : (c.revertido_at ? '<span class="admin-nota">reverted</span>' : '')}</td>
+      </tr>`).join('')}</table>`;
+  }
+
+  delegar($('con-lista'), '[data-rev]', async (b) => {
+    if (!confirm('Revert this correction? The stage goes back to how it was originally written.')) return;
+    b.disabled = true;
+    const r = await api('consejo.revertir', { id: b.dataset.rev, ranura: b.dataset.ran });
+    if (r.error) msg(cajaMsg, r.error, false); else msg(cajaMsg, 'Reverted.', true);
+    pintarConsejo();
+  });
+
   // ── Lo que se lleva gastado ─────────────────────────────────────────────
   // Contando llamadas, no dinero: lo que aprieta son cuotas. Solo Kimi tiene
   // precio de verdad, y solo Kimi lleva cifra en dólares.
@@ -353,6 +406,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarCola(); pintarFuentes(); pintarCotejos(); pintarAprendizaje(); pintarEstado(); pintarGasto();
+  pintarCola(); pintarFuentes(); pintarCotejos(); pintarAprendizaje(); pintarConsejo(); pintarEstado(); pintarGasto();
 </script>
 </AdminLayout>

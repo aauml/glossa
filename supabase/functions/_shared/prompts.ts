@@ -7,7 +7,14 @@
 //   2. No transcribir. Se guardan citas cortas con su minuto, que es lo que hace
 //      falta para escribir y para volver a la fuente — no una copia de la obra.
 
-export function promptDigest(item: { title: string; author?: string | null }, esTexto: boolean) {
+/**
+ * @param calibracion Nota que el consejo puede haber añadido tras medir cómo de
+ *   bien acierta esta etapa. Vacía = comportamiento original. La escribe un
+ *   comité de OTROS modelos —nunca el que corre aquí— y se revierte con un clic
+ *   desde el panel; ver `scripts/consejo_from_supabase.mjs`.
+ */
+export function promptDigest(item: { title: string; author?: string | null }, esTexto: boolean,
+                             calibracion = '') {
   return [
     'Eres un analista que prepara material de lectura para alguien que no tiene tiempo de ver esto entero.',
     '',
@@ -48,7 +55,13 @@ export function promptDigest(item: { title: string; author?: string | null }, es
     '- Si no hay contenido analizable (música, directo cortado, promoción), pon "skip": true.',
     '- Los temas describen DE QUÉ trata, no quién habla. "Guerra de Irán", no "entrevista a Wilkerson".',
     '- Write ALL output in English, whatever language the content is in.',
-  ].filter(Boolean).join('\n');
+    // La nota va al FINAL y como corrección explícita, no mezclada con las
+    // reglas: quien lea este prompt tiene que poder ver de un vistazo qué es
+    // original y qué añadió una medición posterior.
+    calibracion ? '' : null,
+    calibracion ? 'CALIBRATION — added by review after measuring how these labels held up:' : null,
+    calibracion ? `  ${calibracion}` : null,
+  ].filter(x => x !== null && x !== undefined).join('\n');
 }
 
 export function promptTemas(digest: any, existentes: { slug: string; label: string; description?: string }[]) {
