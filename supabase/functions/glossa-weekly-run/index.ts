@@ -107,7 +107,13 @@ Deno.serve(async (req) => {
   }
 
   if (!secciones.length) {
-    return new Response(JSON.stringify({ error: 'no se pudo armar ninguna sección', saltados }), { status: 500, headers: CORS });
+    const cuota = saltados.some(x => /429|quota|RESOURCE_EXHAUSTED/i.test(x));
+    return new Response(JSON.stringify({
+      error: cuota
+        ? `Cuota diaria agotada: ${MODELO} da 20 llamadas al día en el tramo gratuito y cada sección gasta una. Vuelve a intentarlo mañana, o rehaz el número menos veces.`
+        : 'no se pudo armar ninguna sección',
+      saltados,
+    }), { status: cuota ? 429 : 500, headers: CORS });
   }
 
   let intro: any = {};
@@ -145,7 +151,24 @@ Deno.serve(async (req) => {
     generated_at: new Date().toISOString(),
   };
 
-  // Un número por semana: rehacerlo actualiza el mismo en vez de acumular borradores.
+  // Un número por semana: rehacerlo actualiza el mismo en vez de acumular
+  // borradores. PERO nunca a peor.
+  //
+  // Pasó de verdad: al agotarse la cuota diaria del modelo, dos secciones de
+  // cinco fallaron y el número de 3 secciones sobrescribió al de 5 que ya
+  // estaba bien. Una reconstrucción parcial no debe destruir una completa —
+  // "se regeneró correctamente" y "se regeneró entero" no son lo mismo.
+  const { data: actual } = await sb.from('glossa_radar_weekly')
+    .select('id,topic_count').eq('week_start', fila.week_start).maybeSingle();
+
+  if (actual && actual.topic_count > secciones.length) {
+    return new Response(JSON.stringify({
+      conservado: true,
+      motivo: `el número existente tiene ${actual.topic_count} secciones y esta pasada solo pudo armar ${secciones.length}; se deja el bueno`,
+      saltados,
+    }), { headers: CORS });
+  }
+
   const { data, error } = await sb.from('glossa_radar_weekly')
     .upsert(fila, { onConflict: 'week_start' }).select('id,week_start,topic_count,item_count').single();
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: CORS });
