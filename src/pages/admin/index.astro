@@ -9,6 +9,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     you want followed — drop it in and it works out what it was.
   </p>
 
+  <!-- ── Lo que va mal ──────────────────────────────────────────────────
+       Lo primero de todo, y sólo si hay algo. Un aviso que hay que ir a buscar
+       no es un aviso. -->
+  <div id="inc-lista"></div>
+
   <!-- ── Esta semana, de un vistazo ─────────────────────────────────────
        Arriba del todo porque es la pregunta con la que se entra: ¿va bien? Las
        cuentas del sistema —gasto, cotejos, comité— siguen abajo y plegadas;
@@ -210,6 +215,32 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if ($('tripas').open && !tripasPintadas) { tripasPintadas = true; pintarTripas(); }
   });
 
+  // ── Lo que va mal ───────────────────────────────────────────────────────
+  // Sólo se pinta si hay algo. Una caja vacía que dice «todo bien» ocupa sitio
+  // todos los días para informar el día que no.
+  async function pintarIncidencias() {
+    const d = await api('incidencias');
+    const el = $('inc-lista');
+    if (d.error || !d.incidencias?.length) { el.innerHTML = ''; return; }
+    const graves = d.incidencias.filter(i => i.gravedad === 'grave');
+    el.innerHTML = `<div class="admin-msg${graves.length ? '' : ' ok'}" style="margin-bottom:30px">
+      ${d.incidencias.map(i => {
+        const dias = Math.round((Date.now() - new Date(i.created_at)) / 864e5);
+        return `<div style="margin-bottom:6px">
+          ${i.gravedad === 'grave' ? '<strong>' : ''}${esc(i.sujeto || i.clase.replace(/_/g, ' '))}${
+            i.gravedad === 'grave' ? '</strong>' : ''} — ${esc(i.detalle)}
+          ${i.accion ? `<span class="admin-nota"> · ${esc(i.accion)}</span>` : ''}
+          ${dias >= 1 ? `<span class="admin-nota"> · desde hace ${dias}d</span>` : ''}
+          <button class="admin-btn sec" data-inc="${i.id}">dismiss</button></div>`;
+      }).join('')}</div>`;
+  }
+
+  delegar($('inc-lista'), '[data-inc]', async (b) => {
+    b.disabled = true;
+    await api('incidencias.cerrar', { id: b.dataset.inc });
+    pintarIncidencias();
+  });
+
   // ── Esta semana ─────────────────────────────────────────────────────────
   async function pintarCifras() {
     const e = await api('status');
@@ -275,6 +306,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       ? 'The weekly issue will go out without review.' : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarCifras(); pintarCola(); pintarFuentes();
+  pintarIncidencias(); pintarCifras(); pintarCola(); pintarFuentes();
 </script>
 </AdminLayout>

@@ -654,6 +654,20 @@ Deno.serve(async (req) => {
         return ok({ revertido: true });
       }
 
+      case 'incidencias': {
+        const { data, error } = await db.from('glossa_radar_incidencias')
+          .select('id,clase,sujeto,gravedad,detalle,accion,created_at,vista_por_ultima_vez')
+          .eq('abierta', true).order('gravedad').order('created_at');
+        if (error) throw error;
+        return ok({ incidencias: data ?? [] });
+      }
+      case 'incidencias.cerrar': {
+        const { error } = await db.from('glossa_radar_incidencias')
+          .update({ abierta: false, cerrada_at: new Date().toISOString() }).eq('id', b.id);
+        if (error) throw error;
+        return ok({ cerrada: true });
+      }
+
       case 'budget': {
         const [{ data: gasto }, { data: ajus }] = await Promise.all([
           db.rpc('glossa_radar_presupuesto'),

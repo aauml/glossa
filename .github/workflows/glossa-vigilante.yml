@@ -1,0 +1,41 @@
+name: Glossa vigilante (salud del propio sistema)
+
+# El panel enseñaba el estado; nadie lo vigilaba. Seis elementos pasaron horas en
+# error y el número falló dos domingos seguidos, y las dos cosas las descubrió una
+# persona preguntando. Un tablero que hay que mirar para enterarse no es
+# vigilancia.
+#
+# Cada cuatro horas: detecta, recupera lo que tiene forma conocida, y anota lo
+# demás con su evidencia.
+#
+# `actions: read` es para poder ver si los otros trabajos están fallando — que es
+# justo lo que hacía falta hoy y nadie miraba.
+
+on:
+  schedule:
+    - cron: '17 */4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: glossa-vigilante
+  cancel-in-progress: true
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  vigilante:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/vigilante_from_supabase.mjs
