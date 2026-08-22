@@ -1,0 +1,12 @@
+---
+export const prerender = false;
+
+// Esta pestaña se fundió en /admin/. Existe solo para que un marcador guardado
+// no dé 404.
+//
+// Se hace con una página y no con `redirects` en la configuración: el sitio
+// sirve todo con barra final, y Vercel normaliza a barra final ANTES de mirar
+// las redirecciones declaradas. La regla que Astro genera es `^/admin/sources$`
+// —sin barra—, así que nunca llega a coincidir: /admin/sources → 308 → /admin/sources/ → 404.
+return Astro.redirect('/admin/', 301);
+---

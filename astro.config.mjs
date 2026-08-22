@@ -23,13 +23,6 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   // Las tres pestañas viejas se fundieron en una. Un marcador guardado no debe
   // dar 404 por eso.
-  // El sitio va con barra final siempre (`trailingSlash: 'always'`), así que
-  // declarar las dos formas describe la MISMA ruta dos veces y Astro avisa de
-  // colisión. Solo la forma canónica.
-  redirects: {
-    '/admin/sources/': '/admin/',
-    '/admin/inbox/': '/admin/',
-  },
   site: 'https://glossa.ademas.ai',
   integrations: [mdx(), sitemap()],
   adapter: vercel(),
