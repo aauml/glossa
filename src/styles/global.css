@@ -605,57 +605,52 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    el rótulo, no por un color distinto — sigue siendo Glossa. */
 .cover-weekly {
   display: block; text-decoration: none; color: inherit;
-  border-top: 2px solid var(--ink); padding: 18px 0 22px; margin-bottom: 8px;
+  border-top: 0; padding: 18px 0 14px; margin-bottom: 0;
 }
+
+/* La cadencia y la fecha, en una línea y en versalitas de la sans: es el pie de
+   imprenta. Que diga «CADA DOMINGO · 16 DE AGOSTO DE 2026» antes que ninguna
+   otra cosa es lo que identifica el bloque como una revista periódica, y ahorra
+   la frase que antes lo explicaba —y que confundía, porque describía el tono en
+   vez de decir qué era. */
 .cover-weekly-tag {
   display: block; font-family: 'IBM Plex Sans', sans-serif; font-size: 10px;
-  letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: 8px;
 }
+.cover-weekly-fecha { color: var(--ink-soft); }
+.cover-weekly-fecha::before { content: " · "; color: var(--rule, var(--ink-soft)); }
+
+/* «The Weekly» es el nombre de la cabecera, no del número: manda en tamaño. */
 .cover-weekly-title {
   display: block; font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif;
   font-weight: 400; font-size: clamp(26px, 4vw, 34px); line-height: 1.08;
-  letter-spacing: -0.015em; margin-bottom: 6px;
+  letter-spacing: -0.015em; margin-bottom: 10px;
 }
-.cover-weekly-dek {
-  display: block; font-size: calc(15px * var(--reader-scale)); line-height: 1.5;
-  color: var(--ink-soft); max-width: 52ch;
-}
-.cover-weekly:hover .cover-weekly-title { color: var(--accent); }
 
-/* ── Qué hay en el número de ahora mismo ─────────────────────────────────
-   La fecha y los titulares de las piezas. Discreto a propósito: quien llega a
-   la portada no ha pedido el sumario del semanal, así que esto informa sin
-   competir con el título — sin viñetas, sin recuadro y a un tamaño por debajo
-   de la entradilla. El borde superior fino lo separa sin dibujar otra caja. */
-.cover-weekly-wrap { border-top: 2px solid var(--ink); margin-bottom: 8px; }
-.cover-weekly { border-top: 0; padding-bottom: 14px; margin-bottom: 0; }
-
-.cover-weekly-issue {
-  display: block; margin-top: 12px; padding-top: 10px;
-  border-top: 1px solid var(--rule, var(--ink-soft));
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: calc(12px * var(--reader-scale)); line-height: 1.5;
-}
-.cover-weekly-fecha {
-  display: block; color: var(--ink-soft);
-  letter-spacing: 0.06em; text-transform: uppercase; font-size: 10px;
-  margin-bottom: 3px;
-}
-/* Los titulares van separados por «·» dentro de un mismo párrafo, que es lo que
-   pidió el encargo: una lista con viñetas convertiría un apunte en una sección. */
-/* El título del número. Lleva la voz del bloque —es lo que el lector reconoce
-   como «el número de esta semana»— así que va en la serif de la casa y algo por
-   encima de los temas, pero claramente por debajo de «The Weekly», que es el
-   nombre de la sección y no de un número concreto. */
+/* El titular del número en curso. Debajo del nombre de la cabecera y por encima
+   de los temas: la jerarquía sola cuenta qué es cada cosa. */
 .cover-weekly-numero {
-  display: block; margin-bottom: 4px;
+  display: block; margin-bottom: 5px;
   font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif;
-  font-size: calc(15px * var(--reader-scale)); line-height: 1.25;
-  letter-spacing: -0.005em; color: var(--ink); max-width: 44ch;
-  text-transform: none;
+  font-size: calc(16px * var(--reader-scale)); line-height: 1.28;
+  letter-spacing: -0.005em; color: var(--ink); max-width: 46ch;
 }
-.cover-weekly-temas { display: block; color: var(--ink-soft); max-width: 56ch; }
-.cover-weekly:hover .cover-weekly-temas { color: var(--ink); }
+
+/* Los asuntos, separados por punto medio. Sin viñetas: es un apunte, no una
+   sección. */
+.cover-weekly-temas {
+  display: block; font-family: 'IBM Plex Sans', sans-serif;
+  font-size: calc(12px * var(--reader-scale)); line-height: 1.5;
+  color: var(--ink-soft); max-width: 58ch;
+}
+
+.cover-weekly:hover .cover-weekly-title,
+.cover-weekly:hover .cover-weekly-numero { color: var(--accent); }
+
+/* El borde grueso envuelve el bloque entero, para que la revista se lea como una
+   pieza cerrada de la portada y no como un párrafo suelto. */
+.cover-weekly-wrap { border-top: 2px solid var(--ink); margin-bottom: 8px; }
 
 .cover-weekly-archivo {
   display: inline-block; padding-bottom: 18px;

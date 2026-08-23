@@ -22,7 +22,6 @@ const COPY = {
     weekly: {
       tag: 'Every Sunday',
       title: 'The Weekly',
-      dek: 'What a week of listening adds up to — and, at the end, what none of it said.',
       archivo: 'Every issue',
     },
     other: { code: 'es', label: 'ES', href: '/es/' },
@@ -41,7 +40,6 @@ const COPY = {
     weekly: {
       tag: 'Cada domingo',
       title: 'El semanal',
-      dek: 'A qué suma una semana de escuchar — y, al final, qué no dijo ninguna de las voces.',
       archivo: 'Todos los números',
     },
     other: { code: 'en', label: 'EN', href: '/' },
@@ -115,16 +113,16 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
 
   <div class="cover-weekly-wrap">
     <a class="cover-weekly" href={lang === "es" ? "/es/weekly/" : "/weekly/"}>
-      <span class="cover-weekly-tag">{t.weekly.tag}</span>
+      {/* La cadencia y la fecha en una sola línea, como el pie de imprenta de
+          una revista: «CADA DOMINGO · 16 de agosto de 2026». Es lo que dice de
+          un vistazo que esto es una publicación periódica y no un artículo más
+          de la portada — y lo dice sin una frase que explicarlo. */}
+      <span class="cover-weekly-tag">
+        {t.weekly.tag}{fechaNumero && <span class="cover-weekly-fecha">{fechaNumero}</span>}
+      </span>
       <span class="cover-weekly-title">{t.weekly.title}</span>
-      <span class="cover-weekly-dek">{t.weekly.dek}</span>
-      {fechaNumero && (
-        <span class="cover-weekly-issue">
-          <span class="cover-weekly-fecha">{fechaNumero}</span>
-          {tituloNumero && <span class="cover-weekly-numero">{tituloNumero}</span>}
-          {temas.length > 0 && <span class="cover-weekly-temas">{temas.join(' · ')}</span>}
-        </span>
-      )}
+      {tituloNumero && <span class="cover-weekly-numero">{tituloNumero}</span>}
+      {temas.length > 0 && <span class="cover-weekly-temas">{temas.join(' · ')}</span>}
     </a>
     {/* Fuera del enlace de arriba a propósito: un <a> dentro de otro <a> no es
         HTML válido y el navegador lo desmonta, con lo que el bloque entero deja
