@@ -276,6 +276,18 @@ export function revisar(issue = {}, contexto = {}) {
   // única cifra que dice si salir a buscar está sirviendo para algo, y sin
   // medirla la etapa entera podría estar funcionando en vacío durante semanas.
   const ids = contexto.ids instanceof Set ? contexto.ids : new Set(contexto.ids ?? []);
+
+  // Qué ids cortos tienen un cotejo detrás. `contexto.indice` mapea id → item,
+  // y con eso se sabe si una pieza se apoyó en algo comprobado o solo en lo que
+  // se dijo en los canales.
+  const cotejoDe = new Set();
+  {
+    const porItem = new Set(cotejos.filter(c => c.verdict === 'documenta' || c.verdict === 'contradice')
+                                   .map(c => c.item_id));
+    for (const [corto, e] of Object.entries(contexto.indice ?? {})) {
+      if (e?.item_id && porItem.has(e.item_id)) cotejoDe.add(corto);
+    }
+  }
   // Contra lo que VIO el modelo, no contra la tabla: la reserva de tokens puede
   // recortar todos los reportes, y entonces el prompt no llevó bloque REPORTING
   // — acusar a las piezas de ignorarlo sería medir contra un fantasma.
@@ -294,6 +306,24 @@ export function revisar(issue = {}, contexto = {}) {
       }
     }
     if (habiaReportaje && fuentes.length && fuentes.every(f => f.startsWith('e'))) sinReportaje++;
+
+    // ── Lo que no se comprobó no puede ir en limpio ─────────────────────
+    // La prosa sin marcar significa «esto está asentado». Una pieza que no cita
+    // ni un reportaje de fuera ni un cotejo no tiene con qué asentar nada: todo
+    // lo suyo procede de los canales, y presentarlo sin marca es exactamente la
+    // afirmación que esta publicación existe para no hacer.
+    //
+    // Cinco canales de la misma órbita repitiendo una cosa no la asientan — es
+    // un relato con cinco bocas. Si no hubo con qué comprobarlo, se escribe
+    // igual, pero marcado.
+    const conApoyo = fuentes.some(f => f.startsWith('r'))
+      || fuentes.some(f => cotejoDe.has(f));
+    const marcas = (String(p.body || '').match(/<span class="(?:doc|attr|said)">/g) || []).length;
+    if (!conApoyo && fuentes.length && marcas === 0) {
+      falla('afirma sin haber comprobado',
+        `pieza ${i + 1} «${p.title ?? '?'}» no cita reportaje ni cotejo y no marca nada: ` +
+        `da por asentado lo que solo dijeron los canales`);
+    }
   }
   if (sinReportaje) {
     falla('pieza sin reportaje',

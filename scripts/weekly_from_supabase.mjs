@@ -321,7 +321,7 @@ if (cotejos?.length) console.log(`  ${cotejos.length} cotejos de esta semana`);
 const idCorto = new Map();
 const ficha = (x, i) => {
   const eid = `e${i + 1}`;
-  idCorto.set(eid, { url: x.url, title: x.title, channel: canal(x) });
+  idCorto.set(eid, { url: x.url, title: x.title, channel: canal(x), item_id: x.id });
   return {
     id: eid,
     title: x.title, channel: canal(x), when: String(x.published_at).slice(0, 10),
@@ -354,7 +354,7 @@ const ficha = (x, i) => {
 const fichaReporte = (x, i) => {
   const rid = `r${i + 1}`;
   const d = x.digest || {};
-  idCorto.set(rid, { url: x.url, title: x.title, channel: d.outlet || x.author, kind: 'report' });
+  idCorto.set(rid, { url: x.url, title: x.title, channel: d.outlet || x.author, kind: 'report', item_id: x.id });
   return {
     id: rid,
     outlet: d.outlet || x.author, country: d.country || null,
@@ -512,15 +512,26 @@ Write a magazine issue. Return ONLY JSON:
     "title":"short, specific",
     "dek":"one line for the index, under 18 words",
     "body":"400-550 words of CONTINUOUS PROSE. Markdown paragraphs only.",
-    "sources_note":"one or two sentences: who this came from, and say so plainly if the provenance weakens it",
+    "sources_note":"one or two sentences on where this STANDS: what is settled and what rests on a single account. Not a roll-call of channels — the links below already are that",
     "sources":["the ids this piece drew on — episodes as e3, e12 and outside reports as r1, r4. Ids only, from above"]}
  ],
  "closing": ["4-6 items. Each: what NOBODY in the material said, and why it matters."]
 }
 
-RULES — the first is the one that matters:
-- COINCIDING IS NOT CORROBORATING. If voices share a school or a channel, say so in
-  the prose. Only treat agreement as confirmation when it survives opposite priors.
+RULES — the first two are the ones that matter:
+
+- YOU ARE WRITING THE NEWS, NOT A REPORT ON WHO SAID IT. The channels are where
+  the subjects came from; they are not the story. Default to stating what
+  happened, in plain prose, with nobody's name attached. A reader should finish a
+  piece knowing what is going on — not knowing which podcast said what.
+  Name a source ONLY when the naming carries information: the claim is contested,
+  nobody outside confirmed it, or who said it IS the story.
+
+- COINCIDING IS NOT CORROBORATING, and that rule now decides when you may state
+  something plainly. Five channels that share an orbit repeating one thing does
+  NOT settle it — that is one account with five mouths. What settles a claim is
+  outside reporting or a document. If neither exists, you may still write the
+  claim, but it goes MARKED and with its source named.
 - Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
   given a section. Those clusters are what the classification produced, not a
   contents page: several of them are usually one piece, and the labels are the
@@ -538,12 +549,17 @@ RULES — the first is the one that matters:
   "Israel-Turkey". NEVER a generic bucket like "politics", "economy", "analysis",
   "geopolitics" or "media" — a label that could sit on any piece tells the reader
   nothing. Two pieces may share a subject only if they genuinely cover the same one.
-- Mark epistemic status IN THE PROSE using these inline spans, exactly:
+- THE MARKS ARE FOR WHAT IS NOT SETTLED. Unmarked prose means established, and
+  that silence has to be earned — so most of a well-reported piece is unmarked,
+  and a piece where everything is marked has not been reported.
+    (nothing)                    corroborated outside, or documented. State it.
     <span class="doc">…</span>   traceable to a named document or body
-    <span class="attr">…</span>  attributed to a third party, unverified
-    <span class="said">…</span>  asserted by the speaker, no support offered
+    <span class="attr">…</span>  only one source says it — name that source
+    <span class="said">…</span>  asserted, nothing supports it — name who asserts
   Wrap the CLAIM, not the whole sentence.
-- Name people and their affiliation. Say who said what, and why they would say it.
+- When you DO name someone, give their affiliation and why they would say it. But
+  naming is the exception now, not the habit: an issue that mentions a channel
+  name in every paragraph is reporting on its own reading list.
 - Look ACROSS pieces for contradictions between speakers that nobody in the material
   noticed. That is the most valuable thing you can find.
 - No bullet lists inside "body". No section labels like "Where they clash". Prose.
@@ -592,8 +608,8 @@ ${reportaje.length ? `REPORTING RULES — these govern how the outside documents
 - A claim may be wrapped in <span class="doc"> ONLY if its \`check.verdict\` is
   "documenta". No cross-check means no gold marking, however solid the claim reads.
 - "repite" means the claim was found elsewhere and the elsewhere is downstream, or
-  from the same orbit. Write it as repetition and say where it repeats from. NEVER
-  as confirmation — that is the exact error this publication exists to avoid.
+  from the same orbit. That does NOT settle it: it stays marked. Never write it as
+  confirmation — that is the exact error this publication exists to avoid.
 - "contradice" MUST appear in the prose. A contradicted claim presented without its
   contradiction is the worst thing this issue can contain. Name the document.
 - The TRACK RECORD is context, not a verdict on anyone. Small counts mean little:
@@ -735,6 +751,7 @@ if (actual && PARCIAL === !!actual.parcial && (actual.topic_count || 0) > seccio
 // El fusible, antes de guardar. Corre igual aquí, junto al botón de publicar y
 // en la vía automática: si los tres no dan el mismo veredicto, no sirve de nada.
 const veredicto = revisar(numero, { items, cotejos: cotejos ?? [], ids: new Set(idCorto.keys()),
+                                    indice: Object.fromEntries(idCorto),
                                     reportaje_count: reportaje.length });
 const graves = veredicto.fallos.filter(f => f.grave);
 console.log(graves.length
@@ -765,7 +782,8 @@ if (!process.env.WEEKLY_SIN_ES) {
 
     // Mismo fusible, mismo contexto. Si tradujo una cita, sale aquí.
     veredictoEs = revisar(numeroEs, { items, cotejos: cotejos ?? [],
-                                      ids: new Set(idCorto.keys()), reportaje_count: reportaje.length });
+                                      ids: new Set(idCorto.keys()), indice: Object.fromEntries(idCorto),
+                                      reportaje_count: reportaje.length });
     const gravesEs = veredictoEs.fallos.filter(f => f.grave);
     console.log(gravesEs.length
       ? `  español: ${gravesEs.length} fallo(s) grave(s) — se guarda igual, pero revísalo`

@@ -18,6 +18,22 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Marcarlo todo es no marcar nada
+_Applies to: LLM_
+
+**Síntoma** — Cada párrafo del número llevaba su etiqueta epistémica y el nombre
+de quien había hablado. Leerlo era enterarse de quién dijo qué, no de qué pasó.
+**Causa** — El aparato marcaba los tres estados —documentado, atribuido,
+afirmado— así que TODO llevaba marca. Y cuando todo lleva marca, la marca deja
+de avisar de nada: es tipografía de fondo.
+**Arreglo** — Que la marca signifique **advertencia**, y el silencio, asentado.
+La prosa sin marcar es lo comprobado; lo demás va señalado y con su fuente
+nombrada. La consecuencia buena es que el silencio hay que ganárselo: solo se
+deja sin marcar lo que el reporteo de fuera sostiene.
+
+Lo general: **un indicador que se pone en todos los casos no es un indicador.**
+La información está en el contraste, y si no hay contraste no hay información.
+
 ### Un ranking por volumen entierra justo lo que añadiste para no perderte
 _Applies to: LLM · relational database_
 

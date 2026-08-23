@@ -26,6 +26,7 @@ vista y la decisión parece arbitraria.
 | D-018 | 2026-08-23 | Revista | La paráfrasis se reconoce pero no se cita | vigente |
 | D-019 | 2026-08-23 | Revista | Un parcial nunca pisa a un oficial, y nunca se publica solo | vigente |
 | D-020 | 2026-08-23 | Revista | En español, las comillas se quedan en inglés | vigente |
+| D-021 | 2026-08-23 | Revista | Se cuenta la noticia, no quién la dijo | vigente |
 
 ---
 
@@ -319,3 +320,35 @@ el original entre corchetes, o registrar la traducción como citable. Lo primero
 duplica el texto y no arregla nada; lo segundo **desactiva el fusible en la
 versión española sin que nadie lo note**. Es la misma tentación que D-010 ya
 rechazó por la vía del reportaje.
+
+## D-021 · Se cuenta la noticia, no quién la dijo
+
+Los canales y los podcasts son **de dónde salen los asuntos**, no la historia.
+El número se escribe como se escribe una noticia: se dice qué pasó, en prosa
+limpia, sin el nombre de nadie colgando de cada frase. Se nombra una fuente solo
+cuando nombrarla informa — porque el asunto está en disputa, porque nadie de
+fuera lo confirmó, o porque quién lo dijo ES la noticia.
+
+Antes el número contaba quién había hablado: «Escobar sostiene que…», «un
+invitado de Napolitano afirmó…». Eso convertía la revista en un informe sobre su
+propia lista de lectura.
+
+**La inversión que lo hace posible sin perder nada:** el aparato de marcas pasa a
+señalar lo que NO está asentado, y la prosa sin marcar significa establecido.
+
+| | |
+|---|---|
+| sin marca | corroborado fuera, o documentado |
+| dorado | rastreable hasta un documento (sigue exigiendo cotejo `documenta`) |
+| punteado | lo dice una sola fuente — y se la nombra |
+| liso | se afirma y nada lo sostiene — y se nombra a quién |
+
+Así «coincidir no es corroborar» deja de ser una advertencia editorial y pasa a
+gobernar **cuándo se puede quitar la marca**: cinco canales de la misma órbita
+repitiendo una cosa no la asientan —es un relato con cinco bocas— y solo la
+asienta el reporteo de fuera o un documento.
+
+Y es comprobable, que es lo que impide que se relaje: **una pieza que no cita ni
+un reportaje ni un cotejo y no marca nada levanta un fallo grave**. Si no hubo
+con qué comprobarlo, se escribe igual — pero marcado. El silencio hay que
+ganárselo.

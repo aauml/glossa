@@ -43,12 +43,28 @@ export const fecha = s => {
   return isNaN(d) ? String(s) : d.toLocaleDateString('en-GB', { ...FECHA, timeZone: 'UTC' });
 };
 
+// La leyenda explica una inversión: aquí una marca es una ADVERTENCIA, y la
+// prosa sin marcar es lo asentado. Antes se marcaba todo —cada frase llevaba su
+// etiqueta— y eso obligaba a escribir «X sostiene que…» en cada párrafo, con lo
+// que el número contaba quién había hablado en vez de contar qué pasó.
+//
+// El silencio significa algo, y por eso hay que ganárselo: solo se deja sin
+// marcar lo que el reporteo de fuera o un documento sostienen. Que cinco canales
+// de la misma órbita repitan una cosa NO la asienta.
 export const LEYENDA = `
 <div class="legend">
-  <b>How claims are marked</b>
-  <span><span class="doc">gold</span> traceable to a document</span>
-  <span><span class="attr">dotted</span> attributed, unverified</span>
-  <span><span class="said">plain</span> asserted, no support offered</span>
+  <b>Unmarked text is established. A mark is a caution.</b>
+  <span><span class="doc">gold</span> traceable to a named document</span>
+  <span><span class="attr">dotted</span> only one source says it</span>
+  <span><span class="said">plain</span> asserted, nothing supports it</span>
+</div>`;
+
+export const LEYENDA_ES = `
+<div class="legend">
+  <b>Lo que va sin marcar está asentado. Una marca es una advertencia.</b>
+  <span><span class="doc">dorado</span> rastreable hasta un documento</span>
+  <span><span class="attr">punteado</span> lo dice una sola fuente</span>
+  <span><span class="said">liso</span> se afirma y nada lo sostiene</span>
 </div>`;
 
 /**
@@ -58,7 +74,7 @@ export const LEYENDA = `
  * números ya guardados, pero no la maqueta: la señala como lo que es. Fingir
  * que un número viejo es del formato nuevo escondería justo lo que cambió.
  */
-export function renderIssue(body = {}) {
+export function renderIssue(body = {}, lang = 'en') {
   const piezas = body.pieces;
   // Cada pieza dice de qué episodios salió. Se pintan como flechas discretas
   // detrás de la nota de procedencia, y se cortan a seis: una pieza citó
@@ -140,7 +156,7 @@ export function renderIssue(body = {}) {
   return `
   ${body.headline ? `<h1 class="hed">${esc(body.headline)}</h1>` : ''}
   ${body.standfirst ? `<div class="stand">${prosa(body.standfirst)}</div>` : ''}
-  ${LEYENDA}
+  ${lang === 'es' ? LEYENDA_ES : LEYENDA}
   <nav class="toc" id="contents">
     <h2>In this issue</h2>
     <ol>${indice}</ol>
