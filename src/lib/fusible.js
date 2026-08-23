@@ -133,24 +133,19 @@ export function revisar(issue = {}, contexto = {}) {
   // ninguna voz. En español no puede haber más pasajes citados que en el
   // original, ni comillas sueltas que reclamen literalidad.
   if (contexto.lang === 'es') {
-    const original = contexto.original ?? null;
-    const cursivas = textos.join(' ').match(/(?<!\*)\*[^*\n]{8,}\*(?!\*)/g) ?? [];
-    const enComillas = textos.flatMap(t => citas(t));
-
-    if (enComillas.length) {
-      falla('comillas en la traducción',
-        `${enComillas.length} pasaje(s) entrecomillados: «${String(enComillas[0]).slice(0, 60)}». ` +
-        `En español la voz ajena va en cursiva — unas comillas afirmarían que son las palabras exactas, ` +
-        `y una traducción nunca lo es.`);
+    // Lo único comprobable en otro idioma: que no se haya inventado a nadie.
+    // Comparar letra por letra no diría nada —el material está en inglés— y la
+    // traducción no tiene por qué ser literal: es una decisión editorial, y la
+    // buena es que se lea natural.
+    const aqui = textos.flatMap(t => citas(t)).length;
+    const alli = contexto.original
+      ? textoDelNumero(contexto.original).flatMap(t => citas(t)).length : null;
+    if (alli !== null && aqui > alli + 2) {
+      falla('voces inventadas',
+        `la traducción entrecomilla ${aqui} pasajes y el original tenía ${alli}: ` +
+        `algo que allí era prosa se ha convertido en cita`);
     }
-    if (original) {
-      const enOriginal = textoDelNumero(original).flatMap(t => citas(t)).length;
-      if (cursivas.length > enOriginal + 2) {
-        falla('voces inventadas',
-          `la traducción marca ${cursivas.length} pasajes como dicho por alguien y el original tenía ${enOriginal}`);
-      }
-    }
-    return { ok: !fallos.some(f => f.grave), fallos, citas: cursivas.length };
+    return { ok: !fallos.some(f => f.grave), fallos, citas: aqui };
   }
 
   for (const t of textos) {

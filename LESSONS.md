@@ -18,6 +18,23 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Rigor que produce un texto ilegible es rigor mal puesto
+_Applies to: LLM_
+
+**Síntoma** — Para no mentir, la versión española dejaba las citas en inglés
+dentro de la prosa. Después, en cursiva sin comillas. Las dos correctas y las dos
+raras de leer.
+**Causa** — Se protegía una promesa —«unas comillas son las palabras exactas»—
+que en una traducción **nadie está haciendo**. La convención española ya
+significa «esto dijo», no «esto sonó así»; el problema era mío, no del lector.
+**Arreglo** — Traducir y entrecomillar, como cualquier periódico. Y trasladar el
+verificador: en español el fusible no compara letra por letra, comprueba que no
+haya más voces citadas que en el original.
+
+Lo general: **antes de defender una invariante, comprueba que alguien la esté
+leyendo como tú.** Dos soluciones rigurosas seguidas, cada vez más rebuscadas,
+suelen ser la señal de que lo que falla es la premisa y no la implementación.
+
 ### Cuando una marca promete algo que no puedes cumplir, cambia la marca
 _Applies to: LLM_
 

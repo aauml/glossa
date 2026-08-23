@@ -158,11 +158,11 @@ for (const m of TRADUCTORES) {
   const v = revisar(r.es, { items, cotejos: cotejos ?? [], ids: new Set(Object.keys(indice)),
                             indice, reportaje_count: 1, lang: 'es', original: w.body });
   const citas = v.fallos.filter(f => f.grave &&
-    ['comillas en la traducción', 'voces inventadas'].includes(f.regla));
+    ['voces inventadas'].includes(f.regla));
 
   console.log(`  ${m.n.padEnd(30)} ${String(Math.round((Date.now() - t0) / 1000)).padStart(3)}s · ` +
     `${String(r.tok).padStart(6)} tok · $${r.coste.toFixed(4)} · ` +
-    (citas.length ? `✗ ${citas.map(f => f.regla).join(', ')}` : '✓ citas en cursiva, ninguna inventada'));
+    (citas.length ? `✗ ${citas.map(f => f.regla).join(', ')}` : '✓ ninguna voz inventada'));
   for (const f of citas.slice(0, 2)) console.log(`      ${String(f.detalle).slice(0, 88)}`);
 
   if (!citas.length) { es = r.es; veredicto = v; break; }

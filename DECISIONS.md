@@ -25,7 +25,7 @@ vista y la decisión parece arbitraria.
 | D-017 | 2026-08-23 | Radar | Dos relojes y un botón para saltarse el ritmo | vigente |
 | D-018 | 2026-08-23 | Revista | La paráfrasis se reconoce pero no se cita | vigente |
 | D-019 | 2026-08-23 | Revista | Un parcial nunca pisa a un oficial, y nunca se publica solo | vigente |
-| D-020 | 2026-08-23 | Revista | En español las citas se traducen, y van en cursiva | vigente (revisada) |
+| D-020 | 2026-08-23 | Revista | Las ediciones tienen país: México y Estados Unidos | vigente |
 | D-021 | 2026-08-23 | Revista | Se cuenta la noticia, no quién la dijo | vigente |
 | D-022 | 2026-08-23 | Revista | Traducir con cascada verificada, no con el mejor modelo | vigente |
 
@@ -297,33 +297,30 @@ reglas que el código impone y no negocia:
   el guion ve eso y NO escribe el número real de la semana, y nada lo nota — el
   vigilante solo comprueba que la fila exista.
 
-## D-020 · En español las citas se traducen, y van en cursiva
+## D-020 · Las ediciones tienen país: México y Estados Unidos
 
-*(Revisada el mismo día. La primera versión dejaba las citas en inglés dentro de
-la prosa española; se leía mal y confundía —el lector no sabe si eso es un
-descuido o una decisión—. La regla nueva conserva lo que aquella protegía.)*
+Las dos ediciones se localizan, y es una decisión editorial, no una preferencia
+de estilo: **español de México** e **inglés de Estados Unidos**. Las fuentes en
+español de esta publicación son mexicanas y quien la lee está en California; el
+peninsular y el británico sonarían prestados.
 
-En español, la voz ajena va **traducida y en cursiva, sin comillas**:
+Con eso, **las citas se traducen** y van entre comillas latinas «así», como en
+cualquier periódico. No son traducciones literales palabra por palabra y no
+tienen por qué serlo.
 
-> Trump lo calificó de *la operación económica más aplastante jamás emprendida
-> contra ningún país*.
+*Se llegó aquí por descarte, y las dos paradas previas valen como advertencia.*
+Primero se dejaron las citas en inglés dentro de la prosa española, para que unas
+comillas siguieran significando «palabras exactas». Luego se tradujeron en
+cursiva y sin comillas, por el mismo motivo. Las dos eran soluciones rigurosas a
+un problema que no existe: **nadie lee «dijo que el estrecho está abierto» en un
+diario en español y entiende que ésas fueron las sílabas exactas.** La convención
+ya significa «esto dijo», no «esto sonó así», y forzarla producía un texto fiel e
+ilegible.
 
-El fondo del problema no era elegir entre fidelidad y legibilidad: era que **unas
-comillas prometen algo que una traducción no puede cumplir**. Entrecomillar
-afirma «estas son las palabras exactas», y una traducción nunca lo es. La
-cursiva dice «esto es lo que dijo» sin prometer literalidad — que es exactamente
-lo que una traducción sí puede sostener.
-
-Así que la regla de la casa no se debilita, se traslada a la marca correcta: las
-comillas siguen significando palabras exactas, y por eso no aparecen en la
-versión traducida.
-
-Lo que el fusible comprueba cambia con ella. En inglés compara cada frase
-entrecomillada contra el material, letra por letra. En español eso no diría nada
-—el material está en inglés—, así que comprueba dos cosas distintas: que no haya
-NINGÚN pasaje entrecomillado (una comilla ahí reclamaría una literalidad que no
-existe) y que no haya más voces citadas que en el original, para que no se
-inventen.
+Lo que el fusible comprueba se traslada con la regla. En inglés compara cada
+frase entrecomillada contra el material, letra por letra. En español eso no diría
+nada, así que comprueba lo único comprobable en otro idioma: que no haya más
+voces citadas que en el original — es decir, que no se invente a nadie.
 
 ## D-021 · Se cuenta la noticia, no quién la dijo
 

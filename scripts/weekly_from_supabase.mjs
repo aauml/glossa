@@ -567,7 +567,9 @@ RULES — the first two are the ones that matter:
   that read it. The concentration of sources is context for HOW you write, not
   something to report: it should show in how much weight you give a claim, never in
   a paragraph counting who filed what.
-- English throughout.
+- US English throughout — spelling, dates, and the register of an American
+  weekly. The reader is in California; British forms would read as borrowed. It
+  is the same editorial call as the Spanish edition, which is Mexican.
 - "sources" carries the ids of everything the piece actually used — episodes (\`e\`)
   and outside reports (\`r\`) in the same list. They become links back to the
   original, so a reader can go and read or hear it. Ids only, exactly as given;

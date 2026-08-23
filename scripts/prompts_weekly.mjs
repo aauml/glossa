@@ -4,22 +4,19 @@
 /**
  * El número en español.
  *
- * Las citas SÍ se traducen — y por eso dejan de llevar comillas.
+ * Las citas se traducen y van entre comillas latinas, como en cualquier
+ * periódico: «así». No es una traducción literal palabra por palabra y no tiene
+ * por qué serlo — es una decisión editorial, y la buena es que se lea natural.
  *
- * La primera versión las dejaba en inglés dentro de la prosa española, para que
- * una comilla siguiera significando «palabras exactas». Se leía mal y confundía:
- * el lector no sabe si eso es un descuido o una decisión.
+ * Se probó antes dejarlas en inglés dentro de la prosa española, y luego
+ * traducirlas en cursiva sin comillas. Las dos eran soluciones rigurosas a un
+ * problema que no existe: nadie lee «dijo que el estrecho está abierto» en un
+ * diario español y entiende que esas fueron las sílabas exactas. La convención
+ * ya significa «esto dijo», no «esto sonó así».
  *
- * La salida no es elegir entre fidelidad y legibilidad, es cambiar la marca
- * tipográfica. En español la voz ajena va en CURSIVA, sin comillas: se lee bien,
- * se entiende, y no afirma ser literal — porque no lo es, es una traducción. Las
- * comillas son la promesa que no se puede cumplir en otro idioma; la cursiva no
- * promete eso.
- *
- * Lo que el fusible comprueba entonces cambia: ya no puede comparar letra por
- * letra contra un material que está en inglés, así que comprueba que no se haya
- * INVENTADO ninguna — que en español no haya más voces citadas que en el
- * original.
+ * Lo que el fusible comprueba, entonces, es lo único comprobable en otro idioma:
+ * que no se haya INVENTADO ninguna voz — que no haya en español más gente
+ * citada que en el original.
  */
 export function promptTraduccion(numero) {
   return [
@@ -31,21 +28,18 @@ export function promptTraduccion(numero) {
     '',
     'REGLAS — la primera es la que importa y no admite excepción:',
     '',
-    '- **LAS CITAS SE TRADUCEN, Y PIERDEN LAS COMILLAS.** Toda frase que en el',
-    '  original vaya entre comillas se traduce al español y se marca con',
-    '  *asteriscos* —que se pintan en cursiva—, SIN comillas de ningún tipo.',
+    '- **LAS CITAS SE TRADUCEN**, y van entre comillas latinas «así», como en',
+    '  cualquier periódico en español.',
     '',
     '    inglés:   He said "the strait is open and operating normally"',
-    '    español:  Dijo que *el estrecho está abierto y funciona con normalidad*',
+    '    español:  Dijo que «el estrecho está abierto y funciona con normalidad»',
     '',
-    '  El motivo importa y no es de estilo: unas comillas afirman que esas son',
-    '  las palabras exactas de alguien, y una traducción nunca lo es. La cursiva',
-    '  dice «esto es lo que dijo» sin prometer literalidad, que es exactamente lo',
-    '  que una traducción puede sostener.',
+    '  Que suene natural importa más que calcar la sintaxis: es una traducción,',
+    '  no un doblaje. Si el orden inglés queda forzado en español, cámbialo.',
     '',
-    '  NO inventes citas que no estén en el original, y no conviertas en cita algo',
-    '  que allí era prosa normal: en español tiene que haber las MISMAS voces',
-    '  citadas que en inglés, ni una más.',
+    '  Lo único que NO se puede hacer es inventar. En español tiene que haber las',
+    '  mismas voces citadas que en inglés —ni una más— y ninguna frase puede',
+    '  pasar a ser cita si en el original era prosa normal.',
     '',
     '- Conserva EXACTAMENTE las marcas del aparato, sin traducir el atributo:',
     '    <span class="doc">…</span>   <span class="attr">…</span>   <span class="said">…</span>',
@@ -58,9 +52,15 @@ export function promptTraduccion(numero) {
     '- `subject` es la etiqueta del índice: tradúcela, corta, 2-4 palabras.',
     '- `sources` y `sources_index` se copian TAL CUAL. Son ids, no texto.',
     '',
-    '- Español de España, neutro y sobrio. Sin adjetivos de valoración que no',
-    '  estén en el original: si el inglés dice «said», dice «dijo», no «admitió».',
-    '  Una traducción que sube la temperatura está cambiando lo que se afirma.',
+    '- **Español de México**, no de España. Es una decisión editorial: las fuentes',
+    '  en español de esta publicación son mexicanas y quien la lee está en Los',
+    '  Ángeles — el peninsular sonaría prestado. En la práctica: nada de',
+    '  «vosotros», nada de «coger», «vale», «ordenador» ni «móvil»; el registro',
+    '  sobrio de un diario mexicano, ni coloquial ni acartonado.',
+    '',
+    '- Sin adjetivos de valoración que no estén en el original: si el inglés dice',
+    '  «said», dice «dijo», no «admitió». Una traducción que sube la temperatura',
+    '  está cambiando lo que se afirma.',
     '',
     '- Los cargos y las instituciones, en español cuando exista un uso asentado',
     '  («Secretario del Tesoro»); en su idioma cuando no lo haya.',
