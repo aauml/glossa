@@ -18,6 +18,26 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Una fecha sin hora es medianoche UTC, que en Los Ángeles es el día anterior
+_Applies to: general_
+
+**Síntoma** — Rehacer una semana no rehacía nada. `WEEK_END=2026-08-23` es un
+domingo y el guion lo tomaba por corte PARCIAL, así que la compuerta —bien
+puesta— se negaba a que pisara el número oficial y salía sin escribir.
+**Causa** — `new Date('2026-08-23')` son las 00:00 UTC, o sea las 17:00 del
+**sábado** en Los Ángeles, que es la zona a la que se ancló la semana. El formato
+que documentaba el propio workflow hacía lo contrario de lo que prometía.
+**Arreglo** — Un `YYYY-MM-DD` pelado se interpreta como mediodía allí (20:00 UTC
+cae en el mismo día natural en verano y en invierno), y la ayuda del workflow
+dice qué poner.
+
+Lo general: **una fecha sin hora ya trae una zona horaria escondida, y es UTC.**
+En cuanto el sistema razona en otra, cada fecha pelada se corre un día para
+alguien. Y aquí hay un aviso extra: la auditoría ya cerró esta misma trampa una
+vez —entonces la ayuda sugería un sábado— y **se reabrió sola al cambiar la
+zona**. Arreglar el caso no arregla la clase: lo que hay que arreglar es que una
+fecha entre sin zona.
+
 ### El navegador reescribe el HTML inválido, y tu CSS apunta al que escribiste
 _Applies to: general_
 
