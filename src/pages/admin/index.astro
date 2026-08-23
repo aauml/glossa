@@ -192,7 +192,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
           <td style="white-space:nowrap">
             <button class="admin-btn sec" data-t="${s.id}" data-a="${s.active ? '0' : '1'}"
               >${s.active ? 'pause' : 'activate'}</button>
-            &nbsp;<button class="admin-btn sec" data-d="${s.id}" data-n="${esc(s.name)}">remove</button>
+            &nbsp;<button class="admin-btn sec" data-d="${s.id}" data-n="${esc(s.name)}" data-c="${s.leidos_total || 0}">remove</button>
           </td></tr>`).join('')}</table></details>`;
     }).join('');
   }
@@ -203,7 +203,13 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     pintarFuentes();
   });
   delegar(listaSrc, '[data-d]', async (b) => {
-    if (!confirm(`Stop following “${b.dataset.n}”? Episodes already read go with it.`)) return;
+    // Borrar una fuente arrastra todos sus episodios y el análisis de cada uno —
+    // trabajo ya pagado que no vuelve—. Perder cero y perder cuarenta y uno no
+    // son la misma decisión, así que el aviso dice cuántos.
+    const n = Number(b.dataset.c || 0);
+    if (!confirm(`Stop following “${b.dataset.n}”?` +
+      (n ? `\n\n${n} episode${n > 1 ? 's' : ''} already read will be deleted with it. This cannot be undone.`
+         : '\n\nNothing has been read from it yet.'))) return;
     b.disabled = true;
     await api('sources.delete', { id: b.dataset.d });
     pintarFuentes(); pintarCola();
@@ -279,7 +285,9 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     nota.innerHTML = e.listos
       ? `Issue for <b>${esc(ventana)}</b>${e.parcial ? ' (week still open)' : ''} would use ` +
         `<b>${esc(e.listos)}</b>${porLeer ? `, leaving <b>${esc(porLeer)}</b> still unread out` : ''}. ` +
-        `<button class="admin-btn sec" id="st-cortar">Cut now</button>`
+        `<button class="admin-btn sec" id="st-cortar">Cut now</button>` +
+        // Sale solo si hay cola: un botón que no puede hacer nada es ruido.
+        (porLeer ? ` <button class="admin-btn sec" id="st-cola">Read the queue first</button>` : '')
       : 'Nothing read yet for this week.';
   }
 
@@ -289,6 +297,14 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     b.disabled = true; b.textContent = 'launching…';
     const r = await api('weekly.rebuild');
     b.textContent = r.error ? 'failed' : 'launched · ~15 min';
+  });
+
+  // El radar lee ~2 episodios cada 15 min porque eso es lo que cabe en una edge
+  // function. Esto llama a la misma función seguida y sube a ~60 por hora.
+  delegar($('st-corte'), '#st-cola', async (b) => {
+    b.disabled = true; b.textContent = 'reading…';
+    const r = await api('queue.drain');
+    b.textContent = r.error ? 'failed' : 'reading · reload in a few min';
   });
 
   async function pintarTripas() {

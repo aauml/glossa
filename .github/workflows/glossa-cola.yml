@@ -1,0 +1,46 @@
+name: Glossa cola (leer lo que espera, ahora)
+
+# El radar lee unos dos episodios cada 15 minutos: le caben 120 s de los 150 que
+# tiene una edge function y reserva 50 s por episodio para no dejar ninguno a
+# medias. Son ~12 por hora, que basta para el día a día.
+#
+# No basta cuando quieres cortar el número AHORA y hay ochenta esperando: a ese
+# ritmo son siete horas. Esto llama a la misma función una detrás de otra, sin
+# los 15 minutos de espera, y sube a ~60 por hora.
+#
+# Mismo código y mismos topes; lo único que cambia es la frecuencia. Por eso no
+# tiene horario: si corriera solo, se saltaría el tope diario de Gemini todos los
+# días antes de comer.
+#
+# Secretos: SUPABASE_SERVICE_KEY, GLOSSA_PUBLISH_TOKEN.
+
+on:
+  workflow_dispatch:
+    inputs:
+      minutos:
+        description: 'Cuánto insistir como mucho (por defecto 100)'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-cola
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  GLOSSA_PUBLISH_TOKEN: ${{ secrets.GLOSSA_PUBLISH_TOKEN }}
+  COLA_MINUTOS: ${{ inputs.minutos }}
+
+jobs:
+  cola:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/cola_from_supabase.mjs

@@ -730,6 +730,16 @@ Deno.serve(async (req) => {
         return ok({ lanzado: true, nota: 'El número tarda unos 15 minutos. Vuelve a cargar esta página entonces.' });
       }
 
+      case 'queue.drain': {
+        // El radar lee ~2 episodios cada 15 min porque eso es lo que cabe en una
+        // edge function. Esto llama a la misma función seguida, sin la espera, y
+        // sube a ~60 por hora. Igual que el número: aquí solo se aprieta el
+        // botón, el trabajo vive en un Action.
+        const r = await db.rpc('glossa_dispatch', { workflow: 'glossa-cola.yml', entradas: {} });
+        if (r.error) throw r.error;
+        return ok({ lanzado: true, nota: 'Leyendo la cola. Recarga en unos minutos para ver cómo baja.' });
+      }
+
       case 'cotejos.list': {
         const { data, error } = await db.from('glossa_radar_cotejos')
           .select('claim_text,verdict,verdict_reason,source_domain,url,independence,gate,created_at')
