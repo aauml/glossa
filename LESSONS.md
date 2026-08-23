@@ -18,6 +18,21 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### La cuenta informa más que la lista
+_Applies to: repository / CI-CD_
+
+**Síntoma** — Al pie de cada pieza, doce enlaces desplegados. La línea que menos
+tiene que interrumpir era la que más interrumpía.
+**Causa** — Se enseñaba la lista entera por transparencia, y la transparencia se
+confundió con volcarlo todo a la vista.
+**Arreglo** — Plegarlo y dejar fuera **la cuenta**: «12 fuentes · 4 de fuera».
+Eso responde de un vistazo las dos preguntas que el lector se hace —cuánto
+sostiene esto, y ¿salieron a comprobarlo?— y la lista queda a un clic.
+
+La transparencia no es enseñarlo todo a la vez: es que nada esté escondido y lo
+importante esté arriba. Un dato resumido que se puede abrir informa más que
+doce datos que hay que leer.
+
 ### Marcarlo todo es no marcar nada
 _Applies to: LLM_
 
