@@ -173,6 +173,7 @@ disponible por si alguien lo quiere" no es un consumidor.
 | `rss.xml` y `rss-es.xml` | lectores por RSS | `<link rel="alternate">` en cada página y en el sitemap |
 | `sources.json` de cada pieza | el lector, al pie del artículo | `src/components/Sources.astro` lo renderiza; sin sidecar no pinta nada |
 | Resúmenes y dossiers del radar (`glossa_radar_*`) | Arturo, en `/admin` | el panel es su única vista; **antes de existir no los leía nadie** |
+| El cupo de Tavily y su reparto por tema | Arturo, en `/admin` | el panel enseña cuánto queda, a dónde fue y por qué, con los mandos para moverlo |
 
 Esa última fila es justo el fallo que describe el estándar. Los dossiers del
 radar se diseñaron sin lector: se habrían generado cada noche sin que nadie los

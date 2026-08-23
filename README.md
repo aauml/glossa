@@ -59,6 +59,7 @@ juegan, qué afirmación respaldan y si están verificadas.
 | [docs/11-Integracion-phd-kb](docs/11-Integracion-phd-kb.md) | Glossa como dominio PUB sobre phd-kb; schema aplicado |
 | [docs/12-Runbook-Code](docs/12-Runbook-Code.md) | Pasos para continuar la construcción en Claude Code |
 | [docs/13-Radar](docs/13-Radar.md) | Leer muchas fuentes por tema sin verlas; dónde vive el reloj y cuánto cuesta |
+| [docs/14-Censo-y-Cupo](docs/14-Censo-y-Cupo.md) | Salir a buscar sobre todos los temas sin que crecer cueste más; cómo se raciona lo de pago |
 | [docs/Glosario](docs/Glosario.md) | Términos del proyecto |
 
 Y dos archivos que no son diseño sino experiencia, en la raíz porque los lee

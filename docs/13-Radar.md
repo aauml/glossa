@@ -14,7 +14,8 @@ cuando Arturo le pone su tesis; entonces sigue el camino normal de publicación.
 |---|---|---|
 | Descubrir qué hay nuevo | edge function `glossa-radar-run` | cada 6 h |
 | Escuchar y analizar | la misma, dos episodios por pasada | cada 15 min |
-| Salir a buscar fuera | Action `glossa-reportaje.yml` | viernes 07:00 UTC |
+| Censar quién cubrió cada tema | `src/lib/gdelt.mjs` + `gnews.mjs`, gratis | dentro del reportaje |
+| Salir a buscar fuera | Action `glossa-reportaje.yml` | sábado 15:00 UTC |
 | Cotejar afirmaciones | Action `glossa-cotejo.yml` | sábado 09:00 UTC |
 | Corregir la calibración | Action `glossa-consejo.yml` | domingo 08:00 UTC |
 | Escribir el número | Action `glossa-weekly.yml` | domingo 10:00 UTC |
@@ -79,9 +80,16 @@ Se midió el número del 2026-08-16: **190 de 195** elementos venían de los can
 seguidos. El cotejo sí consultaba documentos externos, pero los pedía sin texto,
 emitía un veredicto sobre una frase y los tiraba.
 
-Cada viernes, `glossa-reportaje.yml` coge los asuntos en que se agrupó la semana
+Cada sábado, `glossa-reportaje.yml` coge los asuntos en que se agrupó la semana
 y sale a buscarlos fuera: otros medios, otros países, el texto entero. Lo que
 encuentra **entra como material**, no como sello.
+
+> **Desde el 2026-08-23 salen TODOS los asuntos, no los seis mayores.** Se puede
+> porque la primera pasada —el censo de quién cubrió qué y desde dónde— es
+> gratis, y lo de pago se reparte según lo que ese censo diga que falta
+> comprobar. El detalle completo, con lo que se descartó y por qué, está en
+> **[docs/14 · El censo y el cupo](14-Censo-y-Cupo.md)**. Lo que sigue en esta
+> sección describe qué pasa DENTRO de un tema una vez que tiene cuota.
 
 - **Las consultas las propone un modelo y las constriñe el código.** La etiqueta
   de un tema —«Security dynamics in the Middle East»— es una abstracción del
