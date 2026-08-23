@@ -391,11 +391,23 @@ fuente número treinta y cuatro.
 
 **La salida es que la anchura no cueste.** Se hace en dos capas:
 
-**1 · El censo, gratis, sobre TODOS los temas.** Lo hace la API DOC de GDELT: sin
-clave, sin cuenta y sin cupo. Una sola consulta devolvió 250 artículos de 213
-medios, unos treinta países y diez idiomas — y con la URL real, así que el texto
-se lee gratis. Google News RSS queda de reserva para cuando GDELT no contesta
-(su límite de una petición cada cinco segundos es duro).
+**1 · El censo, gratis, sobre TODOS los temas.** Dos índices abiertos, y el
+orden entre ellos lo decidió la práctica y no el papel.
+
+*Google News RSS es el que trabaja.* Sin clave, sin cuenta y sin cupo. En las dos
+corridas reales censó los diez temas y devolvió entre 40 y 240 medios por asunto,
+de cuatro a seis países. Da titular, medio y fecha — el enlace va cifrado— y con
+eso basta para lo único que se le pide aquí.
+
+*GDELT es mejor y no ha entregado nunca.* Una consulta suya devolvió 250
+artículos de 213 medios, ~30 países y 10 idiomas, **con la URL real**, así que el
+texto se leería gratis. Pero en producción ha fallado el 100 % de las veces:
+estrangula por IP con una dureza que no perdona ni al portátil ni al runner de
+GitHub. Se deja declarado como capa preferente porque cuando responde no hay
+color, con reintento, freno progresivo y un cortacircuitos que lo apaga a los
+tres fallos para que un GDELT caído no cueste veinticinco segundos por tema. **Y
+se dice en el parte cuál de los dos sirvió**: un censo más pobre que nadie
+anuncia es indistinguible de una semana sin noticias.
 
 **2 · La profundidad, de pago, racionada por lo que dijo el censo.** Se le
 pregunta a Tavily cuánto cupo queda de verdad, se divide entre las semanas que
@@ -404,6 +416,21 @@ entre los temas **en proporción a lo que el censo dijo que falta comprobar**. U
 tema que cuarenta medios de cinco países cuentan igual se lleva **cero**: ya está
 corroborado y pagar por confirmarlo otra vez no compra nada. Ese cero es lo que
 financia los temas de los que nadie más ha escrito.
+
+*El reparto es una pendiente, no un escalón, y eso se aprendió cayéndose.* El
+umbral se puso primero en 0,22 de parecido entre titulares, y dos corridas del
+mismo día sobre la MISMA semana dieron veredictos opuestos: «U.S.-Iran friction»
+midió 0,30 y se llevó cero, y una hora más tarde midió 0,207 y se llevó la cuota
+entera. La medida fluctúa lo bastante como para que un acantilado puesto en mitad
+del ruido decida al azar. En pendiente, esa misma fluctuación mueve una búsqueda
+arriba o abajo. El **cero** sobrevive, pero solo para el caso extremo —acuerdo
+alto **y** cinco países **y** cuarenta medios a la vez—, porque es el único
+veredicto que deja un asunto sin comprobar y equivocarse ahí es lo caro.
+
+*Y ningún asunto se lleva más de un cuarto de la semana.* «Nadie fuera escribió
+de esto» es la puntuación máxima y significa dos cosas muy distintas: una
+exclusiva, o que un canal se inventó un asunto que no existe. Sin freno, la
+segunda se comía la mitad del presupuesto.
 
 *Lo que se descartó, y por qué.* Gemini con búsqueda de Google incorporada: 429,
 no entra en el tramo gratuito. DuckDuckGo: contesta 200 y devuelve cero enlaces a

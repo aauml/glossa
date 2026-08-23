@@ -290,11 +290,25 @@ export function urgencia(l) {
   // mandaría el presupuesto entero justo a los temas cuyo barrido falló — que es
   // el fallo de siempre: una comprobación que no corrió pareciendo una que pasó.
   if (!l || !l.consultas) return { nivel: 2, porque: 'no_se_consulto' };
-  if (!l.notas) return { nivel: 3, porque: 'nadie_fuera' };
-  if (l.medios < 4)   return { nivel: 3, porque: 'apenas_cubierto' };
+  if (!l.notas)           return { nivel: 3, porque: 'nadie_fuera' };
+  if (l.medios < 4)       return { nivel: 3, porque: 'apenas_cubierto' };
   if (l.acuerdo === null) return { nivel: 2, porque: 'no_medible' };
-  if (l.acuerdo < 0.10)   return { nivel: 3, porque: 'titulares_dispares' };
-  if (l.acuerdo < 0.22)   return { nivel: 2, porque: 'algo_de_variacion' };
-  if (l.paises.length >= 4) return { nivel: 0, porque: 'coinciden_en_varios_paises' };
-  return { nivel: 1, porque: 'coinciden' };
+
+  // El cero: corroborado de sobra. Se exigen las tres cosas a la vez —mucho
+  // acuerdo, cinco países y cuarenta medios— porque este es el único caso que
+  // deja un asunto sin comprobar con dinero, y equivocarse aquí es lo caro.
+  if (l.acuerdo >= 0.35 && l.paises.length >= 5 && l.medios >= 40) {
+    return { nivel: 0, porque: 'coinciden_en_varios_paises' };
+  }
+
+  // El resto es una PENDIENTE, no un escalón, y eso es una corrección con
+  // historia. El umbral estaba en 0,22 y dos corridas del mismo día sobre la
+  // MISMA semana dieron veredictos opuestos: «U.S.-Iran friction» midió 0,30 y
+  // se llevó cero, y una hora después midió 0,207 y se llevó la cuota entera.
+  // La medida —parecido entre titulares— fluctúa lo suficiente como para que un
+  // acantilado en mitad del ruido decida al azar. En pendiente, esa misma
+  // fluctuación mueve una búsqueda arriba o abajo, que es lo que un ruido debe
+  // costar.
+  const nivel = Math.round(Math.max(0.5, Math.min(3, 3 * (1 - l.acuerdo / 0.35))) * 10) / 10;
+  return { nivel, porque: `acuerdo ${l.acuerdo}` };
 }

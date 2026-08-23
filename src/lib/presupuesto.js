@@ -144,6 +144,13 @@ export function reparto({ restantes, dias, otrosPorSemana = 0, reserva = 0.15, m
  * en los que los titulares se separan.
  */
 export function repartirEntreTemas(temas, presupuesto, { porTemaMax = 6 } = {}) {
+  // Ningún asunto se lleva más de un cuarto de la semana, por urgente que
+  // parezca. «Nadie fuera escribió de esto» es la puntuación máxima y puede
+  // significar dos cosas muy distintas: una exclusiva, o que un canal se inventó
+  // un asunto que no existe. Sin este freno, un tema con la segunda pinta se
+  // llevaba la mitad del presupuesto — y si el censo se cae para varios a la vez,
+  // todos puntúan alto y entre unos pocos se lo comen todo.
+  const tope = Math.max(1, Math.min(porTemaMax, Math.ceil(presupuesto / 4)));
   const pesos = temas.map(t => ({ ...t, peso: Math.max(0, t.urgencia?.nivel ?? 1) }));
   const total = pesos.reduce((s, t) => s + t.peso, 0);
   if (!total) return pesos.map(t => ({ ...t, cuota: 0 }));
@@ -152,7 +159,7 @@ export function repartirEntreTemas(temas, presupuesto, { porTemaMax = 6 } = {}) 
   const con = pesos
     .sort((a, b) => b.peso - a.peso)
     .map(t => {
-      const cuota = Math.min(porTemaMax, Math.floor((t.peso / total) * presupuesto));
+      const cuota = Math.min(tope, Math.floor((t.peso / total) * presupuesto));
       dado += cuota;
       return { ...t, cuota };
     });
