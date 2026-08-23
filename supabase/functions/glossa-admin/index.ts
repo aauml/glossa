@@ -114,21 +114,77 @@ async function canalResponde(url: string) {
 }
 
 /** Un feed debe responder y parecer XML antes de darlo de alta. */
+// El radar solo mira siete días hacia atrás al dar de alta una fuente. Un
+// programa quincenal cuyo último episodio sea de hace once días se da de alta
+// bien y no trae NADA, y en el panel eso se ve como «0 en cola, 0 esta semana»
+// — que en esta lista significa «muerta». Pasó con Dwarkesh y con The EU AI Act
+// Newsletter: los dos correctos, los dos silenciosos, y nada que lo explicara.
+const BACKFILL_DIAS = 7;
+
+/**
+ * Pide el feed y devuelve lo que hace falta para decidir: si responde, cómo se
+ * llama, si es podcast, y de cuándo es su último episodio. Todo de UNA petición
+ * — antes se pedía dos veces, una para el título y otra para mirar `<itunes:`.
+ */
 async function feedResponde(url: string) {
   try {
-    const r = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(10_000) });
-    if (!r.ok) return { ok: false, error: `the feed responded ${r.status}` };
-    const txt = (await r.text()).slice(0, 2000);
-    if (!/<(rss|feed)\b/i.test(txt)) return { ok: false, error: 'that URL responds but is not an RSS/Atom feed' };
+    const r = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(12_000) });
+    if (!r.ok) return { ok: false as const, error: `the feed responded ${r.status}` };
+    // Hasta 120 KB: la cabecera basta para el título, pero las fechas de los
+    // episodios están más abajo y con 2 KB no se llegaba a ninguna.
+    const txt = (await r.text()).slice(0, 120_000);
+    if (!/<(rss|feed)\b/i.test(txt)) {
+      return { ok: false as const, error: 'that URL responds but is not an RSS/Atom feed' };
+    }
     // El título puede venir en CDATA, y entonces el primer carácter tras
     // `<title>` es un `<`. Un patrón de «todo menos <» fallaba ahí y seguía
     // buscando, así que un podcast de Substack se daba de alta como «untitled».
     const nombre = (txt.match(/<title[^>]*>\s*<!\[CDATA\[([\s\S]{1,200}?)\]\]>/i) ||
                     txt.match(/<title[^>]*>([^<]{1,200})</i) || [])[1];
-    return { ok: true, nombre: nombre ? nombre.trim() : undefined };
+
+    const fechas: number[] = [];
+    for (const m of txt.matchAll(/<(?:pubDate|published|updated)[^>]*>([^<]{6,60})</gi)) {
+      const t = Date.parse(m[1].trim());
+      if (!Number.isNaN(t)) fechas.push(t);
+    }
+    const ultimo = fechas.length ? Math.max(...fechas) : undefined;
+
+    return {
+      ok: true as const,
+      nombre: nombre ? nombre.trim() : undefined,
+      esPodcast: /<itunes:|<enclosure[^>]+type=["']audio/i.test(txt),
+      ultimo,
+      diasDesdeUltimo: ultimo === undefined
+        ? undefined
+        : Math.floor((Date.now() - ultimo) / 864e5),
+    };
   } catch (e) {
-    return { ok: false, error: `could not read the feed: ${String(e).slice(0, 120)}` };
+    return { ok: false as const, error: `could not read the feed: ${String(e).slice(0, 120)}` };
   }
+}
+
+/**
+ * El nombre a secas, sin el eslogan.
+ *
+ * Apple y muchos feeds meten el reclamo en el título: «"The Cognitive
+ * Revolution" | AI Builders, Researchers, and Live Player Analysis». En una
+ * lista de fuentes eso no informa de nada y empuja fuera a las demás. Se corta
+ * por el separador solo cuando el título es largo y lo que queda delante sigue
+ * siendo un nombre.
+ */
+function nombreCorto(t?: string) {
+  if (!t) return t;
+  let n = t.trim().replace(/^["“']|["”']$/g, '').trim();
+  if (n.length <= 40) return n;
+  const corte = n.split(/\s+[|—–]\s+|\s+-\s+|:\s+/)[0].trim().replace(/^["“']|["”']$/g, '').trim();
+  return corte.length >= 3 ? corte : n;
+}
+
+/** Lo que hay que avisar cuando una fuente correcta no va a traer nada aún. */
+function avisoDeSilencio(dias?: number) {
+  if (dias === undefined || dias <= BACKFILL_DIAS) return undefined;
+  return `its last episode is ${dias} days old, and the radar only looks ${BACKFILL_DIAS} days back — ` +
+         `nothing will come in until it publishes again`;
 }
 
 // ── La caja ───────────────────────────────────────────────────────────────
@@ -330,14 +386,16 @@ async function clasificar(texto: string): Promise<Resuelto> {
                  label: `an Apple Podcasts link — but ${ap.error}`, aviso: ap.error };
       }
       const chk = await feedResponde(ap.feed_url);
-      const nombre = ap.nombre ?? chk.nombre;
+      const nombre = nombreCorto(ap.nombre ?? (chk.ok ? chk.nombre : undefined));
+      const callado = chk.ok ? avisoDeSilencio(chk.diasDesdeUltimo) : undefined;
       return {
         as: 'fuente', kind: 'podcast', feed_url: ap.feed_url, name: nombre,
         label: chk.ok
           ? `a podcast · ${nombre ?? 'untitled'}` +
-            (ap.episodios ? ` · ${ap.episodios.toLocaleString()} episodes` : '')
+            (ap.episodios ? ` · ${ap.episodios.toLocaleString()} episodes` : '') +
+            (callado ? ` · nothing yet: ${callado}` : '')
           : `Apple points to ${new URL(ap.feed_url).hostname}, but it did not answer: ${chk.error}`,
-        aviso: chk.ok ? undefined : chk.error,
+        aviso: chk.ok ? callado : chk.error,
       };
     }
 
@@ -347,22 +405,22 @@ async function clasificar(texto: string): Promise<Resuelto> {
     // la propia URL, que es una petición y una respuesta definitiva.
     const pareceFeed = /\.(xml|rss)$/i.test(ruta) || /\/(feed|rss)\/?$/i.test(ruta) ||
                        /^feeds?\./i.test(host) || /\/(feed|rss|podcast)s?\//i.test(ruta);
-    const chkFeed = ruta !== '/' && ruta !== '' ? await feedResponde(t) : { ok: false };
+    const chkFeed = ruta !== '/' && ruta !== '' ? await feedResponde(t) : { ok: false as const, error: '' };
 
     if (chkFeed.ok || pareceFeed) {
       const chk = chkFeed.ok ? chkFeed : await feedResponde(t);
-      // `<itunes:` es lo que separa un podcast de un medio escrito, y sale en la
-      // cabecera del feed, así que basta con lo que ya se descargó para validarlo.
-      let kind = 'rss';
-      try {
-        const r = await fetch(t, { redirect: 'follow', signal: AbortSignal.timeout(10_000) });
-        if (/<itunes:|<enclosure[^>]+type=["']audio/i.test((await r.text()).slice(0, 4000))) kind = 'podcast';
-      } catch { /* se queda en rss */ }
+      // `<itunes:` es lo que separa un podcast de un medio escrito y ya viene en
+      // lo que se descargó: antes se volvía a pedir el feed entero solo para
+      // mirarlo.
+      const kind = chk.ok && chk.esPodcast ? 'podcast' : 'rss';
+      const callado = chk.ok ? avisoDeSilencio(chk.diasDesdeUltimo) : undefined;
       return {
-        as: 'fuente', kind, feed_url: t, name: chk.ok ? chk.nombre : undefined,
-        label: chk.ok ? `a ${kind === 'podcast' ? 'podcast' : 'feed'} · ${chk.nombre ?? 'untitled'}`
-                      : `it looks like a feed but did not answer: ${chk.error}`,
-        aviso: chk.ok ? undefined : chk.error,
+        as: 'fuente', kind, feed_url: t, name: chk.ok ? nombreCorto(chk.nombre) : undefined,
+        label: chk.ok
+          ? `a ${kind === 'podcast' ? 'podcast' : 'feed'} · ${chk.nombre ?? 'untitled'}` +
+            (callado ? ` · nothing yet: ${callado}` : '')
+          : `it looks like a feed but did not answer: ${chk.error}`,
+        aviso: chk.ok ? callado : chk.error,
       };
     }
 
