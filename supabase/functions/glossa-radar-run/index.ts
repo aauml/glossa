@@ -204,7 +204,16 @@ Deno.serve(async (req) => {
     // 35 s para el resumen + 15 s para clasificarlo acto seguido. Si no caben
     // los dos, no se empieza: un episodio sin clasificar es trabajo perdido.
     if (queda() < 50_000) break;
-    if (!cabe(gasto, ajus, 'gemini', 'cap_gemini_dia')) {
+    // El radar tiene su PROPIO techo, más bajo que el del día, y no es un
+    // detalle: el 2026-08-23 se comió la cuota entera —411 de 400— y el
+    // reportaje del sábado llegó a las búsquedas sin nada con que digerirlas.
+    // Compró veintiocho, gastó cincuenta y seis créditos y no produjo un solo
+    // reporte.
+    //
+    // El radar lee sin parar y las tareas del fin de semana corren una vez: si
+    // comparten cuenta, el que corre siempre se la queda siempre. La diferencia
+    // entre los dos topes es la reserva de las que corren una vez.
+    if (!cabe(gasto, ajus, 'gemini', ajus.cap_gemini_dia_radar ? 'cap_gemini_dia_radar' : 'cap_gemini_dia')) {
       if (!agotado.includes('gemini')) agotado.push('gemini');
       break;   // lo pendiente sigue pendiente, que es lo que ya pasa cuando no cabe en el tiempo
     }

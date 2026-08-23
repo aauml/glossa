@@ -105,6 +105,13 @@ pasó.** `cap_tavily_mes` seguía en 600 cuando el plan da 1.000, y `cap_gemini_
 en 400 cuando el censo nuevo añade una llamada por tema. Un tope viejo no frena:
 desvía la culpa hacia el mundo.
 
+Y el arreglo de fondo, que llegó al cerrar la sesión: **lo que corre siempre y lo
+que corre una vez no pueden compartir cuenta.** El radar lee cada quince minutos;
+el reportaje y el número corren una vez por semana. Con un solo tope diario, el
+primero se lo queda siempre — no por un fallo, sino por aritmética. El radar
+tiene ahora su propio techo (`cap_gemini_dia_radar`, 600) por debajo del del día
+(800), y la diferencia es la reserva de las tareas semanales.
+
 ### Un promedio se divide entre el tiempo, no entre los días que hubo trabajo
 _Applies to: general_
 
