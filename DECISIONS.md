@@ -27,6 +27,7 @@ vista y la decisión parece arbitraria.
 | D-019 | 2026-08-23 | Revista | Un parcial nunca pisa a un oficial, y nunca se publica solo | vigente |
 | D-020 | 2026-08-23 | Revista | En español, las comillas se quedan en inglés | vigente |
 | D-021 | 2026-08-23 | Revista | Se cuenta la noticia, no quién la dijo | vigente |
+| D-022 | 2026-08-23 | Revista | Traducir con cascada verificada, no con el mejor modelo | vigente |
 
 ---
 
@@ -352,3 +353,29 @@ Y es comprobable, que es lo que impide que se relaje: **una pieza que no cita ni
 un reportaje ni un cotejo y no marca nada levanta un fallo grave**. Si no hubo
 con qué comprobarlo, se escribe igual — pero marcado. El silencio hay que
 ganárselo.
+
+## D-022 · Traducir con cascada verificada, no con el mejor modelo
+
+Se midieron seis modelos sobre el mismo número, tres vueltas cada uno, con el
+fusible de juez —o las comillas siguen literales o no, y eso no es opinable—.
+**Ninguno acertó las tres veces**: Grok sin razonamiento 2/3, Haiku 2/3, Gemini
+1/3, y Kimi K3 —el que se venía usando, a $0,094 la vuelta— tampoco tenía por
+qué ser distinto.
+
+Así que no se elige un modelo: se comprueba el resultado. La cascada va **por
+orden de coste** —Gemini gratis, luego Grok sin razonamiento, luego Haiku— y el
+fusible decide después de cada intento. Si tocó una cita, se pasa al siguiente;
+si ninguno la conserva, no se guarda nada y el número en inglés queda intacto.
+
+Dos cosas que esto ordena de paso:
+
+- **El orden lo decide el desperdicio, no la tarifa.** Para el mismo trabajo,
+  Grok sin razonamiento gastó 5.004 tokens de salida, Kimi 41.387 y DeepSeek
+  32.000 sin llegar a emitir una letra. Un modelo de razonamiento traduciendo
+  paga por pensar lo que no hay que pensar.
+- **Escribir sí justifica el modelo caro; traducir no.** En el número el juicio
+  es el producto. En la traducción, el criterio propio del modelo es justo lo
+  que no se quiere.
+
+Primera corrida real: Gemini, gratis, diecisiete segundos, citas intactas. De
+$0,094 a $0,00.

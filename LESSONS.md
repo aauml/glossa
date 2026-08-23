@@ -18,6 +18,40 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Un modelo que razona traduciendo es dinero quemado en pensar
+_Applies to: LLM · Anthropic_
+
+**Síntoma** — Traducir 2.500 palabras costaba $0,094 y trece minutos: casi lo
+mismo que ESCRIBIR el número entero, cuya entrada es doce veces mayor.
+**Causa** — El razonamiento se factura como salida. Medido sobre el mismo
+trabajo: Grok sin razonamiento gastó **5.004** tokens de salida, Kimi K3
+**41.387**, y DeepSeek v4-flash **32.000 sin emitir una sola letra** — se los
+comió pensando y devolvió el `content` vacío.
+**Arreglo** — Para una tarea mecánica, la variante SIN razonamiento. Ocho veces
+menos tokens por el mismo resultado.
+
+Lo general: **el eje no es el precio por millón, es cuántos tokens gasta el
+modelo en llegar a la respuesta.** Un modelo «barato» que razona de más sale más
+caro que uno «caro» que va al grano — y puede no llegar nunca.
+
+### Ningún modelo acierta siempre: verifica y pasa al siguiente
+_Applies to: LLM_
+
+**Síntoma** — Buscando el traductor que nunca tradujera una comilla, tres vueltas
+de cada candidato: Grok 2/3, Haiku 2/3, Gemini 1/3. **Ninguno 3/3.**
+**Causa** — Se buscaba el modelo correcto para una tarea donde el fallo es
+binario y ocasional. Elegir «el mejor» seguiría dejando sin edición española una
+semana de cada tres.
+**Arreglo** — Una cascada verificada. El fusible da un veredicto inmediato y
+gratis sobre cada intento, así que se prueba el más barato, se comprueba, y si
+tocó una cita se pasa al siguiente. Con dos de cada tres por modelo, tres
+intentos dan un 96% — y en la primera corrida real acertó Gemini, gratis, en
+diecisiete segundos.
+
+Lo general, y ya estaba aprendido para el número en inglés: **cuando tienes un
+verificador barato, deja de elegir el mejor generador y empieza a comprobar el
+resultado.** El fusible no eligió un modelo perfecto; comprueba el que hay.
+
 ### Una traducción vieja junto a un texto nuevo son dos revistas distintas
 _Applies to: relational database · LLM_
 

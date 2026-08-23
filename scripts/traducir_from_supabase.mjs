@@ -10,19 +10,21 @@
 // sobre la traducción y compara cada frase entrecomillada con el material, que
 // está en inglés. Una cita traducida sale como «cita sin procedencia».
 //
-// Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, MOONSHOT_API_KEY.
+// Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, GEMINI_API_KEY, XAI_API_KEY,
+//      ANTHROPIC_API_KEY (los tres traductores de la cascada; basta con que
+//      responda uno).
 
-import https from 'node:https';
 import { revisar } from '../src/lib/fusible.js';
 import { promptTraduccion } from './prompts_weekly.mjs';
 import { apuntar } from '../src/lib/presupuesto.js';
 
 const URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
-const MOONSHOT = process.env.MOONSHOT_API_KEY || '';
-const MODELO = process.env.WEEKLY_MODEL || 'kimi-k3';
 if (!URL || !KEY)  { console.error('Falta SUPABASE_URL / SUPABASE_SERVICE_KEY'); process.exit(1); }
-if (!MOONSHOT)     { console.error('Falta MOONSHOT_API_KEY'); process.exit(1); }
+if (!process.env.GEMINI_API_KEY && !process.env.XAI_API_KEY && !process.env.ANTHROPIC_API_KEY) {
+  console.error('No hay ninguna clave de traductor: GEMINI_API_KEY, XAI_API_KEY o ANTHROPIC_API_KEY');
+  process.exit(1);
+}
 
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
 async function sb(path, init = {}) {
@@ -41,77 +43,141 @@ const [w] = await sb(
 if (!w?.body?.pieces?.length) { console.log('No hay ningún número pendiente de traducir.'); process.exit(0); }
 console.log(`Traduciendo «${w.body.headline}» · ${w.body.pieces.length} piezas · semana ${w.week_start}`);
 
-const pedir = (prompt, intento = 0) => new Promise((ok, ko) => {
-  const cuerpo = JSON.stringify({ model: MODELO, max_tokens: 64000,
-    messages: [{ role: 'user', content: prompt }] });
-  const req = https.request({
-    hostname: 'api.moonshot.ai', path: '/v1/chat/completions', method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(cuerpo),
-               Authorization: `Bearer ${MOONSHOT}` },
-  }, res => {
-    let b = ''; res.setEncoding('utf8'); res.on('data', c => { b += c; });
-    res.on('end', () => (res.statusCode < 300 ? ok(b)
-      : ko(Object.assign(new Error(`moonshot ${res.statusCode}: ${b.slice(0, 300)}`), { status: res.statusCode }))));
-  });
-  req.on('error', ko);
-  req.setTimeout(35 * 60_000, () => req.destroy(new Error('sin respuesta en 35 min')));
-  req.end(cuerpo);
-}).catch(async (e) => {
-  // La cuenta admite una petición a la vez: si el número se está escribiendo,
-  // esto espera en vez de morir.
-  if (!(e.status === 429 || e.status === 503) || intento >= 3) throw e;
-  const espera = [60, 240, 600][intento] * 1000;
-  console.log(`  ${String(e.message).slice(0, 60)} — reintento en ${espera / 60000} min`);
-  await new Promise(r => setTimeout(r, espera));
-  return pedir(prompt, intento + 1);
-});
+// ── Los traductores, en orden de coste ───────────────────────────────────
+//
+// No se elige «el mejor modelo»: se comprueba el resultado. Medido sobre este
+// mismo número, tres vueltas cada uno, NINGUNO conserva las comillas las tres
+// veces —ni Kimi, que costaba diez veces más—. Elegir el mejor seguiría dejando
+// sin español una semana de cada tres.
+//
+// El fusible da un veredicto inmediato y gratis sobre cada intento, así que la
+// respuesta no es un modelo perfecto sino una cascada verificada: se prueba el
+// más barato, se comprueba, y si tocó una cita se pasa al siguiente. Con dos
+// aciertos de cada tres por modelo, tres intentos dan un 96%.
+//
+// Y el orden lo decide el DESPERDICIO, no el precio de tarifa: para el mismo
+// trabajo, Grok sin razonamiento gastó 5.004 tokens de salida, Kimi 41.387 y
+// DeepSeek 32.000 sin llegar a emitir una letra —se los comió pensando—. Un
+// modelo de razonamiento traduciendo es dinero quemado en pensar lo que no hay
+// que pensar.
+const TRADUCTORES = [
+  { n: 'gemini-3.1-flash-lite',       casa: 'gemini' },   // gratis
+  { n: 'grok-4.20-0309-non-reasoning', casa: 'xai'    },   // ~$0.0035
+  { n: 'claude-haiku-4-5-20251001',    casa: 'anthropic' },// ~$0.026
+];
+
+/** El primer objeto JSON completo: algunos modelos añaden texto después. */
+function jsonDeModelo(txt) {
+  const limpio = String(txt).replace(/^\s*```(?:json)?/, '').replace(/```\s*$/, '').trim();
+  const i = limpio.indexOf('{');
+  if (i < 0) throw new SyntaxError('la respuesta no trae ningún objeto');
+  let prof = 0, cadena = false, escape = false;
+  for (let k = i; k < limpio.length; k++) {
+    const c = limpio[k];
+    if (escape) { escape = false; continue; }
+    if (c === '\\') { escape = true; continue; }
+    if (c === '"') { cadena = !cadena; continue; }
+    if (cadena) continue;
+    if (c === '{') prof++;
+    else if (c === '}' && --prof === 0) return JSON.parse(limpio.slice(i, k + 1));
+  }
+  throw new SyntaxError('objeto sin cerrar — la respuesta se truncó');
+}
+
+async function traducirCon(m, prompt) {
+  if (m.casa === 'gemini') {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m.n}:generateContent`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 32000 } }),
+        signal: AbortSignal.timeout(300_000) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(`gemini ${r.status}: ${JSON.stringify(d).slice(0, 120)}`);
+    return { es: jsonDeModelo((d.candidates?.[0]?.content?.parts ?? []).map(x => x.text || '').join('')),
+             tok: d.usageMetadata?.totalTokenCount ?? 0, coste: 0, casa: 'gemini' };
+  }
+  if (m.casa === 'anthropic') {
+    const r = await fetch('https://api.anthropic.com/v1/messages',
+      { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY,
+                                   'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: m.n, max_tokens: 32000, messages: [{ role: 'user', content: prompt }] }),
+        signal: AbortSignal.timeout(300_000) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(`anthropic ${r.status}: ${JSON.stringify(d).slice(0, 120)}`);
+    const u = d.usage ?? {};
+    return { es: jsonDeModelo((d.content ?? []).map(x => x.text || '').join('')),
+             tok: (u.input_tokens ?? 0) + (u.output_tokens ?? 0),
+             coste: (u.input_tokens / 1e6) * 1.0 + (u.output_tokens / 1e6) * 5.0, casa: 'anthropic' };
+  }
+  const r = await fetch('https://api.x.ai/v1/chat/completions',
+    { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.XAI_API_KEY}` },
+      body: JSON.stringify({ model: m.n, max_tokens: 32000, messages: [{ role: 'user', content: prompt }] }),
+      signal: AbortSignal.timeout(300_000) });
+  const d = await r.json();
+  if (!r.ok) throw new Error(`xai ${r.status}: ${JSON.stringify(d).slice(0, 120)}`);
+  const u = d.usage ?? {};
+  return { es: jsonDeModelo(d.choices?.[0]?.message?.content ?? ''),
+           tok: u.total_tokens ?? 0,
+           coste: (u.prompt_tokens / 1e6) * 0.20 + (u.completion_tokens / 1e6) * 0.50, casa: 'xai' };
+}
 
 const numero = { ...w.body };
 delete numero.sources_index;                    // son ids, no texto que traducir
+const PROMPT = promptTraduccion(numero);
 
-const t0 = Date.now();
-const d = JSON.parse(await pedir(promptTraduccion(numero)));
-const uso = d.usage || {};
-let txt = (d.choices?.[0]?.message?.content || '').trim()
-  .replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
-txt = txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1);
-const es = JSON.parse(txt);
-
-await apuntar(URL, KEY, 'moonshot', 1, uso.total_tokens ?? 0,
-              ((uso.prompt_tokens ?? 0) / 1e6) * 0.6 + ((uso.completion_tokens ?? 0) / 1e6) * 2.5);
-console.log(`  ${Math.round((Date.now() - t0) / 1000)}s · ${uso.total_tokens} tok`);
-
-// Mismas piezas, mismos ids: una traducción que pierde una pieza no es la misma
-// revista, y el índice de fuentes dejaría de cuadrar.
-if ((es.pieces ?? []).length !== w.body.pieces.length) {
-  console.error(`La traducción trae ${(es.pieces ?? []).length} piezas y el original ${w.body.pieces.length}. No se guarda.`);
-  process.exit(1);
-}
-
-// El fusible sobre el español. Es lo que hace COMPROBABLE que no tocó las citas.
+// El material contra el que el fusible compara cada comilla. Se lee UNA vez y
+// sirve para todos los intentos.
 const desde = new Date(`${w.week_start}T00:00:00Z`);
 const hasta = new Date(desde); hasta.setUTCDate(hasta.getUTCDate() + 8);
-const items = await sb(
-  `glossa_radar_items?select=id,title,digest,origin,lang&state=eq.digested` +
-  `&published_at=gte.${desde.toISOString()}&published_at=lt.${hasta.toISOString()}&limit=500`);
-const cotejos = await sb(
-  `glossa_radar_cotejos?select=item_id,claim_idx,claim_text,title,verdict,verdict_reason,url,` +
-  `source_domain,published_date,independence&created_at=gte.${desde.toISOString()}&limit=500`);
+const [items, cotejos] = await Promise.all([
+  sb(`glossa_radar_items?select=id,title,digest,origin,lang&state=eq.digested` +
+     `&published_at=gte.${desde.toISOString()}&published_at=lt.${hasta.toISOString()}&limit=500`),
+  sb(`glossa_radar_cotejos?select=item_id,claim_idx,claim_text,title,verdict,verdict_reason,url,` +
+     `source_domain,published_date,independence&created_at=gte.${desde.toISOString()}&limit=500`),
+]);
 const indice = w.body.sources_index ?? {};
-const veredicto = revisar(es, { items, cotejos: cotejos ?? [], ids: new Set(Object.keys(indice)),
-                                indice, reportaje_count: 1 });
-const graves = veredicto.fallos.filter(f => f.grave);
-console.log(graves.length
-  ? `  el fusible marca ${graves.length} fallo(s) grave(s) en la traducción`
-  : '  el fusible pasa: las citas siguen intactas');
-for (const f of veredicto.fallos.slice(0, 5)) console.log(`    ${f.grave ? '✗' : '·'} ${f.regla}: ${String(f.detalle).slice(0, 85)}`);
 
-// Una traducción que tocó las citas NO se guarda. Servirla sería publicar en
-// español justo lo que el número en inglés se negó a publicar.
-if (graves.some(f => f.regla === 'cita sin procedencia' || f.regla === 'cita traducida'
-                  || f.regla === 'cita de paráfrasis')) {
-  console.error('\nLa traducción alteró alguna cita. No se guarda; el número en inglés no se toca.');
+// ── La cascada ───────────────────────────────────────────────────────────
+let es = null, veredicto = null, gastado = 0;
+for (const m of TRADUCTORES) {
+  const t0 = Date.now();
+  let r;
+  try { r = await traducirCon(m, PROMPT); }
+  catch (e) { console.log(`  ${m.n}: ${String(e.message).slice(0, 90)}`); continue; }
+
+  gastado += r.coste;
+  await apuntar(URL, KEY, r.casa, 1, r.tok, r.coste);
+
+  // Mismas piezas: una traducción que pierde una no es la misma revista, y el
+  // índice de fuentes dejaría de cuadrar.
+  if ((r.es.pieces ?? []).length !== w.body.pieces.length) {
+    console.log(`  ${m.n}: devolvió ${(r.es.pieces ?? []).length} piezas de ${w.body.pieces.length} — se descarta`);
+    continue;
+  }
+
+  const v = revisar(r.es, { items, cotejos: cotejos ?? [], ids: new Set(Object.keys(indice)),
+                            indice, reportaje_count: 1 });
+  const citas = v.fallos.filter(f => f.grave &&
+    ['cita sin procedencia', 'cita traducida', 'cita de paráfrasis'].includes(f.regla));
+
+  console.log(`  ${m.n.padEnd(30)} ${String(Math.round((Date.now() - t0) / 1000)).padStart(3)}s · ` +
+    `${String(r.tok).padStart(6)} tok · $${r.coste.toFixed(4)} · ` +
+    (citas.length ? `✗ tocó ${citas.length} cita(s)` : '✓ las citas siguen intactas'));
+  for (const f of citas.slice(0, 2)) console.log(`      ${String(f.detalle).slice(0, 88)}`);
+
+  if (!citas.length) { es = r.es; veredicto = v; break; }
+  // Tocó una cita: se pasa al siguiente. Guardarla sería publicar en español
+  // justo lo que el número en inglés se negó a publicar.
+}
+
+if (!es) {
+  console.error(`\nNingún traductor conservó las citas (gastado $${gastado.toFixed(4)}). ` +
+    `No se guarda nada; el número en inglés no se toca y se reintenta la semana que viene.`);
   process.exit(1);
+}
+console.log(`\nTraducido por el orden de coste · $${gastado.toFixed(4)} en total`);
+for (const f of veredicto.fallos.filter(f => !f.grave).slice(0, 3)) {
+  console.log(`  · ${f.regla}: ${String(f.detalle).slice(0, 80)}`);
 }
 
 await sb(`glossa_radar_weekly?week_start=eq.${w.week_start}`, {
