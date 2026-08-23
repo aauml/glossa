@@ -52,7 +52,10 @@ const CAIDAS_MAX = 3;
 let caidasSeguidas = 0;
 export const gdeltVivo = () => caidasSeguidas < CAIDAS_MAX;
 
-const marca = (d) => new Date(d).toISOString().replace(/[-:]/g, '').slice(0, 15) + '00';
+// YYYYMMDDHHMMSS, catorce dígitos y sin la «T». Quitar solo guiones y dos
+// puntos dejaba «20260816T00000000», que GDELT rechaza con un mensaje en texto
+// plano — y ese rechazo, contado como caída, apagaba el servicio entero.
+const marca = (d) => new Date(d).toISOString().replace(/[-:T]/g, '').slice(0, 14);
 
 /**
  * Una consulta al índice.
@@ -103,11 +106,19 @@ export async function consultar(q, opciones = {}) {
     if (reintentos > 0) { await dormir(espera); return consultar(q, { ...opciones, reintentos: reintentos - 1 }); }
     return { ok: false, motivo: `estrangulado (espera ${Math.round(espera / 1000)} s)` };
   }
-  if (estado !== 200) return { ok: false, motivo: `http_${estado}` };
+  if (estado !== 200) { caidasSeguidas++; return { ok: false, motivo: `http_${estado}` }; }
 
   let d;
   try { d = JSON.parse(cuerpo); }
-  catch { return { ok: false, motivo: `no_json: ${cuerpo.slice(0, 60).replace(/\s+/g, ' ')}` }; }
+  catch {
+    // GDELT contesta 200 con texto plano cuando la consulta está mal formada.
+    // Eso NO es una caída: el servidor entendió y dijo que no. Contarlo como
+    // caída fue lo que apagó el censo entero por un error de formato de fecha
+    // mío — el servicio estaba perfectamente y la culpa era de quien preguntaba.
+    // Se devuelve el texto para que se lea en el registro, y no se toca el
+    // cortacircuitos.
+    return { ok: false, motivo: `rechazada: ${cuerpo.slice(0, 70).replace(/\s+/g, ' ')}` };
+  }
 
   afloja(); caidasSeguidas = 0;
   return {

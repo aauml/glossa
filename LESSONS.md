@@ -18,6 +18,28 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Un error mío en la petición no es una caída del servicio
+_Applies to: general_
+
+**Síntoma** — El censo de GDELT no sirvió **ni un solo tema** en la primera
+corrida de verdad, y el cortacircuitos lo dio por caído. Todo salió de la
+reserva, más pobre, sin que el resultado pareciera roto: 237 medios es una cifra
+que se lee como un éxito.
+**Causa** — Dos cosas encadenadas. La fecha se enviaba como
+`20260816T00000000` cuando GDELT pide catorce dígitos sin la «T», y el servicio
+contestaba **200 con un texto plano** explicándolo. Mi código contó ese rechazo
+como caída, sumó al contador y **se apagó solo**. El servicio estaba perfecto; la
+culpa era de quien preguntaba.
+**Arreglo** — Separar las dos familias. Timeout, 429 y error de red son caídas y
+cuentan para el cortacircuitos. Una respuesta que dice «tu consulta está mal» no:
+se registra con el texto que devolvió el servidor y no toca el contador —
+reintentarla no arregla nada, pero apagar el servicio tampoco.
+
+Lo general: **un disyuntor que no distingue «el otro se cayó» de «yo pregunté
+mal» se dispara a sí mismo, y encima al bajar a la reserva tapa la prueba.**
+Cuando un proveedor conteste 200 con texto en vez de JSON, léelo: casi siempre te
+está diciendo exactamente qué hiciste mal.
+
 ### Un tope que me inventé yo no es el tope del proveedor
 _Applies to: general_
 
