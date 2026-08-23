@@ -1,4 +1,5 @@
 ---
+import { fecha } from '../lib/weekly.js';
 import { articlesByLang, topTopics } from '../lib/collection.js';
 
 // Portada compartida por las dos lenguas. Antes solo existía en inglés y la
@@ -22,6 +23,7 @@ const COPY = {
       tag: 'Every Sunday',
       title: 'The Weekly',
       dek: 'What a week of listening adds up to — and, at the end, what none of it said.',
+      archivo: 'Every issue',
     },
     other: { code: 'es', label: 'ES', href: '/es/' },
   },
@@ -40,12 +42,49 @@ const COPY = {
       tag: 'Cada domingo',
       title: 'El semanal',
       dek: 'A qué suma una semana de escuchar — y, al final, qué no dijo ninguna de las voces.',
+      archivo: 'Todos los números',
     },
     other: { code: 'en', label: 'EN', href: '/' },
   },
 };
 
 const t = COPY[lang];
+
+// ── El número que hay ahora mismo ────────────────────────────────────────
+//
+// Se lee en vivo, no al construir: publicar un número cambia una fila de la
+// base y no hace commit, así que una portada prerenderizada anunciaría el
+// número de hace tres semanas hasta el siguiente despliegue.
+//
+// Y va envuelto en su propio try con temporizador: esto es un adorno de la
+// portada. Si la base no contesta, el bloque se queda como estaba —etiqueta,
+// título y entradilla— y la página principal sale igual. Un teaser no puede
+// tumbar la portada.
+let ultimo = null;
+try {
+  const URL_SB = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
+  const ANON   = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+  if (URL_SB && ANON) {
+    const r = await fetch(
+      `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,body,body_es` +
+      `&state=eq.publicado&order=week_start.desc&limit=1`,
+      { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` },
+        signal: AbortSignal.timeout(4000) });
+    if (r.ok) [ultimo = null] = await r.json();
+  }
+} catch { ultimo = null; }
+
+// Los temas del número son los titulares de sus piezas: es lo que el lector va
+// a encontrar, y ya está escrito para leerse. Las etiquetas del clasificador
+// —«Security dynamics in the Middle East»— no las escribió nadie para nadie.
+const cuerpo = ultimo && (lang === 'es' ? (ultimo.body_es || ultimo.body) : ultimo.body);
+const temas = ((cuerpo?.pieces) ?? [])
+  .map(p => String(p?.headline ?? '').trim())
+  .filter(Boolean)
+  .slice(0, 5);
+const fechaNumero = ultimo ? fecha(ultimo.week_start, lang) : null;
+const hrefArchivo = lang === 'es' ? '/es/weekly/archive/' : '/weekly/archive/';
+
 const articles = await articlesByLang(lang);
 const topics = topTopics(articles);
 const [featured, ...rest] = articles;
@@ -69,11 +108,23 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
     <span class="cover-count">{articles.length} {articles.length === 1 ? t.piece : t.pieces} · 2026</span>
   </div>
 
-  <a class="cover-weekly" href={lang === "es" ? "/es/weekly/" : "/weekly/"}>
-    <span class="cover-weekly-tag">{t.weekly.tag}</span>
-    <span class="cover-weekly-title">{t.weekly.title}</span>
-    <span class="cover-weekly-dek">{t.weekly.dek}</span>
-  </a>
+  <div class="cover-weekly-wrap">
+    <a class="cover-weekly" href={lang === "es" ? "/es/weekly/" : "/weekly/"}>
+      <span class="cover-weekly-tag">{t.weekly.tag}</span>
+      <span class="cover-weekly-title">{t.weekly.title}</span>
+      <span class="cover-weekly-dek">{t.weekly.dek}</span>
+      {fechaNumero && (
+        <span class="cover-weekly-issue">
+          <span class="cover-weekly-fecha">{fechaNumero}</span>
+          {temas.length > 0 && <span class="cover-weekly-temas">{temas.join(' · ')}</span>}
+        </span>
+      )}
+    </a>
+    {/* Fuera del enlace de arriba a propósito: un <a> dentro de otro <a> no es
+        HTML válido y el navegador lo desmonta, con lo que el bloque entero deja
+        de ser pulsable. */}
+    <a class="cover-weekly-archivo" href={hrefArchivo}>{t.weekly.archivo}</a>
+  </div>
 
   {featured && (
     <a class="article-card featured" href={href(featured)} data-topics={keyOf(featured)}>

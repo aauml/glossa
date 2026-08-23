@@ -1,4 +1,9 @@
 ---
+// En vivo: el bloque del semanal enseña la fecha y los temas del número que hay
+// ahora mismo, y publicar un número no hace commit — una portada prerenderizada
+// anunciaría el de hace tres semanas.
+export const prerender = false;
+
 import CoverLayout from '../layouts/CoverLayout.astro';
 import Cover from '../components/Cover.astro';
 ---

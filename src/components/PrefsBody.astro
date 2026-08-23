@@ -1,0 +1,73 @@
+---
+// La conducta de los dos interruptores de la cabecera. Va al final del <body>.
+// El gemelo que se ejecuta antes de pintar es `PrefsHead.astro`; los dos juntos
+// o ninguno, o salen botones que no hacen nada.
+---
+<script is:inline>
+(function(){
+  // --- tema ---
+  var themeBtns = document.querySelectorAll('[data-theme-toggle]');
+  function paintTheme(t){
+    themeBtns.forEach(function(b){ b.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false'); });
+  }
+  paintTheme(document.documentElement.getAttribute('data-theme'));
+  themeBtns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      try { localStorage.setItem('glossa-theme', t); } catch(e){}
+      paintTheme(t);
+    });
+  });
+
+  // --- tamaño de texto ---
+  var btns = document.querySelectorAll('.text-size-switch button');
+  function paint(s){ btns.forEach(function(b){ b.classList.toggle('active', b.dataset.size === s); }); }
+  var cur = document.documentElement.getAttribute('data-text-size') || 'md';
+  paint(cur);
+
+  // Capture the text element near the reading sweet spot of the viewport.
+  // We use 1/4 from the top — typical reading focus zone, well below any masthead.
+  function captureAnchor(){
+    var sweetSpotY = Math.max(60, window.innerHeight * 0.25);
+    var sweetSpotX = Math.max(20, window.innerWidth * 0.5);
+    var el = document.elementFromPoint(sweetSpotX, sweetSpotY);
+    if (!el) return null;
+    // Find the nearest piece of body content to anchor to.
+    // Tanto los artículos como el número semanal: el selector solo conocía
+    // `.article`, y en la revista —que es `.weekly`— cambiar el tamaño te
+    // devolvía al principio en vez de dejarte donde ibas leyendo.
+    var container = el.closest(
+      '.article p, .article h2, .article h3, .article h4, .article li, ' +
+      '.article figure, .article blockquote, .article .exhibit, .article section, ' +
+      '.weekly p, .weekly h2, .weekly h3, .weekly li, ' +
+      '.weekly blockquote, .weekly section, .weekly article'
+    );
+    if (!container) return null;
+    return { element: container, viewportOffset: container.getBoundingClientRect().top };
+  }
+
+  // After the size attribute changes, the browser will recompute layout
+  // when we read getBoundingClientRect — forcing a synchronous reflow.
+  // We use that value to compute how far to scroll to keep the anchor in place.
+  function restoreAnchor(anchor){
+    if (!anchor || !anchor.element) return;
+    var newTop = anchor.element.getBoundingClientRect().top;
+    var delta = newTop - anchor.viewportOffset;
+    if (Math.abs(delta) > 1) window.scrollBy(0, delta);
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var anchor = captureAnchor();
+      var s = b.dataset.size;
+      document.documentElement.setAttribute('data-text-size', s);
+      try { localStorage.setItem('glossa-text-size', s); } catch(e){}
+      paint(s);
+      restoreAnchor(anchor);
+      // The scrollBy above will fire a scroll event that ReadingProgress
+      // is already listening to, so the percentage recalculates naturally.
+    });
+  });
+})();
+</script>

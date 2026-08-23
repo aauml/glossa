@@ -2,6 +2,8 @@
 export const prerender = false;
 import '../../../styles/fonts.css';   // sin esto, Fraunces y Spectral caen a Georgia
 import WeeklyMasthead from '../../../components/WeeklyMasthead.astro';
+import PrefsHead from '../../../components/PrefsHead.astro';
+import PrefsBody from '../../../components/PrefsBody.astro';
 import '../../../styles/global.css';
 import '../../../styles/weekly.css';
 import { renderIssue, fecha } from '../../../lib/weekly.js';
@@ -54,6 +56,7 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
   <meta property="og:type" content="article" />
   <meta property="og:title" content={titulo} />
   <meta property="og:description" content={b.standfirst?.slice(0, 180) ?? ''} />
+  <PrefsHead />
 </head>
 <body>
   <WeeklyMasthead lang="en" otro={`/es/weekly/${week}/`} />
@@ -83,5 +86,6 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
       }, { threshold: 0 }).observe(i);
     })();
   </script>
+  <PrefsBody />
 </body>
 </html>

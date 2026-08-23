@@ -1,0 +1,33 @@
+---
+// Tema y tamaño de texto, ANTES del primer pintado.
+//
+// Vivía dentro de `BaseLayout`, y las páginas de la revista no usan BaseLayout:
+// se montan su propio <html>. El resultado es que la cabecera de la revista
+// enseñaba los dos botones y no hacía ninguna de las dos cosas — y, peor, quien
+// había elegido oscuro en la portada entraba al número en crema, porque este
+// script es el que pone el atributo antes de pintar.
+//
+// Está aquí, y no copiado, para que haya UNA implementación. Dos copias de esto
+// se separan: la primera vez ya pasó con `fonts.css`, que solo importaba
+// BaseLayout y dejaba la revista —el producto estrella— en Georgia.
+---
+<script is:inline>
+(function(){
+  try {
+    // Clave renombrada tras el rebrand; migramos la antigua una sola vez para
+    // no perder la preferencia de quien ya venía leyendo.
+    var s = localStorage.getItem('glossa-text-size');
+    if (!s) {
+      var legacy = localStorage.getItem('lecturas-text-size');
+      if (legacy) { s = legacy; localStorage.setItem('glossa-text-size', legacy); }
+    }
+    document.documentElement.setAttribute('data-text-size', s || 'md');
+
+    // Tema. Crema salvo que el lector haya pedido oscuro; NO se mira el sistema
+    // operativo. Va aquí, en el <head>, para que el atributo esté puesto antes
+    // del primer pintado: hacerlo al final del body enseña un fogonazo crema.
+    document.documentElement.setAttribute('data-theme',
+      localStorage.getItem('glossa-theme') === 'dark' ? 'dark' : 'light');
+  } catch (e) {}
+})();
+</script>

@@ -1,4 +1,6 @@
 ---
+import PrefsHead from '../components/PrefsHead.astro';
+import PrefsBody from '../components/PrefsBody.astro';
 import '../styles/fonts.css';
 import '../styles/global.css';
 
@@ -47,91 +49,10 @@ const OG_LOCALE = { en: 'en_US', es: 'es_ES' };
 {description && <meta name="twitter:description" content={description} />}
 <meta name="twitter:image" content={ogImage} />
 
-<script is:inline>
-(function(){
-  try {
-    // Clave renombrada tras el rebrand; migramos la antigua una sola vez para
-    // no perder la preferencia de quien ya venía leyendo.
-    var s = localStorage.getItem('glossa-text-size');
-    if (!s) {
-      var legacy = localStorage.getItem('lecturas-text-size');
-      if (legacy) { s = legacy; localStorage.setItem('glossa-text-size', legacy); }
-    }
-    document.documentElement.setAttribute('data-text-size', s || 'md');
-
-    // Tema. Crema salvo que el lector haya pedido oscuro; NO se mira el sistema
-    // operativo. Va aquí, en el <head>, para que el atributo esté puesto antes
-    // del primer pintado: hacerlo al final del body enseña un fogonazo crema.
-    document.documentElement.setAttribute('data-theme',
-      localStorage.getItem('glossa-theme') === 'dark' ? 'dark' : 'light');
-  } catch (e) {}
-})();
-</script>
+<PrefsHead />
 </head>
 <body>
 <slot />
-<script is:inline>
-(function(){
-  // --- tema ---
-  var themeBtns = document.querySelectorAll('[data-theme-toggle]');
-  function paintTheme(t){
-    themeBtns.forEach(function(b){ b.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false'); });
-  }
-  paintTheme(document.documentElement.getAttribute('data-theme'));
-  themeBtns.forEach(function(b){
-    b.addEventListener('click', function(){
-      var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', t);
-      try { localStorage.setItem('glossa-theme', t); } catch(e){}
-      paintTheme(t);
-    });
-  });
-
-  // --- tamaño de texto ---
-  var btns = document.querySelectorAll('.text-size-switch button');
-  function paint(s){ btns.forEach(function(b){ b.classList.toggle('active', b.dataset.size === s); }); }
-  var cur = document.documentElement.getAttribute('data-text-size') || 'md';
-  paint(cur);
-
-  // Capture the text element near the reading sweet spot of the viewport.
-  // We use 1/4 from the top — typical reading focus zone, well below any masthead.
-  function captureAnchor(){
-    var sweetSpotY = Math.max(60, window.innerHeight * 0.25);
-    var sweetSpotX = Math.max(20, window.innerWidth * 0.5);
-    var el = document.elementFromPoint(sweetSpotX, sweetSpotY);
-    if (!el) return null;
-    // Find the nearest piece of body content to anchor to.
-    var container = el.closest(
-      '.article p, .article h2, .article h3, .article h4, .article li, ' +
-      '.article figure, .article blockquote, .article .exhibit, .article section'
-    );
-    if (!container) return null;
-    return { element: container, viewportOffset: container.getBoundingClientRect().top };
-  }
-
-  // After the size attribute changes, the browser will recompute layout
-  // when we read getBoundingClientRect — forcing a synchronous reflow.
-  // We use that value to compute how far to scroll to keep the anchor in place.
-  function restoreAnchor(anchor){
-    if (!anchor || !anchor.element) return;
-    var newTop = anchor.element.getBoundingClientRect().top;
-    var delta = newTop - anchor.viewportOffset;
-    if (Math.abs(delta) > 1) window.scrollBy(0, delta);
-  }
-
-  btns.forEach(function(b){
-    b.addEventListener('click', function(){
-      var anchor = captureAnchor();
-      var s = b.dataset.size;
-      document.documentElement.setAttribute('data-text-size', s);
-      try { localStorage.setItem('glossa-text-size', s); } catch(e){}
-      paint(s);
-      restoreAnchor(anchor);
-      // The scrollBy above will fire a scroll event that ReadingProgress
-      // is already listening to, so the percentage recalculates naturally.
-    });
-  });
-})();
-</script>
+<PrefsBody />
 </body>
 </html>

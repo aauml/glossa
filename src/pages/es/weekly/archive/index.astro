@@ -2,6 +2,8 @@
 export const prerender = false;
 import '../../../../styles/fonts.css';   // sin esto, Fraunces y Spectral caen a Georgia
 import WeeklyMasthead from '../../../../components/WeeklyMasthead.astro';
+import PrefsHead from '../../../../components/PrefsHead.astro';
+import PrefsBody from '../../../../components/PrefsBody.astro';
 import '../../../../styles/global.css';
 import '../../../../styles/weekly.css';
 import { fecha } from '../../../../lib/weekly.js';
@@ -42,6 +44,7 @@ if (!URL_SB || !ANON) {
   <meta name="description" content="What a week of listening adds up to, and what it does not." />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://glossa.ademas.ai/es/weekly/archive/" />
+  <PrefsHead />
 </head>
 <body>
   <WeeklyMasthead lang="es" otro={'/weekly/archive/'} />
@@ -64,7 +67,7 @@ if (!URL_SB || !ANON) {
             <li><a href={`/es/weekly/${n.week_start}/`}>
               <span class="n">{String(numeros.length - i).padStart(2, '0')}</span>
               <span>
-                <span class="subj">{fecha(n.week_start)} – {fecha(n.week_end)}</span>
+                <span class="subj">{fecha(n.week_start, 'es')} – {fecha(n.week_end, 'es')}</span>
                 <span class="t">{n.body?.headline ?? 'Untitled'}</span>
                 <span class="d">{(n.body?.standfirst ?? '').split(/\s+/).slice(0, 24).join(' ')}…</span>
               </span></a></li>
@@ -73,5 +76,6 @@ if (!URL_SB || !ANON) {
       </nav>
     )}
   </main>
+  <PrefsBody />
 </body>
 </html>

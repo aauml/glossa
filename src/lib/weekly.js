@@ -38,9 +38,16 @@ export function prosa(t) {
 }
 
 const FECHA = { day: 'numeric', month: 'long', year: 'numeric' };
-export const fecha = s => {
+
+// La fecha también tiene país. Esto ponía `en-GB` para todo el mundo, así que
+// las páginas en español fechaban «16 August 2026» — en una publicación que
+// decidió a propósito que su edición hispana es mexicana (D-020). Un número que
+// se traduce con esmero y se fecha en otro idioma no está traducido.
+export const fecha = (s, lang = 'en') => {
   const d = new Date(`${s}T12:00:00Z`);
-  return isNaN(d) ? String(s) : d.toLocaleDateString('en-GB', { ...FECHA, timeZone: 'UTC' });
+  if (isNaN(d)) return String(s);
+  return d.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-GB',
+                              { ...FECHA, timeZone: 'UTC' });
 };
 
 // La leyenda explica una inversión: aquí una marca es una ADVERTENCIA, y la
