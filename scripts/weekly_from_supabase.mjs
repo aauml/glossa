@@ -101,15 +101,38 @@ if (!cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd')) {
   process.exit(0);
 }
 
+// Dos conjuntos, una consulta:
+//
+//   1. Lo de ESTA semana.
+//   2. LO QUE NO LLEGÓ A TIEMPO. Un episodio del sábado que a la hora del corte
+//      seguía en la cola se leía después y ya no entraba en ningún número: su
+//      semana había cerrado y la siguiente empieza el domingo, así que su fecha
+//      lo dejaba fuera para siempre. `entregado_en is null` significa que
+//      todavía no ha estado sobre ninguna mesa; se arrastra hasta tres semanas
+//      atrás, y se marca al escribir el número para que no vuelva.
+//
 // Con orden y con la trampa dicha: sin `order`, al pasar de 500 PostgREST
 // devolvía 500 filas ARBITRARIAS — el mismo truncado silencioso que la 0029
-// eliminó para los temas, reintroducido en la consulta principal.
-const items = await sb(
-  `glossa_radar_items?select=id,title,author,url,published_at,digest,origin,lang,glossa_radar_sources(name)` +
-  `&state=eq.digested&published_at=gte.${desde.toISOString()}&published_at=lt.${finDia.toISOString()}` +
-  `&order=published_at.desc&limit=500`);
-if (items?.length === 500) {
+// eliminó para los temas.
+const CAMPOS_ITEM = 'id,title,author,url,published_at,digest,origin,lang,glossa_radar_sources(name)';
+const arrastreDesde = new Date(desde.getTime() - 21 * 864e5);
+
+const [enSemana, rezagados] = await Promise.all([
+  sb(`glossa_radar_items?select=${CAMPOS_ITEM}` +
+     `&state=eq.digested&published_at=gte.${desde.toISOString()}&published_at=lt.${finDia.toISOString()}` +
+     `&order=published_at.desc&limit=500`),
+  sb(`glossa_radar_items?select=${CAMPOS_ITEM}` +
+     `&state=eq.digested&entregado_en=is.null` +
+     `&published_at=gte.${arrastreDesde.toISOString()}&published_at=lt.${desde.toISOString()}` +
+     `&order=published_at.desc&limit=120`),
+]);
+
+const items = [...(enSemana ?? []), ...(rezagados ?? [])];
+if (enSemana?.length === 500) {
   console.log('  AVISO: la semana superó las 500 filas; entra lo más nuevo y se recorta lo más viejo.');
+}
+if (rezagados?.length) {
+  console.log(`  ${rezagados.length} rezagado(s) de semanas anteriores: se leyeron tarde y no entraron en ningún número`);
 }
 
 if (!items.length) { console.log('Sin material digerido esta semana — no se escribe nada.'); process.exit(0); }
@@ -695,6 +718,19 @@ await sb('glossa_radar_weekly?on_conflict=week_start', {
   method: 'POST', body: JSON.stringify(fila),
   headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
 });
+
+// Lo que estuvo sobre la mesa queda marcado con la semana de este número. No
+// dice que saliera publicado —el presupuesto recorta— dice que tuvo su
+// oportunidad. Lo que siga sin marcar lo arrastrará el número siguiente.
+if (items.length) {
+  const ids = items.map(x => x.id);
+  for (let i = 0; i < ids.length; i += 100) {
+    await sb(`glossa_radar_items?id=in.(${ids.slice(i, i + 100).join(',')})`, {
+      method: 'PATCH', headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify({ entregado_en: iso(desde) }),
+    }).catch(e => console.log(`  · no se pudo marcar un lote como entregado: ${String(e).slice(0, 80)}`));
+  }
+}
 
 // ── Publicar solo, si procede ──────────────────────────────────────────────
 //

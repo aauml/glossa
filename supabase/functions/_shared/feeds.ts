@@ -58,10 +58,15 @@ export function parsearFeed(xml: string, kind: string): Entrada[] {
   // RSS 2.0 — podcasts y medios escritos.
   for (const m of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
     const it = m[1];
-    // En un podcast el audio va en <enclosure>: es lo que Gemini escuchará.
+    // La PÁGINA del episodio manda sobre el MP3, por dos razones que apuntan al
+    // mismo sitio. La primera: Gemini solo sabe abrir URLs de YouTube — a un
+    // enclosure le devuelve «400 INVALID_ARGUMENT», y por eso ni un solo podcast
+    // se había digerido nunca desde que existe el radar. La segunda: es donde
+    // está la transcripción, y es adonde debe llevar la flechita del número —
+    // un lector que pincha una fuente quiere el episodio, no una descarga.
     const enc = /<enclosure[^>]*url=["']([^"']+)["']/i.exec(it);
     const link = limpiar(tag(it, 'link'));
-    const url = enc ? enc[1] : link;
+    const url = link || (enc ? enc[1] : '');
     if (!url) continue;
     const guid = limpiar(tag(it, 'guid')) || url;
     const fecha = tag(it, 'pubDate');
@@ -73,6 +78,37 @@ export function parsearFeed(xml: string, kind: string): Entrada[] {
     });
   }
   return out;
+}
+
+/**
+ * El texto de una página, sin la maquinaria alrededor.
+ *
+ * Los feeds de podcast no traen transcripción —comprobado en los tres dados de
+ * alta: ninguno usa `<podcast:transcript>`— pero la PÁGINA del episodio sí la
+ * suele tener. Medido: Dwarkesh 145.000 caracteres, un boletín de Substack
+ * 7.400. Una página renderizada por JavaScript devuelve casi nada, y eso hay
+ * que saber distinguirlo de un fallo.
+ */
+export async function textoDePagina(url: string): Promise<string> {
+  try {
+    const r = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Glossa/1.0)' },
+      redirect: 'follow', signal: AbortSignal.timeout(20_000),
+    });
+    if (!r.ok) return '';
+    const html = (await r.text()).slice(0, 900_000);
+    const sinRuido = html
+      .replace(/<(script|style|nav|header|footer|aside|form)[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<!--[\s\S]*?-->/g, ' ');
+    const art = /<article[^>]*>([\s\S]*?)<\/article>/i.exec(sinRuido)
+             || /<main[^>]*>([\s\S]*?)<\/main>/i.exec(sinRuido);
+    const cuerpo = art ? art[1] : sinRuido;
+    return cuerpo
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ').trim();
+  } catch { return ''; }
 }
 
 /** Muchos títulos vienen como «Invitado: tema». Separarlo aquí evita gastar una

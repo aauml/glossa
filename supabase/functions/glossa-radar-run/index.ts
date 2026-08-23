@@ -12,7 +12,7 @@
 // Nada de aquí se publica. Es material de lectura privado.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { CORS, requireToken } from '../_shared/auth.ts';
-import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube } from '../_shared/feeds.ts';
+import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube, textoDePagina } from '../_shared/feeds.ts';
 import { gemini, geminiJson, geminiTokens, MODELO_DIGEST, VIDEO_FPS } from '../_shared/gemini.ts';
 import { promptDigest, promptTemas } from '../_shared/prompts.ts';
 import { ajustes, uso, apuntar, cabe } from '../_shared/presupuesto.ts';
@@ -197,6 +197,7 @@ Deno.serve(async (req) => {
   }
 
   const hechos: string[] = [];
+  const saltados: string[] = [];
   for (const item of pend) {
     // Un episodio tarda ~26 s; si no cabe entero, mejor dejarlo en cola que
     // cortarlo a la mitad y dejar la fila en 'running' para siempre.
@@ -216,6 +217,30 @@ Deno.serve(async (req) => {
     // INVALID_ARGUMENT» y ahí se quedaban. Es el mismo fallo que ya costó el
     // artículo del NYT, cometido otra vez por preguntar por la etiqueta en vez de
     // por el dato.
+    // Si no hay texto y NO es YouTube, se baja la página antes de nada. Gemini
+    // solo sabe abrir URLs de YouTube: a cualquier otra —el MP3 de un podcast,
+    // un artículo— le devuelve «400 INVALID_ARGUMENT». Por eso no se había
+    // digerido ni un solo podcast desde que existe el radar: los dos únicos
+    // elementos que llegaron murieron los dos con ese 400.
+    //
+    // La transcripción vive en la página del episodio, no en el feed. Cuando la
+    // página no da nada —renderizada por JavaScript— el elemento se SALTA con
+    // su motivo, que es distinto de fallar: no hay nada que leer ahí.
+    if (!item.body_text && !/(?:youtube\.com|youtu\.be)\//.test(String(item.url))) {
+      const texto = await textoDePagina(String(item.url));
+      if (texto.length >= 400) {
+        item.body_text = texto.slice(0, 200_000);
+        await sb.from('glossa_radar_items').update({ body_text: item.body_text }).eq('id', item.id);
+      } else {
+        await sb.from('glossa_radar_items').update({
+          state: 'skipped', digested_at: new Date().toISOString(),
+          error: `sin texto: la página del episodio devolvió ${texto.length} caracteres — probablemente se dibuja con JavaScript`,
+        }).eq('id', item.id);
+        saltados.push(String(item.title).slice(0, 50));
+        continue;
+      }
+    }
+
     const esTexto = !!item.body_text;
     try {
       // Reclamo CONDICIONAL. El cron dispara cada 15 min y la cola puede estar
@@ -276,6 +301,7 @@ Deno.serve(async (req) => {
 
   if (agotado.length) log.presupuesto_agotado = agotado;
   log.digeridos = hechos;
+  if (saltados.length) log.sin_texto = saltados;
   if (fallos.length) log.fallos = fallos;
   log.ms = Date.now() - t0;
   return new Response(JSON.stringify(log), { headers: CORS });
