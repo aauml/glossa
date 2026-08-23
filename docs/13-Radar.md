@@ -119,6 +119,22 @@ direcciones de centro de datos. La salida es guardar las cookies de una sesión,
 esa línea no se cruza — es la misma que con los periódicos de pago. El camino
 queda montado y sin horario por si algún día corre desde otro sitio.
 
+## El filtro de duración, y cómo se perdió una vez
+
+Al descubrir, se piden las duraciones de los vídeos nuevos (una unidad por lote)
+y se filtra: **menos de 10 minutos** es un Short o un clip, **más de 3 horas** es
+una retransmisión cruda, y un **directo en emisión** no tiene archivo que
+analizar. Lo filtrado se escribe como `skipped` con su nota — un filtro que
+trabaja callado es indistinguible de un descubrimiento roto. Y si la llamada de
+duraciones falla, se deja pasar todo: descartar sin datos es el fallo que una vez
+tiró 47 episodios buenos de 48.
+
+Este filtro **se perdió una vez** y vale contar cómo: vivía solo en una versión
+de la edge function desplegada a mano, nunca commiteada, y el despliegue del
+2026-08-22 desde el repo lo pisó sin que nada lo dijera. Se notó por un directo
+en `error` y una tanda de Shorts pagados. De ahí la regla, ahora en LESSONS.md:
+nada se despliega que no esté commiteado.
+
 El reloj está en la base a propósito. `pg_cron` y `pg_net` ya estaban instalados
 y ya son el par que dispara los workers de publicación; meter Apps Script, un
 cron de Vercel o un Worker habría añadido un cuarto runtime con sus propios

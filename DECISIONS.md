@@ -23,6 +23,8 @@ vista y la decisión parece arbitraria.
 | D-015 | 2026-08-23 | Revista | Dos fondos separados en el punto de entrada | vigente |
 | D-016 | 2026-08-23 | Revista | La semana se ancla al domingo; los cortes intermedios son parciales | vigente |
 | D-017 | 2026-08-23 | Radar | Dos relojes y un botón para saltarse el ritmo | vigente |
+| D-018 | 2026-08-23 | Revista | La paráfrasis se reconoce pero no se cita | vigente |
+| D-019 | 2026-08-23 | Revista | Un parcial nunca pisa a un oficial, y nunca se publica solo | vigente |
 
 ---
 
@@ -263,3 +265,31 @@ un camino nuevo: es el mismo código a otra frecuencia, que es lo que lo hace
 seguro. Va secuencial —dos llamadas a la vez cogerían los mismos episodios— y sin
 horario, porque corriendo solo se saltaría el tope diario de Gemini cada día
 antes de comer.
+
+## D-018 · La paráfrasis se reconoce pero no se cita
+
+La resolución fina de D-010 para el camino del reportaje. Un reportaje trae
+`what_happened` y `attributed[].what` en inglés SIEMPRE — son paráfrasis, y
+traducida cuando el artículo no es inglés. La primera versión las registró como
+citables para no acusar de «inventada» a una cita que procede del material; eso
+desarmaba D-010 por la puerta de atrás: ocho palabras del resumen,
+entrecomilladas, pasaban por literales.
+
+La resolución: dos conjuntos. Lo citable (citas del artículo en su idioma,
+cifras) y lo RECONOCIDO PERO NO CITABLE (la paráfrasis). Una cita que solo
+encaja en el segundo produce su propio fallo grave — «cita de paráfrasis» — que
+ni la acusa de inventada ni la deja pasar por literal.
+
+## D-019 · Un parcial nunca pisa a un oficial, y nunca se publica solo
+
+Un corte parcial existe para mirar cómo va la semana, no para salir. De ahí dos
+reglas que el código impone y no negocia:
+
+- **No pisa.** La compuerta que conserva «el número con más piezas» compara solo
+  cortes del mismo tipo, y la celda parcial→oficial rechaza siempre. Sin eso, un
+  `WEEK_END` de sábado —el valor que la propia ayuda del workflow sugería—
+  machacaba el número oficial con un parcial.
+- **No se publica solo.** Aunque el fusible pase. La cola del fallo era peor que
+  el fallo: un parcial publicado deja `state='publicado'`, el domingo siguiente
+  el guion ve eso y NO escribe el número real de la semana, y nada lo nota — el
+  vigilante solo comprueba que la fila exista.

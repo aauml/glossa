@@ -12,6 +12,80 @@ nada lo dijo**.
 
 ---
 
+## Lo que enseñó la auditoría del 2026-08-23
+
+Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
+verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
+Los patrones, que valen más que la lista:
+
+### Una función desplegada a mano es código que el siguiente despliegue borra
+_Applies to: deployment / hosting · Supabase · repository / CI-CD_
+
+**Síntoma** — Filas `skipped` con notas «filtrado: dura 1m06s…» escritas ayer por
+un código que no existe en ningún sitio: ni en el repo, ni en la función
+desplegada.
+**Causa** — El filtro de duración de YouTube vivió solo en una versión de la
+edge function desplegada directamente, sin commitear. El siguiente despliegue
+desde el repo lo pisó, y desde entonces Shorts y directos entraban a Gemini como
+vídeo — 4 directos, ~18 cortos pagados, un 403 en error.
+**Arreglo** — Restaurarlo EN GIT. Y la regla que ya existía para el esquema
+(«las migraciones aplicadas y no commiteadas dejan un esquema irreconstruible»)
+se extiende al código: **nada se despliega que no esté commiteado.**
+
+### Una regla que nunca se ha disparado es una regla sin probar
+_Applies to: LLM · monitoring / health checks_
+
+**Síntoma** — Ninguno. Ese es el síntoma.
+**Causa** — La regla central del fusible —cada dorado necesita un cotejo
+`documenta` detrás— llevaba muerta desde su commit: el select no traía
+`claim_text`, la normalización degradaba `undefined` a un set vacío, y TODO
+dorado habría levantado un fallo grave inventado. Nadie lo vio porque nunca hubo
+un dorado que la ejercitara, y el propio mensaje del commit celebraba «cero
+dorados — correcto».
+**Arreglo** — Dos. El select trae la columna, y el fusible LANZA si le llegan
+cotejos sin ella: un contrato entre guion y librería se comprueba, no se confía.
+Y la regla de proceso: **toda regla nueva del fusible se estrena con un caso que
+la dispare y otro que no** — se hizo aquí con los cuatro casos y uno cazó un
+segundo fallo en el acto.
+
+### Un contrato no viaja en frases para humanos
+_Applies to: repository / CI-CD_
+
+**Síntoma** — El alta rechaza-fuentes-rotas se probó en vivo y el feed roto
+entró igual.
+**Causa** — La primera versión decidía filtrando el AVISO con un regex de
+frases («did not answer|no feed|…») y «the feed responded 404» no estaba en la
+lista. El estado de salud se calculaba, se formateaba en prosa inglesa, y se
+decidía sobre la prosa.
+**Arreglo** — Una bandera `saludable: boolean` del clasificador al alta. La
+prosa es para la persona; el contrato, para el código. (Y la prueba en vivo es
+la que lo cazó: la revisión de código lo habría dado por bueno.)
+
+### El parte mide lo que ENTRÓ, no lo que se vio
+_Applies to: search / benchmarking · Tavily_
+
+**Síntoma** — El número podía afirmar «X dice 12.000 y Y dice 9.400» sin ningún
+`r` que lo sostuviera, o «reports filed from TR, MX» con los dos recortados.
+**Causa** — Los hechos calculados del reportaje (choques, despachos compartidos,
+países) se medían sobre TODO lo hallado, y al número solo entraban ≤3 por tema.
+En una publicación cuya premisa es la procedencia, describir documentos que el
+lector no puede alcanzar es la categoría más cara de mentira.
+**Arreglo** — Dos medidas: la del proceso (para decidir si seguir buscando) y la
+de lo que entró (para lo que el número puede citar). Solo la segunda llega al
+prompt.
+
+### Un tope que envuelve de más apaga lo que no gasta
+_Applies to: monitoring / health checks_
+
+**Síntoma** — Agotada la cuota diaria de YouTube, los podcasts y la prensa
+dejaban de sondearse el resto del día — y no gastan esa cuota.
+**Causa** — El gate de `cap_youtube_dia` envolvía el bucle de descubrimiento
+entero en vez de la rama de YouTube.
+**Arreglo** — El tope frena exactamente lo que mide. Un gate se pone alrededor
+del gasto, no alrededor del trabajo.
+
+---
+
 ## Modelos de lenguaje
 
 ### El `content` vacío de un modelo de razonamiento no es un fallo de parseo
