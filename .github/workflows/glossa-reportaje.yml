@@ -44,6 +44,12 @@ on:
       seco:
         description: 'Buscar y digerir sin escribir nada (1 = sí)'
         required: false
+      solo_barrido:
+        description: 'Solo el censo gratis: enseña el plan y el reparto sin gastar un crédito (1 = sí)'
+        required: false
+      hoy:
+        description: 'Fingir otra fecha, ISO (para probar contra una semana cerrada)'
+        required: false
 
 permissions:
   contents: read
@@ -59,6 +65,12 @@ env:
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   REPORTAJE_TEMAS: ${{ inputs.temas }}
   REPORTAJE_DRY: ${{ inputs.seco }}
+  # El censo va contra índices abiertos que estrangulan por IP. Correrlo desde
+  # aquí —y no desde un portátil que lleva la tarde probando— es parte de la
+  # comprobación, no una comodidad.
+  REPORTAJE_SOLO_BARRIDO: ${{ inputs.solo_barrido }}
+  REPORTAJE_HOY: ${{ inputs.hoy }}
+  REPORTAJE_VERBOSO: '1'
 
 jobs:
   reportaje:
