@@ -10,13 +10,114 @@ cuando Arturo le pone su tesis; entonces sigue el camino normal de publicación.
 
 ## Dónde vive cada cosa
 
-| Pieza | Dónde | Coste |
+| Pieza | Dónde | Cuándo |
 |---|---|---|
-| El reloj | `pg_cron` en la propia base, cada 15 min | — |
-| El trabajo | edge function `glossa-radar-run` | — |
-| Escuchar y clasificar | Gemini API, tramo gratuito | $0 |
-| Los datos | tablas `glossa_radar_*` | ya existían |
-| Poner y quitar fuentes | `glossa-panel.ademas.ai`, tras Cloudflare Access | $0 |
+| Descubrir qué hay nuevo | edge function `glossa-radar-run` | cada 6 h |
+| Escuchar y analizar | la misma, dos episodios por pasada | cada 15 min |
+| Salir a buscar fuera | Action `glossa-reportaje.yml` | viernes 07:00 UTC |
+| Cotejar afirmaciones | Action `glossa-cotejo.yml` | sábado 09:00 UTC |
+| Corregir la calibración | Action `glossa-consejo.yml` | domingo 08:00 UTC |
+| Escribir el número | Action `glossa-weekly.yml` | domingo 10:00 UTC |
+| Vigilar todo lo anterior | Action `glossa-vigilante.yml` | cada 4 h |
+| Leer la cola de golpe | Action `glossa-cola.yml` | a mano, desde el panel |
+| Los datos | tablas `glossa_radar_*` | — |
+| Alimentarlo y mirarlo | `/admin`, tras contraseña | — |
+
+Lo que cabe en 150 s vive en una edge function; lo que no, en un Action. Esa
+línea no es de estilo: el número tarda ~16 minutos y se midió que solo el peor
+de seis modelos terminaba dentro del techo de una edge function.
+
+**El reloj está partido en dos a propósito.** Descubrir cuesta cuota de YouTube y
+lo nuevo no aparece cada cuarto de hora; analizar es lo lento y conviene que vaya
+seguido. Un solo reloj obligaba a elegir entre gastar cuota de más o leer de
+menos.
+
+## El ritmo, y por qué existe un botón para saltárselo
+
+Una pasada del radar tiene 120 s de los 150 que le da la edge function, y reserva
+50 s por episodio para no dejar ninguno a medias. Salen **dos episodios por
+pasada, ~12 por hora**. Suficiente para el día a día: entran unos 40 diarios.
+
+No es suficiente cuando quieres cortar el número ahora y hay ochenta esperando —
+a ese ritmo son siete horas y el número corre a las 10:00 UTC. `glossa-cola.yml`
+llama a la misma función una detrás de otra, sin la espera de quince minutos, y
+sube a ~60 por hora. Mismo código, mismos topes; lo único que cambia es la
+frecuencia.
+
+Va **secuencial** y no en paralelo: el radar selecciona ocho pendientes y los
+marca `running` uno a uno según los procesa, así que dos llamadas a la vez
+pagarían dos veces los mismos episodios. Y no tiene horario: si corriera solo se
+saltaría el tope diario de Gemini todos los días antes de comer.
+
+## La semana, y qué es «cortar»
+
+Cortar no corta nada. Es **sacar una foto**: con lo que ya está analizado dentro
+de un rango de fechas, escribir la revista. Lo que sigue en la cola no se cancela
+ni se pierde — no sale en esa foto, y sale en la siguiente. Nada se lee dos veces
+y nada se borra.
+
+La ventana se ancla al **domingo**, y la calcula `glossa_semana_actual()` para
+que el panel y el guion no puedan discrepar:
+
+| Cuándo se corta | Qué cubre | Qué escribe |
+|---|---|---|
+| domingo (automático) | la semana que acaba de cerrarse, domingo→sábado | el número oficial |
+| cualquier otro día | de este domingo hasta hoy | un corte **parcial**, que pisa la misma fila |
+
+Así, cortar el martes y el jueves actualiza siempre la misma revista, y el
+domingo la cierra con la semana entera. Antes la ventana era «los últimos siete
+días desde hoy» y cada corte intermedio creaba una fila con fechas que no eran
+las de ninguna semana.
+
+Un corte parcial nunca le gana al oficial. La compuerta que conserva el número
+con más piezas —puesta porque una pasada a medias llegó a pisar un número
+completo— solo compara cortes del mismo tipo.
+
+## Salir a buscar: el tema como encargo
+
+Se midió el número del 2026-08-16: **190 de 195** elementos venían de los canales
+seguidos. El cotejo sí consultaba documentos externos, pero los pedía sin texto,
+emitía un veredicto sobre una frase y los tiraba.
+
+Cada viernes, `glossa-reportaje.yml` coge los asuntos en que se agrupó la semana
+y sale a buscarlos fuera: otros medios, otros países, el texto entero. Lo que
+encuentra **entra como material**, no como sello.
+
+- **Las consultas las propone un modelo y las constriñe el código.** La etiqueta
+  de un tema —«Security dynamics in the Middle East»— es una abstracción del
+  clasificador e inservible para buscar; el ángulo sale de las cifras y los
+  nombres concretos que dijeron los canales. El código excluye los dominios de
+  las fuentes seguidas, las plataformas y los sitios de transcripción, y si el
+  tema toca un país no anglófono y todas las consultas volvieron en inglés,
+  sintetiza una.
+- **El presupuesto se ajusta solo.** Se busca por rondas de dos y después de cada
+  una se mide, gratis: cuántos relatos distintos quedan tras colapsar
+  casi-duplicados y despachos de agencia compartidos, y si dos medios publican
+  cifras distintas para lo mismo. Se gasta **más donde la primera pasada volvió
+  pobre** y menos donde volvió rica.
+- **Un reportaje se digiere con otro prompt.** El del análisis pide tesis,
+  encuadre y hablantes porque está hecho para analistas con posición; aplicado a
+  un despacho produce «Reuters argues that…» e inventa la posición. El de
+  reportaje no puede producir una voz: qué ocurrió, quién habló para el acta, qué
+  cifras y quién las publicó, y qué sigue sin saberse.
+- **En el número son dos fondos separados**, y la separación se hace al leer, por
+  `origin`. Un reportaje no lleva tesis ni encuadre ni canal: la forma del objeto
+  es la distinción, antes de que ninguna regla tenga que defenderla.
+
+## Qué se guarda de cada episodio
+
+| | qué queda en la base |
+|---|---|
+| Vídeo de YouTube | **el vídeo no se baja nunca.** Gemini escucha desde la URL y solo vuelve el análisis |
+| Artículo o reportaje | el texto completo, porque hubo que bajarlo para leerlo |
+
+Una semana entera ocupa menos de 1 MB. Lo pesado nunca se toca.
+
+Los subtítulos de YouTube serían más ligeros que el vídeo y **no se pueden bajar
+desde un servidor**: YouTube contesta «Sign in to confirm you're not a bot» a las
+direcciones de centro de datos. La salida es guardar las cookies de una sesión, y
+esa línea no se cruza — es la misma que con los periódicos de pago. El camino
+queda montado y sin horario por si algún día corre desde otro sitio.
 
 El reloj está en la base a propósito. `pg_cron` y `pg_net` ya estaban instalados
 y ya son el par que dispara los workers de publicación; meter Apps Script, un

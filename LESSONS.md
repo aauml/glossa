@@ -388,6 +388,54 @@ reporteo es peor que no encontrar nada.
 
 ---
 
+## El panel
+
+### Un número que suma tres cosas distintas no informa de ninguna
+_Applies to: monitoring / health checks_
+
+**Síntoma** — Arturo mira el panel y pregunta qué significa «446 picked up this
+week».
+**Causa** — Sumaba lo ya leído, lo que esperaba en cola y 155 elementos
+descartados por duración. Tres estados distintos en una cifra. Al lado, «225 read
+in total» contaba desde el principio de los tiempos y «78 topics alive» eran
+todos los temas que han existido — de los que 75 eran de esa misma semana, así
+que ni siquiera distinguía.
+**Arreglo** — Cada número contesta **una** pregunta, y todos miran la ventana que
+va a usar la acción que se decide con ellos. «81 por leer» no dice si esperar;
+«81 · ~7 h», calculado del ritmo real de las últimas seis horas, sí.
+
+Y la ventana se calcula en un solo sitio (`glossa_semana_actual()`) que usan el
+panel y el guion. Si cada uno la calculara por su cuenta, el panel diría una cosa
+y la revista traería otra — peor que no tener números.
+
+### Una ventana relativa a «hoy» multiplica filas en vez de actualizarlas
+_Applies to: relational database · Supabase_
+
+**Síntoma** — Aparecen revistas guardadas con fechas que no son las de ninguna
+semana: `2026-08-15`, `2026-08-17`.
+**Causa** — La ventana era «los últimos siete días desde hoy». La llave de la
+tabla es la semana, así que cortar el martes escribía `2026-08-18` en vez de
+actualizar la fila de la semana. Cada corte a mano creaba una revista suelta.
+**Arreglo** — Anclar al domingo: el corte del domingo cierra la semana anterior;
+cualquier otro día cubre de ese domingo hasta hoy y pisa **la misma fila**.
+
+Con eso hace falta distinguirlos, o la compuerta que conserva «el número con más
+piezas» dejaría que un corte parcial le ganara al oficial. Una columna `parcial`,
+y la comparación solo entre cortes del mismo tipo.
+
+### `ON DELETE CASCADE` detrás de un botón que dice «remove»
+_Applies to: relational database · Supabase_
+
+**Síntoma** — Ninguno todavía, y ese es el problema.
+**Causa** — La clave ajena de los episodios es `ON DELETE CASCADE`. Quitar una
+fuente del panel borra sus episodios **y el análisis de cada uno**, que es trabajo
+ya pagado y no vuelve. El aviso decía «Episodes already read go with it» sin
+decir cuántos.
+**Arreglo** — El aviso trae la cifra. Perder cero y perder cuarenta y uno no son
+la misma decisión, y un aviso que no la distingue se acepta sin leer.
+
+---
+
 ## Publicar
 
 ### Todo lo que se genera necesita un lector nombrado, y comprobado

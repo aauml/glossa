@@ -21,6 +21,8 @@ vista y la decisión parece arbitraria.
 | D-013 | 2026-08-23 | Revista | Lo de fuera puede ser pieza propia | vigente |
 | D-014 | 2026-08-23 | Ingesta | El presupuesto de búsqueda se ajusta a la divergencia | vigente |
 | D-015 | 2026-08-23 | Revista | Dos fondos separados en el punto de entrada | vigente |
+| D-016 | 2026-08-23 | Revista | La semana se ancla al domingo; los cortes intermedios son parciales | vigente |
+| D-017 | 2026-08-23 | Radar | Dos relojes y un botón para saltarse el ritmo | vigente |
 
 ---
 
@@ -228,3 +230,36 @@ cifras y sus atribuciones hay que registrarlas explícitamente como citables. Si
 eso, la primera vez que el número reprodujera una cifra literal el fusible la
 habría llamado inventada — y aquí ya se pagó dos veces la lección de que
 **acusar mal es peor que no acusar**.
+
+## D-016 · La semana se ancla al domingo; los cortes intermedios son parciales
+
+Cortar es sacar una foto de lo ya analizado dentro de un rango de fechas — no
+cancela ni descarta nada de lo que sigue en la cola. Se puede repetir.
+
+Con la ventana relativa a «hoy», cada repetición escribía una revista distinta:
+el martes cubría 18→24 y guardaba una fila `2026-08-18`. Anclada al domingo, los
+cortes de martes, jueves y sábado actualizan **la misma** fila y el del domingo
+la cierra con la semana entera.
+
+La columna `parcial` es lo que impide que la compuerta se vuelva en contra: esa
+compuerta conserva el número con más piezas —se puso porque una pasada a medias
+llegó a pisar un número completo— y sin distinguir el tipo de corte habría dejado
+que un parcial de siete piezas bloqueara al oficial de cinco.
+
+## D-017 · Dos relojes y un botón para saltarse el ritmo
+
+Descubrir cuesta cuota de YouTube y lo nuevo no aparece cada cuarto de hora;
+analizar es lo lento y conviene que vaya seguido. Un solo reloj obligaba a elegir
+entre gastar cuota de más o leer de menos, así que descubrir corre cada 6 h y
+analizar cada 15 min.
+
+El ritmo de análisis —dos episodios por pasada, ~12 por hora— no sale de una
+constante elegida: es lo que cabe en los 150 s de una edge function reservando
+50 s por episodio para no dejar ninguno a medias.
+
+Basta para el día a día y no basta para cortar el número con ochenta esperando.
+`glossa-cola.yml` llama a la misma función seguida y sube a ~60 por hora. No es
+un camino nuevo: es el mismo código a otra frecuencia, que es lo que lo hace
+seguro. Va secuencial —dos llamadas a la vez cogerían los mismos episodios— y sin
+horario, porque corriendo solo se saltaría el tope diario de Gemini cada día
+antes de comer.
