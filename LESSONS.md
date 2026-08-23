@@ -18,6 +18,26 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Un ranking por volumen entierra justo lo que añadiste para no perderte
+_Applies to: LLM · relational database_
+
+**Síntoma** — Arturo añade dos canales mexicanos, se leen 22 episodios suyos, y
+el número no cita ni uno. Los canales de IA que añadió el mismo día sí salieron.
+**Causa** — Al modelo se le pasan los doce temas mayores, ordenados por número
+de canales. «Mexican political power dynamics» —14 elementos— quedó en el puesto
+**29**: dos canales no compiten con once. Los de IA sumaban seis y entraron.
+El sistema no descartó el material: **el modelo nunca supo que ese racimo
+existía**.
+**Arreglo** — Reservar sitio para los temas que se cuentan en otra lengua, y
+DECIRLO en la lista: «carried in es, not en». Que un asunto de la semana solo
+exista en español es información sobre la semana, no fontanería.
+
+Lo general, que es lo que vale: **cuando un ranking mide alcance propio y se usa
+como si midiera importancia, entierra sistemáticamente lo que acabas de añadir
+para ampliar el alcance.** El recuento de canales dice cuánto oye esta
+publicación, no cuánto importa el asunto — y confundir las dos cosas convierte
+cada fuente nueva en una que no se usa.
+
 ### La semana del lector, no la del servidor
 _Applies to: relational database · Supabase_
 

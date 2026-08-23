@@ -78,7 +78,9 @@ console.log(`Semana ${iso(desde)} → ${iso(weekEnd)} (hora de Los Ángeles)` +
 // escriba: se sabían desde el principio y se comprobaban al final, después de
 // haber pagado la llamada entera para tirarla. Un «Cut now» sobre una semana ya
 // publicada gastaba dieciséis minutos para decir «no se toca».
-{
+// En seco no se comprueba: un ensayo no escribe nada, y poder mirar el prompt de
+// una semana ya publicada es justo para lo que sirve.
+if (!process.env.WEEKLY_DRY) {
   const [ya] = await sb(`glossa_radar_weekly?select=state,parcial&week_start=eq.${iso(desde)}`);
   if (ya && ya.state === 'publicado') {
     console.log(`Ya hay un número PUBLICADO para la semana del ${iso(desde)}; no se toca. ` +
@@ -230,15 +232,51 @@ const temas = await sb('rpc/glossa_radar_temas_semana', {
   body: JSON.stringify({ desde: desde.toISOString(), hasta: finDia.toISOString() }),
 }).catch(() => []);
 
+// ── Qué temas ve el modelo ───────────────────────────────────────────────
+// Los doce mayores, MÁS hasta cuatro que se cuentan en otra lengua.
+//
+// El ranking premia el número de canales, y eso tiene un sesgo que se midió:
+// «Mexican political power dynamics» —14 elementos, dos canales— quedó en el
+// puesto 29 y el modelo no supo nunca que existiera ese racimo. No puede
+// competir con un asunto que cubren once canales anglófonos, por importante que
+// sea. Añadir fuentes en español no servía de nada si el volumen las entierra
+// antes de que el modelo las vea.
+//
+// Así que se les reserva sitio, y el número lo DICE en los hechos calculados:
+// que un asunto llegue en una sola lengua es información sobre la semana, no un
+// detalle de fontanería.
 const TOPE_TEMAS = 12;
-const racimos = (temas ?? []).slice(0, TOPE_TEMAS).map(t => {
+const idiomaDominante = (() => {
+  const n = {};
+  for (const x of coro) if (x.lang) n[x.lang] = (n[x.lang] || 0) + 1;
+  return Object.entries(n).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'en';
+})();
+
+const cabeza = (temas ?? []).slice(0, TOPE_TEMAS);
+const enCabeza = new Set(cabeza.map(t => t.topic_id));
+const otraLengua = (temas ?? [])
+  .filter(t => !enCabeza.has(t.topic_id) && t.lang && t.lang !== idiomaDominante)
+  .slice(0, 4);
+if (otraLengua.length) {
+  console.log(`  ${otraLengua.length} tema(s) en otra lengua rescatados del volumen: ` +
+    otraLengua.map(t => `${t.label} (${t.lang}, puesto ${(temas ?? []).indexOf(t) + 1})`).join(' · '));
+}
+const elegidos = [...cabeza, ...otraLengua];
+
+const racimos = elegidos.map(t => {
   const canales = Number(t.n_canales) > 0
     ? `${t.n_items} items across ${t.n_canales} channel${t.n_canales > 1 ? 's' : ''}`
     : `${t.n_items} items, no followed channel covered it`;
   const fuera = Number(t.n_medios) > 0
     ? `, ${t.n_medios} outside outlet${t.n_medios > 1 ? 's' : ''}`
     : '';
-  return `${t.label} — ${canales}${fuera}`;
+  // La lengua se dice cuando NO es la dominante. Que un asunto de la semana solo
+  // exista en español —y que sea el único— es de las cosas más informativas que
+  // esta lista puede llevar.
+  const lengua = t.lang && t.lang !== idiomaDominante
+    ? ` · carried in ${t.lang}, not ${idiomaDominante}`
+    : '';
+  return `${t.label} — ${canales}${fuera}${lengua}`;
 });
 if (temas?.length) {
   console.log(`  ${temas.length} temas con material` +
@@ -487,6 +525,11 @@ RULES — the first is the one that matters:
   given a section. Those clusters are what the classification produced, not a
   contents page: several of them are usually one piece, and the labels are the
   classifier's, not yours to reuse.
+- Where a cluster is marked as carried in another language, weigh it by what it
+  says, NOT by how many channels carried it. Two channels are all there are in
+  that language here; the count measures this publication's own reach, not the
+  importance of the subject. A week where the only Spanish-language material went
+  unused is a week this issue read one half of the world.
 - The sections are whatever this week produced. There is no standing list and no
   section is owed a place: if nothing on a subject arrived, it simply is not here.
 - "subject" is a plain label so a reader scanning the contents knows what each piece
