@@ -18,6 +18,23 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Una traducción vieja junto a un texto nuevo son dos revistas distintas
+_Applies to: relational database · LLM_
+
+**Síntoma** — Se rehace el número, la traducción falla, y la página en español
+sigue sirviendo el número ANTERIOR bajo la misma fecha y el mismo enlace. Dos
+revistas con contenidos que no se parecen.
+**Causa** — El guardado solo escribía `body_es` si había traducción nueva. Sin
+ella, la anterior se quedaba — y «se quedó lo de antes» es aquí un texto que
+afirma cosas distintas de las que afirma su versión inglesa.
+**Arreglo** — Si no hay traducción nueva, se BORRA la vieja. Un idioma sin
+traducir se dice; un idioma con la traducción de otro número es una mentira
+silenciosa.
+
+Lo general: **cuando un campo derivado no se puede actualizar, se invalida — no
+se conserva.** Conservarlo parece prudente y es lo contrario: deja una respuesta
+antigua contestando una pregunta nueva.
+
 ### La cuenta informa más que la lista
 _Applies to: repository / CI-CD_
 

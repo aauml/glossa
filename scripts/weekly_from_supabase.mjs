@@ -798,11 +798,16 @@ if (!process.env.WEEKLY_SIN_ES) {
 
 const fila = {
   fuse: { ...veredicto, ran_at: new Date().toISOString() },
-  ...(numeroEs ? {
-    body_es: { ...numeroEs, sources_index: Object.fromEntries(idCorto) },
-    traducido_at: new Date().toISOString(),
-    fuse_es: veredictoEs ? { ...veredictoEs, ran_at: new Date().toISOString() } : null,
-  } : {}),
+  // Si NO hay traducción nueva, la vieja se BORRA. Pasó al rehacer el número:
+  // la traducción falló, el `body_es` anterior se quedó, y la página en español
+  // servía un número distinto del inglés bajo la misma fecha — dos revistas con
+  // el mismo titular de portada y contenidos que no se parecían.
+  //
+  // Un idioma sin traducir se dice; un idioma con la traducción de OTRO número
+  // es una mentira silenciosa.
+  body_es: numeroEs ? { ...numeroEs, sources_index: Object.fromEntries(idCorto) } : null,
+  traducido_at: numeroEs ? new Date().toISOString() : null,
+  fuse_es: numeroEs && veredictoEs ? { ...veredictoEs, ran_at: new Date().toISOString() } : null,
   cotejo_count: (cotejos ?? []).length,
   // Las dos cifras que dicen si salir a buscar sirve. `reportaje_count` es lo
   // que entró; `piezas_sin_reportaje`, cuántas piezas lo ignoraron habiéndolo.
