@@ -58,11 +58,22 @@ if (!cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd')) {
 }
 
 const items = await sb(
-  `glossa_radar_items?select=id,title,author,url,published_at,digest,glossa_radar_sources(name)` +
+  `glossa_radar_items?select=id,title,author,url,published_at,digest,origin,lang,glossa_radar_sources(name)` +
   `&state=eq.digested&published_at=gte.${desde.toISOString()}&published_at=lt.${finDia.toISOString()}&limit=500`);
 
 if (!items.length) { console.log('Sin material digerido esta semana — no se escribe nada.'); process.exit(0); }
-console.log(`${items.length} episodios`);
+
+// ── Dos fondos, y se separan aquí ────────────────────────────────────────
+// Un reportaje entra en `items` como cualquier otra cosa, y ahí está el peligro:
+// `ficha()` lo pintaría idéntico a un episodio y la distinción se perdería en el
+// punto de entrada, donde ningún prompt posterior la recupera.
+//
+// El coro es lo que dijeron los canales seguidos. El reportaje es lo que se
+// salió a buscar fuera, y NO es una quinta voz en la sala: es contra lo que se
+// mide la sala.
+const episodios = items.filter(x => x.origin !== 'reportaje');
+const reportes  = items.filter(x => x.origin === 'reportaje');
+console.log(`${episodios.length} episodios` + (reportes.length ? ` · ${reportes.length} reportajes` : ''));
 
 const canal = x => x.glossa_radar_sources?.name || '—';
 
@@ -70,13 +81,16 @@ const canal = x => x.glossa_radar_sources?.name || '—';
 // Se le da calculado. Cuando se le dejó inferirlo, acertó dos nombres de tres:
 // el tercero era el copresentador del canal, no un invitado que rotara. Contar
 // es trabajo de código; interpretar es trabajo del modelo.
+// Los tres recuentos van sobre `episodios`, no sobre `items`: son hechos sobre
+// EL CORO. Un reportaje no viene por un canal, así que contarlo aquí metería una
+// fila fantasma en la tabla de concentración y diluiría la cifra que importa.
 const porCanal = {};
-for (const x of items) porCanal[canal(x)] = (porCanal[canal(x)] || 0) + 1;
+for (const x of episodios) porCanal[canal(x)] = (porCanal[canal(x)] || 0) + 1;
 const concentracion = Object.entries(porCanal).sort((a, b) => b[1] - a[1])
-  .filter(([, n]) => n > 1).map(([c, n]) => `${n} of the ${items.length} episodes came through ${c}`);
+  .filter(([, n]) => n > 1).map(([c, n]) => `${n} of the ${episodios.length} episodes came through ${c}`);
 
 const donde = {};
-for (const x of items) {
+for (const x of episodios) {
   const nombres = (x.digest?.speakers?.length ? x.digest.speakers : [x.author]).filter(Boolean);
   for (const raw of nombres) {
     const nom = String(raw).split(/[(,]/)[0].trim();
@@ -90,7 +104,7 @@ const cruzan = Object.entries(donde).filter(([, s]) => s.size > 1)
 // Un mismo canal descargando todo el mismo día es una señal distinta a
 // publicar repartido: indica una tanda editorial, no una semana de noticias.
 const porDia = {};
-for (const x of items) {
+for (const x of episodios) {
   const k = `${canal(x)}|${String(x.published_at).slice(0, 10)}`;
   porDia[k] = (porDia[k] || 0) + 1;
 }
@@ -165,6 +179,13 @@ const cotejos = await sb(
 const historial = await sb('rpc/glossa_radar_historial_fuentes', { method: 'POST', body: '{}' })
   .catch(() => []);
 
+// El parte de la salida a buscar. Se lee aunque no haya traído nada: una
+// AUSENCIA no tiene fila en `items`, y «se buscó sobre esto y no había nada
+// fuera» es justo lo que el número no podría decir sin esto.
+const partes = await sb(
+  `glossa_radar_reportajes?select=label,entran,hallados,paro,colapsados,dominios_vacios,paises` +
+  `&week_start=eq.${iso(desde)}&limit=50`).catch(() => []);
+
 const porClaim = {};
 for (const c of cotejos ?? []) porClaim[`${c.item_id}:${c.claim_idx}`] = c;
 if (cotejos?.length) console.log(`  ${cotejos.length} cotejos de esta semana`);
@@ -194,32 +215,117 @@ const ficha = (x, i) => {
   };
 };
 
-const ordenados = [...items].sort((a, b) =>
+/**
+ * Un reportaje, con la forma que le corresponde.
+ *
+ * No lleva `thesis`, ni `framing`, ni `channel`, y esa ausencia es el diseño: un
+ * reporte no es una voz y darle una lo convertiría en un comentarista más. La
+ * forma misma es la distinción, antes de que ninguna regla del prompt tenga que
+ * defenderla.
+ *
+ * Comparte el mapa `idCorto` con los episodios, así que `renderIssue` no cambia
+ * y al pie del número los reportajes salen como `reuters.com ↗` junto a los
+ * canales — que es lo que se pidió: todas las fuentes de donde salió.
+ */
+const fichaReporte = (x, i) => {
+  const rid = `r${i + 1}`;
+  const d = x.digest || {};
+  idCorto.set(rid, { url: x.url, title: x.title, channel: d.outlet || x.author, kind: 'report' });
+  return {
+    id: rid,
+    outlet: d.outlet || x.author, country: d.country || null,
+    when: String(x.published_at).slice(0, 10),
+    wire: d.wire && d.wire !== 'none' ? d.wire : null,
+    lang: x.lang || d.lang || null,
+    what_happened: d.what_happened,
+    attributed: (d.attributed || []).slice(0, 5),
+    figures: (d.figures || []).slice(0, 4),
+    records: (d.records || []).slice(0, 4),
+    quotes: (d.quotes || []).slice(0, 2).map(q => ({ q: q.text, who: q.who })),
+    not_covered: d.not_covered || null,
+  };
+};
+
+// ── Cuánto entra de cada fondo ───────────────────────────────────────────
+// Los reportajes DESPLAZAN, no suman: el tope es el mismo para los dos juntos.
+// Se les reserva una quinta parte y se llena primero, porque un reporte de fuera
+// vale más por token que el trigésimo episodio de opinión — y porque K3 ya
+// reventó un tiempo límite de treinta minutos a 71.000 tokens, así que subir el
+// tope no es una salida.
+const RESERVA = Math.round(TOPE_TOKENS * 0.20);
+
+const reportaje = [];
+let coste = 0;
+for (const [i, x] of reportes.entries()) {
+  const f = fichaReporte(x, i);
+  const n = JSON.stringify(f).length / 4;
+  if (coste + n > RESERVA) continue;
+  reportaje.push(f); coste += n;
+}
+
+const ordenados = [...episodios].sort((a, b) =>
   (peso[b.id] || 0) - (peso[a.id] || 0) ||
   String(b.published_at).localeCompare(String(a.published_at)));
 
 const material = [];
-let coste = 0;
+const dejadosFuera = [];
 for (const [orden, x] of ordenados.entries()) {
   const f = ficha(x, orden);
   const n = JSON.stringify(f).length / 4;
-  if (coste + n > TOPE_TOKENS) continue;
+  if (coste + n > TOPE_TOKENS) { dejadosFuera.push(x); continue; }
   material.push(f); coste += n;
 }
 
 // Un recorte silencioso se lee igual que "lo cubrimos todo". Si sobra material,
 // hay que decirlo aquí y decírselo también al modelo, para que el número no
 // afirme una cobertura que no tuvo.
-const fuera = items.length - material.length;
+const fuera = dejadosFuera.length;
 if (fuera > 0) {
   const dejados = {};
-  for (const x of ordenados.slice(material.length)) dejados[canal(x)] = (dejados[canal(x)] || 0) + 1;
+  for (const x of dejadosFuera) dejados[canal(x)] = (dejados[canal(x)] || 0) + 1;
   console.log(`  fuera del número por presupuesto: ${fuera} episodios ` +
     `(${Object.entries(dejados).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`${c} ${n}`).join(', ')})`);
 }
-console.log(`  material: ${material.length} episodios ≈ ${Math.round(coste).toLocaleString()} tokens`);
+if (reportes.length > reportaje.length) {
+  console.log(`  fuera por la reserva: ${reportes.length - reportaje.length} reportajes`);
+}
+console.log(`  material: ${material.length} episodios + ${reportaje.length} reportajes ` +
+            `≈ ${Math.round(coste).toLocaleString()} tokens`);
 
 const bullets = a => a.length ? a.map(s => '  - ' + s).join('\n') : '  - (none)';
+
+// ── Lo que dice la salida a buscar, contado ──────────────────────────────
+// La penúltima línea es la invariante que se mide a sí misma: el día que diga
+// que todos los reportes se presentaron desde un solo país, el número lo estará
+// diciendo por su cuenta en su propio texto.
+const hechosDeFuera = [];
+if (partes?.length) {
+  const conAlgo = partes.filter(p => Number(p.entran) > 0);
+  const sinNada = partes.filter(p => !Number(p.entran));
+  hechosDeFuera.push(`Reporting was searched for ${partes.length} subjects and found for ${conAlgo.length}.`);
+  if (sinNada.length) {
+    hechosDeFuera.push(`Nothing was found outside for: ${sinNada.map(p => p.label).join('; ')}.`);
+  }
+  for (const p of partes) {
+    for (const r of p.colapsados?.relatos ?? []) {
+      if ((r.medios ?? []).length < 2) continue;
+      hechosDeFuera.push(`${r.medios.join(', ')} carried the same account of ${p.label}` +
+        (r.agencia ? ` (an ${r.agencia} dispatch)` : '') + '; it is counted once here.');
+    }
+    for (const c of p.colapsados?.choques ?? []) hechosDeFuera.push(c);
+    for (const b of p.colapsados?.bocas_compartidas ?? []) hechosDeFuera.push(b);
+  }
+  const paises = [...new Set(partes.flatMap(p => p.paises ?? []).filter(Boolean))];
+  const fuera = paises.filter(p => p !== 'US');
+  hechosDeFuera.push(fuera.length
+    ? `Reports were filed from ${paises.join(', ')} — ${fuera.length} of ${paises.length} outside the United States.`
+    : `Every report found was filed from the United States. Nothing came back from anywhere else.`);
+  const vacios = [...new Set(partes.flatMap(p => p.dominios_vacios ?? []))];
+  if (vacios.length) {
+    hechosDeFuera.push(`${vacios.length} outlets returned nothing readable and could not be used: ` +
+      `${vacios.slice(0, 10).join(', ')}.`);
+  }
+}
 
 const PROMPT = `You are the editor of Glossa, writing this week's issue.
 
@@ -227,9 +333,15 @@ Glossa is a reading apparatus, not an aggregator. Its whole value is refusing to
 flatten distinctions: what someone asserted without support stays "asserted";
 what several aligned voices agree on is alignment, NOT corroboration.
 
-MATERIAL — ${material.length}${fuera ? ` of ${items.length}` : ''} episodes, ${iso(desde)} to ${iso(weekEnd)}${fuera ? ` (the ${fuera} least-connected were left out for space — do not claim to have covered everything)` : ''}:
+COMMENTARY — what the followed channels said. ${material.length}${fuera ? ` of ${episodios.length}` : ''} episodes, ${iso(desde)} to ${iso(weekEnd)}${fuera ? ` (the ${fuera} least-connected were left out for space — do not claim to have covered everything)` : ''}:
 ${JSON.stringify(material)}
-
+${reportaje.length ? `
+REPORTING — ${reportaje.length} documents filed this week by outlets nobody here
+follows. Each was searched for because the week clustered around these subjects;
+none was sent in. They are not a fifth voice in the room. They are what the room
+can be measured against.
+${JSON.stringify(reportaje)}
+` : ''}
 WHAT THE WEEK CLUSTERED INTO — counted from how the material was classified, not
 a list of sections. Fold, split or ignore these as the writing requires; a
 subject here is owed nothing.
@@ -243,7 +355,9 @@ People appearing on more than one channel:
 ${bullets(cruzan)}
 Same-day batches:
 ${bullets(tandas)}
-
+${partes?.length ? `Outside reporting — counted, including where it found nothing:
+${bullets(hechosDeFuera)}
+` : ''}
 TRACK RECORD — what happened when these sources' claims were checked against
 outside documents, counted over time. Not an opinion about them; a count.
 ${bullets((historial ?? []).slice(0, 8).map(h =>
@@ -266,7 +380,7 @@ Write a magazine issue. Return ONLY JSON:
     "dek":"one line for the index, under 18 words",
     "body":"400-550 words of CONTINUOUS PROSE. Markdown paragraphs only.",
     "sources_note":"one or two sentences: who this came from, and say so plainly if the provenance weakens it",
-    "sources":["the ids of the episodes this piece drew on, e.g. e3, e12 — ids only, from the material above"]}
+    "sources":["the ids this piece drew on — episodes as e3, e12 and outside reports as r1, r4. Ids only, from above"]}
  ],
  "closing": ["4-6 items. Each: what NOBODY in the material said, and why it matters."]
 }
@@ -301,11 +415,42 @@ RULES — the first is the one that matters:
   something to report: it should show in how much weight you give a claim, never in
   a paragraph counting who filed what.
 - English throughout.
-- "sources" carries the ids of the episodes the piece actually used. They become
-  links back to the original, so a reader can go and hear it. Ids only, exactly as
-  given; never invent one, and never list an episode you did not use.
+- "sources" carries the ids of everything the piece actually used — episodes (\`e\`)
+  and outside reports (\`r\`) in the same list. They become links back to the
+  original, so a reader can go and read or hear it. Ids only, exactly as given;
+  never invent one, and never list something you did not use.
 
-CROSS-CHECK RULES — these govern what you may claim about evidence:
+${reportaje.length ? `REPORTING RULES — these govern how the outside documents may be used:
+- A report is not a voice, and you must not give it one. Never write that an outlet
+  "argues", "believes" or "warns". Write what it reported, who was on the record in
+  it, and what it says is still unknown.
+- Where COMMENTARY and REPORTING disagree, the disagreement IS the piece. Say who
+  said what, and say which of the two went out and looked.
+- A subject that appears only in REPORTING and in no channel CAN be its own piece.
+  When it is, say so plainly inside the piece: nobody among the channels followed
+  here mentioned it. That absence is the finding, not an embarrassment to cover.
+- Agreement between a report and a channel is not corroboration either. An outlet
+  relaying what the same officials told everyone is one source, not two.
+- \`wire\` names the agency a report came through. Several outlets carrying one
+  agency dispatch is ONE report, already counted once above. Never write it as
+  several outlets converging.
+- Where two reports give different numbers for the same thing, that clash is
+  reportable and you should report it, naming both figures and who published each.
+- \`records\` lists documents a report NAMES — a bill, a docket, a dataset. Naming a
+  record is not being one, and it does NOT license <span class="doc">, which is
+  still governed only by \`check.verdict\` and by nothing else.
+- \`country\` says where a report was filed from. Where a story touches a country,
+  say what the press there reported and where it differs. Never present one
+  country's coverage as the account, and where the reports all come from one place
+  the piece should read like it knows that.
+- \`quotes\` from REPORTING obey the same rule as everywhere: verbatim English only.
+  \`what_happened\` and \`attributed[].what\` are already English and are PARAPHRASE —
+  use them freely, and never inside quotation marks.
+- Every report you drew on goes in "sources" by its \`r\` id, exactly as an episode
+  goes in by its \`e\` id. A piece that used a report and did not list it hid where
+  it got something.
+
+` : ''}CROSS-CHECK RULES — these govern what you may claim about evidence:
 - A claim may be wrapped in <span class="doc"> ONLY if its \`check.verdict\` is
   "documenta". No cross-check means no gold marking, however solid the claim reads.
 - "repite" means the claim was found elsewhere and the elsewhere is downstream, or
@@ -427,7 +572,7 @@ if (actual && (actual.topic_count || 0) > secciones.length) {
 
 // El fusible, antes de guardar. Corre igual aquí, junto al botón de publicar y
 // en la vía automática: si los tres no dan el mismo veredicto, no sirve de nada.
-const veredicto = revisar(numero, { items, cotejos: cotejos ?? [] });
+const veredicto = revisar(numero, { items, cotejos: cotejos ?? [], ids: new Set(idCorto.keys()) });
 const graves = veredicto.fallos.filter(f => f.grave);
 console.log(graves.length
   ? `  fusible: ${graves.length} fallo(s) grave(s) — no puede publicarse solo`
@@ -438,6 +583,10 @@ for (const f of veredicto.fallos.slice(0, 6))
 const fila = {
   fuse: { ...veredicto, ran_at: new Date().toISOString() },
   cotejo_count: (cotejos ?? []).length,
+  // Las dos cifras que dicen si salir a buscar sirve. `reportaje_count` es lo
+  // que entró; `piezas_sin_reportaje`, cuántas piezas lo ignoraron habiéndolo.
+  reportaje_count: reportaje.length,
+  piezas_sin_reportaje: veredicto.piezas_sin_reportaje ?? 0,
   week_start: iso(desde), week_end: iso(weekEnd),
   // El mapa de ids va con el cuerpo: sin él, `sources: ["e3"]` no lleva a
   // ninguna parte cuando se pinta.

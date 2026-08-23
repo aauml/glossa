@@ -253,6 +253,107 @@ cadencia entera desde que existe. Es la misma lección que el fusible: acusar ma
 es peor que no acusar, porque lo que se rompe es la confianza en el aviso, y
 entonces ya no protege de nada.
 
+## Salir a buscar
+
+### Una etiqueta de tema no es una consulta de búsqueda
+_Applies to: search / benchmarking · Tavily · LLM_
+
+**Síntoma** — Se sale a buscar «Security dynamics in the Middle East» y vuelve
+teletipo genérico, o nada.
+**Causa** — Las etiquetas las produce un clasificador leyendo comentario
+político, así que salen abstractas por construcción: «U.S. strategy and
+hegemony», «Ideological discourse and political rhetoric». Son buenas para
+agrupar y **inservibles para buscar**: no llevan un nombre propio, ni una cifra,
+ni una fecha, que es lo único que hace funcionar una búsqueda de noticias.
+**Arreglo** — La consulta se construye de lo CONCRETO —las tesis y las
+afirmaciones comprobables de los elementos del tema—, no de la etiqueta. Y la
+propone un modelo barato, porque el ángulo que hace falta («¿qué habría escrito
+un reportero en ese país?») es justo lo que una palabra clave no sabe producir.
+El código luego la constriñe: si el tema toca un país no anglófono y todas las
+consultas volvieron en inglés, sintetiza una — aceptar el juego entero en inglés
+es no haber salido.
+
+### Digerir un reporte con el prompt de un episodio le fabrica una voz
+_Applies to: LLM · Anthropic_
+
+**Síntoma** — El reporte de una agencia acaba en el material con una tesis en
+forma «Reuters argues that…», indistinguible de un programa de opinión.
+**Causa** — El prompt del análisis pide `thesis`, `framing` y `speakers` porque
+está hecho para analistas con posición. Aplicado a un despacho, **inventa la
+posición**: es el aplanamiento que la publicación existe para negar, reproducido
+un piso más abajo.
+**Arreglo** — Un prompt distinto que no puede producir una voz: qué ocurrió,
+quién habló para el acta, qué cifras se publicaron y quién las publicó, qué dice
+el propio reporte que sigue sin saberse. Sin `thesis` y sin `framing`. **La forma
+del objeto es la distinción**, antes de que ninguna regla posterior tenga que
+defenderla — porque una distinción destruida en el punto de entrada no la
+recupera ningún prompt de después.
+
+### El presupuesto de búsqueda se ajusta solo mirando si los medios divergen
+_Applies to: search / benchmarking · Tavily_
+
+**Síntoma** — Un número fijo de búsquedas por tema gasta igual en el asunto donde
+todos repiten un despacho de agencia que en el que cada país cuenta distinto.
+**Causa** — El valor de una búsqueda más no es constante: depende de si lo que ya
+volvió converge o no.
+**Arreglo** — Se busca por rondas de dos y después de cada una se mide, gratis y
+mecánicamente: cuántos RELATOS distintos hay tras colapsar casi-duplicados y
+despachos compartidos, y si dos medios publican cifras distintas para lo mismo.
+Se para cuando la ronda no aportó ningún relato nuevo, cuando ya hay cupo, o
+cuando todos repiten uno solo. La forma que sale es la correcta: **se gasta más
+donde la primera pasada volvió pobre y menos donde volvió rica.**
+
+Y una corrección que costó una prueba: la dispersión sola no vale. Con una
+etiqueta abstracta da 1 siempre —seis historias distintas, no seis versiones de
+un hecho— y habría mandado buscar el máximo cada vez. Sirve para el caso
+contrario, que también existe.
+
+### Pagar una búsqueda y luego descubrir que no cabe
+_Applies to: search / benchmarking · Tavily_
+
+**Síntoma** — Una ronda gasta dos búsquedas, devuelve cinco resultados buenos, no
+usa ninguno, y el parte lo archiva como «sin hallazgos».
+**Causa** — El corte por cupo estaba DENTRO del bucle que digiere, o sea después
+de haber pagado. Y el motivo de parada se dedujo de «no entró nada nuevo», que
+era cierto y decía lo contrario de lo que pasó.
+**Arreglo** — Toda compuerta de gasto se comprueba antes de gastar, y el motivo
+de parada se registra explícito (`cupo`, `convergen`, `sin_hallazgos`,
+`tope_semana`), nunca se deduce. Un parte que dice «no había nada» cuando lo que
+pasó es «había de sobra» es peor que no tener parte.
+
+### Un tope que cuenta mal no es un tope
+_Applies to: search / benchmarking · Tavily_
+
+**Síntoma** — La cuota real del proveedor se agota mucho antes de que el tope
+propio diga nada.
+**Causa** — Una búsqueda `advanced` de Tavily cuesta **dos** créditos y el
+contador apuntaba uno, justo en las búsquedas más caras. El tope medía la mitad
+de lo que se gastaba.
+**Arreglo** — Apuntar `advanced ? 2 : 1`. Y arreglarlo **antes** de subir el
+tope: subir un límite que no sabes leer no es subirlo.
+
+Junto a esto, el otro fallo del mismo contador: `uso()` se lee una vez al
+arrancar y no se vuelve a leer, mientras `apuntar()` escribe en la base. Una
+corrida de veinte búsquedas pasaba la comprobación veinte veces aunque hubiera
+reventado el tope en la tercera. Hay que sumar también en la copia local.
+
+### Buscar fuera y encontrarse a uno mismo
+_Applies to: search / benchmarking · Tavily_
+
+**Síntoma** — «Salir a buscar» devuelve la transcripción del mismo episodio que
+motivó la búsqueda.
+**Causa** — Excluir `youtube.com` no basta. Hay sitios que viven de transcribir
+programas: dos de los cuatro primeros hallazgos de búsqueda del proyecto fueron
+transcripciones de `singjupost.com` de las mismas entrevistas que ya publican los
+canales seguidos.
+**Arreglo** — Dos capas. El código excluye los dominios de las fuentes seguidas,
+las plataformas y los sitios de transcripción. Y el prompt descarta lo que sea
+una entrevista, una columna de opinión o un comunicado reproducido entero —
+porque la lista de dominios siempre irá por detrás, y un programa disfrazado de
+reporteo es peor que no encontrar nada.
+
+---
+
 ## Publicar
 
 ### Todo lo que se genera necesita un lector nombrado, y comprobado

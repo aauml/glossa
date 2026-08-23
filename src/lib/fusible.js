@@ -96,6 +96,20 @@ export function revisar(issue = {}, contexto = {}) {
     // poder reproducirlo para enseñar la diferencia. Van marcados como inglés
     // porque un titular se cita tal cual está escrito, no traducido.
     if (it.title) guardadas.set(norm(it.title), 'en');
+
+    // Un reportaje no tiene `claims` ni `thesis`: lo que trae es qué pasó, quién
+    // habló y qué cifras se publicaron. Sin registrarlo aquí, la primera vez que
+    // el número reprodujera una cifra literal el fusible la llamaría inventada —
+    // y este repo ya pagó dos veces la lección de que ACUSAR MAL ES PEOR QUE NO
+    // ACUSAR.
+    //
+    // Van marcadas como inglés porque `what_happened`, `attributed[].what` y
+    // `figures[].figure` se piden en inglés SIEMPRE, sea cual sea el idioma del
+    // artículo: son paráfrasis, no cita. Las citas del reportaje siguen en su
+    // idioma y por eso siguen entrando arriba con el `lang` del material.
+    for (const a of it.digest?.attributed ?? []) if (a?.what) guardadas.set(norm(a.what), 'en');
+    for (const f of it.digest?.figures ?? []) if (f?.figure) guardadas.set(norm(f.figure), 'en');
+    if (it.digest?.what_happened) guardadas.set(norm(it.digest.what_happened), 'en');
   }
 
   for (const t of textos) {
@@ -213,6 +227,12 @@ export function revisar(issue = {}, contexto = {}) {
   for (const it of items) {
     for (const s of it.digest?.speakers ?? []) conocidos.add(norm(String(s).split(/[(,]/)[0]));
     if (it.author) conocidos.add(norm(it.author));
+    // Un reportaje no tiene `speakers`: la gente que aparece en él son los que
+    // hablaron para el acta. Sin esto, un ministro citado por Reforma saldría
+    // señalado como «persona no vista» —un aviso falso justo sobre lo que el
+    // reportaje viene a aportar—.
+    for (const a of it.digest?.attributed ?? []) if (a?.who) conocidos.add(norm(String(a.who).split(/[(,]/)[0]));
+    if (it.digest?.byline) conocidos.add(norm(it.digest.byline));
   }
   for (const c of cotejos) if (c.title) for (const w of String(c.title).split(/\s+/)) conocidos.add(norm(w));
 
@@ -226,5 +246,33 @@ export function revisar(issue = {}, contexto = {}) {
     }
   }
 
-  return { ok: !fallos.some(f => f.grave), fallos };
+  // ── 8. Los ids que cita, y de dónde bebe cada pieza ─────────────────────
+  //
+  // Las dos avisan y no bloquean, por razones distintas. La primera porque un id
+  // suelto rompe un enlace, no el número. La segunda porque una pieza puede
+  // honestamente ser de algo sobre lo que no se encontró nada fuera — pero es la
+  // única cifra que dice si salir a buscar está sirviendo para algo, y sin
+  // medirla la etapa entera podría estar funcionando en vacío durante semanas.
+  const ids = contexto.ids instanceof Set ? contexto.ids : new Set(contexto.ids ?? []);
+  const habiaReportaje = items.some(it => it.origin === 'reportaje');
+  let sinReportaje = 0;
+
+  for (const [i, p] of piezas.entries()) {
+    const fuentes = (p.sources ?? []).map(String);
+    if (ids.size) {
+      const rotos = fuentes.filter(f => !ids.has(f));
+      if (rotos.length) {
+        falla('id inexistente',
+          `pieza ${i + 1} «${p.title ?? '?'}» cita ${rotos.join(', ')}, que no está en el material`, false);
+      }
+    }
+    if (habiaReportaje && fuentes.length && fuentes.every(f => f.startsWith('e'))) sinReportaje++;
+  }
+  if (sinReportaje) {
+    falla('pieza sin reportaje',
+      `${sinReportaje} de ${piezas.length} piezas se escribieron solo con los canales, ` +
+      `habiendo reportaje de fuera esta semana`, false);
+  }
+
+  return { ok: !fallos.some(f => f.grave), fallos, piezas_sin_reportaje: sinReportaje };
 }

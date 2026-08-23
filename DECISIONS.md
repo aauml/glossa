@@ -17,6 +17,10 @@ vista y la decisión parece arbitraria.
 | D-009 | 2026-08-22 | Credenciales | Cuenta propia por proyecto, no clave propia | vigente |
 | D-010 | 2026-08-22 | Revista | Solo se cita en el idioma original | vigente |
 | D-011 | 2026-08-22 | Revista | Publicar sin revisión, pero con fusible mecánico | pendiente (paso 6-7) |
+| D-012 | 2026-08-23 | Revista | Un tema es un encargo, no una etiqueta | vigente |
+| D-013 | 2026-08-23 | Revista | Lo de fuera puede ser pieza propia | vigente |
+| D-014 | 2026-08-23 | Ingesta | El presupuesto de búsqueda se ajusta a la divergencia | vigente |
+| D-015 | 2026-08-23 | Revista | Dos fondos separados en el punto de entrada | vigente |
 
 ---
 
@@ -149,3 +153,78 @@ formado.
 Asumido y escrito para no volver sobre ello: eso caza citas inventadas y marcas
 no ganadas, pero **no** puede cazar un número bien formado y bien citado que se
 equivoque sobre qué significó la semana. Se acepta a sabiendas.
+
+## D-012 · Un tema es un encargo, no una etiqueta
+
+Se midió el número del 2026-08-16: **190 de 195** elementos venían de los canales
+de YouTube seguidos. El cotejo sí salía a Internet —19 documentos, 17 dominios,
+Reuters, la BBC, congress.gov, el Tesoro— pero los pedía **sin texto**, emitía un
+veredicto sobre una frase y los tiraba. Ninguno llegó al número. Una pieza sobre
+las elecciones de medio mandato se escribió con cuatro programas de opinión.
+
+Detrás había un fallo mayor: **al modelo nunca se le pasaron los temas.** El
+prompt le decía «merge the raw topics into 4-5 pieces» mientras
+`glossa_radar_topics` no se leía en ningún sitio. La función que dice en qué se
+agrupó la semana existía desde la migración 0014 y su único lector era la vía de
+las ocho casillas que el guion semanal había sustituido.
+
+A partir de aquí un tema es un encargo: se sale a buscarlo en otros medios y
+otros países, se trae el texto entero, y **entra como material**. Al pie del
+número van todas las fuentes que se usaron de verdad, no solo las que ya estaban
+en la lista.
+
+## D-013 · Lo de fuera puede ser pieza propia
+
+Se consideró la versión conservadora —el reportaje solo como contraste, y un
+asunto que ningún canal tocó como una línea del cierre— y se descartó. Si la
+prensa mexicana cubre algo toda la semana y ninguno de los canales lo menciona,
+**eso es una sección**, y dice en su propio texto que nadie aquí lo mencionó.
+
+Lo que cambia es qué es Glossa: deja de ser «lo que dijeron los canales» y pasa a
+ser «lo que pasó», con las dos cosas dentro y distinguibles. La ausencia en el
+coro es el hallazgo, no un hueco que tapar en silencio.
+
+El camino ya existía sin saberlo: `asignarTemas` corre sobre cualquier elemento
+digerido sin mirar su origen, así que un hallazgo de búsqueda ya recibía tema.
+Lo único que hacía falta era **dejar de ordenar los temas por número de canales**,
+que enterraba justo los que ningún canal había tocado.
+
+## D-014 · El presupuesto de búsqueda se ajusta a la divergencia
+
+No hay un número fijo de búsquedas por tema. Se busca por rondas de dos y después
+de cada una se mide, gratis: cuántos relatos distintos quedan tras colapsar
+casi-duplicados y despachos de agencia compartidos, y si dos medios publican
+cifras distintas para lo mismo.
+
+Se para cuando la ronda no aportó ningún relato nuevo, cuando ya hay cupo, o
+cuando todos repiten un solo relato. Se sigue cuando hay choque de cifras —que
+además de ser la señal, **es la pieza**— o cuando falta el país del que la
+historia va y no volvió nada.
+
+La forma resultante es la correcta y no era obvia: **se gasta más donde la
+primera pasada volvió pobre y menos donde volvió rica.** Un tema del que ya
+volvieron cuatro reportes distintos no necesita otra ronda; uno del que volvió
+uno, sí.
+
+## D-015 · Dos fondos separados en el punto de entrada
+
+Un reportaje entra en `glossa_radar_items` como cualquier otra cosa, y ahí estaba
+el peligro: la misma función que arma el material lo habría pintado idéntico a un
+episodio, y la distinción se habría perdido donde ningún prompt posterior la
+recupera.
+
+Se separan al leer, por `origin`. El coro va con su forma de siempre; el
+reportaje va con otra que **no tiene `thesis`, ni `framing`, ni `channel`**. La
+forma del objeto es la distinción, y esa es la razón de que exista un segundo
+prompt de análisis en vez de reutilizar el que ya había.
+
+Corolario que hubo que arreglar en el mismo sitio: los tres recuentos de
+procedencia —concentración de canales, invitados que se repiten, tandas del mismo
+día— son hechos sobre EL CORO. Contando también los reportajes metían una fila
+fantasma y diluían la única cifra que importa.
+
+Y otro, en el fusible: un reportaje no tiene `claims` ni `thesis`, así que sus
+cifras y sus atribuciones hay que registrarlas explícitamente como citables. Sin
+eso, la primera vez que el número reprodujera una cifra literal el fusible la
+habría llamado inventada — y aquí ya se pagó dos veces la lección de que
+**acusar mal es peor que no acusar**.

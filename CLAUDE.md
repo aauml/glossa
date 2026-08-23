@@ -54,8 +54,12 @@ resources:
     - provider: Tavily
       capability: search / benchmarking
       notes: cuenta propia de Glossa desde 2026-08-22; compartirla con otro proyecto
-             habría dejado a ambos peleando por la misma cuota (ver D-009)
-      implemented_in: scripts/research_from_supabase.mjs
+             habría dejado a ambos peleando por la misma cuota (ver D-009).
+             Tres consumidores con presupuestos separados - cotejo (verificar una
+             afirmacion), monitores (seguir un tema o una persona) y reportaje
+             (salir a buscar un asunto de la semana en otros medios y paises, que
+             es el unico que pide el texto entero)
+      implemented_in: scripts/reportaje_from_supabase.mjs
   ai_models:
     - provider: Anthropic
       capability: LLM

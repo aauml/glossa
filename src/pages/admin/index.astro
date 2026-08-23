@@ -257,6 +257,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       + cifra(it.digested || 0, 'read in total')
       + cifra(e.sources?.active ?? 0, 'sources followed')
       + cifra(e.topics || 0, 'topics alive')
+      // Lo que se salió a buscar fuera. Va con su denominador porque la cifra
+      // sola no dice nada: «7 reports» puede ser de siete asuntos o de uno, y
+      // «buscado sobre 5, nada en 2» sí dice cómo fue la semana.
+      + cifra(`${e.reportaje || 0}${e.buscados ? ` / ${e.buscados}` : ''}`,
+              e.sin_nada ? `outside reports · nothing for ${e.sin_nada}` : 'outside reports')
       + ((it.error || 0) ? cifra(it.error, 'failed', true) : '');
   }
 

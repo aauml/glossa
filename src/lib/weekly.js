@@ -111,9 +111,15 @@ export function renderIssue(body = {}) {
           }
           const todos = [...porCanal.entries()];
           if (!todos.length) return '';
+          // Los reportajes se pintan aparte y VAN DESPUÉS. En una publicación
+          // cuya premisa entera es que el lector pueda ver la procedencia, tiene
+          // que poder distinguir de un vistazo cuáles de estos enlaces eran el
+          // coro y cuáles el reporteo que se salió a buscar.
           const pinta = ([k, e]) =>
-            `<a class="fuente" href="${esc(e.url)}" target="_blank" rel="noopener"
+            `<a class="fuente${e.kind === 'report' ? ' reportaje' : ''}" href="${esc(e.url)}"
+               target="_blank" rel="noopener"
                title="${esc(e.title || '')}">${esc(k)}${e.n > 1 ? ` <span class="n">${e.n}</span>` : ''}<span aria-hidden="true"> ↗</span></a>`;
+          todos.sort((a, b) => (a[1].kind === 'report' ? 1 : 0) - (b[1].kind === 'report' ? 1 : 0));
           const primeros = todos.slice(0, 6).map(pinta).join('');
           const resto = todos.slice(6);
           // Los que sobran se despliegan de verdad. «and 12 more» sin poder abrirlo

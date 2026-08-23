@@ -36,6 +36,23 @@ export async function apuntar(url, key, proveedor, llamadas = 1, tokens = 0, cos
   }
 }
 
+/**
+ * Suma el gasto TAMBIÉN en la copia local del contador.
+ *
+ * `uso()` se lee una vez al arrancar y no se vuelve a leer, mientras `apuntar()`
+ * escribe en la base. Sin esto, una corrida que hace veinte búsquedas pasa
+ * `cabe()` veinte veces aunque reventara el tope en la tercera: el contador que
+ * mira es una foto del principio.
+ *
+ * El radar ya lo hacía a mano en línea (`glossa-radar-run/index.ts`); vive aquí
+ * para que sea una implementación y no dos.
+ */
+export function apuntarLocal(u, proveedor, llamadas = 1, ventanas = ['hoy', 'semana', 'mes']) {
+  const p = (u[proveedor] ||= { hoy: 0, semana: 0, mes: 0 });
+  for (const v of ventanas) p[v] = Number(p[v] ?? 0) + llamadas;
+  return u;
+}
+
 /** `true` si queda margen bajo ese tope. Sin tope configurado, no se estorba. */
 export function cabe(u, ajus, proveedor, clave, ventana = 'hoy') {
   const tope = Number(ajus[clave] ?? 0);

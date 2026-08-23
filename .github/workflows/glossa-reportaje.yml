@@ -1,0 +1,57 @@
+name: Glossa reportaje (salir a buscar)
+
+# Coge los asuntos en que se agrupó la semana y sale a buscarlos FUERA de las
+# fuentes seguidas: otros medios, otros países, el texto entero.
+#
+# Sin esto el número se escribe solo con lo que dijeron los canales. Se midió:
+# 190 de 195 elementos venían de YouTube, y los 19 documentos externos que el
+# cotejo llegó a consultar se usaron para emitir un veredicto y se tiraron.
+#
+# VIERNES 07:00 UTC, no sábado. El vigilante corre cada 4 h y relanza lo que
+# falla: un fallo del viernes tiene dos reintentos antes de que exista el número;
+# uno del sábado, ninguno. El cotejo del sábado 09:00 no se mueve y ya ignora lo
+# que no es `feed`, así que no gasta búsquedas en esto.
+#
+# Coste aceptado: las últimas ~36 horas de la semana no se reportean. Una
+# historia del sábado llega al número solo por los canales. No se añade una
+# pasada de sábado —duplicaría las piezas móviles por la rebanada más fina—.
+#
+# Secretos: SUPABASE_SERVICE_KEY, TAVILY_API_KEY, GEMINI_API_KEY.
+
+on:
+  schedule:
+    - cron: '0 7 * * 5'
+  workflow_dispatch:
+    inputs:
+      temas:
+        description: 'Cuántos temas (vacío = lo que dé el tope)'
+        required: false
+      seco:
+        description: 'Buscar y digerir sin escribir nada (1 = sí)'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-reportaje
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  REPORTAJE_TEMAS: ${{ inputs.temas }}
+  REPORTAJE_DRY: ${{ inputs.seco }}
+
+jobs:
+  reportaje:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/reportaje_from_supabase.mjs
