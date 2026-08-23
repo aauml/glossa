@@ -34,7 +34,7 @@ on:
   workflow_dispatch:
     inputs:
       week_end:
-        description: 'Rehacer otra semana (YYYY-MM-DD, el día siguiente al último que se incluye). Vacío = la semana recién cerrada.'
+        description: 'Rehacer otra semana: el DOMINGO que la cierra (YYYY-MM-DD, hora de Los Ángeles). Vacío = la semana recién cerrada. Cualquier otro día produce un corte parcial, que no pisa a un oficial.'
         required: false
       model:
         description: 'Modelo (kimi-k3 por defecto; kimi-k2.6 es 3x más rápido)'

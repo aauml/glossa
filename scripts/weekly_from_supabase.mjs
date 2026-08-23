@@ -54,7 +54,23 @@ async function sb(path, init = {}) {
 //
 // `WEEK_END` significa «finge que hoy es X»: se pasa como referencia. Solo un
 // domingo produce un corte OFICIAL.
-const ahora = process.env.WEEK_END ? new Date(process.env.WEEK_END) : new Date();
+//
+// Un `YYYY-MM-DD` pelado se interpreta como MEDIODÍA EN LOS ÁNGELES, no como
+// medianoche UTC. Sin esto, `WEEK_END=2026-08-23` —un domingo— entraba como las
+// 00:00 UTC, que allí son las cinco de la tarde del SÁBADO, y producía un corte
+// parcial: el formato que documenta el propio workflow hacía lo contrario de lo
+// que promete. Es la misma trampa que la auditoría ya cerró una vez y que volvió
+// a abrirse sola al anclar la semana a Los Ángeles.
+//
+// Las 20:00 UTC caen en el mismo día natural allí tanto en verano como en
+// invierno (13:00 PDT / 12:00 PST), así que sirve todo el año sin mirar el
+// horario de verano.
+const refBruta = process.env.WEEK_END
+  ? (/^\d{4}-\d{2}-\d{2}$/.test(process.env.WEEK_END.trim())
+      ? `${process.env.WEEK_END.trim()}T20:00:00Z`
+      : process.env.WEEK_END)
+  : null;
+const ahora = refBruta ? new Date(refBruta) : new Date();
 if (Number.isNaN(ahora.getTime())) {
   console.error(`WEEK_END no es una fecha: «${process.env.WEEK_END}». Formato: YYYY-MM-DD, y un domingo para un corte oficial.`);
   process.exit(1);
