@@ -74,7 +74,18 @@ export const LEYENDA_ES = `
  * números ya guardados, pero no la maqueta: la señala como lo que es. Fingir
  * que un número viejo es del formato nuevo escondería justo lo que cambió.
  */
+// Las pocas palabras que pone el renderizador, no el modelo. Van aquí y no en
+// el prompt porque son del armazón: si las escribiera el modelo, cambiarían de
+// una semana a otra.
+const PALABRAS = {
+  en: { de: 'of', indice: 'In this issue', cierre: 'What nobody said',
+        volver: '↑ Contents', mas: (n) => `and ${n} more` },
+  es: { de: 'de', indice: 'En este número', cierre: 'Lo que no dijo nadie',
+        volver: '↑ Índice', mas: (n) => `y ${n} más` },
+};
+
 export function renderIssue(body = {}, lang = 'en') {
+  const T = PALABRAS[lang] ?? PALABRAS.en;
   const piezas = body.pieces;
   // Cada pieza dice de qué episodios salió. Se pintan como flechas discretas
   // detrás de la nota de procedencia, y se cortan a seis: una pieza citó
@@ -98,7 +109,7 @@ export function renderIssue(body = {}, lang = 'en') {
 
   const cuerpo = piezas.map((p, i) => `
     <article class="piece" id="${slug(p.title)}">
-      <p class="kicker">${String(i + 1).padStart(2, '0')} · of ${piezas.length}${
+      <p class="kicker">${String(i + 1).padStart(2, '0')} · ${T.de} ${piezas.length}${
         p.subject ? ` · <span class="subj">${esc(p.subject)}</span>` : ''}</p>
       <!-- El título no lleva enlace. Un titular que se puede pinchar invita a
            pinchar antes de leer, y aquí lo que se ofrece es la lectura; las
@@ -144,10 +155,10 @@ export function renderIssue(body = {}, lang = 'en') {
           // Los que sobran se despliegan de verdad. «and 12 more» sin poder abrirlo
           // solo dice que hay algo que no puedes ver.
           return resto.length
-            ? `${primeros}<details class="mas"><summary>and ${resto.length} more</summary>${resto.map(pinta).join('')}</details>`
+            ? `${primeros}<details class="mas"><summary>${T.mas(resto.length)}</summary>${resto.map(pinta).join('')}</details>`
             : primeros;
         })()}</p>` : ''}
-      <a class="up" href="#contents">↑ Contents</a>
+      <a class="up" href="#contents">${T.volver}</a>
     </article>`).join('');
 
   const cierre = (body.closing || []).map(c =>
@@ -158,12 +169,12 @@ export function renderIssue(body = {}, lang = 'en') {
   ${body.standfirst ? `<div class="stand">${prosa(body.standfirst)}</div>` : ''}
   ${lang === 'es' ? LEYENDA_ES : LEYENDA}
   <nav class="toc" id="contents">
-    <h2>In this issue</h2>
+    <h2>${T.indice}</h2>
     <ol>${indice}</ol>
   </nav>
   ${cuerpo}
   ${cierre ? `<section class="closing">
-    <h2>What nobody said</h2>
+    <h2>${T.cierre}</h2>
     <ul>${cierre}</ul>
   </section>` : ''}`;
 }
