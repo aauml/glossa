@@ -205,5 +205,10 @@ export async function otrosGastos(sb) {
   if (!fechas.length) return 0;
   const desdeReal = new Date(Math.min(...fechas));
   const dias = Math.max(1, Math.min(28, Math.ceil((Date.now() - desdeReal) / 86_400_000)));
-  return Math.round((otros / dias) * 7);
+
+  // Y con menos de una semana de historia no se extrapola hacia arriba: se toma
+  // lo observado tal cual. Multiplicar tres días por 2,3 para «hacer una semana»
+  // es inventarse cuatro días, y aquí lo inventado se aparta del cupo de verdad.
+  // Cuando haya semanas, habrá media; hasta entonces, lo que hay.
+  return dias >= 7 ? Math.round((otros / dias) * 7) : otros;
 }
