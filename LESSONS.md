@@ -18,6 +18,27 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Traducir el cuerpo y no la cabecera es no haber traducido
+_Applies to: general_
+
+**Síntoma** — La página `/es/` del número llevaba el `<h1>` en español y el
+`<title>`, la `description` y el `og:title` en **inglés**. O sea: la pestaña del
+navegador, el resultado de búsqueda y la tarjeta al compartir iban en inglés
+sobre una página traducida con esmero.
+**Causa** — El cuerpo español se leía en una variable (`bEs`) y los metadatos
+seguían saliendo de la inglesa (`b`), que estaba tres líneas más arriba y se
+llamaba parecido.
+**Y algo peor al lado**: la página española declaraba `rel="canonical"` apuntando
+a la inglesa. Eso le dice al buscador «esto es un duplicado, indexa la otra» — la
+edición en español, que se traduce a propósito y se localiza a México (D-020),
+quedaba **invisible en las búsquedas**. Son dos ediciones, no una copia:
+`canonical` a sí misma y `hreflang` cruzados.
+
+Lo general: **una traducción no acaba en el cuerpo del texto.** Lo que el lector
+ve primero —la pestaña, el buscador, la vista previa al compartir— vive en el
+`<head>`, no se ve al leer la página, y por eso sobrevive a cualquier revisión
+que consista en mirarla.
+
 ### Una fecha sin hora es medianoche UTC, que en Los Ángeles es el día anterior
 _Applies to: general_
 

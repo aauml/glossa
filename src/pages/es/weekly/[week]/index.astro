@@ -46,7 +46,13 @@ const b = issue.body ?? {};
 // sin avisar sería hacer pasar una cosa por otra.
 const bEs = issue.body_es ?? null;
 if (!bEs) return Astro.redirect(`/weekly/${week}/?sin-traduccion=1`, 302);
-const titulo = b.headline ?? 'Weekly issue';
+// El título, la descripción y las etiquetas sociales salen del cuerpo EN
+// ESPAÑOL. Salían del inglés: la pestaña del navegador, el resultado de
+// búsqueda y la tarjeta al compartir iban en inglés sobre una página cuyo
+// titular estaba traducido. `bEs` ya existe tres líneas más arriba.
+const bMeta = bEs;
+const titulo = bMeta.headline ?? b.headline ?? 'Número semanal';
+const entradilla = (bMeta.standfirst ?? b.standfirst ?? '').slice(0, 180);
 const desde = fecha(issue.week_start, 'es'), hasta = fecha(issue.week_end, 'es');
 ---
 <!DOCTYPE html>
@@ -55,12 +61,20 @@ const desde = fecha(issue.week_start, 'es'), hasta = fecha(issue.week_end, 'es')
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{titulo} · Glossa</title>
-  <meta name="description" content={b.standfirst?.slice(0, 180) ?? ''}>
+  <meta name="description" content={entradilla}>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="canonical" href={`https://glossa.ademas.ai/weekly/${issue.week_start}/`} />
+  <link rel="canonical" href={`https://glossa.ademas.ai/es/weekly/${issue.week_start}/`} />
+  {/* Las dos ediciones se declaran alternativas la una de la otra. Antes la
+      página española se declaraba CANÓNICA a la inglesa, que es decirle al
+      buscador «esto es un duplicado, indexa la otra»: la edición en español
+      —que se traduce a propósito y se localiza a México (D-020)— quedaba
+      invisible en las búsquedas. Son dos ediciones, no una copia. */}
+  <link rel="alternate" hreflang="en" href={`https://glossa.ademas.ai/weekly/${issue.week_start}/`} />
+  <link rel="alternate" hreflang="es" href={`https://glossa.ademas.ai/es/weekly/${issue.week_start}/`} />
+  <link rel="alternate" hreflang="x-default" href={`https://glossa.ademas.ai/weekly/${issue.week_start}/`} />
   <meta property="og:type" content="article" />
   <meta property="og:title" content={titulo} />
-  <meta property="og:description" content={b.standfirst?.slice(0, 180) ?? ''} />
+  <meta property="og:description" content={entradilla} />
   <PrefsHead />
 </head>
 <body>
