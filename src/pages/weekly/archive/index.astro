@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import '../../../styles/fonts.css';   // sin esto, Fraunces y Spectral caen a Georgia
+import WeeklyMasthead from '../../../components/WeeklyMasthead.astro';
 import '../../../styles/global.css';
 import '../../../styles/weekly.css';
 import { fecha } from '../../../lib/weekly.js';
@@ -43,12 +44,7 @@ if (!URL_SB || !ANON) {
   <link rel="canonical" href="https://glossa.ademas.ai/weekly/archive/" />
 </head>
 <body>
-  <header class="masthead">
-    <div class="masthead-inner">
-      <a class="masthead-brand" href="/">Glossa</a>
-      <a class="masthead-brand" href="/weekly/" style="font-weight:400">Weekly</a><span>Archive</span>
-    </div>
-  </header>
+  <WeeklyMasthead lang="en" otro={'/es/weekly/archive/'} />
 
   <main class="weekly">
     <h1 class="hed">Every issue</h1>

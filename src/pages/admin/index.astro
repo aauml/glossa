@@ -276,15 +276,18 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const ritmo = Number(e.ritmo || 0);
     const horas = porLeer && ritmo ? Math.ceil(porLeer / ritmo) : 0;
 
-    // Cuánto falta para que la semana cierre sola. Es la cifra que dice si tiene
-    // sentido cortar a mano: a dos horas del cierre, esperar; a cuatro días, no.
+    // Cuánto falta para que la semana EN CURSO cierre sola. Es la cifra que dice
+    // si tiene sentido cortar a mano: a dos horas del cierre, esperar; a cuatro
+    // días, no. Antes miraba la semana que acababa de cerrarse y el domingo
+    // entero decía «closing now» —el cierre ya había pasado— sobre una semana
+    // terminada, mientras la nueva llevaba horas acumulando material.
     const faltaMs = new Date(e.hasta).getTime() - Date.now();
     const d = Math.floor(faltaMs / 864e5);
     const h = Math.floor((faltaMs % 864e5) / 36e5);
-    const cierre = faltaMs <= 0 ? 'closing now' : d ? `${d}d ${h}h` : `${h}h`;
+    const cierre = faltaMs <= 0 ? 'now' : d ? `${d}d ${h}h` : `${h}h`;
 
     el.innerHTML =
-        cifra(cierre, e.parcial ? 'until the week closes' : 'week closed · issue written', !e.parcial)
+        cifra(cierre, 'until this week closes')
       + cifra(porLeer ? `${porLeer} · ~${horas} h` : '0', 'still to read', porLeer > 0)
       + cifra(e.listos || 0, 'ready for the issue')
       + cifra(`${e.reportaje || 0}${e.buscados ? ` / ${e.buscados}` : ''}`,
@@ -310,19 +313,20 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const marca = (id, texto) => lanzado[id]
       ? `<span class="admin-kind">${esc(texto)}</span>`
       : '';
-    // Con la semana cerrada y su número escrito, «Cut now» no puede hacer nada:
-    // el guion sale sin tocarlo. Decirlo aquí evita el viaje en balde.
-    const yaCerrada = !e.parcial && e.numero_escrito;
-    nota.innerHTML = yaCerrada
-      ? `Week <b>${esc(ventana)}</b> is closed and its issue is written. ` +
-        `Anything read since carries over to the next one — nothing is lost.`
-      : (e.listos
+    // Y debajo, el estado del último número: qué es, si salió y si tiene español.
+    const u = e.ultimo;
+    const linea = u
+      ? `Last issue · <b>${esc(u.titular || u.semana)}</b> · ${esc(u.estado)}` +
+        `${u.espanol ? ' · ES' : ' · <span style="color:var(--accent)">no ES</span>'}` +
+        ` · <a href="/weekly/${esc(u.semana)}/" target="_blank" rel="noopener">read</a><br>`
+      : '';
+    nota.innerHTML = linea + (e.listos
       ? `Issue for <b>${esc(ventana)}</b>${e.parcial ? ' (week still open)' : ''} would use ` +
         `<b>${esc(e.listos)}</b>${porLeer ? `, leaving <b>${esc(porLeer)}</b> still unread out` : ''}` +
         `${e.rezagados ? `, plus <b>${esc(e.rezagados)}</b> carried over from before` : ''}. ` +
         (lanzado.corte ? marca('corte', 'cut launched · ~15 min') :
           `<button class="admin-btn sec" id="st-cortar">Cut now</button>`)
-      : (porLeer ? `Nothing read yet for this week; <b>${esc(porLeer)}</b> waiting. ` : 'Nothing read yet for this week.'))
+      : (porLeer ? `Nothing read yet this week; <b>${esc(porLeer)}</b> waiting. ` : 'Nothing read yet this week.'))
       + (porLeer && e.listos !== undefined
           ? (lanzado.cola ? ' ' + marca('cola', 'queue reading · reload in a few min')
                           : ` <button class="admin-btn sec" id="st-cola">Read the queue first</button>`)

@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import '../../../../styles/fonts.css';   // sin esto, Fraunces y Spectral caen a Georgia
+import WeeklyMasthead from '../../../../components/WeeklyMasthead.astro';
 import '../../../../styles/global.css';
 import '../../../../styles/weekly.css';
 import { renderIssue, fecha } from '../../../../lib/weekly.js';
@@ -60,12 +61,7 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
   <meta property="og:description" content={b.standfirst?.slice(0, 180) ?? ''} />
 </head>
 <body>
-  <header class="masthead">
-    <div class="masthead-inner">
-      <a class="masthead-brand" href="/es/">Glossa</a>
-      <a href="/es/weekly/archive/">Todos los números</a>
-    </div>
-  </header>
+  <WeeklyMasthead lang="es" otro={`/weekly/${week}/`} />
 
   <!-- La marca de edición. Es lo único que separa la revista de un artículo:
        misma tipografía, mismo fondo, mismos tamaños — pero con el filete y la

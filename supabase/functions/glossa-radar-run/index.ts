@@ -290,11 +290,24 @@ Deno.serve(async (req) => {
       if (queda() > 10_000) await asignarTemas(sb, item.id, digest);
       hechos.push(String(item.title).slice(0, 60));
     } catch (e) {
-      // Si fue capacidad del tramo gratuito, vuelve a la cola: el episodio no
+      // Tres desenlaces, no dos.
+      //
+      // Capacidad del tramo gratuito (429, 503): vuelve a la cola. El episodio no
       // tiene la culpa y en la siguiente pasada probablemente entre.
+      //
+      // Sin acceso (403): el vídeo es privado, de miembros o está restringido por
+      // región. Eso NO se arregla reintentando y no es una avería del sistema:
+      // se salta con su motivo. Antes se quedaba en `error` para siempre,
+      // inflando el contador del panel con algo que nadie podía arreglar.
       const capacidad = /high demand|overloaded|429|503/i.test(String(e));
-      await sb.from('glossa_radar_items')
-        .update({ state: capacidad ? 'pending' : 'error', error: String(e).slice(0, 500) }).eq('id', item.id);
+      const sinAcceso = /403|PERMISSION_DENIED/i.test(String(e));
+      await sb.from('glossa_radar_items').update({
+        state: capacidad ? 'pending' : sinAcceso ? 'skipped' : 'error',
+        error: sinAcceso
+          ? 'sin acceso: YouTube no deja analizar este vídeo (restringido, privado o solo para miembros)'
+          : String(e).slice(0, 500),
+        ...(sinAcceso ? { digested_at: new Date().toISOString() } : {}),
+      }).eq('id', item.id);
       fallos.push(`${String(item.title).slice(0, 40)}: ${String(e).slice(0, 80)}`);
     }
   }

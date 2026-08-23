@@ -1,0 +1,33 @@
+---
+import SizeSwitch from './SizeSwitch.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
+
+// La revista traía una cabecera hecha a mano: solo la marca y una fecha. Sin
+// claro/oscuro, sin tamaño de texto, sin idioma y sin panel — todo lo que el
+// resto del sitio sí tiene. Un lector que cambia a oscuro en la portada y entra
+// al número lo encontraba en claro.
+//
+// `otro` es el enlace a la otra lengua de ESTA misma página: en un número, su
+// traducción; en el archivo, el archivo del otro idioma.
+const { lang = 'en', otro = null, meta = null } = Astro.props;
+const T = lang === 'es'
+  ? { archivo: 'Todos los números', panel: 'panel', otra: 'EN' }
+  : { archivo: 'Every issue',       panel: 'panel', otra: 'ES' };
+const inicio  = lang === 'es' ? '/es/' : '/';
+const archivo = lang === 'es' ? '/es/weekly/archive/' : '/weekly/archive/';
+---
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="masthead-brand" href={inicio}>Glossa<span class="wm-dot">.</span></a>
+    <span class="masthead-meta">
+      {meta && <span class="masthead-meta-sep">{meta}</span>}
+      <a class="masthead-panel" href={archivo}>{T.archivo}</a>
+      {otro && <span class="masthead-meta-sep">·</span>}
+      {otro && <a class="lang-link" href={otro}>{T.otra}</a>}
+      <SizeSwitch separator />
+      <ThemeSwitch separator />
+      <span class="masthead-meta-sep">·</span>
+      <a class="masthead-panel" href="/admin/" rel="nofollow">{T.panel}</a>
+    </span>
+  </div>
+</header>
