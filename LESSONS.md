@@ -18,6 +18,35 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### La semana del lector, no la del servidor
+_Applies to: relational database · Supabase_
+
+**Síntoma** — Ninguno visible: el número decía «16 → 22» y nadie lo discutía.
+**Causa** — Todo el reloj estaba anclado a UTC y el lector vive en Los Ángeles.
+Esa ventana empezaba el SÁBADO 15 a las 17:00 hora de aquí y terminaba el
+viernes 21 a las 17:00: un episodio del sábado por la tarde caía en la semana
+siguiente, y el sábado que el número decía cubrir no lo cubría.
+**Arreglo** — Anclar a `America/Los_Angeles`, y la aritmética en hora LOCAL
+antes de convertir: `timestamptz - interval '7 days'` se resuelve en la zona de
+la sesión y en un cambio de horario mueve el borde una hora.
+
+Y el corolario que vale más que el arreglo: la ventana la calculaban CUATRO
+sitios por su cuenta —el número, el reportaje, el cotejo, los monitores— más el
+panel. Cuatro definiciones que podían discrepar sin que nada lo dijera. Ahora es
+una función con un parámetro de referencia, y todos la llaman. **Un concepto que
+aparece en cuatro archivos no está definido cuatro veces: está indefinido.**
+
+### Una compuerta barata puesta después de la cara
+_Applies to: LLM · Anthropic_
+
+**Síntoma** — «Cut now» sobre una semana ya publicada gastaba dieciséis minutos
+y una llamada entera a Kimi para acabar diciendo «no se toca».
+**Causa** — «¿Ya está publicada esta semana?» se comprobaba tras escribir el
+número. No depende de una sola palabra del texto: se sabía desde el principio.
+**Arreglo** — Lo que se puede decidir sin el resultado se decide antes de
+pagarlo. Regla general para cualquier tubería con un paso caro: **ordenar las
+compuertas por precio, no por el orden en que se te ocurrieron.**
+
 ### Una función desplegada a mano es código que el siguiente despliegue borra
 _Applies to: deployment / hosting · Supabase · repository / CI-CD_
 
