@@ -8,8 +8,10 @@ name: Glossa vigilante (salud del propio sistema)
 # Cada cuatro horas: detecta, recupera lo que tiene forma conocida, y anota lo
 # demás con su evidencia.
 #
-# `actions: read` es para poder ver si los otros trabajos están fallando — que es
-# justo lo que hacía falta hoy y nadie miraba.
+# Lo que encuentra lo ARREGLA: reencola lo que falló por algo pasajero, pausa una
+# fuente que lleva tres fallos, y relanza un trabajo caído. Solo escribe una
+# incidencia cuando algo resiste tres intentos — porque entonces insistir ya no
+# es la respuesta.
 
 on:
   schedule:
@@ -18,7 +20,9 @@ on:
 
 permissions:
   contents: read
-  actions: read
+  # `write` porque relanza los trabajos que fallaron. Avisar a una persona para
+  # que le dé al botón no es vigilar: el vigilante tiene el mismo botón.
+  actions: write
 
 concurrency:
   group: glossa-vigilante

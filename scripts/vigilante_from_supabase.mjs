@@ -34,6 +34,28 @@ async function sb(path, init = {}) {
 
 const vistas = new Set();
 
+// Cuántas veces se ha relanzado ya un trabajo. Se guarda como una incidencia
+// cerrada de clase aparte: sin tabla nueva, y con el historial a la vista.
+let relanzamientos = null;
+async function cargarIntentos() {
+  if (relanzamientos) return;
+  const desde = new Date(Date.now() - 2 * 864e5).toISOString();
+  const filas = await sb(`glossa_radar_incidencias?select=sujeto,evidencia&clase=eq.relanzado&created_at=gte.${desde}`);
+  relanzamientos = {};
+  for (const f of filas ?? []) relanzamientos[f.sujeto] = Math.max(relanzamientos[f.sujeto] ?? 0, f.evidencia?.intento ?? 0);
+}
+const intentosPrevios = (wf) => relanzamientos?.[wf] ?? 0;
+
+async function registrarIntento(wf, intento, ok) {
+  relanzamientos[wf] = intento;
+  await sb('glossa_radar_incidencias', {
+    method: 'POST', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify([{ clase: 'relanzado', sujeto: wf, gravedad: 'aviso',
+      detalle: `relanzado automáticamente (intento ${intento})`, abierta: false,
+      cerrada_at: new Date().toISOString(), evidencia: { intento, aceptado: ok } }]),
+  });
+}
+
 /** Abre o refresca una incidencia. Una por clase y sujeto: veinte avisos del
  *  mismo problema no informan mejor que uno que diga desde cuándo pasa. */
 async function anotar({ clase, sujeto = null, gravedad = 'aviso', detalle, evidencia = null, accion = null }) {
@@ -97,21 +119,11 @@ if (duros.length) {
   });
 }
 
-// ── 2. Fuentes que dejaron de traer ────────────────────────────────────────
-const fuentes = await sb('rpc/glossa_radar_fuentes_panel', { method: 'POST', body: '{}' });
-for (const s of (fuentes ?? []).filter(x => x.active)) {
-  const dias = s.ultimo_item_at
-    ? Math.round((Date.now() - new Date(s.ultimo_item_at)) / 864e5) : null;
-  if (!s.pendientes && !s.procesados_7d && (dias === null || dias >= DIAS_MUDA)) {
-    await anotar({
-      clase: 'fuente_muda', sujeto: s.name,
-      detalle: dias === null
-        ? 'sigue activa y no ha traído nada nunca'
-        : `sigue activa y lleva ${dias} días sin traer nada`,
-      evidencia: { dias, ultimo_chequeo: s.last_checked_at },
-    });
-  }
-}
+// ── 2. (retirado) Fuentes que dejaron de traer ────────────────────────────
+// Avisaba de una fuente activa que llevaba días sin traer nada. Se quitó: la
+// tabla de fuentes ya enseña un cero en «en cola» y otro en «leídos», que dice
+// lo mismo sin ocupar un aviso. Un vigilante que repite lo que ya está a la
+// vista enseña a ignorar los avisos que sí hacen falta.
 
 // ── 3. Fuentes por búsqueda que fallan seguido ─────────────────────────────
 // Esta sí se arregla sola: una fuente que lleva tres corridas fallando gasta
@@ -149,6 +161,7 @@ const CADENCIA_H = { 'glossa-weekly.yml': 24 * 8, 'glossa-cotejo.yml': 24 * 8,
                      'glossa-vigilante.yml': 8 };
 
 if (GH) {
+  await cargarIntentos();
   for (const [wf, cadencia] of Object.entries(CADENCIA_H)) {
     if (wf === 'glossa-vigilante.yml') continue;      // no se vigila a sí mismo
     try {
@@ -195,20 +208,35 @@ if (GH) {
 
       if (!hechas.length) continue;
       const malas = hechas.filter(x => MAL.has(x.conclusion));
-      if (MAL.has(hechas[0].conclusion)) {
-        // Falló y no ha vuelto a intentarlo: el peor caso, porque parece quieto.
-        const desdeUltimo = (Date.now() - new Date(hechas[0].created_at)) / 36e5;
-        const abandonado = desdeUltimo > 48;
-        await anotar({
-          clase: 'trabajo_fallando', sujeto: wf,
-          gravedad: (malas.length >= 2 || abandonado) ? 'grave' : 'aviso',
-          detalle: `la última corrida acabó en «${hechas[0].conclusion}»` +
-            (malas.length >= 2 ? ` y ${malas.length} de las ${hechas.length} últimas también` : '') +
-            (abandonado ? `, y lleva ${Math.round(desdeUltimo)} h sin reintentarse` : ''),
-          evidencia: { ultimas: hechas.slice(0, 3).map(x =>
-            ({ cuando: x.created_at, resultado: x.conclusion, url: x.html_url })) },
-        });
+      if (!MAL.has(hechas[0].conclusion)) continue;
+
+      // Un trabajo que falló se RELANZA. Contárselo a alguien para que le dé al
+      // botón no es vigilar, es delegar hacia arriba: el vigilante tiene el
+      // mismo botón y sabe cuándo apretarlo.
+      //
+      // Con tope. Reintentar sin límite convierte un fallo permanente en un
+      // gasto permanente, y además esconde que algo lleva días roto — que es
+      // justo lo contrario de vigilar.
+      const yaIntentados = intentosPrevios(wf);
+      if (yaIntentados < 3) {
+        const d = await fetch(
+          `https://api.github.com/repos/${REPO}/actions/workflows/${wf}/dispatches`,
+          { method: 'POST', headers: { ...cab, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ref: 'main' }) });
+        await registrarIntento(wf, yaIntentados + 1, d.ok);
+        console.log(d.ok
+          ? `  ↻ ${wf}: acabó en «${hechas[0].conclusion}» — relanzado (intento ${yaIntentados + 1} de 3)`
+          : `  ✗ ${wf}: no se pudo relanzar (${d.status})`);
+        continue;
       }
+
+      // Tres relanzamientos y sigue fallando: eso ya no lo arregla insistir.
+      await anotar({
+        clase: 'trabajo_fallando', sujeto: wf, gravedad: 'grave',
+        detalle: `sigue fallando tras 3 relanzamientos autom\u00e1ticos — acaba en «${hechas[0].conclusion}»`,
+        evidencia: { intentos: yaIntentados, ultimas: hechas.slice(0, 3).map(x =>
+          ({ cuando: x.created_at, resultado: x.conclusion, url: x.html_url })) },
+      });
     } catch { /* si GitHub no contesta, no es una anomalía del sistema */ }
   }
 }
