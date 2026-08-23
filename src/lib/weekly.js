@@ -79,9 +79,11 @@ export const LEYENDA_ES = `
 // una semana a otra.
 const PALABRAS = {
   en: { de: 'of', indice: 'In this issue', cierre: 'What nobody said',
-        volver: '↑ Contents', mas: (n) => `and ${n} more` },
+        volver: '↑ Contents',
+        fuentes: (n, f) => `${n} source${n === 1 ? '' : 's'}${f ? ` · ${f} from outside` : ''}` },
   es: { de: 'de', indice: 'En este número', cierre: 'Lo que no dijo nadie',
-        volver: '↑ Índice', mas: (n) => `y ${n} más` },
+        volver: '↑ Índice',
+        fuentes: (n, f) => `${n} fuente${n === 1 ? '' : 's'}${f ? ` · ${f} de fuera` : ''}` },
 };
 
 export function renderIssue(body = {}, lang = 'en') {
@@ -119,10 +121,10 @@ export function renderIssue(body = {}, lang = 'en') {
       ${prosa(p.body)}
       ${p.sources_note || (p.sources || []).length ? `<p class="src">${esc(p.sources_note || '')}
         ${(() => {
-          // Un canal, un enlace. Antes salía «Chris Cillizza ↗Chris Cillizza ↗Chris
-          // Cillizza ↗» pegados, porque la pieza usó tres episodios suyos: eso no
-          // informa de nada y estorba. Se agrupa por canal, con su cuenta si hubo
-          // varios, y el enlace lleva al primero.
+          // Plegado, con la cuenta a la vista. Ocho enlaces desplegados al pie de
+          // cada pieza son ocho interrupciones en la única línea que no tiene que
+          // interrumpir; lo que informa de un vistazo es CUÁNTAS fuentes hubo y
+          // cuántas venían de fuera. Quien quiera ir, hace clic.
           const porCanal = new Map();
           for (const id of p.sources || []) {
             const e = enlaces[id];
@@ -135,28 +137,17 @@ export function renderIssue(body = {}, lang = 'en') {
           }
           const todos = [...porCanal.entries()];
           if (!todos.length) return '';
-          // Los reportajes se pintan aparte y VAN DESPUÉS. En una publicación
-          // cuya premisa entera es que el lector pueda ver la procedencia, tiene
-          // que poder distinguir de un vistazo cuáles de estos enlaces eran el
-          // coro y cuáles el reporteo que se salió a buscar.
-          // Sin icono: la flecha repetida ocho veces era ocho manchas en una
-          // línea que solo tiene que estar disponible, no llamar. Un enlace es
-          // un enlace; el subrayado ya lo dice.
           const pinta = ([k, e]) =>
             `<a class="fuente${e.kind === 'report' ? ' reportaje' : ''}" href="${esc(e.url)}"
                target="_blank" rel="noopener"
                title="${esc(e.title || '')}">${esc(k.slice(2))}${e.n > 1 ? `<span class="n">${e.n}</span>` : ''}</a>`;
-          // Los reportajes NUNCA se pliegan: su justificación entera es verse de
-          // un vistazo. El tope de seis y el desplegable son solo para el coro.
+          // Los de fuera van después y se cuentan aparte: en una publicación cuya
+          // premisa es la procedencia, «4 de fuera» dice de un vistazo si esta
+          // pieza salió a comprobar algo o se quedó en casa.
           const reportes = todos.filter(([, e]) => e.kind === 'report');
           const canales = todos.filter(([, e]) => e.kind !== 'report');
-          const primeros = canales.slice(0, 6).map(pinta).join('') + reportes.map(pinta).join('');
-          const resto = canales.slice(6);
-          // Los que sobran se despliegan de verdad. «and 12 more» sin poder abrirlo
-          // solo dice que hay algo que no puedes ver.
-          return resto.length
-            ? `${primeros}<details class="mas"><summary>${T.mas(resto.length)}</summary>${resto.map(pinta).join('')}</details>`
-            : primeros;
+          return `<details class="fuentes"><summary>${esc(T.fuentes(todos.length, reportes.length))}</summary>` +
+                 `<span class="fuentes-lista">${[...canales, ...reportes].map(pinta).join('')}</span></details>`;
         })()}</p>` : ''}
       <a class="up" href="#contents">${T.volver}</a>
     </article>`).join('');

@@ -157,17 +157,20 @@
 /* El punto medio no debe heredar el subrayado de puntos del reportaje. */
 .weekly .src .fuente::before { border-bottom: 0 !important; }
 
-/* Los que no caben, desplegables de verdad. «and 12 more» sin poder abrirlo solo
-   dice que hay algo que no puedes ver. */
-.weekly .src details.mas { display: inline; }
-.weekly .src details.mas > summary {
-  display: inline; cursor: pointer; list-style: none;
-  color: var(--muted); font-size: .78rem;
-  border-bottom: 1px dotted var(--rule-soft);
+/* El pie va plegado y con la cuenta a la vista: «12 fuentes · 4 de fuera». Es
+   lo que informa de un vistazo, y lo demás está a un clic. */
+.weekly .src details.fuentes { display: block; margin-top: .4rem; }
+.weekly .src details.fuentes > summary {
+  display: inline-block; cursor: pointer; list-style: none;
+  color: var(--muted); font-size: .82em; letter-spacing: .01em;
+  border-bottom: 1px dotted var(--rule-soft); padding-bottom: 1px;
 }
-.weekly .src details.mas > summary::-webkit-details-marker { display: none; }
-.weekly .src details.mas > summary:hover { color: var(--accent); }
-.weekly .src details.mas[open] > summary { color: var(--accent); }
+.weekly .src details.fuentes > summary::-webkit-details-marker { display: none; }
+.weekly .src details.fuentes > summary::after { content: " +"; opacity: .5; }
+.weekly .src details.fuentes[open] > summary::after { content: " −"; }
+.weekly .src details.fuentes > summary:hover,
+.weekly .src details.fuentes[open] > summary { color: var(--accent); }
+.weekly .src .fuentes-lista { display: block; margin-top: .45rem; }
 .weekly .src .fuente:hover, .weekly .src .fuente:focus-visible {
   color: var(--accent); border-color: var(--accent);
 }
