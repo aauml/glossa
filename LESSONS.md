@@ -18,6 +18,23 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Un promedio se divide entre el tiempo, no entre los días que hubo trabajo
+_Applies to: general_
+
+**Síntoma** — El reparto apartaba **203 búsquedas semanales** para cotejo y
+monitores cuando el gasto de Tavily del mes entero eran 117 créditos. La cifra
+era imposible y aun así se leía como un dato.
+**Causa** — Se dividía el gasto entre los días **con fila apuntada**, no entre
+los transcurridos: con tres días de registro, 74 entre 3 por 7 da 172.
+**Arreglo** — Dividir entre los días de calendario del periodo.
+
+Lo general: es la misma piedra del `ritmo` del panel, que promediaba solo las
+horas con actividad y anunciaba 55 elementos por hora justo después de vaciar la
+cola. **Un promedio sobre «los momentos en que pasó algo» no mide un ritmo, mide
+la intensidad de las rachas** — y cuando alimenta un reparto, lo que infla se lo
+quita a otro: aquí se apartaba casi la mitad del cupo para un gasto que no
+existe.
+
 ### Un error mío en la petición no es una caída del servicio
 _Applies to: general_
 

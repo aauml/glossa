@@ -193,6 +193,17 @@ export async function otrosGastos(sb) {
   // Cada búsqueda del reportaje son dos créditos (Tavily «advanced»).
   const delReportaje = (reps ?? []).reduce((s, f) => s + Number(f.busquedas || 0) * 2, 0);
   const otros = Math.max(0, total - delReportaje);
-  const dias = new Set((uso ?? []).map(f => f.dia)).size || 1;
+
+  // Entre los días TRANSCURRIDOS, no entre los que tuvieron actividad. Dividir
+  // por los días con fila daba 203 búsquedas semanales para cotejo y monitores
+  // cuando el gasto del mes entero eran 117 créditos: con tres días apuntados,
+  // 74/3×7 sale 172 y parece un dato. Y ese número no adorna nada — es lo que se
+  // aparta antes de repartir, así que inflarlo deja al reportaje sin la mitad.
+  // Es la misma piedra del «ritmo» del panel, que promediaba solo las horas con
+  // trabajo y decía 55/h después de vaciar la cola.
+  const fechas = (uso ?? []).map(f => new Date(f.dia)).filter(d => !isNaN(d));
+  if (!fechas.length) return 0;
+  const desdeReal = new Date(Math.min(...fechas));
+  const dias = Math.max(1, Math.min(28, Math.ceil((Date.now() - desdeReal) / 86_400_000)));
   return Math.round((otros / dias) * 7);
 }
