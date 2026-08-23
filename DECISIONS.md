@@ -25,6 +25,7 @@ vista y la decisión parece arbitraria.
 | D-017 | 2026-08-23 | Radar | Dos relojes y un botón para saltarse el ritmo | vigente |
 | D-018 | 2026-08-23 | Revista | La paráfrasis se reconoce pero no se cita | vigente |
 | D-019 | 2026-08-23 | Revista | Un parcial nunca pisa a un oficial, y nunca se publica solo | vigente |
+| D-020 | 2026-08-23 | Revista | En español, las comillas se quedan en inglés | vigente |
 
 ---
 
@@ -293,3 +294,28 @@ reglas que el código impone y no negocia:
   el fallo: un parcial publicado deja `state='publicado'`, el domingo siguiente
   el guion ve eso y NO escribe el número real de la semana, y nada lo nota — el
   vigilante solo comprueba que la fila exista.
+
+## D-020 · En español, las comillas se quedan en inglés
+
+El número se escribe en inglés y se traduce. En la versión española **las frases
+entrecomilladas no se traducen**: se copian letra por letra, en inglés, dentro
+de una prosa en español. Es lo que hace la prensa seria, y aquí además no es
+estilo: es la única opción coherente con lo que la publicación afirma.
+
+La regla de la casa dice que una comilla son las palabras exactas de alguien.
+Una comilla traducida no lo es —es una paráfrasis con forma de cita—, así que
+traducirlas convertiría en mentira la única marca tipográfica que esta
+publicación pide que te creas.
+
+Lo que hace que esto no sea una buena intención: **el fusible corre también
+sobre la traducción**. Su regla 1 exige que cada frase entrecomillada exista
+literal en el material, y el material está en inglés. Una cita traducida aparece
+como «cita sin procedencia» y queda registrada en `fuse_es`. La regla es
+comprobable, y por eso se sostiene sola.
+
+El mal arreglo que se propondrá algún día, cuando alguien encuentre raro leer
+una cita en inglés dentro de una frase en español: traducir las citas y añadir
+el original entre corchetes, o registrar la traducción como citable. Lo primero
+duplica el texto y no arregla nada; lo segundo **desactiva el fusible en la
+versión española sin que nadie lo note**. Es la misma tentación que D-010 ya
+rechazó por la vía del reportaje.
