@@ -107,9 +107,29 @@ export function revisar(issue = {}, contexto = {}) {
       const n = norm(cita);
       // Coincidencia exacta, o la guardada contiene a la citada: acortar una cita
       // es legítimo; inventarla no.
+      //
+      // Y los puntos suspensivos también: elidir el centro de una cita es un
+      // recurso normal, y sin contemplarlo el fusible acusaba de inventada una
+      // cita real —pasó con «…correctly... I know», que en el material dice
+      // «…correctly. It's real. I'm not speculating, I know.»—. Con la elisión,
+      // cada trozo tiene que aparecer en LA MISMA cita guardada y EN ORDEN: eso
+      // permite acortar y sigue impidiendo unir dos frases que nadie dijo juntas.
+      const trozos = n.split(/\s*\.{3,}\s*|\s*…\s*/).map(x => x.trim()).filter(x => x.length > 3);
+      const encaja = (g) => {
+        if (g.includes(n)) return true;
+        if (trozos.length < 2) return false;
+        let desde = 0;
+        for (const t of trozos) {
+          const i = g.indexOf(t, desde);
+          if (i < 0) return false;
+          desde = i + t.length;
+        }
+        return true;
+      };
+
       let idioma, hallada = false;
       if (guardadas.has(n)) { hallada = true; idioma = guardadas.get(n); }
-      else for (const [g, l] of guardadas) if (g.includes(n)) { hallada = true; idioma = l; break; }
+      else for (const [g, l] of guardadas) if (encaja(g)) { hallada = true; idioma = l; break; }
 
       if (!hallada) {
         falla('cita sin procedencia',
