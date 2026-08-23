@@ -126,8 +126,8 @@ export function renderIssue(body = {}, lang = 'en') {
       <h2>${esc(p.title)}</h2>
       ${p.dek ? `<p class="dek">${esc(p.dek)}</p>` : ''}
       ${prosa(p.body)}
-      ${p.sources_note || (p.sources || []).length ? `<p class="src">${esc(p.sources_note || '')}
-        ${(() => {
+      ${p.sources_note ? `<p class="src">${esc(p.sources_note)}</p>` : ''}
+      ${(p.sources || []).length ? `${(() => {
           // Plegado, con la cuenta a la vista. Ocho enlaces desplegados al pie de
           // cada pieza son ocho interrupciones en la única línea que no tiene que
           // interrumpir; lo que informa de un vistazo es CUÁNTAS fuentes hubo y
@@ -152,9 +152,19 @@ export function renderIssue(body = {}, lang = 'en') {
           // distingue y esa cuenta es cocina, no información para quien lee.
           const reportes = todos.filter(([, e]) => e.kind === 'report');
           const canales = todos.filter(([, e]) => e.kind !== 'report');
+          // FUERA del <p class="src">, no dentro.
+          //
+          // Un <details> no puede vivir dentro de un <p>: el analizador de HTML
+          // cierra el párrafo al encontrarlo y lo escupe como hermano. Estuvo
+          // así en producción, y la consecuencia era justo la contraria de la
+          // que se buscaba — como el bloque acababa colgando de `.piece` y no de
+          // `.src`, NINGUNA de las reglas `.src details.fuentes` llegaba a
+          // aplicarse: las fuentes se pintaban a 17 px en negro y con el
+          // triángulo por defecto, al pie de una prosa de 12,6 px atenuada.
+          // Eran lo más llamativo de cada pieza.
           return `<details class="fuentes"><summary>${esc(T.fuentes(todos.length))}</summary>` +
                  `<span class="fuentes-lista">${[...canales, ...reportes].map(pinta).join('')}</span></details>`;
-        })()}</p>` : ''}
+        })()}` : ''}
       <a class="up" href="#contents">${T.volver}</a>
     </article>`).join('');
 

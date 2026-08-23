@@ -157,32 +157,36 @@
 /* El punto medio no debe heredar el subrayado de puntos del reportaje. */
 .weekly .src .fuente::before { border-bottom: 0 !important; }
 
-/* El pie va plegado y con la cuenta a la vista: «12 fuentes · 4 de fuera». Es
-   lo que informa de un vistazo, y lo demás está a un clic. */
-.weekly .src details.fuentes { display: block; margin-top: .4rem; }
-.weekly .src details.fuentes > summary {
+/* El pie va plegado y con la cuenta a la vista. Es lo que informa de un
+   vistazo, y lo demás está a un clic.
+
+   Los selectores cuelgan de `.piece`, NO de `.src`: un <details> dentro de un
+   <p> lo saca fuera el propio analizador de HTML, así que apuntar a
+   `.src details` era apuntar a un DOM que el navegador nunca construye. */
+.weekly .piece details.fuentes { display: block; margin-top: .4rem; }
+.weekly .piece details.fuentes > summary {
   display: inline-block; cursor: pointer; list-style: none;
   color: var(--muted); font-size: .82em; letter-spacing: .01em;
   border-bottom: 1px dotted var(--rule-soft); padding-bottom: 1px;
 }
-.weekly .src details.fuentes > summary::-webkit-details-marker { display: none; }
-.weekly .src details.fuentes > summary::after { content: " +"; opacity: .4; }
-.weekly .src details.fuentes[open] > summary::after { content: " −"; }
-.weekly .src details.fuentes > summary:hover,
-.weekly .src details.fuentes[open] > summary { color: var(--accent); }
+.weekly .piece details.fuentes > summary::-webkit-details-marker { display: none; }
+.weekly .piece details.fuentes > summary::after { content: " +"; opacity: .4; }
+.weekly .piece details.fuentes[open] > summary::after { content: " −"; }
+.weekly .piece details.fuentes > summary:hover,
+.weekly .piece details.fuentes[open] > summary { color: var(--accent); }
 /* En columna, una por línea, pequeñas. Es una lista para consultar, no una
    fila de botones: separadas por comas se leían como si pidieran atención. */
-.weekly .src .fuentes-lista { display: block; margin-top: .5rem; }
-.weekly .src .fuentes-lista .fuente {
+.weekly .piece .fuentes-lista { display: block; margin-top: .5rem; }
+.weekly .piece .fuentes-lista .fuente {
   display: block; font-size: .86em; line-height: 1.9;
   border-bottom: 0; color: var(--muted);
 }
-.weekly .src .fuentes-lista .fuente:hover { color: var(--accent); }
-.weekly .src .fuentes-lista .fuente + .fuente::before { content: none; }
-.weekly .src .fuentes-lista .fuente.reportaje { border-bottom: 0; color: var(--muted); }
+.weekly .piece .fuentes-lista .fuente:hover { color: var(--accent); }
+.weekly .piece .fuentes-lista .fuente + .fuente::before { content: none; }
+.weekly .piece .fuentes-lista .fuente.reportaje { border-bottom: 0; color: var(--muted); }
 /* Lo de fuera se marca con un guion largo delante, no con otro color: dice de
    dónde vino sin gritarlo. */
-.weekly .src .fuentes-lista .fuente.reportaje::before {
+.weekly .piece .fuentes-lista .fuente.reportaje::before {
   content: "— "; color: var(--accent-soft); opacity: .7;
 }
 .weekly .src .fuente:hover, .weekly .src .fuente:focus-visible {

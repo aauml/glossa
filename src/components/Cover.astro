@@ -78,6 +78,7 @@ try {
 // a encontrar, y ya está escrito para leerse. Las etiquetas del clasificador
 // —«Security dynamics in the Middle East»— no las escribió nadie para nadie.
 const cuerpo = ultimo && (lang === 'es' ? (ultimo.body_es || ultimo.body) : ultimo.body);
+const tituloNumero = String(cuerpo?.headline ?? '').trim() || null;
 const temas = ((cuerpo?.pieces) ?? [])
   .map(p => String(p?.headline ?? '').trim())
   .filter(Boolean)
@@ -116,6 +117,7 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
       {fechaNumero && (
         <span class="cover-weekly-issue">
           <span class="cover-weekly-fecha">{fechaNumero}</span>
+          {tituloNumero && <span class="cover-weekly-numero">{tituloNumero}</span>}
           {temas.length > 0 && <span class="cover-weekly-temas">{temas.join(' · ')}</span>}
         </span>
       )}

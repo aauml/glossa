@@ -18,6 +18,27 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### El navegador reescribe el HTML inválido, y tu CSS apunta al que escribiste
+_Applies to: general_
+
+**Síntoma** — Las fuentes al pie de cada pieza eran lo más llamativo de la
+página: 17 px en negro y con el triángulo por defecto, debajo de una prosa de
+12,6 px atenuada. Y el CSS decía exactamente lo contrario — `.82em`, `--muted`,
+sin marcador— con un comentario que presumía de discreción.
+**Causa** — El bloque se emitía como `<p class="src">… <details class="fuentes">`.
+**Un `<details>` no puede vivir dentro de un `<p>`**: el analizador cierra el
+párrafo al encontrarlo y lo escupe como hermano. Así que en el DOM real el
+`<details>` colgaba de `.piece`, y **ninguna** regla `.src details.fuentes`
+llegaba a aplicarse.
+**Arreglo** — Emitirlo fuera del párrafo y colgar los selectores de `.piece`.
+
+Lo general: **el CSS se escribe contra el DOM que construye el navegador, no
+contra la cadena que generó el servidor.** Cuando un estilo «no se aplica» y la
+regla parece correcta, mira el padre real antes de tocar la especificidad —
+`<p>`, `<a>` y `<button>` no admiten anidado y el analizador reordena en
+silencio. Y el corolario: **una regla que no casa con nada no avisa**; sin abrir
+la página, esto se lee como un CSS impecable, y por eso llevaba semanas así.
+
 ### Lo irreversible se gasta después de la compuerta, nunca antes
 _Applies to: general_
 

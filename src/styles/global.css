@@ -643,6 +643,17 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 }
 /* Los titulares van separados por «·» dentro de un mismo párrafo, que es lo que
    pidió el encargo: una lista con viñetas convertiría un apunte en una sección. */
+/* El título del número. Lleva la voz del bloque —es lo que el lector reconoce
+   como «el número de esta semana»— así que va en la serif de la casa y algo por
+   encima de los temas, pero claramente por debajo de «The Weekly», que es el
+   nombre de la sección y no de un número concreto. */
+.cover-weekly-numero {
+  display: block; margin-bottom: 4px;
+  font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif;
+  font-size: calc(15px * var(--reader-scale)); line-height: 1.25;
+  letter-spacing: -0.005em; color: var(--ink); max-width: 44ch;
+  text-transform: none;
+}
 .cover-weekly-temas { display: block; color: var(--ink-soft); max-width: 56ch; }
 .cover-weekly:hover .cover-weekly-temas { color: var(--ink); }
 
