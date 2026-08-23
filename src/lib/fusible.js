@@ -77,6 +77,16 @@ export function revisar(issue = {}, contexto = {}) {
 
   const items = contexto.items ?? [];
   const cotejos = contexto.cotejos ?? [];
+
+  // Contrato con el que llama, comprobado en vez de confiado. La regla del
+  // dorado normaliza `claim_text`; si el select no lo trae, `norm(undefined)`
+  // da un set vacío y la regla degrada a acusar TODOS los dorados — y así
+  // estuvo, muerta desde su commit, sin que nadie lo viera porque nunca hubo
+  // un dorado que la ejercitara. Una columna ausente tiene que romper aquí,
+  // ruidosamente, no en el primer número que use la marca.
+  if (cotejos.length && !('claim_text' in cotejos[0])) {
+    throw new Error('revisar(): los cotejos llegan sin `claim_text` — el select del llamador no trae las columnas que la regla del dorado necesita');
+  }
   const piezas = issue.pieces ?? [];
   const textos = textoDelNumero(issue);
 
@@ -87,6 +97,7 @@ export function revisar(issue = {}, contexto = {}) {
   // textuales. La traducida no puede coincidir con la guardada, porque la
   // guardada está en su idioma.
   const guardadas = new Map();          // texto normalizado → idioma del material
+  const parafrasis = new Set();         // reconocido pero NO citable (reportajes)
   for (const it of items) {
     for (const q of it.digest?.quotes ?? []) if (q?.text) guardadas.set(norm(q.text), it.lang ?? null);
     for (const c of it.digest?.claims ?? []) if (c?.claim) guardadas.set(norm(c.claim), it.lang ?? null);
@@ -98,18 +109,19 @@ export function revisar(issue = {}, contexto = {}) {
     if (it.title) guardadas.set(norm(it.title), 'en');
 
     // Un reportaje no tiene `claims` ni `thesis`: lo que trae es qué pasó, quién
-    // habló y qué cifras se publicaron. Sin registrarlo aquí, la primera vez que
-    // el número reprodujera una cifra literal el fusible la llamaría inventada —
-    // y este repo ya pagó dos veces la lección de que ACUSAR MAL ES PEOR QUE NO
-    // ACUSAR.
+    // habló y qué cifras se publicaron. Las cifras entran como citables — nunca
+    // llegan a cuatro palabras, así que no abren puerta a nada.
     //
-    // Van marcadas como inglés porque `what_happened`, `attributed[].what` y
-    // `figures[].figure` se piden en inglés SIEMPRE, sea cual sea el idioma del
-    // artículo: son paráfrasis, no cita. Las citas del reportaje siguen en su
-    // idioma y por eso siguen entrando arriba con el `lang` del material.
-    for (const a of it.digest?.attributed ?? []) if (a?.what) guardadas.set(norm(a.what), 'en');
+    // `what_happened` y `attributed[].what` van a un set APARTE, reconocido pero
+    // NO citable. La primera versión los metió en `guardadas` como inglés, y eso
+    // desarmaba la regla fundacional por la puerta de atrás: son PARÁFRASIS —y
+    // traducida, cuando el artículo no es inglés—, así que entrecomillar ocho
+    // palabras de ahí es el incidente que fundó el fusible, lavado por la vía
+    // del reportaje. Reconocerlas evita acusar de «inventada» a una cita que
+    // procede del material; no ser citables evita que pase por literal.
     for (const f of it.digest?.figures ?? []) if (f?.figure) guardadas.set(norm(f.figure), 'en');
-    if (it.digest?.what_happened) guardadas.set(norm(it.digest.what_happened), 'en');
+    for (const a of it.digest?.attributed ?? []) if (a?.what) parafrasis.add(norm(a.what));
+    if (it.digest?.what_happened) parafrasis.add(norm(it.digest.what_happened));
   }
 
   for (const t of textos) {
@@ -146,8 +158,18 @@ export function revisar(issue = {}, contexto = {}) {
       else for (const [g, l] of guardadas) if (encaja(g)) { hallada = true; idioma = l; break; }
 
       if (!hallada) {
-        falla('cita sin procedencia',
-          `«${cita.slice(0, 90)}» no aparece literal en el material de la semana`);
+        // Antes de acusar de inventada: ¿procede de una paráfrasis de reportaje?
+        // Entonces el fallo es otro y tiene su nombre — el texto existe, pero es
+        // el resumen en inglés de lo que alguien dijo, no sus palabras.
+        let deParafrasis = parafrasis.has(n);
+        if (!deParafrasis) for (const g of parafrasis) if (encaja(g)) { deParafrasis = true; break; }
+        if (deParafrasis) {
+          falla('cita de paráfrasis',
+            `«${cita.slice(0, 70)}» sale del resumen en inglés de un reportaje, no de palabras literales. Usarla sin comillas, con atribución.`);
+        } else {
+          falla('cita sin procedencia',
+            `«${cita.slice(0, 90)}» no aparece literal en el material de la semana`);
+        }
         continue;
       }
       // ── 2. Sin citas traducidas ──────────────────────────────────────────
@@ -254,7 +276,12 @@ export function revisar(issue = {}, contexto = {}) {
   // única cifra que dice si salir a buscar está sirviendo para algo, y sin
   // medirla la etapa entera podría estar funcionando en vacío durante semanas.
   const ids = contexto.ids instanceof Set ? contexto.ids : new Set(contexto.ids ?? []);
-  const habiaReportaje = items.some(it => it.origin === 'reportaje');
+  // Contra lo que VIO el modelo, no contra la tabla: la reserva de tokens puede
+  // recortar todos los reportes, y entonces el prompt no llevó bloque REPORTING
+  // — acusar a las piezas de ignorarlo sería medir contra un fantasma.
+  const habiaReportaje = contexto.reportaje_count !== undefined
+    ? contexto.reportaje_count > 0
+    : items.some(it => it.origin === 'reportaje');
   let sinReportaje = 0;
 
   for (const [i, p] of piezas.entries()) {

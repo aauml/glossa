@@ -280,31 +280,51 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       + ((e.con_error || 0) ? cifra(e.con_error, 'failed', true) : '');
 
     // Y debajo, en una línea, lo único que hay que decidir con esos números.
-    const dia = (iso) => new Date(iso).toISOString().slice(5, 10).replace('-', '/');
-    const ventana = `${dia(e.desde)}–${dia(e.hasta)}`;
-    nota.innerHTML = e.listos
+    // `hasta` es EXCLUSIVO — el primer instante que ya no entra—; el último día
+    // del número es la víspera. Pintado tal cual decía «08/16–08/23» para un
+    // número que cubre hasta el 22: la línea que existe para decidir el corte
+    // nombraba un día que no está en él.
+    const dia = (t) => new Date(t).toISOString().slice(5, 10).replace('-', '/');
+    const ventana = `${dia(e.desde)}–${dia(new Date(e.hasta).getTime() - 864e5)}`;
+    // Lo lanzado se recuerda FUERA de este HTML: la nota se repinta con cada
+    // refresco y un botón recién pintado es un botón rearmado — apretar «Cut
+    // now» dos veces encola dos corridas de Kimi de 15 minutos, y las dos se
+    // pagan.
+    const marca = (id, texto) => lanzado[id]
+      ? `<span class="admin-kind">${esc(texto)}</span>`
+      : '';
+    nota.innerHTML = (e.listos
       ? `Issue for <b>${esc(ventana)}</b>${e.parcial ? ' (week still open)' : ''} would use ` +
         `<b>${esc(e.listos)}</b>${porLeer ? `, leaving <b>${esc(porLeer)}</b> still unread out` : ''}. ` +
-        `<button class="admin-btn sec" id="st-cortar">Cut now</button>` +
-        // Sale solo si hay cola: un botón que no puede hacer nada es ruido.
-        (porLeer ? ` <button class="admin-btn sec" id="st-cola">Read the queue first</button>` : '')
-      : 'Nothing read yet for this week.';
+        (lanzado.corte ? marca('corte', 'cut launched · ~15 min') :
+          `<button class="admin-btn sec" id="st-cortar">Cut now</button>`)
+      : (porLeer ? `Nothing read yet for this week; <b>${esc(porLeer)}</b> waiting. ` : 'Nothing read yet for this week.'))
+      + (porLeer && e.listos !== undefined
+          ? (lanzado.cola ? ' ' + marca('cola', 'queue reading · reload in a few min')
+                          : ` <button class="admin-btn sec" id="st-cola">Read the queue first</button>`)
+          : '');
   }
 
   // El corte lo escribe un Action porque el modelo tarda ~15 min; esto solo
   // aprieta el botón. Es el mismo que el de la pestaña Weekly.
+  // Qué se ha lanzado ya en esta visita. Vive a nivel de módulo porque la nota
+  // se repinta y cualquier estado guardado en su HTML se pierde con ella.
+  const lanzado = { corte: 0, cola: 0 };
+
   delegar($('st-corte'), '#st-cortar', async (b) => {
     b.disabled = true; b.textContent = 'launching…';
     const r = await api('weekly.rebuild');
-    b.textContent = r.error ? 'failed' : 'launched · ~15 min';
+    if (r.error) { b.disabled = false; b.textContent = `failed: ${String(r.error).slice(0, 40)}`; return; }
+    lanzado.corte = 1; b.textContent = 'launched · ~15 min';
   });
 
   // El radar lee ~2 episodios cada 15 min porque eso es lo que cabe en una edge
-  // function. Esto llama a la misma función seguida y sube a ~60 por hora.
+  // function. Esto llama a la misma función seguida, con pausa entre vueltas.
   delegar($('st-corte'), '#st-cola', async (b) => {
     b.disabled = true; b.textContent = 'reading…';
     const r = await api('queue.drain');
-    b.textContent = r.error ? 'failed' : 'reading · reload in a few min';
+    if (r.error) { b.disabled = false; b.textContent = `failed: ${String(r.error).slice(0, 40)}`; return; }
+    lanzado.cola = 1; b.textContent = 'reading · reload in a few min';
   });
 
   async function pintarTripas() {

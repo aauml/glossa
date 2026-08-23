@@ -156,9 +156,9 @@ for (const s of rotas ?? []) {
 //     las últimas corridas no ve al que DEJÓ de correr — y GitHub apaga los
 //     horarios de un repo sin actividad.
 const MAL = new Set(['failure', 'cancelled', 'timed_out', 'startup_failure']);
-const CADENCIA_H = { 'glossa-weekly.yml': 24 * 8, 'glossa-cotejo.yml': 24 * 8,
-                     'glossa-reportaje.yml': 24 * 8,
-                     'glossa-monitores.yml': 30, 'glossa-consejo.yml': 24 * 8,
+const CADENCIA_H = { 'glossa-weekly.yml': 24 * 7, 'glossa-cotejo.yml': 24 * 7,
+                     'glossa-reportaje.yml': 24 * 7,
+                     'glossa-monitores.yml': 30, 'glossa-consejo.yml': 24 * 7,
                      'glossa-vigilante.yml': 8 };
 
 if (GH) {
@@ -208,8 +208,16 @@ if (GH) {
       }
 
       if (!hechas.length) continue;
-      const malas = hechas.filter(x => MAL.has(x.conclusion));
       if (!MAL.has(hechas[0].conclusion)) continue;
+
+      // Si hay una corrida EN CURSO, no se relanza nada: la última terminada
+      // puede ser el fallo de las 11:30 mientras el reintento de las 14:17
+      // sigue escribiendo — y `cancel-in-progress: false` ENCOLARÍA un tercero.
+      // Dos Kimi de 16 minutos sobre la misma semana, pagados los dos.
+      if (runs.some(x => x.status === 'in_progress' || x.status === 'queued')) {
+        console.log(`  · ${wf}: la última acabó mal pero hay una corrida en curso; se espera.`);
+        continue;
+      }
 
       // Un trabajo que falló se RELANZA. Contárselo a alguien para que le dé al
       // botón no es vigilar, es delegar hacia arriba: el vigilante tiene el
@@ -220,10 +228,18 @@ if (GH) {
       // justo lo contrario de vigilar.
       const yaIntentados = intentosPrevios(wf);
       if (yaIntentados < 3) {
+        // El semanal se relanza CON su fecha objetivo. Sin ella, el reintento
+        // recalcula la ventana con su propio reloj: un domingo que muere a
+        // última hora y se reintenta pasada la medianoche escribiría un parcial
+        // de un día de la semana SIGUIENTE, lo registraría como éxito, y la
+        // semana que de verdad falló no se escribiría nunca.
+        const entradas = wf === 'glossa-weekly.yml'
+          ? { week_end: String(hechas[0].created_at).slice(0, 10) }
+          : {};
         const d = await fetch(
           `https://api.github.com/repos/${REPO}/actions/workflows/${wf}/dispatches`,
           { method: 'POST', headers: { ...cab, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ref: 'main' }) });
+            body: JSON.stringify({ ref: 'main', inputs: entradas }) });
         await registrarIntento(wf, yaIntentados + 1, d.ok);
         console.log(d.ok
           ? `  ↻ ${wf}: acabó en «${hechas[0].conclusion}» — relanzado (intento ${yaIntentados + 1} de 3)`

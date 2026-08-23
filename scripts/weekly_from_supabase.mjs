@@ -47,7 +47,15 @@ async function sb(path, init = {}) {
 //                oficial, el que corre solo de madrugada.
 //   otro día   → de este domingo hasta ahora. Es un corte parcial, para ver cómo
 //                va, y pisa siempre la MISMA fila; el domingo lo cierra.
+// `WEEK_END` significa «finge que hoy es X». Solo un domingo produce un corte
+// OFICIAL; cualquier otro día produce un parcial de la semana de esa fecha. Se
+// valida aquí porque una fecha imparseable moría más abajo con un RangeError
+// pelado, antes de cualquier mensaje útil.
 const ahora  = process.env.WEEK_END ? new Date(process.env.WEEK_END) : new Date();
+if (Number.isNaN(ahora.getTime())) {
+  console.error(`WEEK_END no es una fecha: «${process.env.WEEK_END}». Formato: YYYY-MM-DD, y un domingo para un corte oficial.`);
+  process.exit(1);
+}
 const hoy    = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()));
 const PARCIAL = hoy.getUTCDay() !== 0;
 
@@ -97,16 +105,19 @@ const canal = x => x.glossa_radar_sources?.name || '—';
 // Se le da calculado. Cuando se le dejó inferirlo, acertó dos nombres de tres:
 // el tercero era el copresentador del canal, no un invitado que rotara. Contar
 // es trabajo de código; interpretar es trabajo del modelo.
-// Los tres recuentos van sobre `episodios`, no sobre `items`: son hechos sobre
-// EL CORO. Un reportaje no viene por un canal, así que contarlo aquí metería una
-// fila fantasma en la tabla de concentración y diluiría la cifra que importa.
+// Los tres recuentos de procedencia van sobre EL CORO: solo `origin='feed'`.
+// `episodios` incluye también lo pegado y los hallazgos de monitores, y contarlos
+// aquí metía una fila fantasma — «Mexico politics» salía como canal con un
+// episodio, y un pegado aparecía en la lista de invitados cruzados como un canal
+// llamado «—».
+const coro = episodios.filter(x => x.origin === 'feed');
 const porCanal = {};
-for (const x of episodios) porCanal[canal(x)] = (porCanal[canal(x)] || 0) + 1;
+for (const x of coro) porCanal[canal(x)] = (porCanal[canal(x)] || 0) + 1;
 const concentracion = Object.entries(porCanal).sort((a, b) => b[1] - a[1])
-  .filter(([, n]) => n > 1).map(([c, n]) => `${n} of the ${episodios.length} episodes came through ${c}`);
+  .filter(([, n]) => n > 1).map(([c, n]) => `${n} of the ${coro.length} episodes came through ${c}`);
 
 const donde = {};
-for (const x of episodios) {
+for (const x of coro) {
   const nombres = (x.digest?.speakers?.length ? x.digest.speakers : [x.author]).filter(Boolean);
   for (const raw of nombres) {
     const nom = String(raw).split(/[(,]/)[0].trim();
@@ -120,7 +131,7 @@ const cruzan = Object.entries(donde).filter(([, s]) => s.size > 1)
 // Un mismo canal descargando todo el mismo día es una señal distinta a
 // publicar repartido: indica una tanda editorial, no una semana de noticias.
 const porDia = {};
-for (const x of episodios) {
+for (const x of coro) {
   const k = `${canal(x)}|${String(x.published_at).slice(0, 10)}`;
   porDia[k] = (porDia[k] || 0) + 1;
 }
@@ -186,9 +197,17 @@ if (temas?.length) {
 // Los cotejos del sábado, indexados por episodio y posición de la afirmación.
 // El número los recibe como HECHOS, no como sugerencias: los decidió el código y
 // una pasada aparte, y volver a juzgarlos aquí sería deshacer el trabajo.
+// `claim_text` y `title` NO son opcionales: el fusible construye de ahí el
+// vocabulario que justifica cada dorado. Faltaban, la normalización degradaba a
+// un set vacío, y TODO dorado habría levantado «dorado sin cotejo» — la regla
+// central llevaba muerta desde su commit sin haberse disparado ni una vez.
+//
+// Y la ventana es la de la semana, no «10 días hacia atrás»: aquello alcanzaba
+// DOS corridas de sábado, `cotejo_count` exageraba el doble, y un dorado de esta
+// semana podía justificarse con un cotejo de la pasada.
 const cotejos = await sb(
-  `glossa_radar_cotejos?select=item_id,claim_idx,verdict,verdict_reason,url,source_domain,` +
-  `published_date,independence&created_at=gte.${new Date(Date.now() - 10 * 864e5).toISOString()}&limit=500`);
+  `glossa_radar_cotejos?select=item_id,claim_idx,claim_text,title,verdict,verdict_reason,url,source_domain,` +
+  `published_date,independence&created_at=gte.${desde.toISOString()}&limit=500`);
 // Cómo le ha ido a cada fuente cuando se la ha comprobado. Es un recuento, no un
 // juicio, y es lo único que ninguna lectura del canal puede dar: «de 7
 // afirmaciones comprobadas, ninguna documentada, 1 contradicha».
@@ -290,6 +309,15 @@ for (const [orden, x] of ordenados.entries()) {
   const n = JSON.stringify(f).length / 4;
   if (coste + n > TOPE_TOKENS) { dejadosFuera.push(x); continue; }
   material.push(f); coste += n;
+}
+
+// El mapa de ids se poda a lo que ENTRÓ. `ficha()` lo llenó para los ~290
+// elementos traídos, pero el modelo solo vio los que cupieron: un id alucinado
+// dentro del rango habría pintado un enlace ↗ a un episodio que la pieza no usó,
+// y el fusible lo habría dado por bueno.
+{
+  const vistos = new Set([...material, ...reportaje].map(f => f.id));
+  for (const k of [...idCorto.keys()]) if (!vistos.has(k)) idCorto.delete(k);
 }
 
 // Un recorte silencioso se lee igual que "lo cubrimos todo". Si sobra material,
@@ -581,10 +609,20 @@ const [actual] = await sb(`glossa_radar_weekly?select=id,topic_count,state,parci
 if (actual && actual.state === 'publicado') {
   console.log('Ya hay un número PUBLICADO para esta semana; no se toca.'); process.exit(0);
 }
-// Un corte parcial NUNCA debe ganarle al oficial. La comparación por número de
-// piezas se hizo para que una pasada a medias no pisara un número completo, y
-// sigue valiendo — pero solo entre cortes del mismo tipo. El del domingo cierra
-// la semana y sustituye a los parciales aunque traiga menos piezas.
+// La compuerta de pisado, asimétrica de verdad:
+//
+//   parcial  → oficial   NUNCA. Antes esta celda pisaba siempre, y era alcanzable
+//                        con el WEEK_END que la propia ayuda del workflow
+//                        sugería: «el día siguiente al último» daba un sábado,
+//                        el sábado es parcial, y el parcial machacaba el número
+//                        oficial ya escrito.
+//   oficial  → parcial   siempre: el domingo cierra la semana.
+//   mismo    → mismo     gana el de más piezas (una pasada a medias ya pisó una
+//                        completa una vez; no se repite).
+if (actual && PARCIAL && !actual.parcial) {
+  console.log('Ya existe el número OFICIAL de esta semana; un corte parcial no lo toca.');
+  process.exit(0);
+}
 if (actual && PARCIAL === !!actual.parcial && (actual.topic_count || 0) > secciones.length) {
   console.log(`El número existente tiene ${actual.topic_count} piezas y esta pasada armó ${secciones.length}; se conserva el bueno.`);
   process.exit(0);
@@ -592,7 +630,8 @@ if (actual && PARCIAL === !!actual.parcial && (actual.topic_count || 0) > seccio
 
 // El fusible, antes de guardar. Corre igual aquí, junto al botón de publicar y
 // en la vía automática: si los tres no dan el mismo veredicto, no sirve de nada.
-const veredicto = revisar(numero, { items, cotejos: cotejos ?? [], ids: new Set(idCorto.keys()) });
+const veredicto = revisar(numero, { items, cotejos: cotejos ?? [], ids: new Set(idCorto.keys()),
+                                    reportaje_count: reportaje.length });
 const graves = veredicto.fallos.filter(f => f.grave);
 console.log(graves.length
   ? `  fusible: ${graves.length} fallo(s) grave(s) — no puede publicarse solo`
@@ -627,7 +666,13 @@ await sb('glossa_radar_weekly?on_conflict=week_start', {
 // se puede saltar por aquí — una persona sí puede publicar igualmente desde el
 // panel, la automatización no. Esa asimetría es el diseño: quien lee sabe cosas
 // que el fusible no.
-if (ajus.auto_publish === true) {
+if (ajus.auto_publish === true && PARCIAL) {
+  // La condición existe por su cola, no por el bochorno: un parcial publicado
+  // deja `state='publicado'`, y el domingo siguiente el guion ve eso y NO
+  // escribe el número real de la semana. Nadie lo notaría — el vigilante solo
+  // comprueba que la fila exista.
+  console.log('Corte parcial: no se publica solo aunque el fusible pase. El oficial del domingo decide.');
+} else if (ajus.auto_publish === true) {
   if (graves.length) {
     console.log(`No se publica solo: el fusible marcó ${graves.length} fallo(s). Espera en el panel.`);
   } else {

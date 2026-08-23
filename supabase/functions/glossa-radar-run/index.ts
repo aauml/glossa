@@ -132,12 +132,35 @@ Deno.serve(async (req) => {
   }
 
   // ── 3. Digerir ──────────────────────────────────────────────────────────
-  const { data: pend } = await sb.from('glossa_radar_items')
-    .select('id,title,author,url,body_text,origin,source_id,glossa_radar_sources(kind)')
-    .eq('state', 'pending').order('published_at', { ascending: false }).limit(8);
+  // La ventana de la semana PRIMERO, y dentro de ella lo más viejo primero.
+  //
+  // Antes era «lo más nuevo primero, sin ventana», y el domingo eso invertía
+  // las prioridades: lo publicado hoy —que pertenece al número de la semana QUE
+  // VIENE— se leía antes que el atraso de la semana que cierra a las 10:00. El
+  // guion de la cola, que mide por ventana, veía su contador quieto y concluía
+  // «roto» tras pagar seis lecturas de material del número equivocado. La
+  // ventana la da `glossa_semana_actual()`: una definición, tres consumidores.
+  const CAMPOS = 'id,title,author,url,body_text,origin,source_id,glossa_radar_sources(kind)';
+  const { data: ven } = await sb.rpc('glossa_semana_actual');
+  const v = ven?.[0];
+  let pend: any[] = [];
+  if (v) {
+    const { data: dentro } = await sb.from('glossa_radar_items')
+      .select(CAMPOS).eq('state', 'pending')
+      .gte('published_at', v.desde).lt('published_at', v.hasta)
+      .order('published_at', { ascending: true }).limit(8);
+    pend = dentro ?? [];
+  }
+  if (pend.length < 8) {
+    const { data: resto } = await sb.from('glossa_radar_items')
+      .select(CAMPOS).eq('state', 'pending')
+      .order('published_at', { ascending: false }).limit(8);
+    const ya = new Set(pend.map((x: any) => x.id));
+    for (const r of resto ?? []) if (!ya.has(r.id) && pend.length < 8) pend.push(r);
+  }
 
   const hechos: string[] = [];
-  for (const item of pend ?? []) {
+  for (const item of pend) {
     // Un episodio tarda ~26 s; si no cabe entero, mejor dejarlo en cola que
     // cortarlo a la mitad y dejar la fila en 'running' para siempre.
     // 35 s para el resumen + 15 s para clasificarlo acto seguido. Si no caben
@@ -158,8 +181,14 @@ Deno.serve(async (req) => {
     // por el dato.
     const esTexto = !!item.body_text;
     try {
-      await sb.from('glossa_radar_items')
-        .update({ state: 'running', started_at: new Date().toISOString() }).eq('id', item.id);
+      // Reclamo CONDICIONAL. El cron dispara cada 15 min y la cola puede estar
+      // llamando a la vez: dos pasadas seleccionaban los mismos ocho y ambas
+      // pagaban a Gemini por los mismos episodios. Si otro ya lo marcó
+      // `running`, este update no devuelve fila y se pasa al siguiente.
+      const { data: mio } = await sb.from('glossa_radar_items')
+        .update({ state: 'running', started_at: new Date().toISOString() })
+        .eq('id', item.id).eq('state', 'pending').select('id');
+      if (!mio?.length) continue;
 
       const parte = esTexto
         ? { text: `CONTENIDO:\n${String(item.body_text).slice(0, 200_000)}` }
