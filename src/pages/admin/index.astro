@@ -60,6 +60,9 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       <summary>Under the hood</summary>
       <div style="margin-top:20px">
         <p class="admin-nota" id="st-gasto"></p>
+        <p class="admin-nota" id="st-cupo" style="margin-top:8px"></p>
+        <div id="st-mandos" class="admin-mandos"></div>
+        <div id="st-reparto" class="admin-reparto"></div>
         <p class="admin-nota" id="st-cotejo" style="margin-top:8px"></p>
         <div id="con-lista" style="margin-top:20px"></div>
         <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
@@ -369,6 +372,61 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
             V[u.proveedor]?.[1] && g.topes[V[u.proveedor][1]] ? `/${g.topes[V[u.proveedor][1]]}` : ''}${
             (V[u.proveedor] || [, , '/mo'])[2]}`).join('  ·  ');
     }
+    // ── El cupo, y los mandos para moverlo ────────────────────────────────
+    //
+    // Lo que se enseña no es «cuánto llevamos gastado» sino «cuánto queda y a
+    // dónde va». La cifra de Tavily la anota el guion del reportaje al pasar,
+    // así que se dice cuándo se vio: un número de hace nueve días no es el cupo,
+    // es el cupo de hace nueve días.
+    if (!g.error && g.tavily) {
+      const t = g.tavily;
+      const edad = Math.floor((Date.now() - new Date(t.visto)) / 3600e3);
+      $('st-cupo').innerHTML =
+        `<strong>${t.restantes} of ${t.tope} Tavily credits left</strong> · renews in ${t.dias_para_renovar} d · ` +
+        `${t.busquedas_semana} searches allotted this week · ${t.otros_por_semana}/wk goes to cross-checks and monitors` +
+        `<span class="admin-tenue"> — seen ${edad < 1 ? 'just now' : edad + ' h ago'}</span>`;
+    } else if (!g.error) {
+      $('st-cupo').textContent = 'Tavily quota not read yet — it is recorded by the reporting job when it runs.';
+    }
+
+    if (!g.error && g.mandos) {
+      const M = [
+        ['reportaje_temas_barrido',    'Topics swept',    'How many topics go out to Google News. Free — this one costs nothing to raise.'],
+        ['reportaje_busquedas_semana', 'Weekly ceiling',  'Hard cap on paid searches per week. The real number is usually lower: it is whatever the remaining quota divided by the remaining weeks allows.'],
+        ['reportaje_entran_semana',    'Reports kept',    'How many outside reports may enter one issue.'],
+      ];
+      $('st-mandos').innerHTML = M.map(([k, etq, ayuda]) => `
+        <label class="admin-mando" title="${esc(ayuda)}">
+          <span>${etq}</span>
+          <input type="number" min="0" max="500" data-clave="${k}" value="${esc(String(g.mandos[k] ?? ''))}">
+        </label>`).join('');
+      for (const inp of $('st-mandos').querySelectorAll('input')) {
+        inp.addEventListener('change', async () => {
+          const r = await api('settings.set', { key: inp.dataset.clave, value: Number(inp.value) });
+          msg(r.error ? `No se pudo guardar: ${r.error}` : `${inp.dataset.clave} = ${inp.value}`);
+        });
+      }
+    }
+
+    // A dónde fue el dinero, y por qué. Una fila con cero búsquedas y
+    // `corroborado_gratis` es un acierto —el barrido lo confirmó sin pagar—, no
+    // un hueco; se pinta distinta para que no se lea como un fallo.
+    if (!g.error && g.reparto?.length) {
+      const sem = g.reparto[0].semana;
+      const filas = g.reparto.filter(r => r.semana === sem);
+      $('st-reparto').innerHTML =
+        `<p class="admin-nota" style="margin-top:10px">Where the week of ${esc(sem)} spent its searches</p>` +
+        '<table class="admin-tabla"><tbody>' + filas.map(r => `
+          <tr class="${r.cuota === 0 ? 'admin-gratis' : ''}">
+            <td>${esc(r.label)}</td>
+            <td class="admin-num">${r.medios ?? '—'} outlets</td>
+            <td class="admin-num">${r.paises ?? '—'} countries</td>
+            <td class="admin-num">${r.acuerdo == null ? '—' : r.acuerdo}</td>
+            <td class="admin-num">${r.busquedas}/${r.cuota}</td>
+            <td class="admin-tenue">${esc(r.paro || r.urgencia || '')}</td>
+          </tr>`).join('') + '</tbody></table>';
+    }
+
     if (!c.error) {
       const n = {};
       for (const x of c.cotejos) n[x.verdict] = (n[x.verdict] || 0) + 1;

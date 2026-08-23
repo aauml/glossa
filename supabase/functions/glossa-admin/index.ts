@@ -849,15 +849,40 @@ Deno.serve(async (req) => {
       }
 
       case 'budget': {
-        const [{ data: gasto }, { data: ajus }] = await Promise.all([
+        // El cupo de Tavily NO se pregunta desde aquí: lo anota el guion del
+        // reportaje al pasar, en `tavily_estado`. Darle la clave al panel para
+        // que preguntara él habría expuesto un secreto más para obtener la misma
+        // cifra. La fecha va al lado para que una cifra rancia se vea rancia.
+        const [{ data: gasto }, { data: ajus }, { data: reps }] = await Promise.all([
           db.rpc('glossa_radar_presupuesto'),
           db.from('glossa_radar_settings').select('key,value'),
+          db.from('glossa_radar_reportajes')
+            .select('label,busquedas,entran,cuota,urgencia,barrido,paro,week_start')
+            .order('week_start', { ascending: false }).limit(30),
         ]);
+        const set = Object.fromEntries((ajus ?? [])
+          .map((r: { key: string; value: unknown }) => [r.key, r.value]));
         return ok({
           uso: gasto ?? [],
-          topes: Object.fromEntries((ajus ?? [])
-            .filter((r: { key: string }) => r.key.startsWith('cap_'))
-            .map((r: { key: string; value: unknown }) => [r.key, r.value])),
+          topes: Object.fromEntries(Object.entries(set).filter(([k]) => k.startsWith('cap_'))),
+          tavily: set.tavily_estado ?? null,
+          // Los mandos que se suben y se bajan a mano. Van con el resto para que
+          // quien mira el gasto pueda cambiarlo sin irse a otra pantalla.
+          mandos: {
+            reportaje_temas_barrido:   set.reportaje_temas_barrido ?? null,
+            reportaje_busquedas_semana: set.reportaje_busquedas_semana ?? null,
+            reportaje_entran_semana:   set.reportaje_entran_semana ?? null,
+          },
+          // A dónde se fue el dinero y por qué. Un tema con cero búsquedas y
+          // `corroborado_gratis` es un acierto, no un hueco.
+          reparto: (reps ?? []).map((r: Record<string, unknown>) => ({
+            label: r.label, semana: r.week_start, cuota: r.cuota,
+            busquedas: r.busquedas, entran: r.entran, paro: r.paro,
+            urgencia: (r.urgencia as { nivel?: number; porque?: string })?.porque ?? null,
+            medios: (r.barrido as { medios?: number })?.medios ?? null,
+            paises: (r.barrido as { paises?: string[] })?.paises?.length ?? null,
+            acuerdo: (r.barrido as { acuerdo?: number })?.acuerdo ?? null,
+          })),
         });
       }
 

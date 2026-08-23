@@ -28,6 +28,7 @@ vista y la decisión parece arbitraria.
 | D-020 | 2026-08-23 | Revista | Las ediciones tienen país: México y Estados Unidos | vigente |
 | D-021 | 2026-08-23 | Revista | Se cuenta la noticia, no quién la dijo | vigente |
 | D-022 | 2026-08-23 | Revista | Traducir con cascada verificada, no con el mejor modelo | vigente |
+| D-023 | 2026-08-23 | Radar | El censo es gratis; lo de pago es la excepción | vigente |
 
 ---
 
@@ -379,3 +380,47 @@ Dos cosas que esto ordena de paso:
 
 Primera corrida real: Gemini, gratis, diecisiete segundos, citas intactas. De
 $0,094 a $0,00.
+
+## D-023 · El censo es gratis; lo de pago es la excepción
+
+Las fuentes seguidas dan **los temas**, no el material. Sobre cada tema hay que
+salir a la calle, en cualquier idioma y país, y solo escribir después. Como la
+lista de fuentes va a seguir creciendo, el coste por asunto tenía que bajar solo:
+un tope escrito a mano —«24 búsquedas por semana»— envejece en cuanto se añade la
+fuente número treinta y cuatro.
+
+**La salida es que la anchura no cueste.** Se hace en dos capas:
+
+**1 · El censo, gratis, sobre TODOS los temas.** Lo hace la API DOC de GDELT: sin
+clave, sin cuenta y sin cupo. Una sola consulta devolvió 250 artículos de 213
+medios, unos treinta países y diez idiomas — y con la URL real, así que el texto
+se lee gratis. Google News RSS queda de reserva para cuando GDELT no contesta
+(su límite de una petición cada cinco segundos es duro).
+
+**2 · La profundidad, de pago, racionada por lo que dijo el censo.** Se le
+pregunta a Tavily cuánto cupo queda de verdad, se divide entre las semanas que
+faltan, se descuenta lo que cotejo y monitores consumen, y lo que sale se reparte
+entre los temas **en proporción a lo que el censo dijo que falta comprobar**. Un
+tema que cuarenta medios de cinco países cuentan igual se lleva **cero**: ya está
+corroborado y pagar por confirmarlo otra vez no compra nada. Ese cero es lo que
+financia los temas de los que nadie más ha escrito.
+
+*Lo que se descartó, y por qué.* Gemini con búsqueda de Google incorporada: 429,
+no entra en el tramo gratuito. DuckDuckGo: contesta 200 y devuelve cero enlaces a
+un robot. SerpAPI: demanda DMCA de Google de diciembre de 2025 — no se construye
+sobre eso. Brave (índice propio, independiente de Google) y Exa (semántico) se
+dejan para más adelante, y por un motivo concreto: lo que aportarían no es más
+volumen sino **un índice que no comparte origen**, y eso solo hace falta el día
+que se demuestre que un censo único se está dejando cosas.
+
+*Lo que esto NO autoriza.* Ni GDELT ni Google News son fuentes citables. Dan
+dónde mirar. Lo que se cite sale del texto del medio, leído y digerido como
+cualquier otro, con las mismas reglas de [[D-010]] y D-018.
+
+*El comité lo revisó* y puso una objeción que se acepta: comparar titulares por
+palabras compartidas es señal débil —el parafraseo y el reescrito por SEO la
+rompen— y lo suyo sería extraer afirmaciones y alinearlas con embeddings
+multilingües. Es correcto y queda como etapa siguiente; que GDELT traiga el texto
+es justo lo que la hace posible. Mientras tanto la señal se usa solo para decidir
+**dónde gastar**, nunca para afirmar que algo está corroborado — un umbral que se
+equivoca cuesta unos créditos, no una frase falsa en el número.

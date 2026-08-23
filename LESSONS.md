@@ -18,6 +18,62 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Un tope que me inventé yo no es el tope del proveedor
+_Applies to: general_
+
+**Síntoma** — Se estaba racionando Tavily contra un límite de 600 al mes y
+midiendo el consumo con un contador propio. Al preguntarle a Tavily: el plan son
+**1.000**, y lo gastado eran **117**, no los 74 que decía mi cuaderno.
+**Causa** — Las dos cifras eran mías. El tope me lo inventé por prudencia y el
+contador solo veía las llamadas que pasaban por mi función de apunte; las de las
+pruebas no.
+**Arreglo** — Preguntar al proveedor por su propio consumo (`/usage`) y repartir
+sobre eso.
+
+Lo general: **un presupuesto que se mide contra su propio apunte se pasa sin
+enterarse, y se queda corto sin motivo.** Si el proveedor publica lo que llevas
+gastado, esa es la cifra; la tuya es una estimación que se llama igual.
+
+### Un índice de noticias hace Y lógico con todas las palabras
+_Applies to: general_
+
+**Síntoma** — El censo devolvía cero notas en tema tras tema. La consulta era
+«Hormuz Strait traffic volume cargo».
+**Causa** — Se le estaba dando a un índice de titulares la consulta escrita para
+un buscador semántico. Cinco palabras exigen las cinco en el mismo titular, y
+ningún titular las tiene. Con tres —«sanciones Irán Trump»— salieron 100 notas de
+55 medios.
+**Arreglo** — Dos consultas distintas para dos herramientas distintas: la larga
+para el buscador de pago, tres palabras para el censo. Y si tres no encuentran
+nada, se prueba con dos, que no cuesta.
+
+Lo general: **una consulta no es portátil entre buscadores.** Reutilizar la del
+otro es la forma barata de concluir que no hay nada.
+
+### «No pregunté» y «pregunté y no hay» piden cosas opuestas
+_Applies to: general_
+
+**Síntoma** — Los temas cuyo censo devolvía cero salían marcados «nadie más lo
+contó», que es la urgencia máxima: se les habría ido el presupuesto entero
+justamente a los temas cuya comprobación había fallado.
+**Causa** — La función solo recibía los resultados, no si se había llegado a
+preguntar. Cero resultados y cero preguntas eran el mismo valor.
+**Arreglo** — Devolver también qué se consultó, y separar los dos casos: sin
+consultas es «no medido», con consultas y sin notas es «nadie fuera».
+
+**Y hubo segunda parte, que es la que importa.** Arreglado GDELT, la reserva de
+Google News seguía haciendo `if (!r.ok) return []`. Google contestó **503** a una
+IP que había consultado demasiado en una tarde de pruebas, y el sistema lo leyó
+como que nadie en el mundo había escrito del asunto. Peor sitio no podía tener:
+la reserva es lo que se usa **cuando lo otro ya falló**, así que el fallo se
+manifestaba justo cuando no quedaba nada más que mirar.
+
+Lo general: es [[una regla que nunca se ha disparado es una regla sin probar]]
+con otra cara — **una comprobación que no corrió no puede parecerse a una que
+pasó**, y menos si de eso depende adónde va el dinero. Y el corolario que costó
+descubrir dos veces: **arreglar el camino principal y no el de reserva es no
+haberlo arreglado.** Cuando un fallo es de una clase, se busca la clase entera.
+
 ### Rigor que produce un texto ilegible es rigor mal puesto
 _Applies to: LLM_
 

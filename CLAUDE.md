@@ -48,6 +48,18 @@ resources:
     implemented_in: .github/workflows/glossa-publish.yml
     conforms_to: [STANDARD-DOC-ENTRYPOINT, STANDARD-PUBLISHED-OUTPUT]
   research_sources:
+    - provider: GDELT
+      capability: search / benchmarking
+      notes: censo mundial de prensa, 65 idiomas, sin clave ni cupo (1 petición/5 s).
+             Es la capa de ANCHURA - una consulta devolvió 250 articulos de 213
+             medios y ~30 paises, con la URL real, asi que el texto se lee gratis.
+             Lo de pago (Tavily) queda para lo que esto no alcanza. Ver D-023
+      implemented_in: src/lib/gdelt.mjs
+    - provider: Google News RSS
+      capability: search / benchmarking
+      notes: reserva del censo cuando GDELT no contesta. Sin clave ni cupo, 58
+             pares pais/idioma, pero solo titular y medio - el enlace va cifrado
+      implemented_in: src/lib/gnews.mjs
     - provider: OpenAlex
       capability: search / benchmarking
       implemented_in: scripts/research_from_supabase.mjs

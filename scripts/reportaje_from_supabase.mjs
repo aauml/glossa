@@ -23,7 +23,12 @@
 //
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, TAVILY_API_KEY, GEMINI_API_KEY.
 
-import { ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe } from '../src/lib/presupuesto.js';
+import {
+  ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe,
+  estadoTavily, diasHastaReset, reparto, repartirEntreTemas, otrosGastos,
+} from '../src/lib/presupuesto.js';
+import { barrido, lectura, urgencia, BASE, LOCALES } from '../src/lib/gnews.mjs';
+import { censo, gdeltVivo } from '../src/lib/gdelt.mjs';
 import { promptConsultas, promptReporte } from './prompts_reportaje.mjs';
 import {
   dominio, huellaUrl, fichas, jaccard,
@@ -88,18 +93,23 @@ console.log(`Reportaje · ventana ${desde.toISOString().slice(0,10)} → ${finDi
 // ── Presupuesto ──────────────────────────────────────────────────────────
 const ajus  = await ajustes(URL_SB, KEY);
 const gasto = await gastoActual(URL_SB, KEY);
-const TOPE_SEMANA = Number(ajus.reportaje_busquedas_semana ?? 24);
-// Una ronda a los mejores primero: es la forma más barata de averiguar CUÁLES
-// divergen, y sólo entonces se gasta el resto en los que lo hacen.
-const TEMAS_RONDA1 = Number(process.env.REPORTAJE_TEMAS) ||
-                     Math.max(1, Math.floor(TOPE_SEMANA / 4));
+// Los topes ya no son el motor, son el techo. Lo que decide cuánto se gasta es
+// el cupo real que queda en Tavily repartido entre las semanas que faltan, y lo
+// que decide DÓNDE se gasta es el barrido gratis de más abajo. Un tope escrito a
+// mano envejece en cuanto se añade la fuente número treinta y cuatro; el reparto
+// no.
+const TOPE_SEMANA_MAX = Number(ajus.reportaje_busquedas_semana ?? 60);  // búsquedas
 const RONDAS_MAX   = 3;
-const POR_TEMA_MAX = 3;          // reportajes que entran por tema
-const TOTAL_MAX    = 12;         // reportajes que entran en la semana
+const POR_TEMA_MAX = 3;          // reportajes que ENTRAN por tema
+const TOTAL_MAX    = Number(ajus.reportaje_entran_semana ?? 24);
 
 let busquedas = 0;
+let CUOTA_TEMA = 0;              // lo fija el reparto, tema a tema
+let busquedasTema = 0;
 const quedaBusqueda = () =>
-  busquedas < TOPE_SEMANA && cabe(gasto, ajus, 'tavily', 'cap_tavily_mes', 'mes');
+  busquedasTema < CUOTA_TEMA &&
+  busquedas < TOPE_SEMANA_MAX &&
+  cabe(gasto, ajus, 'tavily', 'cap_tavily_mes', 'mes');
 const quedaGemini = () => cabe(gasto, ajus, 'gemini', 'cap_gemini_dia', 'hoy');
 
 // ── Los temas ────────────────────────────────────────────────────────────
@@ -108,7 +118,7 @@ const temas = await sb('rpc/glossa_radar_temas_semana', {
   body: JSON.stringify({ desde: desde.toISOString(), hasta: finDia.toISOString() }),
 });
 if (!temas?.length) { console.log('Ningún tema reunió material esta semana.'); process.exit(0); }
-console.log(`${temas.length} temas con material; se sale a buscar sobre los ${TEMAS_RONDA1} mayores`);
+console.log(`${temas.length} temas con material.`);
 
 // Los dominios de las fuentes seguidas: buscar y encontrarse a uno mismo no es
 // salir a ningún sitio.
@@ -143,7 +153,7 @@ async function buscar(q) {
   // corrida entera habría concluido «no había más que divergiera» cuando lo
   // cierto era que nada funcionó. `advanced` cuesta dos créditos, y se apunta
   // también en la copia local: el contador de `cabe()` es una foto del arranque.
-  busquedas++;
+  busquedas++; busquedasTema++;
   await apuntar(URL_SB, KEY, 'tavily', 2);
   apuntarLocal(gasto, 'tavily', 2);
   return (await r.json()).results ?? [];
@@ -224,7 +234,15 @@ async function proponerConsultas(tema, material, pista, vistos) {
   const etiqueta = String(tema.label).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
   const consultas = (out.queries ?? [])
-    .map(q => ({ q: String(q.q ?? '').trim().slice(0, 380), lang: String(q.lang ?? 'en').slice(0, 2) }))
+    .map(q => ({ q: String(q.q ?? '').trim().slice(0, 380),
+                 lang: String(q.lang ?? 'en').slice(0, 2),
+                 // El modelo devuelve `terms` como texto unas veces y como lista
+                 // otras. Sin esto, la lista se volvía «Trump,Iran,Hormuz», la
+                 // limpieza se comía las comas y quedaba una palabra pegada que
+                 // no existe en ningún titular: cero notas, y el barrido
+                 // concluyendo «nadie lo cubrió».
+                 terms: (Array.isArray(q.terms) ? q.terms.join(' ') : String(q.terms ?? ''))
+                          .trim().slice(0, 80) }))
     // Una consulta que es la etiqueta con puntuación no es una consulta: es lo
     // que ya sabíamos, y devuelve teletipo.
     .filter(q => q.q.length > 8 &&
@@ -353,27 +371,19 @@ function medir(entradas) {
   };
 }
 
-// ── Corrida ──────────────────────────────────────────────────────────────
-const partes = [];
-let entranTotal = 0;
-
-for (const tema of temas.slice(0, TEMAS_RONDA1)) {
-  if (entranTotal >= TOTAL_MAX) { console.log('Tope de reportajes de la semana alcanzado.'); break; }
-  if (!quedaBusqueda()) { console.log('Tope de búsquedas alcanzado.'); break; }
-
-  console.log(`\n▸ ${tema.label}  (${tema.n_items} elem., ${tema.n_canales} canales)`);
-
-  // El ángulo sale de lo CONCRETO. La etiqueta —«Security dynamics in the Middle
-  // East»— es una abstracción del clasificador y buscarla no devuelve nada
-  // aprovechable; lo que se puede buscar son las cifras, los nombres y las
-  // fechas que dijeron los canales.
+// ── El material concreto de un tema ──────────────────────────────────────
+//
+// El ángulo sale de lo CONCRETO. La etiqueta —«Security dynamics in the Middle
+// East»— es una abstracción del clasificador y buscarla no devuelve nada
+// aprovechable; lo que se puede buscar son las cifras, los nombres y las fechas
+// que dijeron los canales.
+async function materialDe(tema) {
   const suyos = await sb(
     `glossa_radar_item_topics?select=item_id&topic_id=eq.${tema.topic_id}&limit=200`);
   const ids = (suyos ?? []).map(x => x.item_id);
   const elementos = ids.length ? await sb(
     `glossa_radar_items?select=digest,published_at&id=in.(${ids.slice(0, 100).join(',')})` +
     `&state=eq.digested&origin=eq.feed&order=published_at.desc&limit=8`) : [];
-
   const material = [];
   for (const e of elementos) {
     if (e.digest?.thesis) material.push(e.digest.thesis);
@@ -381,6 +391,150 @@ for (const tema of temas.slice(0, TEMAS_RONDA1)) {
       if (c.checkable && c.claim) material.push(c.claim);
     }
   }
+  return material;
+}
+
+// ── Fase 1 · La anchura, que no cuesta ───────────────────────────────────
+//
+// TODOS los temas salen a la calle, no los seis mayores. Puede hacerse porque
+// esta pasada no gasta cupo: Google News RSS no cobra, no pide clave y no tiene
+// tope. Lo que devuelve es el censo —quién cubrió el asunto, desde qué país y
+// con qué titular— y no el texto, que va cifrado.
+//
+// Y eso es exactamente lo que hace falta aquí, porque la pregunta de esta fase
+// no es «¿qué dijeron?» sino «¿merece la pena pagar por leerlo?». Si cuarenta
+// medios de cinco países titulan lo mismo, el asunto ya está corroborado y
+// comprarlo otra vez no compra nada. Ese cero es lo que financia a los temas de
+// los que nadie más ha escrito.
+
+const TEMAS_BARRIDO = Number(process.env.REPORTAJE_TEMAS) ||
+                      Number(ajus.reportaje_temas_barrido ?? 14);
+
+console.log(`\n── Barrido (gratis) sobre ${Math.min(temas.length, TEMAS_BARRIDO)} temas ──`);
+const leidos = [];
+for (const tema of temas.slice(0, TEMAS_BARRIDO)) {
+  const material = await materialDe(tema);
+  let prop = { paises: [], consultas: [] };
+  if (quedaGemini()) prop = await proponerConsultas(tema, material.slice(0, 12), '', []);
+
+  const paises = [...new Set([...BASE, ...prop.paises])].filter(x => LOCALES[x]);
+  // El censo lo hace GDELT: una consulta suya devuelve más medios y más países
+  // que catorce de Google News, y además trae la URL real. Google News queda de
+  // reserva para cuando GDELT no contesta —su límite de cortesía es duro— porque
+  // quedarse sin censo es peor que tener uno más pobre.
+  const claves = prop.consultas.map(c => c.terms || c.q).filter(Boolean);
+  let notas = [], consultadas = [], via = 'gdelt';
+
+  if (claves.length && gdeltVivo()) {
+    const cens = await censo(claves, { desde, hasta: finDia, maxConsultas: 2 });
+    notas = cens.articulos;
+    consultadas = cens.consultadas.map(q => ({ q, pais: 'mundo' }));
+
+    // Solo se cae a la reserva si GDELT NO contestó. Si contestó y no había
+    // nada, eso es una respuesta y hay que respetarla: repetir la pregunta en
+    // otro sitio para obtener la que gusta es lo contrario de comprobar.
+    if (cens.motivos.length) console.log(`      censo: ${cens.motivos.join(' · ')}`);
+    if (!consultadas.length && cens.fallos) {
+      const g = await barrido(claves, paises, { desde, hasta: finDia, maxConsultas: 14 });
+      notas = g.notas; consultadas = g.consultadas; via = 'gnews';
+      if (g.motivos?.length) console.log(`      reserva: ${g.motivos.slice(0, 3).join(' · ')}`);
+    }
+  } else if (claves.length) {
+    // GDELT apagado por el cortacircuitos: se va directo a la reserva sin pagar
+    // otra espera. Se dice, porque un censo más pobre que nadie anunció es
+    // indistinguible de una semana sin noticias.
+    const g = await barrido(claves, paises, { desde, hasta: finDia, maxConsultas: 14 });
+    notas = g.notas; consultadas = g.consultadas; via = 'gnews (gdelt apagado)';
+    if (g.motivos?.length) console.log(`      reserva: ${g.motivos.slice(0, 3).join(' · ')}`);
+  }
+  const lect = { ...lectura(notas, consultadas), via };
+  const urg  = urgencia(lect);
+
+  leidos.push({ tema, material, prop, barrido: lect, urgencia: urg });
+  console.log(`  ${String(lect.notas).padStart(3)} notas · ${String(lect.medios).padStart(3)} medios · ` +
+              `${(lect.paises.join(',') || '—').padEnd(14)} acuerdo ${lect.acuerdo ?? '—'} · ` +
+              `urgencia ${urg.nivel} (${urg.porque}) · ${tema.label.slice(0, 46)}`);
+  if (process.env.REPORTAJE_VERBOSO === '1') {
+    console.log(`      consultas: ${(lect.consultas_texto ?? []).map(q => `«${q}»`).join(' ') || '—'}` +
+                `  ·  largas: ${prop.consultas.map(c => `«${c.q.slice(0, 60)}»`).join(' ') || '—'}`);
+  }
+}
+
+// ── Fase 2 · La profundidad, que sí cuesta ───────────────────────────────
+const tav   = await estadoTavily(TAVILY);
+const otros = await otrosGastos(sb);
+const dias  = diasHastaReset(ahora, Number(ajus.tavily_dia_reset ?? 1));
+const rep   = reparto({
+  restantes: tav.ok ? tav.restantes : null,
+  dias, otrosPorSemana: otros, maximo: TOPE_SEMANA_MAX * 2,
+});
+// El cupo se mide en créditos y una búsqueda «advanced» son dos.
+const BUSQUEDAS_SEMANA = Math.max(1, Math.floor(rep.semana / 2));
+
+console.log(`\n── Cupo ──`);
+console.log(tav.ok
+  ? `  Tavily ${tav.usados}/${tav.tope} usados · ${tav.restantes} libres · renueva en ${dias} d`
+  : `  Tavily no contestó (${tav.motivo}); se cae al tope de mano`);
+console.log(`  ${rep.nota}`);
+console.log(`  Esta semana: ${BUSQUEDAS_SEMANA} búsquedas para el reportaje`);
+
+// Se deja anotado para el panel. La alternativa era darle al panel la clave de
+// Tavily para que preguntara él; esto expone un secreto menos y da la misma
+// cifra, con la fecha al lado para que se vea si está rancia.
+if (!SECO && tav.ok) {
+  await sb('glossa_radar_settings?on_conflict=key', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates' },
+    body: JSON.stringify([{
+      key: 'tavily_estado',
+      value: {
+        usados: tav.usados, tope: tav.tope, restantes: tav.restantes, plan: tav.plan,
+        dias_para_renovar: dias, otros_por_semana: otros,
+        busquedas_semana: BUSQUEDAS_SEMANA, visto: new Date().toISOString(),
+      },
+      updated_at: new Date().toISOString(),
+    }]),
+  }).catch(e => console.log(`  · no se pudo anotar el cupo: ${String(e).slice(0, 80)}`));
+}
+
+const conCuota = repartirEntreTemas(leidos, BUSQUEDAS_SEMANA, { porTemaMax: POR_TEMA_MAX + 3 });
+for (const t of conCuota) {
+  console.log(`  ${String(t.cuota).padStart(2)} → ${t.tema.label.slice(0, 60)}`);
+}
+
+// El plan sin comprarlo. Sirve para probar el barrido sin gastar cupo, y sirve
+// para lo otro: ver a qué se va a ir el dinero de la semana ANTES de que se vaya.
+if (process.env.REPORTAJE_SOLO_BARRIDO === '1') {
+  console.log('\nSolo barrido: no se gasta nada.');
+  process.exit(0);
+}
+
+// ── Corrida ──────────────────────────────────────────────────────────────
+const partes = [];
+let entranTotal = 0;
+
+for (const leido of conCuota) {
+  const { tema, material, barrido: lect, urgencia: urg, cuota } = leido;
+  if (entranTotal >= TOTAL_MAX) { console.log('Tope de reportajes de la semana alcanzado.'); break; }
+
+  CUOTA_TEMA = cuota; busquedasTema = 0;
+
+  // Cuota cero no es un tema saltado: es un tema comprobado gratis y hallado
+  // corroborado. Se escribe su parte igual, o el número no podría distinguir
+  // «nadie lo verificó» de «lo verificaron cuarenta medios».
+  if (cuota <= 0) {
+    console.log(`\n▸ ${tema.label}  · sin gasto: ${urg.porque} (${lect.medios} medios, ${lect.paises.length} países)`);
+    partes.push({ tema: tema.label, fila: {
+      topic_id: tema.topic_id, week_start: SEMANA, label: tema.label,
+      queries: [], paises: lect.paises, rondas: 0, busquedas: 0,
+      hallados: 0, entran: 0, colapsados: [], dominios_vacios: [],
+      dispersion: null, paro: 'corroborado_gratis',
+      barrido: lect, urgencia: urg, cuota: 0,
+    } });
+    continue;
+  }
+
+  console.log(`\n▸ ${tema.label}  (${tema.n_items} elem., ${tema.n_canales} canales) · cuota ${cuota} · ${urg.porque}`);
 
   const estado = { dominios: new Set(), vacios: new Set(), descartes: {} };
   const entradas = [];
@@ -402,7 +556,11 @@ for (const tema of temas.slice(0, TEMAS_RONDA1)) {
       pista = `Nothing came back filed from ${falta.join(', ')}. Find what the press there reported.`;
     }
 
-    const prop = await proponerConsultas(tema, material.slice(0, 12), pista, [...estado.dominios]);
+    // En la ronda 1 se reutilizan las consultas que ya propuso el barrido: son
+    // las mismas y volver a pedirlas sería pagar dos veces por la misma idea.
+    const prop = (ronda === 1 && leido.prop.consultas.length)
+      ? leido.prop
+      : await proponerConsultas(tema, material.slice(0, 12), pista, [...estado.dominios]);
     if (ronda === 1) paisesPropuestos = prop.paises;
     if (!prop.consultas.length) { paro = paro ?? 'sin_consultas'; break; }
 
@@ -565,6 +723,11 @@ for (const tema of temas.slice(0, TEMAS_RONDA1)) {
       topic_id: tema.topic_id, week_start: SEMANA, label: tema.label,
       queries: consultasHechas, paises: medidaEntran.paises, rondas: ronda,
       busquedas: consultasHechas.length,
+      // Lo que vio el barrido gratis y lo que se decidió con ello. Va al parte
+      // porque es la mitad del trabajo: un tema con cero búsquedas de pago puede
+      // estar mejor corroborado que uno con seis, y sin esto no habría forma de
+      // saberlo desde fuera.
+      barrido: lect, urgencia: urg, cuota,
       hallados: entradas.length,
       // Lo que de verdad se escribió, no lo que se intentó: un fallo de guardado
       // dejaba el parte afirmando reportaje para un asunto con cero filas.
