@@ -74,15 +74,19 @@ try {
   }
 } catch { ultimo = null; }
 
-// Los temas del número son los titulares de sus piezas: es lo que el lector va
-// a encontrar, y ya está escrito para leerse. Las etiquetas del clasificador
-// —«Security dynamics in the Middle East»— no las escribió nadie para nadie.
+// Los temas son el campo `subject` de cada pieza —«Iran sanctions», «Strait of
+// Hormuz», «Mexico politics»—, no su titular.
+//
+// El titular está escrito para intrigar: «The Squeeze and the Squeezed», «Who
+// Counts the Barrels». Puestos en fila en la portada no dicen de qué va el
+// número; el `subject` sí, en dos palabras y de un vistazo, que es justo lo que
+// se le pide a un apunte discreto. Los titulares ya esperan dentro.
 const cuerpo = ultimo && (lang === 'es' ? (ultimo.body_es || ultimo.body) : ultimo.body);
 const tituloNumero = String(cuerpo?.headline ?? '').trim() || null;
 const temas = ((cuerpo?.pieces) ?? [])
-  .map(p => String(p?.headline ?? '').trim())
+  .map(p => String(p?.subject ?? p?.title ?? '').trim())
   .filter(Boolean)
-  .slice(0, 5);
+  .slice(0, 6);
 const fechaNumero = ultimo ? fecha(ultimo.week_start, lang) : null;
 const hrefArchivo = lang === 'es' ? '/es/weekly/archive/' : '/weekly/archive/';
 
