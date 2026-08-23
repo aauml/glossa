@@ -11,12 +11,25 @@ import { fecha } from '../../lib/weekly.js';
 const URL_SB = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
 const ANON = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
+// «Sin configuración» y «sin números» NO son lo mismo, y aquí lo eran: faltaba
+// `SUPABASE_ANON_KEY` en el entorno del despliegue y esta página anunciaba «No
+// issue has been published yet» con el primer número de la historia publicado y
+// visible en la base. Un fallo de configuración disfrazado del estado normal
+// del sistema es el más caro de encontrar: nada que mirar, nada que sospechar.
 let numeros = [];
-if (URL_SB && ANON) {
+let averia = null;
+if (!URL_SB || !ANON) {
+  averia = 'the site cannot reach its archive right now';
+  console.error('[weekly] falta SUPABASE_URL o SUPABASE_ANON_KEY en el entorno del despliegue');
+} else {
   const r = await fetch(
     `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body&state=eq.publicado&order=week_start.desc&limit=52`,
     { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
   if (r.ok) numeros = await r.json();
+  else {
+    averia = 'the site cannot reach its archive right now';
+    console.error(`[weekly] la base respondió ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  }
 }
 ---
 <!DOCTYPE html>
@@ -46,7 +59,7 @@ if (URL_SB && ANON) {
     </div>
 
     {numeros.length === 0 ? (
-      <p class="weekly-viejo">No issue has been published yet.</p>
+      <p class="weekly-viejo">{averia ? `Something is wrong: ${averia}. This is not the same as there being nothing to read.` : 'No issue has been published yet.'}</p>
     ) : (
       <nav class="toc">
         <h2>Issues</h2>

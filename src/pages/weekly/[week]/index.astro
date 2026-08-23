@@ -13,12 +13,27 @@ const { week } = Astro.params;
 const URL_SB = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
 const ANON = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
+// Un 404 significa «ese número no existe o no está publicado». Cuando falta la
+// configuración, la página NO puede saber eso — y devolvía 404 igualmente, que
+// es afirmar algo que no comprobó. Pasó con el primer número publicado de la
+// historia: existía, estaba publicado, y su URL decía que no.
+if (!URL_SB || !ANON) {
+  console.error('[weekly] falta SUPABASE_URL o SUPABASE_ANON_KEY en el entorno del despliegue');
+  return new Response('The site cannot reach its archive right now. This is a fault here, not a missing issue.',
+                      { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+}
+
 let issue = null;
-if (URL_SB && ANON && /^\d{4}-\d{2}-\d{2}$/.test(week ?? '')) {
+if (/^\d{4}-\d{2}-\d{2}$/.test(week ?? '')) {
   const r = await fetch(
     `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body,state&week_start=eq.${week}&state=eq.publicado`,
     { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
   if (r.ok) issue = (await r.json())[0] ?? null;
+  else {
+    console.error(`[weekly] la base respondió ${r.status}`);
+    return new Response('The site cannot reach its archive right now.',
+                        { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  }
 }
 if (!issue) return new Response(null, { status: 404 });
 
