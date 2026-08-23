@@ -157,7 +157,7 @@ for (const s of rotas ?? []) {
 //     horarios de un repo sin actividad.
 const MAL = new Set(['failure', 'cancelled', 'timed_out', 'startup_failure']);
 const CADENCIA_H = { 'glossa-weekly.yml': 24 * 7, 'glossa-cotejo.yml': 24 * 7,
-                     'glossa-reportaje.yml': 24 * 7,
+                     'glossa-reportaje.yml': 24 * 7, 'glossa-traducir.yml': 24 * 7,
                      'glossa-monitores.yml': 30, 'glossa-consejo.yml': 24 * 7,
                      'glossa-vigilante.yml': 8 };
 

@@ -1,0 +1,45 @@
+name: Glossa traducir (el número en español)
+
+# Aparte del que escribe el número, y esa separación se ganó midiéndola:
+# traducir es otra llamada de ~14 min a una cuenta que admite UNA petición a la
+# vez. Colgada del guion que escribe, convirtió treinta minutos en cincuenta y
+# dejó esperando la publicación de un número ya terminado.
+#
+# Domingo 11:00 UTC, una hora después del número — tiempo de sobra para que la
+# cuenta haya soltado el turno. Si falla, el inglés ya está publicado y no se
+# entera nadie más que el registro.
+#
+# Secretos: SUPABASE_SERVICE_KEY, MOONSHOT_API_KEY.
+
+on:
+  schedule:
+    - cron: '0 11 * * 0'
+  workflow_dispatch:
+    inputs:
+      semana:
+        description: 'Qué semana traducir (YYYY-MM-DD). Vacío = la última sin traducir'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-traducir
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+  SEMANA: ${{ inputs.semana }}
+
+jobs:
+  traducir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/traducir_from_supabase.mjs

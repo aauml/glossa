@@ -17,7 +17,6 @@
 import https from 'node:https';
 import { ajustes, uso as gastoActual, apuntar, cabeCoste } from '../src/lib/presupuesto.js';
 import { revisar } from '../src/lib/fusible.js';
-import { promptTraduccion } from './prompts_weekly.mjs';
 
 const URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
@@ -625,9 +624,17 @@ WRITING CONSTRAINTS — these exist because earlier drafts failed on them:
 - Keep sentences short enough to read once. Two subordinate clauses is the ceiling.
 - At most seven named people per piece. If more appear in the material, choose the
   ones who carry the argument and drop the rest; a name the reader cannot hold is noise.
-- QUOTE ONLY VERBATIM ENGLISH from the material. Some digests are stored in Spanish;
-  if a quote is not already in English, PARAPHRASE it without quotation marks. Never
-  translate a quotation and present it as the speaker's words.
+- QUOTATION MARKS MEAN THE EXACT WORDS, IN THE LANGUAGE THEY WERE SPOKEN. Before
+  you put anything in quotation marks, find that exact string in the material and
+  copy it character by character. If you had to change ANY word — including
+  changing it into English — it is not a quotation: drop the quotation marks and
+  write it as reported speech.
+  Every item carries a \`lang\`. Material with \`lang\` other than "en" — Spanish,
+  Persian, Arabic, Russian — CANNOT be quoted in English at all. Not shortened,
+  not tidied, not "translated faithfully". Report what was said, attributed, with
+  no quotation marks around it. A checker compares every quoted phrase in this
+  issue against the stored text and blocks the issue when they differ, so a
+  translated quotation does not reach anyone — it only wastes the issue.
 - Quote sparingly and briefly, always attributed. Never reproduce passages.
 - Where a headline misrepresents its own episode, say plainly what the episode
   actually contained and what the title claimed. Never allude to a title the reader
@@ -760,54 +767,20 @@ console.log(graves.length
 for (const f of veredicto.fallos.slice(0, 6))
   console.log(`    ${f.grave ? '✗' : '·'} ${f.regla}: ${String(f.detalle).slice(0, 88)}`);
 
-// ── El número en español ─────────────────────────────────────────────────
-// Con las comillas INTACTAS, en inglés. La regla la impone el prompt y la
-// COMPRUEBA el fusible: su regla 1 exige que cada frase entrecomillada exista
-// literal en el material —que está en inglés—, así que una comilla traducida
-// aparece como «cita sin procedencia». Es la única forma de que «no se tocan las
-// citas» sea verificable y no una buena intención.
-let numeroEs = null, veredictoEs = null;
-if (!process.env.WEEKLY_SIN_ES) {
-  try {
-    const crudoEs = await pedirAKimi(promptTraduccion(numero));
-    const dEs = JSON.parse(crudoEs);
-    const usoEs = dEs.usage || {};
-    let txtEs = (dEs.choices?.[0]?.message?.content || '').trim()
-      .replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
-    txtEs = txtEs.slice(txtEs.indexOf('{'), txtEs.lastIndexOf('}') + 1);
-    numeroEs = JSON.parse(txtEs);
-
-    await apuntar(URL, KEY, 'moonshot', 1, usoEs.total_tokens ?? 0,
-                  ((usoEs.prompt_tokens ?? 0) / 1e6) * 0.6 + ((usoEs.completion_tokens ?? 0) / 1e6) * 2.5);
-
-    // Mismo fusible, mismo contexto. Si tradujo una cita, sale aquí.
-    veredictoEs = revisar(numeroEs, { items, cotejos: cotejos ?? [],
-                                      ids: new Set(idCorto.keys()), indice: Object.fromEntries(idCorto),
-                                      reportaje_count: reportaje.length });
-    const gravesEs = veredictoEs.fallos.filter(f => f.grave);
-    console.log(gravesEs.length
-      ? `  español: ${gravesEs.length} fallo(s) grave(s) — se guarda igual, pero revísalo`
-      : '  español: el fusible pasa (las citas siguen intactas)');
-    for (const f of gravesEs.slice(0, 4)) console.log(`    ✗ ${f.regla}: ${String(f.detalle).slice(0, 80)}`);
-  } catch (e) {
-    // Que falle la traducción NO tira el número: el inglés ya está escrito y es
-    // lo que se publica. Se dice y se sigue.
-    console.log(`  español: no se pudo traducir (${String(e).slice(0, 100)}). El número en inglés no se toca.`);
-  }
-}
+// El número en español NO se escribe aquí. Traducir es otra llamada de catorce
+// minutos a la misma cuenta —que admite UNA petición a la vez—, así que colgarla
+// del guion que escribe convertía un número ya listo en un número que espera:
+// treinta minutos se volvieron cincuenta la primera vez que se probó. Vive en
+// `traducir_from_supabase.mjs`, con su propio reloj, y si se atasca no retrasa
+// la publicación de nada.
 
 const fila = {
   fuse: { ...veredicto, ran_at: new Date().toISOString() },
-  // Si NO hay traducción nueva, la vieja se BORRA. Pasó al rehacer el número:
-  // la traducción falló, el `body_es` anterior se quedó, y la página en español
-  // servía un número distinto del inglés bajo la misma fecha — dos revistas con
-  // el mismo titular de portada y contenidos que no se parecían.
-  //
-  // Un idioma sin traducir se dice; un idioma con la traducción de OTRO número
-  // es una mentira silenciosa.
-  body_es: numeroEs ? { ...numeroEs, sources_index: Object.fromEntries(idCorto) } : null,
-  traducido_at: numeroEs ? new Date().toISOString() : null,
-  fuse_es: numeroEs && veredictoEs ? { ...veredictoEs, ran_at: new Date().toISOString() } : null,
+  // La traducción anterior se BORRA siempre que se reescribe el número. Pasó al
+  // rehacerlo: el `body_es` viejo se quedó y la página en español servía un
+  // número distinto del inglés bajo la misma fecha. Un idioma sin traducir se
+  // dice; un idioma con la traducción de OTRO número es una mentira silenciosa.
+  body_es: null, traducido_at: null, fuse_es: null,
   cotejo_count: (cotejos ?? []).length,
   // Las dos cifras que dicen si salir a buscar sirve. `reportaje_count` es lo
   // que entró; `piezas_sin_reportaje`, cuántas piezas lo ignoraron habiéndolo.
