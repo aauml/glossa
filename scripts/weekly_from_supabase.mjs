@@ -17,6 +17,7 @@
 import https from 'node:https';
 import { ajustes, uso as gastoActual, apuntar, cabeCoste } from '../src/lib/presupuesto.js';
 import { revisar } from '../src/lib/fusible.js';
+import { promptTraduccion } from './prompts_weekly.mjs';
 
 const URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
@@ -587,10 +588,10 @@ const t0 = Date.now();
 // —una corrida anterior que aún no soltó el hueco, un «Rebuild» a mano mientras
 // corre el domingo— tira el número entero con un 429. Pasó en la segunda prueba
 // de publicación automática: la corrida previa seguía ocupando el turno.
-async function pedirAKimi(intento = 0) {
+async function pedirAKimi(prompt = PROMPT, intento = 0) {
   return await new Promise((ok, ko) => {
     const cuerpo = JSON.stringify({ model: MODELO, max_tokens: 64000,
-      messages: [{ role: 'user', content: PROMPT }] });
+      messages: [{ role: 'user', content: prompt }] });
     const req = https.request({
       hostname: 'api.moonshot.ai', path: '/v1/chat/completions', method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(cuerpo),
@@ -616,7 +617,7 @@ async function pedirAKimi(intento = 0) {
     const espera = [60, 180, 420, 900][intento] * 1000;
     console.log(`  ${String(e.message).slice(0, 70)} — reintento en ${espera / 60000} min`);
     await new Promise(r => setTimeout(r, espera));
-    return pedirAKimi(intento + 1);
+    return pedirAKimi(prompt, intento + 1);
   });
 }
 
@@ -699,8 +700,48 @@ console.log(graves.length
 for (const f of veredicto.fallos.slice(0, 6))
   console.log(`    ${f.grave ? '✗' : '·'} ${f.regla}: ${String(f.detalle).slice(0, 88)}`);
 
+// ── El número en español ─────────────────────────────────────────────────
+// Con las comillas INTACTAS, en inglés. La regla la impone el prompt y la
+// COMPRUEBA el fusible: su regla 1 exige que cada frase entrecomillada exista
+// literal en el material —que está en inglés—, así que una comilla traducida
+// aparece como «cita sin procedencia». Es la única forma de que «no se tocan las
+// citas» sea verificable y no una buena intención.
+let numeroEs = null, veredictoEs = null;
+if (!process.env.WEEKLY_SIN_ES) {
+  try {
+    const crudoEs = await pedirAKimi(promptTraduccion(numero));
+    const dEs = JSON.parse(crudoEs);
+    const usoEs = dEs.usage || {};
+    let txtEs = (dEs.choices?.[0]?.message?.content || '').trim()
+      .replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
+    txtEs = txtEs.slice(txtEs.indexOf('{'), txtEs.lastIndexOf('}') + 1);
+    numeroEs = JSON.parse(txtEs);
+
+    await apuntar(URL, KEY, 'moonshot', 1, usoEs.total_tokens ?? 0,
+                  ((usoEs.prompt_tokens ?? 0) / 1e6) * 0.6 + ((usoEs.completion_tokens ?? 0) / 1e6) * 2.5);
+
+    // Mismo fusible, mismo contexto. Si tradujo una cita, sale aquí.
+    veredictoEs = revisar(numeroEs, { items, cotejos: cotejos ?? [],
+                                      ids: new Set(idCorto.keys()), reportaje_count: reportaje.length });
+    const gravesEs = veredictoEs.fallos.filter(f => f.grave);
+    console.log(gravesEs.length
+      ? `  español: ${gravesEs.length} fallo(s) grave(s) — se guarda igual, pero revísalo`
+      : '  español: el fusible pasa (las citas siguen intactas)');
+    for (const f of gravesEs.slice(0, 4)) console.log(`    ✗ ${f.regla}: ${String(f.detalle).slice(0, 80)}`);
+  } catch (e) {
+    // Que falle la traducción NO tira el número: el inglés ya está escrito y es
+    // lo que se publica. Se dice y se sigue.
+    console.log(`  español: no se pudo traducir (${String(e).slice(0, 100)}). El número en inglés no se toca.`);
+  }
+}
+
 const fila = {
   fuse: { ...veredicto, ran_at: new Date().toISOString() },
+  ...(numeroEs ? {
+    body_es: { ...numeroEs, sources_index: Object.fromEntries(idCorto) },
+    traducido_at: new Date().toISOString(),
+    fuse_es: veredictoEs ? { ...veredictoEs, ran_at: new Date().toISOString() } : null,
+  } : {}),
   cotejo_count: (cotejos ?? []).length,
   // Las dos cifras que dicen si salir a buscar sirve. `reportaje_count` es lo
   // que entró; `piezas_sin_reportaje`, cuántas piezas lo ignoraron habiéndolo.

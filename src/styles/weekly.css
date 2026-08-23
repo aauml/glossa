@@ -243,5 +243,10 @@ html { scroll-behavior: smooth; }
 }
 .weekly-marca-tag { color: var(--accent); font-weight: 600; }
 .weekly-marca-fechas { color: var(--muted); }
+.weekly-marca-idioma {
+  color: var(--accent); text-decoration: none; margin-left: 10px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.weekly-marca-idioma:hover { border-color: var(--accent); }
 @media (max-width: 720px) { .weekly-marca-inner { padding-inline: 24px; } }
 @media (max-width: 640px) { .weekly-marca-inner { padding-inline: 20px; } }

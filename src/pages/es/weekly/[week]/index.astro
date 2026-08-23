@@ -1,9 +1,9 @@
 ---
 export const prerender = false;
-import '../../../styles/fonts.css';   // sin esto, Fraunces y Spectral caen a Georgia
-import '../../../styles/global.css';
-import '../../../styles/weekly.css';
-import { renderIssue, fecha } from '../../../lib/weekly.js';
+import '../../../../styles/fonts.css';   // sin esto, Fraunces y Spectral caen a Georgia
+import '../../../../styles/global.css';
+import '../../../../styles/weekly.css';
+import { renderIssue, fecha } from '../../../../lib/weekly.js';
 
 const { week } = Astro.params;
 
@@ -26,7 +26,7 @@ if (!URL_SB || !ANON) {
 let issue = null;
 if (/^\d{4}-\d{2}-\d{2}$/.test(week ?? '')) {
   const r = await fetch(
-    `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body,state&week_start=eq.${week}&state=eq.publicado`,
+    `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body,body_es,state&week_start=eq.${week}&state=eq.publicado`,
     { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
   if (r.ok) issue = (await r.json())[0] ?? null;
   else {
@@ -38,11 +38,16 @@ if (/^\d{4}-\d{2}-\d{2}$/.test(week ?? '')) {
 if (!issue) return new Response(null, { status: 404 });
 
 const b = issue.body ?? {};
+// Si la traducción no existe todavía —falló, o el número es anterior a que
+// existiera— se dice y se ofrece el inglés. Servir el inglés bajo una URL /es/
+// sin avisar sería hacer pasar una cosa por otra.
+const bEs = issue.body_es ?? null;
+if (!bEs) return Astro.redirect(`/weekly/${week}/?sin-traduccion=1`, 302);
 const titulo = b.headline ?? 'Weekly issue';
 const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
 ---
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,8 +62,8 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
 <body>
   <header class="masthead">
     <div class="masthead-inner">
-      <a class="masthead-brand" href="/">Glossa</a>
-      <a href="/weekly/archive/">Every issue</a>
+      <a class="masthead-brand" href="/es/">Glossa</a>
+      <a href="/es/weekly/archive/">Todos los números</a>
     </div>
   </header>
 
@@ -68,14 +73,14 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
        sitio. -->
   <div class="weekly-marca">
     <div class="weekly-marca-inner">
-      <span class="weekly-marca-tag">Weekly</span>
+      <span class="weekly-marca-tag">Semanal</span>
       <span class="weekly-marca-fechas">{desde} – {hasta}
-        <a class="weekly-marca-idioma" href={`/es/weekly/${week}/`}>Español</a></span>
+        <a class="weekly-marca-idioma" href={`/weekly/${week}/`}>English</a></span>
     </div>
   </div>
 
-  <main class="weekly" set:html={renderIssue(b)} />
-  <a href="#contents" id="weekly-top" aria-label="Back to contents">↑</a>
+  <main class="weekly" set:html={renderIssue(bEs)} />
+  <a href="#contents" id="weekly-top" aria-label="Volver al índice">↑</a>
 
   <script is:inline>
     (function () {

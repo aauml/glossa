@@ -1,0 +1,35 @@
+---
+export const prerender = false;
+
+// `/es/weekly/` es el ÚLTIMO NÚMERO TRADUCIDO, no un índice.
+//
+// Antes era una lista con un enlace: un clic de más para llegar a lo único que
+// se quiere leer. La lista sigue existiendo en `/weekly/archive/`, que es donde
+// se busca cuando lo que quieres es otro número, no el de esta semana.
+const URL_SB = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
+const ANON = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+
+if (!URL_SB || !ANON) {
+  console.error('[weekly] falta SUPABASE_URL o SUPABASE_ANON_KEY en el entorno del despliegue');
+  return new Response('The site cannot reach its archive right now. This is a fault here, not a missing issue.',
+                      { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+}
+
+const r = await fetch(
+  `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start&state=eq.publicado&body_es=not.is.null&order=week_start.desc&limit=1`,
+  { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
+
+if (!r.ok) {
+  console.error(`[weekly] la base respondió ${r.status}`);
+  return new Response('The site cannot reach its archive right now.',
+                      { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+}
+
+const [ultimo] = await r.json();
+
+// Sin ningún número publicado no hay adónde ir, y un redirect a un 404 sería
+// peor que decirlo: se manda al archivo, que sabe explicarse.
+return ultimo
+  ? Astro.redirect(`/es/weekly/${ultimo.week_start}/`, 302)
+  : Astro.redirect('/es/weekly/archive/', 302);
+---
