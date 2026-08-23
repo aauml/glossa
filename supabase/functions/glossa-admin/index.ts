@@ -32,6 +32,37 @@ async function huella(s: string) {
  * resolverlo pidiendo la página, cosa que el navegador no puede hacer por CORS;
  * por eso vive aquí. Salió probándolo: pegar el @handle daba "no es un RSS".
  */
+/**
+ * Un enlace de Apple Podcasts NO trae el feed: la página es un escaparate y el
+ * RSS vive en el servidor del programa. Lo único estable de esa URL es el id
+ * numérico del final (`/id1669813431`), y la API de búsqueda de Apple lo
+ * cambia por el feed de verdad.
+ *
+ * Es pública y no pide clave. Se usa para eso y solo para eso: traducir un id a
+ * una URL de feed, que luego se comprueba como cualquier otra.
+ */
+async function resolverApple(url: string) {
+  const id = /\/id(\d{5,})/.exec(url)?.[1] ?? /[?&]i=(\d{5,})/.exec(url)?.[1];
+  if (!id) return { ok: false as const, error: 'that Apple Podcasts link carries no show id' };
+  try {
+    const r = await fetch(`https://itunes.apple.com/lookup?id=${id}&entity=podcast`,
+                          { signal: AbortSignal.timeout(12_000) });
+    if (!r.ok) return { ok: false as const, error: `Apple answered ${r.status}` };
+    const d = await r.json();
+    const x = (d?.results ?? [])[0];
+    if (!x?.feedUrl) {
+      return { ok: false as const,
+               error: x ? 'Apple lists that show but publishes no feed for it'
+                        : 'Apple does not know that show id' };
+    }
+    return { ok: true as const, feed_url: String(x.feedUrl),
+             nombre: x.collectionName ? String(x.collectionName) : undefined,
+             episodios: Number(x.trackCount) || undefined };
+  } catch (e) {
+    return { ok: false as const, error: `could not ask Apple: ${String(e).slice(0, 120)}` };
+  }
+}
+
 async function resolverYouTube(url: string) {
   if (/\/feeds\/videos\.xml/.test(url)) return url;
   if (/youtube\.com\/channel\/UC[\w-]+/.test(url)) return url;
@@ -89,7 +120,11 @@ async function feedResponde(url: string) {
     if (!r.ok) return { ok: false, error: `the feed responded ${r.status}` };
     const txt = (await r.text()).slice(0, 2000);
     if (!/<(rss|feed)\b/i.test(txt)) return { ok: false, error: 'that URL responds but is not an RSS/Atom feed' };
-    const nombre = (txt.match(/<title[^>]*>([^<]{1,120})</i) || [])[1];
+    // El título puede venir en CDATA, y entonces el primer carácter tras
+    // `<title>` es un `<`. Un patrón de «todo menos <» fallaba ahí y seguía
+    // buscando, así que un podcast de Substack se daba de alta como «untitled».
+    const nombre = (txt.match(/<title[^>]*>\s*<!\[CDATA\[([\s\S]{1,200}?)\]\]>/i) ||
+                    txt.match(/<title[^>]*>([^<]{1,200})</i) || [])[1];
     return { ok: true, nombre: nombre ? nombre.trim() : undefined };
   } catch (e) {
     return { ok: false, error: `could not read the feed: ${String(e).slice(0, 120)}` };
@@ -281,6 +316,28 @@ async function clasificar(texto: string): Promise<Resuelto> {
           : `a YouTube channel — but it did not answer: ${chk.error}`,
         aviso: chk.ok ? undefined : chk.error,
         alternativas: [{ as: 'elemento', label: 'one episode' }],
+      };
+    }
+
+    // Apple Podcasts. Va ANTES de la comprobación de feeds porque esa URL no es
+    // un feed y nunca lo va a ser: hay que cambiarla por el feed del programa.
+    // Sin esto caía hasta el final y se daba de alta como «un artículo de
+    // podcasts.apple.com», que no es ni artículo ni fuente.
+    if (/(^|\.)(podcasts|music)\.apple\.com$/.test(host)) {
+      const ap = await resolverApple(t);
+      if (!ap.ok) {
+        return { as: 'elemento', url: t,
+                 label: `an Apple Podcasts link — but ${ap.error}`, aviso: ap.error };
+      }
+      const chk = await feedResponde(ap.feed_url);
+      const nombre = ap.nombre ?? chk.nombre;
+      return {
+        as: 'fuente', kind: 'podcast', feed_url: ap.feed_url, name: nombre,
+        label: chk.ok
+          ? `a podcast · ${nombre ?? 'untitled'}` +
+            (ap.episodios ? ` · ${ap.episodios.toLocaleString()} episodes` : '')
+          : `Apple points to ${new URL(ap.feed_url).hostname}, but it did not answer: ${chk.error}`,
+        aviso: chk.ok ? undefined : chk.error,
       };
     }
 
