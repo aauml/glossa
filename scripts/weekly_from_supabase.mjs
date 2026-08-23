@@ -116,10 +116,41 @@ const tandas = Object.entries(porDia).filter(([, n]) => n >= 5)
 // temas vivos, que es lo que menos iba a aparecer.
 const TOPE_TOKENS = Number(process.env.WEEKLY_TOKEN_BUDGET || 55_000);
 
-const enlaces = await sb(`glossa_radar_item_topics?select=item_id,relevance,topic_id&limit=5000`);
-const peso = {};
-for (const e of enlaces) {
-  peso[e.item_id] = (peso[e.item_id] || 0) + (e.relevance === 'central' ? 3 : 1);
+// El peso lo cuenta SQL sobre la ventana. Antes se pedía la tabla de enlaces
+// ENTERA con `limit=5000` y sin filtro de fecha: mientras cupo funcionó por
+// accidente, y al pasarse habría empezado a ordenar el material con un mapa
+// truncado —un número mal armado sin un solo error en el registro—.
+const filas = await sb('rpc/glossa_radar_pesos', {
+  method: 'POST',
+  body: JSON.stringify({ desde: desde.toISOString(), hasta: finDia.toISOString() }),
+});
+const peso = Object.fromEntries((filas ?? []).map(f => [f.item_id, Number(f.peso)]));
+
+// ── En qué se agrupó la semana ───────────────────────────────────────────
+// Esto llevaba sin llegar al modelo. El prompt le pedía «merge the raw topics
+// into 4-5 pieces» y no le pasaba ni un tema: agrupaba deduciendo del texto lo
+// que la clasificación ya había decidido leyendo el contenido.
+//
+// Se le dan como recuentos, no como índice. Un tema aquí no tiene derecho a una
+// sección; es material para decidir, igual que la concentración de canales.
+const temas = await sb('rpc/glossa_radar_temas_semana', {
+  method: 'POST',
+  body: JSON.stringify({ desde: desde.toISOString(), hasta: finDia.toISOString() }),
+}).catch(() => []);
+
+const TOPE_TEMAS = 12;
+const racimos = (temas ?? []).slice(0, TOPE_TEMAS).map(t => {
+  const canales = Number(t.n_canales) > 0
+    ? `${t.n_items} items across ${t.n_canales} channel${t.n_canales > 1 ? 's' : ''}`
+    : `${t.n_items} items, no followed channel covered it`;
+  const fuera = Number(t.n_medios) > 0
+    ? `, ${t.n_medios} outside outlet${t.n_medios > 1 ? 's' : ''}`
+    : '';
+  return `${t.label} — ${canales}${fuera}`;
+});
+if (temas?.length) {
+  console.log(`  ${temas.length} temas con material` +
+    (temas.length > TOPE_TEMAS ? ` (se le pasan los ${TOPE_TEMAS} mayores)` : ''));
 }
 
 // Los cotejos del sábado, indexados por episodio y posición de la afirmación.
@@ -199,6 +230,11 @@ what several aligned voices agree on is alignment, NOT corroboration.
 MATERIAL — ${material.length}${fuera ? ` of ${items.length}` : ''} episodes, ${iso(desde)} to ${iso(weekEnd)}${fuera ? ` (the ${fuera} least-connected were left out for space — do not claim to have covered everything)` : ''}:
 ${JSON.stringify(material)}
 
+WHAT THE WEEK CLUSTERED INTO — counted from how the material was classified, not
+a list of sections. Fold, split or ignore these as the writing requires; a
+subject here is owed nothing.
+${bullets(racimos)}
+
 COMPUTED FACTS ABOUT PROVENANCE — these are counted, not inferred. Use them; do
 not restate them as your own deduction, and do not add names to these lists.
 Channel concentration:
@@ -238,7 +274,10 @@ Write a magazine issue. Return ONLY JSON:
 RULES — the first is the one that matters:
 - COINCIDING IS NOT CORROBORATING. If voices share a school or a channel, say so in
   the prose. Only treat agreement as confirmation when it survives opposite priors.
-- Merge the raw topics into 4-5 pieces. Thin topics get folded in, not given a section.
+- Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
+  given a section. Those clusters are what the classification produced, not a
+  contents page: several of them are usually one piece, and the labels are the
+  classifier's, not yours to reuse.
 - The sections are whatever this week produced. There is no standing list and no
   section is owed a place: if nothing on a subject arrived, it simply is not here.
 - "subject" is a plain label so a reader scanning the contents knows what each piece
@@ -340,6 +379,15 @@ async function pedirAKimi(intento = 0) {
     await new Promise(r => setTimeout(r, espera));
     return pedirAKimi(intento + 1);
   });
+}
+
+// Ver el prompt sin escribir el número. Kimi cuesta dinero y sólo admite una
+// petición a la vez, así que comprobar que el material y los recuentos entran
+// bien no puede exigir gastar una corrida entera.
+if (process.env.WEEKLY_DRY) {
+  console.log('\n' + '─'.repeat(72) + '\n' + PROMPT + '\n' + '─'.repeat(72));
+  console.log(`\n${Math.round(PROMPT.length / 4).toLocaleString()} tokens aprox. — WEEKLY_DRY, no se llama al modelo.`);
+  process.exit(0);
 }
 
 const raw = await pedirAKimi();

@@ -115,7 +115,9 @@ async function buscar(fuente) {
     });
     if (!r.ok) throw new Error(`tavily ${r.status}: ${(await r.text()).slice(0, 200)}`);
     const d = await r.json();
-    await apuntar(URL_SB, KEY, 'tavily', 1);
+    // `advanced` cuesta 2 créditos y `basic` 1. Apuntar siempre 1 dejaba el tope
+    // midiendo por debajo justo en las búsquedas más caras.
+    await apuntar(URL_SB, KEY, 'tavily', persona ? 2 : 1);
     out.push(...(d.results ?? []));
   }
   return out;

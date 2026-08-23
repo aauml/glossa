@@ -207,7 +207,10 @@ async function buscarDocumento(claim) {
     body: JSON.stringify({ query: q, max_results: 4, search_depth: 'advanced',
                            include_raw_content: false }),
   });
-  await apuntar(URL_SB, KEY, 'tavily', 1);
+  // Dos créditos, no uno: `advanced` cuesta el doble que `basic`. Apuntar 1 hacía
+  // que el tope midiera la mitad de lo que se gastaba, así que se agotaba la
+  // cuota real mucho antes de que `cabe()` dijera nada.
+  await apuntar(URL_SB, KEY, 'tavily', 2);
   if (!r.ok) throw new Error(`tavily ${r.status}`);
   return { query: q, resultados: (await r.json()).results ?? [] };
 }
@@ -249,9 +252,15 @@ const gasto = await gastoActual(URL_SB, KEY);
 const TOPE = Number(ajus.cotejo_busquedas_semana ?? 20);
 const primarios = Array.isArray(ajus.cotejo_dominios_primarios) ? ajus.cotejo_dominios_primarios : [];
 
+// `origin=eq.feed` a propósito: lo que se coteja son los EPISODIOS. Sin ese
+// filtro entraban también los hallazgos de búsqueda, y se pagaba a Tavily por
+// comprobar un artículo contra otros artículos —que no es cotejar, es dar una
+// vuelta—. También es lo que mantiene fuera los reportajes sin tener que
+// nombrarlos aquí.
 const items = await sb(
   `glossa_radar_items?select=id,title,url,author,published_at,digest,source_id` +
-  `&state=eq.digested&published_at=gte.${desde.toISOString()}&published_at=lt.${finDia.toISOString()}&limit=500`);
+  `&state=eq.digested&origin=eq.feed` +
+  `&published_at=gte.${desde.toISOString()}&published_at=lt.${finDia.toISOString()}&limit=500`);
 if (!items.length) { console.log('Sin material analizado esta semana.'); process.exit(0); }
 
 const [enlaces, fuentes, recientes] = await Promise.all([
