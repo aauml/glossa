@@ -415,7 +415,12 @@ const leidos = [];
 for (const tema of temas.slice(0, TEMAS_BARRIDO)) {
   const material = await materialDe(tema);
   let prop = { paises: [], consultas: [] };
+  // El censo es gratis en dinero pero NO en cuota de Gemini: una llamada por
+  // tema. Se le deja margen para que no se coma la que hace falta luego para
+  // digerir lo que se compre — catorce consultas de censo no valen una corrida
+  // sin reportes.
   if (quedaGemini()) prop = await proponerConsultas(tema, material.slice(0, 12), '', []);
+  else console.log(`  (sin cuota de Gemini: ${tema.label.slice(0, 50)} se censa sin consultas propias)`);
 
   const paises = [...new Set([...BASE, ...prop.paises])].filter(x => LOCALES[x]);
   // El censo lo hace GDELT: una consulta suya devuelve más medios y más países
@@ -518,6 +523,30 @@ for (const leido of conCuota) {
   if (entranTotal >= TOTAL_MAX) { console.log('Tope de reportajes de la semana alcanzado.'); break; }
 
   CUOTA_TEMA = cuota; busquedasTema = 0;
+
+  // Antes de gastar NADA, comprobar que se va a poder digerir lo que se compre.
+  //
+  // Esto costó una corrida entera. La cuota de Gemini estaba agotada —411 de 400
+  // ese día— y `quedaGemini()` solo se miraba DENTRO del bucle de digestión, así
+  // que cada tema pagaba sus búsquedas, recibía tres o cinco resultados buenos,
+  // y ahí se paraba: veintiocho búsquedas compradas, cincuenta y seis créditos,
+  // cero reportes, y el parte diciendo «sin_hallazgos» como si el mundo no
+  // hubiera contestado.
+  //
+  // El orden importa y es el único que tiene sentido: lo irreversible se gasta
+  // DESPUÉS de comprobar la compuerta que lo hace útil, nunca antes.
+  if (!quedaGemini()) {
+    console.log(`\n▸ ${tema.label} · no se busca: la cuota de Gemini está agotada y ` +
+                `lo que se comprara no se podría digerir.`);
+    partes.push({ tema: tema.label, fila: {
+      topic_id: tema.topic_id, week_start: SEMANA, label: tema.label,
+      queries: [], paises: lect.paises, rondas: 0, busquedas: 0,
+      hallados: 0, entran: 0, colapsados: [], dominios_vacios: [],
+      dispersion: null, paro: 'sin_cuota_gemini',
+      barrido: lect, urgencia: urg, cuota,
+    } });
+    continue;
+  }
 
   // Cuota cero no es un tema saltado: es un tema comprobado gratis y hallado
   // corroborado. Se escribe su parte igual, o el número no podría distinguir
@@ -759,8 +788,8 @@ if (!SECO) {
   }
 }
 
-console.log(`\n${busquedas} de ${TOPE_SEMANA} búsquedas · ${entranTotal} reportajes entran`);
-if (busquedas < TOPE_SEMANA) {
-  console.log(`Sobraron ${TOPE_SEMANA - busquedas}: no había más que divergiera.`);
+console.log(`\n${busquedas} de ${TOPE_SEMANA_MAX} búsquedas · ${entranTotal} reportajes entran`);
+if (busquedas < TOPE_SEMANA_MAX) {
+  console.log(`Sobraron ${TOPE_SEMANA_MAX - busquedas}: no había más que divergiera.`);
 }
 if (SECO) console.log('REPORTAJE_DRY — no se escribió nada.');

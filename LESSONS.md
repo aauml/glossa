@@ -18,6 +18,31 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Lo irreversible se gasta después de la compuerta, nunca antes
+_Applies to: general_
+
+**Síntoma** — Una corrida del reportaje compró **veintiocho búsquedas de pago**
+—cincuenta y seis créditos— y produjo **cero reportes**. Cada tema buscaba, le
+volvían tres o cinco resultados buenos, y ahí se paraba. El parte de todos decía
+`sin_hallazgos`, que es exactamente lo contrario de lo que pasó: hallazgos hubo,
+lo que no hubo fue con qué leerlos.
+**Causa** — La cuota diaria de Gemini estaba agotada (411 de 400) y
+`quedaGemini()` solo se consultaba **dentro** del bucle de digestión. El dinero se
+gastaba primero y la compuerta se miraba después.
+**Arreglo** — Comprobar la cuota de digestión **antes de la primera búsqueda** del
+tema, y archivar el parte como `sin_cuota_gemini`, que dice la verdad.
+
+Lo general: la auditoría ya había movido las guardas delante de la llamada a Kimi
+en el número semanal, y la lección no se llevó a este guion. **Cuando un paso caro
+e irreversible depende de un recurso limitado que viene después, el orden correcto
+es siempre comprobar primero y gastar después** — y cuando se arregla en un sitio,
+hay que buscar la clase entera, como con [[«No pregunté» y «pregunté y no hay» piden cosas opuestas]].
+
+Corolario del mismo día: **un tope que me inventé, además, miente sobre lo que
+pasó.** `cap_tavily_mes` seguía en 600 cuando el plan da 1.000, y `cap_gemini_dia`
+en 400 cuando el censo nuevo añade una llamada por tema. Un tope viejo no frena:
+desvía la culpa hacia el mundo.
+
 ### Un promedio se divide entre el tiempo, no entre los días que hubo trabajo
 _Applies to: general_
 
