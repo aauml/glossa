@@ -71,13 +71,15 @@ const desde  = new Date(ventana.desde);
 const finDia = new Date(ventana.hasta);
 const SEMANA = desde.toISOString().slice(0, 10);
 
-// El domingo no se sale a buscar. La ventana de este guion es «de este domingo
-// hasta mañana» — el domingo eso es UN día, y el número que se escribe esa misma
-// mañana lee la semana ANTERIOR: todo lo que se encontrara sería invisible para
-// él y aterrizaría en la semana siguiente amontonado en una fecha. El botón del
-// panel lo hace alcanzable, así que se corta aquí, no en el calendario.
-if (ahora.getUTCDay() === 0 && !process.env.REPORTAJE_HOY) {
-  console.log('Domingo: el número de hoy lee la semana cerrada y esta búsqueda no puede alcanzarlo. Se sale sin gastar.');
+// Con la semana ya cerrada no se sale a buscar: lo que se encontrara pertenecería
+// a la semana siguiente y el número de esta mañana no lo vería nunca.
+//
+// La condición mira la VENTANA, no el día de la semana en UTC. Preguntar por
+// `getUTCDay() === 0` funcionaba cuando todo estaba en hora de Greenwich; anclada
+// la semana a Los Ángeles, el sábado por la noche de allí YA es domingo aquí, y
+// esa comprobación habría rechazado justo la corrida más útil.
+if (!ventana.parcial) {
+  console.log('La semana ya cerró: lo que se encontrara ahora no llegaría a su número. Se sale sin gastar.');
   process.exit(0);
 }
 

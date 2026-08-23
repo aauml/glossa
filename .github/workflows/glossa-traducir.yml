@@ -11,9 +11,24 @@ name: Glossa traducir (el número en español)
 #
 # Secretos: SUPABASE_SERVICE_KEY, MOONSHOT_API_KEY.
 
+# ── El reloj de la semana ────────────────────────────────────────────────
+# Todo tiene que estar TERMINADO antes de las 5:00 de la mañana en Los Ángeles,
+# y con margen: una corrida de Kimi que se ralentice puede pasar de 16 minutos a
+# 50, y eso ya ocurrió. La cadena, en hora de allí:
+#
+#   sábado  08:00  reportaje — sale a buscar fuera (cubre ya casi la semana)
+#   sábado  21:00  cotejo    — comprueba afirmaciones contra documentos
+#   domingo 00:30  número    — la semana cerró a medianoche; se escribe
+#   domingo 01:45  español   — la traducción, aparte, para no retrasar nada
+#   domingo 03:00  consejo   — mide la calibración; no urge, va al final
+#
+# Termina sobre las 02:00 y quedan tres horas de colchón. El consejo va DESPUÉS
+# del número a propósito: usa la misma cuenta de Kimi, que admite una petición a
+# la vez, y antes se solapaba con quien sí tiene prisa.
+
 on:
   schedule:
-    - cron: '0 11 * * 0'
+    - cron: '45 8 * * 0'
   workflow_dispatch:
     inputs:
       semana:
