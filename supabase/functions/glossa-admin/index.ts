@@ -142,8 +142,15 @@ async function feedResponde(url: string) {
     const nombre = (txt.match(/<title[^>]*>\s*<!\[CDATA\[([\s\S]{1,200}?)\]\]>/i) ||
                     txt.match(/<title[^>]*>([^<]{1,200})</i) || [])[1];
 
+    // Las fechas se leen SOLO de dentro de <item>/<entry>. El <pubDate> de canal
+    // y el <updated> de cabecera de Atom se refrescan a diario aunque no haya
+    // episodio nuevo: mirados, `diasDesdeUltimo` daba 0 siempre y el aviso de
+    // silencio —que existe para el podcast quincenal recién añadido— no saltaba
+    // nunca. Justo la regresión que esta función se escribió para impedir.
     const fechas: number[] = [];
-    for (const m of txt.matchAll(/<(?:pubDate|published|updated)[^>]*>([^<]{6,60})</gi)) {
+    for (const bloque of txt.matchAll(/<(?:item|entry)[\s>]([\s\S]*?)<\/(?:item|entry)>/gi)) {
+      const m = /<(?:pubDate|published|updated)[^>]*>([^<]{6,60})</i.exec(bloque[1]);
+      if (!m) continue;
       const t = Date.parse(m[1].trim());
       if (!Number.isNaN(t)) fechas.push(t);
     }
@@ -180,6 +187,26 @@ function nombreCorto(t?: string) {
   return corte.length >= 3 ? corte : n;
 }
 
+/**
+ * La URL de un feed, en una sola forma. El índice único compara texto exacto:
+ * el mismo Megaphone añadido por el enlace de Apple y pegado con mayúsculas o
+ * barra final se daba de alta DOS veces — dos filas sondeadas cada 6 h y los
+ * episodios cayendo siempre en la que ganara la carrera del `external_id`,
+ * mientras la otra acumulaba ceros y acababa señalada como callada.
+ */
+function normalizarFeed(u: string): string {
+  try {
+    const x = new URL(u.trim());
+    x.protocol = x.protocol.toLowerCase();
+    x.hostname = x.hostname.toLowerCase();
+    x.hash = '';
+    let ruta = x.pathname.replace(/\/+$/, '');
+    return `${x.protocol}//${x.host}${ruta}${x.search}`;
+  } catch { return u.trim(); }
+}
+
+const KINDS = new Set(['youtube', 'podcast', 'rss', 'tema', 'persona']);
+
 /** Lo que hay que avisar cuando una fuente correcta no va a traer nada aún. */
 function avisoDeSilencio(dias?: number) {
   if (dias === undefined || dias <= BACKFILL_DIAS) return undefined;
@@ -209,6 +236,7 @@ type Resuelto = {
   body_text?: string;
   alternativas?: { as: string; kind?: string; label: string }[];
   aviso?: string;
+  saludable?: boolean;
 };
 
 const ES_URL = /^https?:\/\/\S+$/i;
@@ -366,6 +394,7 @@ async function clasificar(texto: string): Promise<Resuelto> {
       const chk = await canalResponde(resuelto);
       return {
         as: 'fuente', kind: 'youtube', feed_url: resuelto,
+        saludable: chk.ok,
         name: chk.ok ? chk.nombre : undefined,
         label: chk.ok
           ? `a YouTube channel · ${chk.nombre}${chk.videos ? ` · ${Number(chk.videos).toLocaleString()} videos` : ''}`
@@ -390,6 +419,7 @@ async function clasificar(texto: string): Promise<Resuelto> {
       const callado = chk.ok ? avisoDeSilencio(chk.diasDesdeUltimo) : undefined;
       return {
         as: 'fuente', kind: 'podcast', feed_url: ap.feed_url, name: nombre,
+        saludable: chk.ok,
         label: chk.ok
           ? `a podcast · ${nombre ?? 'untitled'}` +
             (ap.episodios ? ` · ${ap.episodios.toLocaleString()} episodes` : '') +
@@ -405,10 +435,12 @@ async function clasificar(texto: string): Promise<Resuelto> {
     // la propia URL, que es una petición y una respuesta definitiva.
     const pareceFeed = /\.(xml|rss)$/i.test(ruta) || /\/(feed|rss)\/?$/i.test(ruta) ||
                        /^feeds?\./i.test(host) || /\/(feed|rss|podcast)s?\//i.test(ruta);
-    const chkFeed = ruta !== '/' && ruta !== '' ? await feedResponde(t) : { ok: false as const, error: '' };
+    const chkFeed = ruta !== '/' && ruta !== '' ? await feedResponde(t) : { ok: false as const, error: '', probado: false };
 
     if (chkFeed.ok || pareceFeed) {
-      const chk = chkFeed.ok ? chkFeed : await feedResponde(t);
+      // Si ya se probó y falló, NO se vuelve a pedir: eran dos timeouts de 12 s
+      // seguidos en el camino del fallo, en una función que promete una petición.
+      const chk = ('probado' in chkFeed && chkFeed.probado === false) ? await feedResponde(t) : chkFeed;
       // `<itunes:` es lo que separa un podcast de un medio escrito y ya viene en
       // lo que se descargó: antes se volvía a pedir el feed entero solo para
       // mirarlo.
@@ -416,6 +448,7 @@ async function clasificar(texto: string): Promise<Resuelto> {
       const callado = chk.ok ? avisoDeSilencio(chk.diasDesdeUltimo) : undefined;
       return {
         as: 'fuente', kind, feed_url: t, name: chk.ok ? nombreCorto(chk.nombre) : undefined,
+        saludable: chk.ok,
         label: chk.ok
           ? `a ${kind === 'podcast' ? 'podcast' : 'feed'} · ${chk.nombre ?? 'untitled'}` +
             (callado ? ` · nothing yet: ${callado}` : '')
@@ -503,14 +536,25 @@ Deno.serve(async (req) => {
 
         if (forzado === 'fuente' || (forzado === '' && r.as === 'fuente')) {
           const kind = kindForzado || r.kind || 'rss';
+          if (!KINDS.has(kind)) return bad(`unknown source kind «${kind}»`);
           const buscada = kind === 'tema' || kind === 'persona';
 
           if (!buscada && !r.feed_url) return bad('could not work out what to follow there');
+          // Una fuente cuyo chequeo FALLÓ no se guarda. Antes el fallo iba en el
+          // `label`, nadie lo miraba aquí, y la fila entraba igual — para fallar
+          // cada noche en silencio y aparecer 14 días después como «callada».
+          // Se decide por la BANDERA, no por el texto del aviso: el primer
+          // intento filtraba la prosa con un regex y «the feed responded 404» no
+          // estaba en la lista, así que el roto entró igual. Un contrato no
+          // viaja en frases para humanos.
+          if (!buscada && r.saludable === false) {
+            return bad(`not added — ${r.aviso ?? r.label}`);
+          }
           const nombre = (r.name || r.feed_url || texto).slice(0, 120);
 
           const fila: Record<string, unknown> = {
             kind, name: nombre, notes: b.notes ?? null,
-            feed_url: buscada ? null : r.feed_url,
+            feed_url: buscada ? null : normalizarFeed(String(r.feed_url)),
           };
           const { data, error } = await db.from('glossa_radar_sources')
             .insert(fila).select('*').single();
@@ -518,7 +562,9 @@ Deno.serve(async (req) => {
             if ((error as { code?: string }).code === '23505') return bad('that source is already registered');
             throw error;
           }
-          return ok({ as: 'fuente', source: data, label: r.label });
+          // El aviso que quede (p. ej. «lleva 11 días sin publicar») viaja en la
+          // respuesta: en el peek se veía y al confirmar desaparecía.
+          return ok({ as: 'fuente', source: data, label: r.label, aviso: r.aviso });
         }
 
         // Elemento suelto: entra en la misma cola que todo lo demás.
@@ -614,13 +660,14 @@ Deno.serve(async (req) => {
       case 'sources.create': {
         const bruta = String(b.feed_url || '').trim();
         if (!/^https?:\/\//i.test(bruta)) return bad('the URL must start with http(s)://');
-        const feed_url = await resolverYouTube(bruta);
+        let feed_url = await resolverYouTube(bruta);
         const kind = String(b.kind || 'rss');
         if (!['youtube', 'podcast', 'rss'].includes(kind)) return bad('invalid type');
         // Se comprueba antes de guardar: una fuente rota que falla cada noche en
         // silencio es peor que un error ahora.
         const chequeo = kind === 'youtube' ? await canalResponde(feed_url) : await feedResponde(feed_url);
         if (!chequeo.ok) return bad(chequeo.error!);
+        feed_url = kind === 'youtube' ? feed_url : normalizarFeed(feed_url);
         const { data, error } = await db.from('glossa_radar_sources')
           .insert({ kind, feed_url, name: String(b.name || chequeo.nombre || feed_url).slice(0, 120),
                     homepage: b.homepage ?? null, notes: b.notes ?? null })

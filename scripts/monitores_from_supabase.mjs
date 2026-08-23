@@ -13,7 +13,7 @@
 //
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, TAVILY_API_KEY.
 
-import { ajustes, uso as gastoActual, apuntar, cabe } from '../src/lib/presupuesto.js';
+import { ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe } from '../src/lib/presupuesto.js';
 
 const URL_SB = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
@@ -35,7 +35,16 @@ const CADA = { daily: 1, weekly: 7, biweekly: 14, monthly: 30 };
 
 // La misma ventana que usa el radar para los feeds (BACKFILL_DIAS = 7). Lo que
 // caiga fuera no puede salir en el número, así que analizarlo es tirar cuota.
-const CORTE = new Date(Date.now() - 7 * 864e5);
+// El corte de aceptación es el DOMINGO de la semana abierta, no «7 días atrás»:
+// con lo segundo, el jueves entraba un artículo del viernes anterior que se
+// digería —gastando cuota— para no poder aparecer nunca, porque su semana ya
+// cerró y la abierta empieza en domingo.
+const CORTE = (() => {
+  const d = new Date();
+  const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  x.setUTCDate(x.getUTCDate() - x.getUTCDay());
+  return x;
+})();
 
 /**
  * La compuerta de relevancia, y es lo más valioso de todo esto.
@@ -116,8 +125,10 @@ async function buscar(fuente) {
     if (!r.ok) throw new Error(`tavily ${r.status}: ${(await r.text()).slice(0, 200)}`);
     const d = await r.json();
     // `advanced` cuesta 2 créditos y `basic` 1. Apuntar siempre 1 dejaba el tope
-    // midiendo por debajo justo en las búsquedas más caras.
+    // midiendo por debajo justo en las búsquedas más caras. Y también en la
+    // copia local: sin eso, `cabe()` miraba la foto del arranque toda la corrida.
     await apuntar(URL_SB, KEY, 'tavily', persona ? 2 : 1);
+    apuntarLocal(gasto, 'tavily', persona ? 2 : 1);
     out.push(...(d.results ?? []));
   }
   return out;

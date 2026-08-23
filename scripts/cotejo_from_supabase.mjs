@@ -14,7 +14,7 @@
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, TAVILY_API_KEY, GEMINI_API_KEY.
 
 import { createHash } from 'node:crypto';
-import { ajustes, uso as gastoActual, apuntar, cabe } from '../src/lib/presupuesto.js';
+import { ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe } from '../src/lib/presupuesto.js';
 import { promptCotejo } from './prompts_cotejo.mjs';
 
 const URL_SB = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
@@ -207,11 +207,13 @@ async function buscarDocumento(claim) {
     body: JSON.stringify({ query: q, max_results: 4, search_depth: 'advanced',
                            include_raw_content: false }),
   });
-  // Dos créditos, no uno: `advanced` cuesta el doble que `basic`. Apuntar 1 hacía
-  // que el tope midiera la mitad de lo que se gastaba, así que se agotaba la
-  // cuota real mucho antes de que `cabe()` dijera nada.
-  await apuntar(URL_SB, KEY, 'tavily', 2);
   if (!r.ok) throw new Error(`tavily ${r.status}`);
+  // Dos créditos, no uno: `advanced` cuesta el doble. Se apunta DESPUÉS de saber
+  // que respondió —una clave rotada registraba gasto sin gastar— y también en la
+  // copia local: `cabe()` mira una foto del arranque, y sin refrescarla una
+  // corrida podía pasarse cuarenta créditos del tope en una sola tarde.
+  await apuntar(URL_SB, KEY, 'tavily', 2);
+  apuntarLocal(gasto, 'tavily', 2);
   return { query: q, resultados: (await r.json()).results ?? [] };
 }
 
@@ -238,14 +240,20 @@ async function juzgar(claim, item, hallazgo, intento = 0) {
   const d = await r.json();
   const tok = d.usageMetadata?.totalTokenCount ?? 0;
   await apuntar(URL_SB, KEY, 'gemini', 1, tok);
+  apuntarLocal(gasto, 'gemini', 1);
   const txt = (d.candidates?.[0]?.content?.parts ?? []).map(x => x.text || '').join('');
   return { ...JSON.parse(txt.replace(/^\s*```(?:json)?/, '').replace(/```\s*$/, '')), tokens: tok };
 }
 
 // ── Corrida ────────────────────────────────────────────────────────────────
+// Ventana anclada al DOMINGO de la semana abierta, como el número que la va a
+// leer. Con «8 días rodantes», el sábado se pagaban búsquedas por afirmaciones
+// de un item del viernes ANTERIOR — que el número ya no puede leer, así que el
+// veredicto no se adjuntaba a nada.
 const ahora = new Date();
 const finDia = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() + 1));
-const desde = new Date(finDia); desde.setUTCDate(desde.getUTCDate() - 8);
+const desde = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()));
+desde.setUTCDate(desde.getUTCDate() - desde.getUTCDay());
 
 const ajus = await ajustes(URL_SB, KEY);
 const gasto = await gastoActual(URL_SB, KEY);

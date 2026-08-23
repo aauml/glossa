@@ -40,7 +40,9 @@ if (!URL_SB || !KEY) { console.error('Falta SUPABASE_URL / SUPABASE_SERVICE_KEY'
 if (!TAVILY)         { console.error('Falta TAVILY_API_KEY'); process.exit(1); }
 if (!GEMINI)         { console.error('Falta GEMINI_API_KEY'); process.exit(1); }
 
-const SECO = !!process.env.REPORTAJE_DRY;   // no escribe nada; sí busca y digiere
+// `=== '1'`, no truthiness: la entrada del workflow dice «1 = sí», y quien
+// respondiera `0` —la forma natural de decir que no— habría hecho un seco.
+const SECO = process.env.REPORTAJE_DRY === '1';   // no escribe nada; sí busca y digiere
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
 
 async function sb(path, init = {}) {
@@ -65,6 +67,16 @@ const finDia = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ah
 const desde  = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()));
 desde.setUTCDate(desde.getUTCDate() - desde.getUTCDay());     // el domingo de esta semana
 const SEMANA = desde.toISOString().slice(0, 10);
+
+// El domingo no se sale a buscar. La ventana de este guion es «de este domingo
+// hasta mañana» — el domingo eso es UN día, y el número que se escribe esa misma
+// mañana lee la semana ANTERIOR: todo lo que se encontrara sería invisible para
+// él y aterrizaría en la semana siguiente amontonado en una fecha. El botón del
+// panel lo hace alcanzable, así que se corta aquí, no en el calendario.
+if (ahora.getUTCDay() === 0 && !process.env.REPORTAJE_HOY) {
+  console.log('Domingo: el número de hoy lee la semana cerrada y esta búsqueda no puede alcanzarlo. Se sale sin gastar.');
+  process.exit(0);
+}
 
 console.log(`Reportaje · ventana ${desde.toISOString().slice(0,10)} → ${finDia.toISOString().slice(0,10)} · semana ${SEMANA}`);
 
@@ -111,18 +123,24 @@ async function buscar(q) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TAVILY}` },
     body: JSON.stringify({
-      query: String(q).slice(0, 380), topic: 'news', days: 8, max_results: 5,
+      query: String(q).slice(0, 380), topic: 'news',
+      // Los días de búsqueda son los de la VENTANA. Con 8 fijos, un viernes se
+      // pagaban resultados de días que el filtro de fecha iba a tirar.
+      days: Math.max(2, Math.ceil((finDia - desde) / 864e5)), max_results: 5,
       search_depth: 'advanced',
       include_raw_content: true,       // ← toda la diferencia con el cotejo
       exclude_domains: EXCLUIR.slice(0, 150),
     }),
   });
+  if (!r.ok) throw new Error(`tavily ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  // Se apunta DESPUÉS de saber que respondió: una clave rotada devolvía 401 y
+  // aun así registraba dos créditos y quemaba una búsqueda del cupo — y la
+  // corrida entera habría concluido «no había más que divergiera» cuando lo
+  // cierto era que nada funcionó. `advanced` cuesta dos créditos, y se apunta
+  // también en la copia local: el contador de `cabe()` es una foto del arranque.
   busquedas++;
-  // `advanced` cuesta dos créditos. Y se apunta también en la copia local: el
-  // contador que mira `cabe()` se leyó al arrancar y no se vuelve a leer.
   await apuntar(URL_SB, KEY, 'tavily', 2);
   apuntarLocal(gasto, 'tavily', 2);
-  if (!r.ok) throw new Error(`tavily ${r.status}: ${(await r.text()).slice(0, 200)}`);
   return (await r.json()).results ?? [];
 }
 
@@ -392,10 +410,12 @@ for (const tema of temas.slice(0, TEMAS_RONDA1)) {
       // cinco resultados no cabían ya, y encima se archivó como «sin hallazgos».
       if (entradas.length >= POR_TEMA_MAX + 2) { paro = 'cupo'; break; }
       if (!quedaBusqueda()) { paro = 'tope_semana'; break; }
-      consultasHechas.push({ ronda, ...c });
       let brutos = [];
       try { brutos = await buscar(c.q); }
       catch (e) { console.log(`    ✗ ${String(e).slice(0, 90)}`); continue; }
+      // Se anota tras el éxito: una consulta que falló no es una búsqueda hecha,
+      // y el parte la contaba como si el mundo hubiera contestado vacío.
+      consultasHechas.push({ ronda, ...c });
 
       const pasan = filtrar(brutos, estado);
       console.log(`    r${ronda} «${c.q.slice(0, 62)}» → ${brutos.length} · pasan ${pasan.length}`);
@@ -472,7 +492,17 @@ for (const tema of temas.slice(0, TEMAS_RONDA1)) {
     console.log(`     descartes: ${Object.entries(estado.descartes).map(([k, n]) => `${k} ${n}`).join(', ')}`);
   }
 
+  // Los hechos que el número va a citar —choques, despachos compartidos, bocas
+  // repetidas, países— se miden sobre lo que ENTRA, no sobre todo lo hallado.
+  // `medir(entradas)` sirve para decidir si seguir buscando; pero un choque
+  // entre dos reportes que NO entraron habría puesto en el número una
+  // discrepancia sin ningún `r` que la sostuviera, y «reports filed from TR,
+  // MX» cuando los dos se recortaron. En una publicación cuya premisa es la
+  // procedencia, esa es la categoría más cara de mentira.
+  const medidaEntran = medir(entran);
+
   // ── Escribir ───────────────────────────────────────────────────────────
+  let entraronTema = 0;
   if (!SECO) {
     for (const e of entran) {
       const fila = {
@@ -514,34 +544,51 @@ for (const tema of temas.slice(0, TEMAS_RONDA1)) {
         method: 'POST',
         headers: { Prefer: 'resolution=ignore-duplicates' },
         body: JSON.stringify([{ item_id: itemId, topic_id: tema.topic_id, relevance: 'central' }]),
-      }).catch(() => {});
-      entranTotal++;
+      }).catch(err => console.log(`     · enlace al tema no escrito para ${e.dom}: ${String(err).slice(0, 80)}`));
+      entranTotal++; entraronTema++;
     }
+  }
 
-    // El parte se escribe SIEMPRE, encuentre o no. Una ausencia no tiene fila en
-    // `items`, y «se buscó sobre esto y no había nada fuera» es la mitad del
-    // valor de haber salido.
+  // El parte NO se escribe aquí: se acumula y se escribe al final de la corrida,
+  // porque `dominios_vacios` tiene que filtrarse contra lo aceptado en TODA la
+  // corrida — un medio puede devolver un recorte en el tema A y un artículo
+  // completo en el B, y el parte del A habría dicho que «no devolvió nada» un
+  // medio que el número está citando dos párrafos más abajo.
+  partes.push({
+    tema: tema.label,
+    fila: {
+      topic_id: tema.topic_id, week_start: SEMANA, label: tema.label,
+      queries: consultasHechas, paises: medidaEntran.paises, rondas: ronda,
+      busquedas: consultasHechas.length,
+      hallados: entradas.length,
+      // Lo que de verdad se escribió, no lo que se intentó: un fallo de guardado
+      // dejaba el parte afirmando reportaje para un asunto con cero filas.
+      entran: SECO ? entran.length : entraronTema,
+      colapsados: { relatos: medidaEntran.colapsados, choques: medidaEntran.choques,
+                    bocas_compartidas: medidaEntran.compartidas, descartes: estado.descartes,
+                    // El proceso de búsqueda, aparte de los hechos citables:
+                    // sirve para responder «¿no había nada, o lo comió el filtro?»
+                    proceso: { dispersion: medida.dispersion, hallados_brutos: entradas.length } },
+      vacios_tema: [...estado.vacios],
+      dispersion: medida.dispersion, paro,
+    },
+    aceptados: [...estado.dominios],
+    entradas: entradas.length, entran: entran.length, paro,
+  });
+}
+
+// ── Los partes, con los vacíos filtrados contra toda la corrida ───────────
+if (!SECO) {
+  const aceptadosRun = new Set(partes.flatMap(x => x.aceptados));
+  for (const x of partes) {
+    const { vacios_tema, ...fila } = x.fila;
+    fila.dominios_vacios = vacios_tema.filter(d => !aceptadosRun.has(d));
     await sb('glossa_radar_reportajes?on_conflict=topic_id,week_start', {
       method: 'POST',
       headers: { Prefer: 'resolution=merge-duplicates' },
-      body: JSON.stringify([{
-        topic_id: tema.topic_id, week_start: SEMANA, label: tema.label,
-        queries: consultasHechas, paises: medida.paises, rondas: ronda,
-        busquedas: consultasHechas.length,
-        hallados: entradas.length, entran: entran.length,
-        colapsados: { relatos: medida.colapsados, choques: medida.choques,
-                      bocas_compartidas: medida.compartidas, descartes: estado.descartes },
-        // Solo los que NUNCA devolvieron nada. Un medio puede tener un artículo
-      // completo y otro recortado: `arabic.rt.com` salió a la vez como reportaje
-      // válido y como dominio vacío, y el número habría dicho que no devolvió
-      // nada un medio del que sí está citando algo.
-      dominios_vacios: [...estado.vacios].filter(d => !estado.dominios.has(d)),
-        dispersion: medida.dispersion, paro,
-      }]),
-    }).catch(e => console.log(`     ✗ parte: ${String(e).slice(0, 120)}`));
+      body: JSON.stringify([fila]),
+    }).catch(e => console.log(`  ✗ parte «${x.tema}»: ${String(e).slice(0, 120)}`));
   }
-
-  partes.push({ tema: tema.label, entradas: entradas.length, entran: entran.length, paro });
 }
 
 console.log(`\n${busquedas} de ${TOPE_SEMANA} búsquedas · ${entranTotal} reportajes entran`);

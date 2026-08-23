@@ -118,7 +118,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const r = await api('intake.add', { texto: t, ...(forzado || {}) });
     $('in-add').disabled = false;
     if (r.error) { msg(cajaMsg, r.error, false); return; }
-    msg(cajaMsg, r.as === 'fuente' ? `Now following: ${r.source.name}`
+    // El aviso del alta —«lleva 11 días sin publicar»— viaja ahora en la
+    // respuesta; antes se veía en el peek y desaparecía al confirmar.
+    if (r.as === 'fuente' && r.aviso) { msg(cajaMsg, `Now following: ${r.source.name} — ${r.aviso}`, true); }
+    else msg(cajaMsg, r.as === 'fuente' ? `Now following: ${r.source.name}`
                                    : `Queued: ${r.item.title.slice(0, 70)}`, true);
     $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
     forzado = null; ultimoPeek = '';
@@ -199,6 +202,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   delegar(listaSrc, '[data-t]', async (b) => {
     b.disabled = true;
+    // El resultado se mira: un fallo silencioso aquí dejaba la fila reapareciendo
+    // sin explicación tras el repintado.
     await api('sources.toggle', { id: b.dataset.t, active: b.dataset.a === '1' });
     pintarFuentes();
   });
@@ -274,7 +279,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     el.innerHTML =
         cifra(porLeer ? `${porLeer} · ~${horas} h` : '0', 'still to read', porLeer > 0)
       + cifra(e.listos || 0, 'ready for the issue')
-      + cifra(e.reportaje || 0, 'outside reports')
+      + cifra(`${e.reportaje || 0}${e.buscados ? ` / ${e.buscados}` : ''}`,
+              e.sin_nada ? `outside reports · nothing for ${e.sin_nada}` : 'outside reports')
       + cifra(`${e.fuentes || 0}${e.calladas ? ` · ${e.calladas}` : ''}`,
               e.calladas ? 'sources · quiet 2 weeks' : 'sources')
       + ((e.con_error || 0) ? cifra(e.con_error, 'failed', true) : '');

@@ -63,23 +63,35 @@ Deno.serve(async (req) => {
   if (zombis?.length) log.rescatados_atascados = zombis.length;
 
   // ── 1. Descubrir ────────────────────────────────────────────────────────
-  if (b.skip_discover !== true && !cabe(gasto, ajus, 'youtube', 'cap_youtube_dia')) {
-    agotado.push('youtube');
-    log.presupuesto_agotado = agotado;
-  } else if (b.skip_discover !== true) {
+  // El tope de YouTube frena SOLO a YouTube. Antes envolvía el bucle entero:
+  // agotada esa cuota, los podcasts y la prensa —que no gastan ni una unidad—
+  // dejaban de sondearse el resto del día, y el único rastro era una línea en
+  // una respuesta que no lee nadie.
+  const sinYoutube = !cabe(gasto, ajus, 'youtube', 'cap_youtube_dia');
+  if (sinYoutube) agotado.push('youtube');
+  if (b.skip_discover !== true) {
     const { data: fuentes } = await sb.from('glossa_radar_sources').select('*').eq('active', true);
     const corte = new Date(Date.now() - BACKFILL_DIAS * 864e5);
     let nuevos = 0;
     let erroresFuente: string[] | undefined;
     for (const src of fuentes ?? []) {
+      // Un tema o una persona no tienen feed: los sondea `monitores`, no el
+      // radar. Aquí siempre acababan en `fetch(null)` — un error silencioso que,
+      // con el contador de salud nuevo, habría ido sumando fallos hasta que el
+      // vigilante los pausara por una avería que no existe.
+      if (!src.feed_url) continue;
       try {
         // YouTube va por su API oficial desde que el RSS dejó de responder;
         // podcasts y prensa siguen por RSS, que en su caso sí funciona.
         let entradas;
+        let filtradas: { external_id: string; url: string; title: string; published_at: string; motivo: string }[] = [];
+        if (src.kind === 'youtube' && sinYoutube) continue;
         if (src.kind === 'youtube') {
           const canal = idDeCanal(src.feed_url);
           if (!canal) throw new Error('no se reconoce el id del canal en la URL guardada');
-          entradas = await episodiosYouTube(canal, Deno.env.get('GLOSSA_YOUTUBE_KEY')!);
+          const res = await episodiosYouTube(canal, Deno.env.get('GLOSSA_YOUTUBE_KEY')!);
+          entradas = res.entradas;
+          filtradas = res.filtrados;
         } else {
           const r = await fetch(src.feed_url, { signal: AbortSignal.timeout(15_000) });
           if (!r.ok) throw new Error(`feed ${r.status}`);
@@ -101,13 +113,38 @@ Deno.serve(async (req) => {
           if (error) throw new Error(`upsert: ${error.message}`);
           nuevos += data?.length ?? 0;
         }
-        await sb.from('glossa_radar_sources').update({ last_checked_at: new Date().toISOString() }).eq('id', src.id);
+        // Lo filtrado se escribe como `skipped` CON SU NOTA. Callarlo dejaría el
+        // descubrimiento indistinguible de uno roto, y además cada pasada lo
+        // redescubriría y volvería a preguntar por su duración.
+        const paraSaltar = filtradas
+          .filter(e => new Date(e.published_at) >= corte)
+          .map(e => ({
+            source_id: src.id, origin: 'feed', external_id: e.external_id, url: e.url,
+            title: e.title, author: partirInvitado(e.title), published_at: e.published_at,
+            state: 'skipped', error: e.motivo, digested_at: new Date().toISOString(),
+          }));
+        if (paraSaltar.length) {
+          await sb.from('glossa_radar_items')
+            .upsert(paraSaltar, { onConflict: 'external_id', ignoreDuplicates: true });
+        }
+        // Las columnas de salud existen desde la 0022 y el camino de feeds no
+        // las tocaba: una fuente rota tardaba CATORCE días en distinguirse de
+        // una callada. Con esto, seis horas.
+        await sb.from('glossa_radar_sources').update({
+          last_checked_at: new Date().toISOString(),
+          last_success_at: new Date().toISOString(),
+          consecutive_failures: 0,
+        }).eq('id', src.id);
         // Dos unidades por canal: la lista de subidas y las duraciones.
         if (src.kind === 'youtube') await apuntar(sb, 'youtube', 2);
       } catch (e) {
         // Una fuente rota no debe parar al resto, pero tampoco desaparecer: se
         // devuelve en la respuesta para que se vea desde el panel.
         (erroresFuente ||= []).push(`${src.name}: ${String(e).slice(0, 120)}`);
+        await sb.from('glossa_radar_sources').update({
+          last_checked_at: new Date().toISOString(),
+          consecutive_failures: Number(src.consecutive_failures ?? 0) + 1,
+        }).eq('id', src.id);
       }
     }
     log.descubiertos = nuevos;

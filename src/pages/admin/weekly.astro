@@ -24,24 +24,26 @@ import '../../styles/weekly.css';
 
 <script>
   import { renderIssue } from '../../lib/weekly.js';
-
-  const api = (op, extra = {}) => fetch('/api/admin/op/', { method: 'POST',
-    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op, ...extra }) }).then(r => r.json());
-  const esc = (s) => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
-  const msg = (t, ok) => { document.getElementById('msg').innerHTML =
-    `<div class="admin-msg ${ok ? 'ok' : ''}">${esc(t)}</div>`; };
+  // Los ayudantes son los del panel, no una copia: la copia local hacía
+  // `r.json()` sin red de seguridad —un 503 de texto plano dejaba la página en
+  // «loading…» para siempre— y su `esc` no escapaba la comilla simple.
+  import { api, esc, msg as msgEl } from '../../lib/panel.js';
+  const msg = (t, ok) => msgEl(document.getElementById('msg'), t, ok);
 
   let actual = null;
 
   // La flecha sólo aparece cuando el índice ya quedó atrás. Se arma tras pintar,
   // porque antes de eso el índice no existe en la página.
+  let flecha = null;
   function armarFlecha() {
     const b = document.getElementById('weekly-top');
     const i = document.getElementById('contents');
     if (!b || !i || !('IntersectionObserver' in window)) return;
-    new IntersectionObserver(
+    flecha?.disconnect();   // pintar() corre otra vez tras publicar; sin esto se acumulan
+    flecha = new IntersectionObserver(
       (e) => b.classList.toggle('on', !e[0].isIntersecting && e[0].boundingClientRect.top < 0),
-      { threshold: 0 }).observe(i);
+      { threshold: 0 });
+    flecha.observe(i);
   }
 
   async function pintar() {
@@ -58,9 +60,16 @@ import '../../styles/weekly.css';
     actual = d.issue;
     const publicado = actual.state === 'publicado';
 
+    // «PARTIAL CUT» en mayúsculas y primero: sin esto, un corte de lunes con un
+    // día y medio de material se enseñaba idéntico a un número cerrado, con su
+    // botón de Publish al lado.
     document.getElementById('meta').textContent =
+      `${actual.parcial ? 'PARTIAL CUT (week still open) · ' : ''}` +
       `${actual.week_start} → ${actual.week_end} · ${actual.item_count} episodes` +
-      `${actual.cotejo_count ? ` · ${actual.cotejo_count} claims cross-checked` : ''} · ${actual.state}`;
+      `${actual.reportaje_count ? ` · ${actual.reportaje_count} outside reports` : ''}` +
+      `${actual.cotejo_count ? ` · ${actual.cotejo_count} claims cross-checked` : ''}` +
+      `${actual.piezas_sin_reportaje ? ` · ${actual.piezas_sin_reportaje} piece(s) ignored the reporting` : ''}` +
+      ` · ${actual.state}`;
 
     // El fusible, junto al botón. Corre el mismo código que corrió al escribir el
     // número: si aquí dijera otra cosa, no serviría de nada.
@@ -93,8 +102,18 @@ import '../../styles/weekly.css';
 
   document.getElementById('rebuild').onclick = async (e) => {
     e.target.disabled = true;
+    // Se pasa el domingo QUE CIERRA la semana del número visible (`week_start+7`,
+    // que para el guion significa «finge que hoy es ese domingo» → corte oficial
+    // de ESTA semana). Sin fecha, un martes esto cortaba la semana abierta — un
+    // parcial de dos días — en vez de reconstruir lo que se está mirando.
+    let semana = null;
+    if (actual?.week_start) {
+      const d = new Date(`${actual.week_start}T00:00:00Z`);
+      d.setUTCDate(d.getUTCDate() + 7);
+      semana = d.toISOString().slice(0, 10);
+    }
     msg('Asked GitHub to write it. It takes about 15 minutes — reload then.', true);
-    const r = await api('weekly.rebuild');
+    const r = await api('weekly.rebuild', semana ? { semana } : {});
     e.target.disabled = false;
     if (r.error) msg(r.error, false);
   };

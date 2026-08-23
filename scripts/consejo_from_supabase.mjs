@@ -194,7 +194,12 @@ await sb('glossa_radar_consejo', {
     decision, motivo, aplicado: !!decision, coste_usd: coste,
   }]),
 });
-for (const v of validos) if (v.tokens) await apuntar(URL_SB, KEY, v.casa, 1, v.tokens, 0);
+// El coste va a la fila del PROVEEDOR, no solo al registro del consejo: la casa
+// kimi comparte fila con el número semanal, y apuntarle $0 dejaba `llamadas`
+// subiendo sin coste que cuadrara — dos columnas de la misma fila en desacuerdo.
+for (const v of validos) if (v.tokens) {
+  await apuntar(URL_SB, KEY, v.casa, 1, v.tokens, (v.tokens / 1e6) * 1.0);
+}
 
 if (decision) {
   await sb('glossa_radar_settings', {

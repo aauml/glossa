@@ -105,7 +105,9 @@ export function renderIssue(body = {}) {
           for (const id of p.sources || []) {
             const e = enlaces[id];
             if (!e?.url) continue;                     // un id inventado se calla
-            const k = e.channel || 'source';
+            // La llave lleva el tipo: un canal seguido y un medio de reportaje
+            // que compartan nombre no deben fundirse en un enlace.
+            const k = `${e.kind === 'report' ? 'r|' : 'c|'}${e.channel || 'source'}`;
             if (!porCanal.has(k)) porCanal.set(k, { ...e, n: 0 });
             porCanal.get(k).n++;
           }
@@ -118,10 +120,13 @@ export function renderIssue(body = {}) {
           const pinta = ([k, e]) =>
             `<a class="fuente${e.kind === 'report' ? ' reportaje' : ''}" href="${esc(e.url)}"
                target="_blank" rel="noopener"
-               title="${esc(e.title || '')}">${esc(k)}${e.n > 1 ? ` <span class="n">${e.n}</span>` : ''}<span aria-hidden="true"> ↗</span></a>`;
-          todos.sort((a, b) => (a[1].kind === 'report' ? 1 : 0) - (b[1].kind === 'report' ? 1 : 0));
-          const primeros = todos.slice(0, 6).map(pinta).join('');
-          const resto = todos.slice(6);
+               title="${esc(e.title || '')}">${esc(k.slice(2))}${e.n > 1 ? ` <span class="n">${e.n}</span>` : ''}<span aria-hidden="true"> ↗</span></a>`;
+          // Los reportajes NUNCA se pliegan: su justificación entera es verse de
+          // un vistazo. El tope de seis y el desplegable son solo para el coro.
+          const reportes = todos.filter(([, e]) => e.kind === 'report');
+          const canales = todos.filter(([, e]) => e.kind !== 'report');
+          const primeros = canales.slice(0, 6).map(pinta).join('') + reportes.map(pinta).join('');
+          const resto = canales.slice(6);
           // Los que sobran se despliegan de verdad. «and 12 more» sin poder abrirlo
           // solo dice que hay algo que no puedes ver.
           return resto.length

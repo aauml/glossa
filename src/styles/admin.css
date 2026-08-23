@@ -10,7 +10,11 @@
  */
 :root {
   --bg: #F4EDE0; --surface: #ECE2D0; --ink: #1A1A1A; --ink-soft: #2A2A2A;
-  --muted: #5C5C5C; --rule-soft: #C8C2B5; --accent: #7A1F1F; --gold: #B8860B;
+  --muted: #5C5C5C; --rule-soft: #C8C2B5; --accent: #7A1F1F;
+  /* Copiado de global.css como los demás. Faltaba, y el subrayado del reportaje
+     en el borrador caía a currentColor: gris aquí, oxblood en vivo — y la página
+     promete que el borrador se pinta EXACTAMENTE como saldrá. */
+  --accent-soft: #a14848; --gold: #B8860B;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 a { color: inherit; text-decoration: none; }

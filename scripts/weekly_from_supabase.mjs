@@ -81,9 +81,16 @@ if (!cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd')) {
   process.exit(0);
 }
 
+// Con orden y con la trampa dicha: sin `order`, al pasar de 500 PostgREST
+// devolvía 500 filas ARBITRARIAS — el mismo truncado silencioso que la 0029
+// eliminó para los temas, reintroducido en la consulta principal.
 const items = await sb(
   `glossa_radar_items?select=id,title,author,url,published_at,digest,origin,lang,glossa_radar_sources(name)` +
-  `&state=eq.digested&published_at=gte.${desde.toISOString()}&published_at=lt.${finDia.toISOString()}&limit=500`);
+  `&state=eq.digested&published_at=gte.${desde.toISOString()}&published_at=lt.${finDia.toISOString()}` +
+  `&order=published_at.desc&limit=500`);
+if (items?.length === 500) {
+  console.log('  AVISO: la semana superó las 500 filas; entra lo más nuevo y se recorta lo más viejo.');
+}
 
 if (!items.length) { console.log('Sin material digerido esta semana — no se escribe nada.'); process.exit(0); }
 
@@ -580,7 +587,16 @@ if (process.env.WEEKLY_DRY) {
 }
 
 const raw = await pedirAKimi();
-const d = JSON.parse(raw);
+// El parse va protegido para que el GASTO se apunte igual: la llamada de ~950 s
+// ya se facturó respondiera lo que respondiera, y morir antes de apuntarla la
+// dejaba invisible para el único tope que se mide en dólares.
+let d;
+try { d = JSON.parse(raw); }
+catch {
+  await apuntar(URL, KEY, 'moonshot', 1, 0, 0.05);   // estimación conservadora: no hay usage que leer
+  console.error(`Moonshot devolvió algo que no es JSON (${raw.slice(0, 160)}). La llamada queda apuntada.`);
+  process.exit(1);
+}
 const uso = d.usage || {};
 const msg = d.choices?.[0]?.message || {};
 let txt = (msg.content || '').trim();
