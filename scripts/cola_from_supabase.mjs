@@ -25,6 +25,7 @@ if (!TOKEN)          { console.error('Falta GLOSSA_PUBLISH_TOKEN'); process.exit
 
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
 const MINUTOS = Number(process.env.COLA_MINUTOS || 100);
+const PAUSA_MS = Number(process.env.COLA_PAUSA_S || 45) * 1000;
 const t0 = Date.now();
 const queda = () => MINUTOS * 60_000 - (Date.now() - t0);
 
@@ -79,6 +80,19 @@ while (e.por_leer > 0 && queda() > 180_000) {
   // veces más solo esconde que algo está roto.
   quietas = hechos > 0 ? 0 : quietas + 1;
   if (quietas >= 3) { console.log('\nTres vueltas sin avanzar; se para.'); break; }
+
+  // Pausa. El techo de verdad no es el tiempo de la edge function, es la cuota
+  // del tramo gratuito de Gemini: llamando sin respirar, una pasada devolvió un
+  // episodio leído y DOS «429 exceeded your current quota» en 93 s. El radar
+  // los devuelve a la cola, así que no se pierde nada — pero forzar el ritmo
+  // para que dos de cada tres reboten no es ir más rápido.
+  //
+  // Si la vuelta anterior tocó cuota, se espera más. Es la señal más directa que
+  // hay de que se está apretando de más.
+  const espera = hechos > 0 ? PAUSA_MS : PAUSA_MS * 3;
+  if (e.por_leer > 0 && queda() > espera + 120_000) {
+    await new Promise(r => setTimeout(r, espera));
+  }
 }
 
 console.log(`\n${arranque - e.por_leer} leídos en ${vueltas} vuelta(s) · quedan ${e.por_leer}` +
