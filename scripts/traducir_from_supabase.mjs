@@ -156,13 +156,13 @@ for (const m of TRADUCTORES) {
   }
 
   const v = revisar(r.es, { items, cotejos: cotejos ?? [], ids: new Set(Object.keys(indice)),
-                            indice, reportaje_count: 1 });
+                            indice, reportaje_count: 1, lang: 'es', original: w.body });
   const citas = v.fallos.filter(f => f.grave &&
-    ['cita sin procedencia', 'cita traducida', 'cita de paráfrasis'].includes(f.regla));
+    ['comillas en la traducción', 'voces inventadas'].includes(f.regla));
 
   console.log(`  ${m.n.padEnd(30)} ${String(Math.round((Date.now() - t0) / 1000)).padStart(3)}s · ` +
     `${String(r.tok).padStart(6)} tok · $${r.coste.toFixed(4)} · ` +
-    (citas.length ? `✗ tocó ${citas.length} cita(s)` : '✓ las citas siguen intactas'));
+    (citas.length ? `✗ ${citas.map(f => f.regla).join(', ')}` : '✓ citas en cursiva, ninguna inventada'));
   for (const f of citas.slice(0, 2)) console.log(`      ${String(f.detalle).slice(0, 88)}`);
 
   if (!citas.length) { es = r.es; veredicto = v; break; }
@@ -171,7 +171,7 @@ for (const m of TRADUCTORES) {
 }
 
 if (!es) {
-  console.error(`\nNingún traductor conservó las citas (gastado $${gastado.toFixed(4)}). ` +
+  console.error(`\nNingún traductor marcó bien las citas (gastado $${gastado.toFixed(4)}). ` +
     `No se guarda nada; el número en inglés no se toca y se reintenta la semana que viene.`);
   process.exit(1);
 }

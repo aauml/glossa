@@ -80,10 +80,10 @@ export const LEYENDA_ES = `
 const PALABRAS = {
   en: { de: 'of', indice: 'In this issue', cierre: 'What nobody said',
         volver: '↑ Contents',
-        fuentes: (n, f) => `${n} source${n === 1 ? '' : 's'}${f ? ` · ${f} from outside` : ''}` },
+        fuentes: (n) => `${n} source${n === 1 ? '' : 's'}` },
   es: { de: 'de', indice: 'En este número', cierre: 'Lo que no dijo nadie',
         volver: '↑ Índice',
-        fuentes: (n, f) => `${n} fuente${n === 1 ? '' : 's'}${f ? ` · ${f} de fuera` : ''}` },
+        fuentes: (n) => `${n} fuente${n === 1 ? '' : 's'}` },
 };
 
 export function renderIssue(body = {}, lang = 'en') {
@@ -141,12 +141,11 @@ export function renderIssue(body = {}, lang = 'en') {
             `<a class="fuente${e.kind === 'report' ? ' reportaje' : ''}" href="${esc(e.url)}"
                target="_blank" rel="noopener"
                title="${esc(e.title || '')}">${esc(k.slice(2))}${e.n > 1 ? `<span class="n">${e.n}</span>` : ''}</a>`;
-          // Los de fuera van después y se cuentan aparte: en una publicación cuya
-          // premisa es la procedencia, «4 de fuera» dice de un vistazo si esta
-          // pieza salió a comprobar algo o se quedó en casa.
+          // Los de fuera van después, sin contarse aparte: el subrayado ya los
+          // distingue y esa cuenta es cocina, no información para quien lee.
           const reportes = todos.filter(([, e]) => e.kind === 'report');
           const canales = todos.filter(([, e]) => e.kind !== 'report');
-          return `<details class="fuentes"><summary>${esc(T.fuentes(todos.length, reportes.length))}</summary>` +
+          return `<details class="fuentes"><summary>${esc(T.fuentes(todos.length))}</summary>` +
                  `<span class="fuentes-lista">${[...canales, ...reportes].map(pinta).join('')}</span></details>`;
         })()}</p>` : ''}
       <a class="up" href="#contents">${T.volver}</a>

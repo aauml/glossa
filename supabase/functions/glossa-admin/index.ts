@@ -633,12 +633,20 @@ Deno.serve(async (req) => {
       }
 
       case 'queue.list': {
-        // Todo lo que no viene de un feed —pegado y, en su momento, hallado por
-        // búsqueda— más lo que esté fallando, venga de donde venga. Es la vista
-        // de «qué he metido yo y en qué anda».
+        // Lo que ESPERA o pide atención. No es un archivo.
+        //
+        // Antes listaba todo lo que no venía de un feed, para siempre: doce
+        // reportajes y cuatro hallazgos de la semana pasada, ya leídos, seguían
+        // ahí semanas después. Una lista llamada «cola» que solo crece no dice
+        // qué está en marcha — dice qué ha existido, que es otra pregunta.
+        //
+        // Ahora: lo pendiente o roto (venga de donde venga) y lo añadido en las
+        // últimas 48 h, para ver en qué acabó lo que acabas de meter. Lo demás
+        // ya cumplió y se aparta solo.
+        const hace48h = new Date(Date.now() - 48 * 3600_000).toISOString();
         const { data, error } = await db.from('glossa_radar_items')
-          .select('id,title,url,origin,state,published_at,digested_at,error,glossa_radar_sources(name)')
-          .or('origin.neq.feed,state.eq.error')
+          .select('id,title,url,origin,state,published_at,digested_at,created_at,error,glossa_radar_sources(name)')
+          .or(`state.in.(pending,running,error),and(origin.neq.feed,created_at.gte.${hace48h})`)
           .order('created_at', { ascending: false }).limit(40);
         if (error) throw error;
         return ok({ items: data ?? [] });

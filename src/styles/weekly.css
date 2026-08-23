@@ -166,11 +166,25 @@
   border-bottom: 1px dotted var(--rule-soft); padding-bottom: 1px;
 }
 .weekly .src details.fuentes > summary::-webkit-details-marker { display: none; }
-.weekly .src details.fuentes > summary::after { content: " +"; opacity: .5; }
+.weekly .src details.fuentes > summary::after { content: " +"; opacity: .4; }
 .weekly .src details.fuentes[open] > summary::after { content: " −"; }
 .weekly .src details.fuentes > summary:hover,
 .weekly .src details.fuentes[open] > summary { color: var(--accent); }
-.weekly .src .fuentes-lista { display: block; margin-top: .45rem; }
+/* En columna, una por línea, pequeñas. Es una lista para consultar, no una
+   fila de botones: separadas por comas se leían como si pidieran atención. */
+.weekly .src .fuentes-lista { display: block; margin-top: .5rem; }
+.weekly .src .fuentes-lista .fuente {
+  display: block; font-size: .86em; line-height: 1.9;
+  border-bottom: 0; color: var(--muted);
+}
+.weekly .src .fuentes-lista .fuente:hover { color: var(--accent); }
+.weekly .src .fuentes-lista .fuente + .fuente::before { content: none; }
+.weekly .src .fuentes-lista .fuente.reportaje { border-bottom: 0; color: var(--muted); }
+/* Lo de fuera se marca con un guion largo delante, no con otro color: dice de
+   dónde vino sin gritarlo. */
+.weekly .src .fuentes-lista .fuente.reportaje::before {
+  content: "— "; color: var(--accent-soft); opacity: .7;
+}
 .weekly .src .fuente:hover, .weekly .src .fuente:focus-visible {
   color: var(--accent); border-color: var(--accent);
 }

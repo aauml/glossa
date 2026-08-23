@@ -124,6 +124,35 @@ export function revisar(issue = {}, contexto = {}) {
     if (it.digest?.what_happened) parafrasis.add(norm(it.digest.what_happened));
   }
 
+  // ── El español se juzga con otra vara ───────────────────────────────────
+  // Allí las citas van traducidas y en CURSIVA, sin comillas: una traducción no
+  // puede afirmar ser literal, así que no lleva la marca que lo afirma. Comparar
+  // letra por letra contra un material en inglés no diría nada.
+  //
+  // Lo que sí se puede comprobar, y es lo que importa: que no se haya INVENTADO
+  // ninguna voz. En español no puede haber más pasajes citados que en el
+  // original, ni comillas sueltas que reclamen literalidad.
+  if (contexto.lang === 'es') {
+    const original = contexto.original ?? null;
+    const cursivas = textos.join(' ').match(/(?<!\*)\*[^*\n]{8,}\*(?!\*)/g) ?? [];
+    const enComillas = textos.flatMap(t => citas(t));
+
+    if (enComillas.length) {
+      falla('comillas en la traducción',
+        `${enComillas.length} pasaje(s) entrecomillados: «${String(enComillas[0]).slice(0, 60)}». ` +
+        `En español la voz ajena va en cursiva — unas comillas afirmarían que son las palabras exactas, ` +
+        `y una traducción nunca lo es.`);
+    }
+    if (original) {
+      const enOriginal = textoDelNumero(original).flatMap(t => citas(t)).length;
+      if (cursivas.length > enOriginal + 2) {
+        falla('voces inventadas',
+          `la traducción marca ${cursivas.length} pasajes como dicho por alguien y el original tenía ${enOriginal}`);
+      }
+    }
+    return { ok: !fallos.some(f => f.grave), fallos, citas: cursivas.length };
+  }
+
   for (const t of textos) {
     if (comillasDescuadradas(t)) {
       falla('comillas sin cerrar',

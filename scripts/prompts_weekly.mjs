@@ -4,14 +4,22 @@
 /**
  * El número en español.
  *
- * La regla que gobierna todo lo demás: **las comillas no se traducen**. En una
- * publicación cuya premisa es que una frase entrecomillada son palabras
- * literales, traducirlas convertiría en paráfrasis lo que se presenta como cita
- * —y el fusible, que compara cada comilla con el material original en inglés,
- * dejaría de proteger la versión española sin que nadie lo notara—.
+ * Las citas SÍ se traducen — y por eso dejan de llevar comillas.
  *
- * Que el fusible corra también sobre esta traducción no es un extra: es lo que
- * hace comprobable la regla.
+ * La primera versión las dejaba en inglés dentro de la prosa española, para que
+ * una comilla siguiera significando «palabras exactas». Se leía mal y confundía:
+ * el lector no sabe si eso es un descuido o una decisión.
+ *
+ * La salida no es elegir entre fidelidad y legibilidad, es cambiar la marca
+ * tipográfica. En español la voz ajena va en CURSIVA, sin comillas: se lee bien,
+ * se entiende, y no afirma ser literal — porque no lo es, es una traducción. Las
+ * comillas son la promesa que no se puede cumplir en otro idioma; la cursiva no
+ * promete eso.
+ *
+ * Lo que el fusible comprueba entonces cambia: ya no puede comparar letra por
+ * letra contra un material que está en inglés, así que comprueba que no se haya
+ * INVENTADO ninguna — que en español no haya más voces citadas que en el
+ * original.
  */
 export function promptTraduccion(numero) {
   return [
@@ -23,12 +31,21 @@ export function promptTraduccion(numero) {
     '',
     'REGLAS — la primera es la que importa y no admite excepción:',
     '',
-    '- **NO TRADUZCAS NADA QUE ESTÉ ENTRE COMILLAS.** Toda frase entrecomillada',
-    '  —comillas rectas o tipográficas— se copia LETRA POR LETRA, en inglés, sin',
-    '  tocar una coma. Esta publicación afirma que una comilla son las palabras',
-    '  exactas de alguien; traducirlas la convertiría en mentira. Si te resulta',
-    '  raro leer una cita en inglés dentro de una frase en español: es correcto y',
-    '  es deliberado, y es lo que hace la prensa seria.',
+    '- **LAS CITAS SE TRADUCEN, Y PIERDEN LAS COMILLAS.** Toda frase que en el',
+    '  original vaya entre comillas se traduce al español y se marca con',
+    '  *asteriscos* —que se pintan en cursiva—, SIN comillas de ningún tipo.',
+    '',
+    '    inglés:   He said "the strait is open and operating normally"',
+    '    español:  Dijo que *el estrecho está abierto y funciona con normalidad*',
+    '',
+    '  El motivo importa y no es de estilo: unas comillas afirman que esas son',
+    '  las palabras exactas de alguien, y una traducción nunca lo es. La cursiva',
+    '  dice «esto es lo que dijo» sin prometer literalidad, que es exactamente lo',
+    '  que una traducción puede sostener.',
+    '',
+    '  NO inventes citas que no estén en el original, y no conviertas en cita algo',
+    '  que allí era prosa normal: en español tiene que haber las MISMAS voces',
+    '  citadas que en inglés, ni una más.',
     '',
     '- Conserva EXACTAMENTE las marcas del aparato, sin traducir el atributo:',
     '    <span class="doc">…</span>   <span class="attr">…</span>   <span class="said">…</span>',

@@ -25,7 +25,7 @@ vista y la decisión parece arbitraria.
 | D-017 | 2026-08-23 | Radar | Dos relojes y un botón para saltarse el ritmo | vigente |
 | D-018 | 2026-08-23 | Revista | La paráfrasis se reconoce pero no se cita | vigente |
 | D-019 | 2026-08-23 | Revista | Un parcial nunca pisa a un oficial, y nunca se publica solo | vigente |
-| D-020 | 2026-08-23 | Revista | En español, las comillas se quedan en inglés | vigente |
+| D-020 | 2026-08-23 | Revista | En español las citas se traducen, y van en cursiva | vigente (revisada) |
 | D-021 | 2026-08-23 | Revista | Se cuenta la noticia, no quién la dijo | vigente |
 | D-022 | 2026-08-23 | Revista | Traducir con cascada verificada, no con el mejor modelo | vigente |
 
@@ -297,30 +297,33 @@ reglas que el código impone y no negocia:
   el guion ve eso y NO escribe el número real de la semana, y nada lo nota — el
   vigilante solo comprueba que la fila exista.
 
-## D-020 · En español, las comillas se quedan en inglés
+## D-020 · En español las citas se traducen, y van en cursiva
 
-El número se escribe en inglés y se traduce. En la versión española **las frases
-entrecomilladas no se traducen**: se copian letra por letra, en inglés, dentro
-de una prosa en español. Es lo que hace la prensa seria, y aquí además no es
-estilo: es la única opción coherente con lo que la publicación afirma.
+*(Revisada el mismo día. La primera versión dejaba las citas en inglés dentro de
+la prosa española; se leía mal y confundía —el lector no sabe si eso es un
+descuido o una decisión—. La regla nueva conserva lo que aquella protegía.)*
 
-La regla de la casa dice que una comilla son las palabras exactas de alguien.
-Una comilla traducida no lo es —es una paráfrasis con forma de cita—, así que
-traducirlas convertiría en mentira la única marca tipográfica que esta
-publicación pide que te creas.
+En español, la voz ajena va **traducida y en cursiva, sin comillas**:
 
-Lo que hace que esto no sea una buena intención: **el fusible corre también
-sobre la traducción**. Su regla 1 exige que cada frase entrecomillada exista
-literal en el material, y el material está en inglés. Una cita traducida aparece
-como «cita sin procedencia» y queda registrada en `fuse_es`. La regla es
-comprobable, y por eso se sostiene sola.
+> Trump lo calificó de *la operación económica más aplastante jamás emprendida
+> contra ningún país*.
 
-El mal arreglo que se propondrá algún día, cuando alguien encuentre raro leer
-una cita en inglés dentro de una frase en español: traducir las citas y añadir
-el original entre corchetes, o registrar la traducción como citable. Lo primero
-duplica el texto y no arregla nada; lo segundo **desactiva el fusible en la
-versión española sin que nadie lo note**. Es la misma tentación que D-010 ya
-rechazó por la vía del reportaje.
+El fondo del problema no era elegir entre fidelidad y legibilidad: era que **unas
+comillas prometen algo que una traducción no puede cumplir**. Entrecomillar
+afirma «estas son las palabras exactas», y una traducción nunca lo es. La
+cursiva dice «esto es lo que dijo» sin prometer literalidad — que es exactamente
+lo que una traducción sí puede sostener.
+
+Así que la regla de la casa no se debilita, se traslada a la marca correcta: las
+comillas siguen significando palabras exactas, y por eso no aparecen en la
+versión traducida.
+
+Lo que el fusible comprueba cambia con ella. En inglés compara cada frase
+entrecomillada contra el material, letra por letra. En español eso no diría nada
+—el material está en inglés—, así que comprueba dos cosas distintas: que no haya
+NINGÚN pasaje entrecomillado (una comilla ahí reclamaría una literalidad que no
+existe) y que no haya más voces citadas que en el original, para que no se
+inventen.
 
 ## D-021 · Se cuenta la noticia, no quién la dijo
 

@@ -18,6 +18,24 @@ Tres auditorías en paralelo sobre el proyecto entero, con cada hallazgo
 verificado contra el código y la base en vivo. Treinta y nueve fallos reales.
 Los patrones, que valen más que la lista:
 
+### Cuando una marca promete algo que no puedes cumplir, cambia la marca
+_Applies to: LLM_
+
+**Síntoma** — Para no mentir, la versión española dejaba las citas en inglés
+dentro de la prosa. Rigurosa y **ilegible**: el lector no sabe si es un descuido
+o una decisión.
+**Causa** — Se dio por hecho que la disyuntiva era fidelidad o legibilidad, y se
+eligió fidelidad. La disyuntiva era falsa.
+**Arreglo** — El problema no era la traducción, era la marca: **unas comillas
+prometen «palabras exactas», y una traducción no puede cumplirlo**. En cursiva y
+sin comillas, el mismo texto dice «esto es lo que dijo» sin prometer literalidad
+— y eso sí lo sostiene.
+
+Lo general: cuando una convención tipográfica te obliga a elegir entre ser fiel y
+ser legible, **suele ser la convención lo que está mal aplicado**, no el
+contenido. Y el verificador se traslada con ella: en español el fusible ya no
+compara letra por letra, comprueba que no haya comillas ni voces inventadas.
+
 ### Un modelo que razona traduciendo es dinero quemado en pensar
 _Applies to: LLM · Anthropic_
 
