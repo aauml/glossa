@@ -93,6 +93,40 @@ produce un fallo total.
 decírselo también al modelo, para que el resultado no presuma de una cobertura
 que no tuvo.
 
+### Una fuente correcta y callada se lee igual que una averiada
+_Applies to: repository / CI-CD · monitoring / health checks_
+
+**Síntoma** — Se dan de alta tres podcasts y dos no traen ni un episodio. En la
+lista de fuentes salen como «0 en cola, 0 esta semana», que en esa lista
+significa muerta.
+**Causa** — Ninguna avería: el radar solo mira siete días hacia atrás al dar de
+alta una fuente, y los dos programas eran quincenales con su último episodio a
+once y doce días. Correctos, vivos y silenciosos.
+**Arreglo** — Decirlo **en el momento de añadirla**, que es cuando la persona
+está mirando: «su último episodio es de hace 11 días, y el radar mira 7 hacia
+atrás». Un aviso en un registro que nadie abre no habría servido de nada.
+
+Es la lección del filtro silencioso otra vez, y por eso vale la pena escribirla
+aparte: la primera vez fue un filtro descartando sin decirlo, esta es una
+ventana. Lo que se repite no es el mecanismo, es **el hueco entre «no hay nada»
+y «no se buscó»**, y cada vez aparece en un sitio distinto.
+
+### Un título de feed trae el eslogan pegado
+_Applies to: repository / CI-CD_
+
+**Síntoma** — En la lista de fuentes: `"The Cognitive Revolution" | AI Builders,
+Researchers, and Live Player Analysis`.
+**Causa** — Apple y muchos feeds meten el reclamo dentro del `<title>`, porque
+ahí es donde lo ve quien busca en su tienda.
+**Arreglo** — Cortar por el separador, pero **solo si el título es largo** y lo
+que queda delante sigue siendo un nombre. Sin esa condición se estropean los
+nombres legítimos con guion: «Judge Napolitano - Judging Freedom» y «Center for
+Strategic & International Studies» tienen que quedarse enteros.
+
+Y un fallo que se descubrió al tocarlo: el título se leía con un patrón de «todo
+menos `<`», y un título en CDATA empieza justo por `<`. Un podcast de Substack se
+daba de alta como «untitled» y nadie lo habría notado hasta ver la lista.
+
 ### Excluir por «fue un directo» descarta casi todo lo bueno
 _Applies to: search / benchmarking_
 
