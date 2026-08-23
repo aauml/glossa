@@ -18,9 +18,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
        Arriba del todo porque es la pregunta con la que se entra: ¿va bien? Las
        cuentas del sistema —gasto, cotejos, comité— siguen abajo y plegadas;
        esas no se miran a diario. -->
-  <div class="admin-cifras" id="st-cifras" style="margin-bottom:34px">
+  <div class="admin-cifras" id="st-cifras">
     <span class="admin-vacio">loading…</span>
   </div>
+  <p class="admin-nota" id="st-corte" style="margin:10px 0 34px"></p>
 
   <!-- ── La caja ────────────────────────────────────────────────────────── -->
   <section class="admin-sec">
@@ -244,26 +245,51 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   });
 
   // ── Esta semana ─────────────────────────────────────────────────────────
+  // Cada número contesta UNA pregunta, y todos miran la misma ventana que usará
+  // el corte. Los que había antes no servían: «446 picked up this week» sumaba
+  // lo leído, lo que esperaba y 155 descartados por duración —tres cosas en un
+  // número—; «225 read in total» contaba desde el principio de los tiempos; y
+  // «78 topics alive» eran todos los temas que han existido, de los que 75 eran
+  // de esa misma semana.
   async function pintarCifras() {
     const e = await api('status');
-    const el = $('st-cifras');
+    const el = $('st-cifras'), nota = $('st-corte');
     if (e.error) { el.innerHTML = `<span class="admin-vacio">${esc(e.error)}</span>`; return; }
-    const it = e.items || {};
+
     const cifra = (n, t, acento) => `<div class="admin-cifra"><b${
       acento ? ' style="color:var(--accent)"' : ''}>${esc(n)}</b><span>${esc(t)}</span></div>`;
+
+    // «81 por leer» no dice si esperar; «81 · ~7 h» sí. La estimación sale del
+    // ritmo real de las últimas seis horas, no de una constante.
+    const porLeer = Number(e.por_leer || 0);
+    const ritmo = Number(e.ritmo || 0);
+    const horas = porLeer && ritmo ? Math.ceil(porLeer / ritmo) : 0;
+
     el.innerHTML =
-        cifra(e.semana || 0, 'picked up this week')
-      + cifra(it.pending || 0, 'waiting to be read')
-      + cifra(it.digested || 0, 'read in total')
-      + cifra(e.sources?.active ?? 0, 'sources followed')
-      + cifra(e.topics || 0, 'topics alive')
-      // Lo que se salió a buscar fuera. Va con su denominador porque la cifra
-      // sola no dice nada: «7 reports» puede ser de siete asuntos o de uno, y
-      // «buscado sobre 5, nada en 2» sí dice cómo fue la semana.
-      + cifra(`${e.reportaje || 0}${e.buscados ? ` / ${e.buscados}` : ''}`,
-              e.sin_nada ? `outside reports · nothing for ${e.sin_nada}` : 'outside reports')
-      + ((it.error || 0) ? cifra(it.error, 'failed', true) : '');
+        cifra(porLeer ? `${porLeer} · ~${horas} h` : '0', 'still to read', porLeer > 0)
+      + cifra(e.listos || 0, 'ready for the issue')
+      + cifra(e.reportaje || 0, 'outside reports')
+      + cifra(`${e.fuentes || 0}${e.calladas ? ` · ${e.calladas}` : ''}`,
+              e.calladas ? 'sources · quiet 2 weeks' : 'sources')
+      + ((e.con_error || 0) ? cifra(e.con_error, 'failed', true) : '');
+
+    // Y debajo, en una línea, lo único que hay que decidir con esos números.
+    const dia = (iso) => new Date(iso).toISOString().slice(5, 10).replace('-', '/');
+    const ventana = `${dia(e.desde)}–${dia(e.hasta)}`;
+    nota.innerHTML = e.listos
+      ? `Issue for <b>${esc(ventana)}</b>${e.parcial ? ' (week still open)' : ''} would use ` +
+        `<b>${esc(e.listos)}</b>${porLeer ? `, leaving <b>${esc(porLeer)}</b> still unread out` : ''}. ` +
+        `<button class="admin-btn sec" id="st-cortar">Cut now</button>`
+      : 'Nothing read yet for this week.';
   }
+
+  // El corte lo escribe un Action porque el modelo tarda ~15 min; esto solo
+  // aprieta el botón. Es el mismo que el de la pestaña Weekly.
+  delegar($('st-corte'), '#st-cortar', async (b) => {
+    b.disabled = true; b.textContent = 'launching…';
+    const r = await api('weekly.rebuild');
+    b.textContent = r.error ? 'failed' : 'launched · ~15 min';
+  });
 
   async function pintarTripas() {
     if (!tripasPintadas) return;

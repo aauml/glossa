@@ -37,15 +37,31 @@ async function sb(path, init = {}) {
 }
 
 // ── La semana ────────────────────────────────────────────────────────────
-// Corre el domingo de madrugada, así que la semana que acaba de cerrarse es
-// domingo→sábado: empieza hace siete días y termina ayer. Se toma la ventana
-// completa hasta la medianoche de ayer para no cortar un sábado por la mitad.
-const ahora   = process.env.WEEK_END ? new Date(process.env.WEEK_END) : new Date();
-const finDia  = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()));
-const desde   = new Date(finDia); desde.setUTCDate(desde.getUTCDate() - 7);
+// La ventana se ancla al DOMINGO, no a «los últimos siete días desde hoy». Con
+// lo segundo, un corte a mano el martes cubría 18→24 y escribía una fila
+// `2026-08-18` en vez de actualizar la de la semana: cada corte intermedio
+// creaba una revista suelta con fechas que no son las de ninguna semana. Así
+// aparecieron las filas huérfanas que había guardadas.
+//
+//   domingo    → la semana que ACABA de cerrarse (domingo→sábado). Es el corte
+//                oficial, el que corre solo de madrugada.
+//   otro día   → de este domingo hasta ahora. Es un corte parcial, para ver cómo
+//                va, y pisa siempre la MISMA fila; el domingo lo cierra.
+const ahora  = process.env.WEEK_END ? new Date(process.env.WEEK_END) : new Date();
+const hoy    = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()));
+const PARCIAL = hoy.getUTCDay() !== 0;
+
+const desde = new Date(hoy);
+const finDia = new Date(hoy);
+if (PARCIAL) {
+  desde.setUTCDate(desde.getUTCDate() - hoy.getUTCDay());   // el domingo de esta semana
+  finDia.setUTCDate(finDia.getUTCDate() + 1);               // hasta el final de hoy
+} else {
+  desde.setUTCDate(desde.getUTCDate() - 7);                 // el domingo anterior
+}
 const weekEnd = new Date(finDia); weekEnd.setUTCDate(weekEnd.getUTCDate() - 1);
 
-console.log(`Semana ${iso(desde)} → ${iso(weekEnd)}`);
+console.log(`Semana ${iso(desde)} → ${iso(weekEnd)}${PARCIAL ? ' (corte parcial, la semana sigue abierta)' : ''}`);
 
 // Kimi es lo único que cuesta dinero aquí, así que es lo único con tope en
 // dólares. Alcanzarlo no es un error: se sale sin escribir y se dice por qué.
@@ -561,11 +577,15 @@ console.log(`  ${secciones.length} piezas · ${secciones.reduce((n, p) => n + St
 // ── No pisar un número mejor ─────────────────────────────────────────────
 // Pasó de verdad con la versión anterior: una pasada parcial sobrescribió un
 // número completo. "Se regeneró" y "se regeneró entero" no son lo mismo.
-const [actual] = await sb(`glossa_radar_weekly?select=id,topic_count,state&week_start=eq.${iso(desde)}`);
+const [actual] = await sb(`glossa_radar_weekly?select=id,topic_count,state,parcial&week_start=eq.${iso(desde)}`);
 if (actual && actual.state === 'publicado') {
   console.log('Ya hay un número PUBLICADO para esta semana; no se toca.'); process.exit(0);
 }
-if (actual && (actual.topic_count || 0) > secciones.length) {
+// Un corte parcial NUNCA debe ganarle al oficial. La comparación por número de
+// piezas se hizo para que una pasada a medias no pisara un número completo, y
+// sigue valiendo — pero solo entre cortes del mismo tipo. El del domingo cierra
+// la semana y sustituye a los parciales aunque traiga menos piezas.
+if (actual && PARCIAL === !!actual.parcial && (actual.topic_count || 0) > secciones.length) {
   console.log(`El número existente tiene ${actual.topic_count} piezas y esta pasada armó ${secciones.length}; se conserva el bueno.`);
   process.exit(0);
 }
@@ -587,7 +607,7 @@ const fila = {
   // que entró; `piezas_sin_reportaje`, cuántas piezas lo ignoraron habiéndolo.
   reportaje_count: reportaje.length,
   piezas_sin_reportaje: veredicto.piezas_sin_reportaje ?? 0,
-  week_start: iso(desde), week_end: iso(weekEnd),
+  week_start: iso(desde), week_end: iso(weekEnd), parcial: PARCIAL,
   // El mapa de ids va con el cuerpo: sin él, `sources: ["e3"]` no lleva a
   // ninguna parte cuando se pinta.
   body: { ...numero, sources_index: Object.fromEntries(idCorto) }, state: 'borrador',

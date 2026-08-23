@@ -58,6 +58,7 @@ rmSync('/tmp/subs', { recursive: true, force: true });
 mkdirSync('/tmp/subs', { recursive: true });
 
 let conTexto = 0, sinSubs = 0, ahorro = 0;
+let bloqueos = 0;
 
 for (const it of pendientes) {
   const carpeta = `/tmp/subs/${it.id}`;
@@ -99,11 +100,24 @@ for (const it of pendientes) {
     // esto falló hubo que volver a lanzarlo solo para averiguar por qué: la causa
     // útil venía en `stderr`, que es justo lo que el mensaje se comía.
     const motivo = String(e.stderr || e.message || e).replace(/\s+/g, ' ').trim();
-    await sb(`glossa_radar_items?id=eq.${it.id}`, {
-      method: 'PATCH', headers: { Prefer: 'return=minimal' },
-      body: JSON.stringify({ captions_at: new Date().toISOString() }) });
+
+    // Un bloqueo NO es una respuesta sobre el vídeo. «Sign in to confirm you're
+    // not a bot» dice que YouTube no atiende a esta máquina, no que el episodio
+    // no tenga subtítulos, y marcarlo como intentado lo condena para siempre: el
+    // día que esto se pueda hacer desde otro sitio, ninguno se reintentaría.
+    //
+    // Se descubrió midiendo, no leyendo: el trabajo corría cada hora, sacaba
+    // «0 con texto · 2 sin subtítulos» y se marcaba en verde mientras iba
+    // marcando episodios uno a uno.
+    const bloqueado = /not a bot|sign in to confirm|429|too many requests|http error 40[13]/i.test(motivo);
+    if (!bloqueado) {
+      await sb(`glossa_radar_items?id=eq.${it.id}`, {
+        method: 'PATCH', headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({ captions_at: new Date().toISOString() }) });
+    }
+    if (bloqueado) bloqueos++;
     sinSubs++;
-    console.log(`  · no se pudo  ${it.title.slice(0, 38)}`);
+    console.log(`  · ${bloqueado ? 'BLOQUEADO (no se marca, se podrá reintentar)' : 'no se pudo'}  ${it.title.slice(0, 38)}`);
     console.log(`      ${motivo.slice(0, 300)}`);
   } finally {
     rmSync(carpeta, { recursive: true, force: true });
@@ -116,3 +130,13 @@ for (const it of pendientes) {
 const ahorrado = conTexto * 126_000 - ahorro;
 console.log(`\n${conTexto} con texto · ${sinSubs} sin subtítulos` +
   (conTexto ? ` · ~${Math.round(ahorrado / 1000)}k tokens de vídeo que no se gastan` : ''));
+
+// Y si TODO fue bloqueo, se sale con error. Un trabajo que no consigue nada y se
+// pinta en verde es indistinguible de uno que funciona; así al menos el vigilante
+// lo ve y lo cuenta.
+if (bloqueos && !conTexto) {
+  console.error(`\nLos ${bloqueos} intentos los bloqueó YouTube: desde un servidor no atiende. ` +
+    `Esto solo funciona desde una conexión doméstica, y no se van a guardar cookies de sesión para ` +
+    `saltárselo. Mientras tanto el radar sigue analizando el vídeo, que funciona.`);
+  process.exit(1);
+}
