@@ -173,7 +173,28 @@ export async function episodiosYouTube(canalId: string, apiKey: string):
 
   const r = await fetch(u, { signal: AbortSignal.timeout(15_000) });
   const d = await r.json();
-  if (!r.ok) throw new Error(`youtube ${r.status}: ${String(d?.error?.message ?? '').slice(0, 120)}`);
+  if (!r.ok) {
+    // Un 404 en la lista de subidas admite dos lecturas muy distintas: el id del
+    // canal está mal, o el canal existe y NO HA PUBLICADO NADA —YouTube no crea
+    // la lista hasta el primer vídeo—. Se preguntaba y se decía «youtube 404»,
+    // el vigilante lo pausaba a los tres intentos, y el panel avisaba de una
+    // avería que no existía: CSIS Wadhwani AI Center tiene canal y cero vídeos.
+    // Una unidad de cuota, solo en el camino del fallo, separa las dos cosas.
+    if (r.status === 404) {
+      try {
+        const c = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=id&id=${canalId}&key=${apiKey}`,
+                              { signal: AbortSignal.timeout(10_000) });
+        const cd = await c.json();
+        if (c.ok && (cd.items ?? []).length) {
+          throw new Error('el canal existe pero no ha publicado ningún vídeo todavía — no hay nada que leer, y no es una avería');
+        }
+        throw new Error('ese id de canal no existe en YouTube — la URL guardada apunta a un canal que no está');
+      } catch (e) {
+        throw e instanceof Error ? e : new Error(String(e));
+      }
+    }
+    throw new Error(`youtube ${r.status}: ${String(d?.error?.message ?? '').slice(0, 120)}`);
+  }
 
   const brutas: Entrada[] = (d.items ?? []).map((i: any) => ({
     external_id: i.snippet.resourceId.videoId,
