@@ -47,29 +47,49 @@ async function sb(path, init = {}) {
 //                oficial, el que corre solo de madrugada.
 //   otro día   → de este domingo hasta ahora. Es un corte parcial, para ver cómo
 //                va, y pisa siempre la MISMA fila; el domingo lo cierra.
-// `WEEK_END` significa «finge que hoy es X». Solo un domingo produce un corte
-// OFICIAL; cualquier otro día produce un parcial de la semana de esa fecha. Se
-// valida aquí porque una fecha imparseable moría más abajo con un RangeError
-// pelado, antes de cualquier mensaje útil.
-const ahora  = process.env.WEEK_END ? new Date(process.env.WEEK_END) : new Date();
+// La ventana NO se calcula aquí: la da `glossa_semana_actual()`, en hora de Los
+// Ángeles. Cada consumidor calculándola por su cuenta era cuatro definiciones
+// que podían discrepar en silencio —y anclada a UTC, además, el número decía
+// cubrir el sábado y en realidad cerraba el viernes a las cinco de la tarde—.
+//
+// `WEEK_END` significa «finge que hoy es X»: se pasa como referencia. Solo un
+// domingo produce un corte OFICIAL.
+const ahora = process.env.WEEK_END ? new Date(process.env.WEEK_END) : new Date();
 if (Number.isNaN(ahora.getTime())) {
   console.error(`WEEK_END no es una fecha: «${process.env.WEEK_END}». Formato: YYYY-MM-DD, y un domingo para un corte oficial.`);
   process.exit(1);
 }
-const hoy    = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()));
-const PARCIAL = hoy.getUTCDay() !== 0;
+const [ventana] = await sb('rpc/glossa_semana_actual', {
+  method: 'POST', body: JSON.stringify({ ref: ahora.toISOString() }),
+});
+if (!ventana) { console.error('No se pudo leer la ventana de la semana.'); process.exit(1); }
+const desde   = new Date(ventana.desde);
+const finDia  = new Date(ventana.hasta);
+const PARCIAL = !!ventana.parcial;
+const weekEnd = new Date(finDia.getTime() - 864e5);
 
-const desde = new Date(hoy);
-const finDia = new Date(hoy);
-if (PARCIAL) {
-  desde.setUTCDate(desde.getUTCDate() - hoy.getUTCDay());   // el domingo de esta semana
-  finDia.setUTCDate(finDia.getUTCDate() + 1);               // hasta el final de hoy
-} else {
-  desde.setUTCDate(desde.getUTCDate() - 7);                 // el domingo anterior
+console.log(`Semana ${iso(desde)} → ${iso(weekEnd)} (hora de Los Ángeles)` +
+            `${PARCIAL ? ' · corte parcial, la semana sigue abierta' : ''}`);
+
+// ── Lo que se puede decidir SIN el texto, se decide antes de pagarlo ─────
+// Kimi tarda ~16 minutos y cuesta dinero. Que la semana ya esté publicada, o
+// que un parcial no pueda pisar a un oficial, no dependen de lo que el modelo
+// escriba: se sabían desde el principio y se comprobaban al final, después de
+// haber pagado la llamada entera para tirarla. Un «Cut now» sobre una semana ya
+// publicada gastaba dieciséis minutos para decir «no se toca».
+{
+  const [ya] = await sb(`glossa_radar_weekly?select=state,parcial&week_start=eq.${iso(desde)}`);
+  if (ya && ya.state === 'publicado') {
+    console.log(`Ya hay un número PUBLICADO para la semana del ${iso(desde)}; no se toca. ` +
+                `Para rehacerlo, retíralo primero desde el panel.`);
+    process.exit(0);
+  }
+  if (ya && PARCIAL && !ya.parcial) {
+    console.log('Ya existe el número OFICIAL de esta semana; un corte parcial no lo toca.');
+    process.exit(0);
+  }
 }
-const weekEnd = new Date(finDia); weekEnd.setUTCDate(weekEnd.getUTCDate() - 1);
 
-console.log(`Semana ${iso(desde)} → ${iso(weekEnd)}${PARCIAL ? ' (corte parcial, la semana sigue abierta)' : ''}`);
 
 // Kimi es lo único que cuesta dinero aquí, así que es lo único con tope en
 // dólares. Alcanzarlo no es un error: se sale sin escribir y se dice por qué.
@@ -621,10 +641,11 @@ console.log(`  ${secciones.length} piezas · ${secciones.reduce((n, p) => n + St
 // ── No pisar un número mejor ─────────────────────────────────────────────
 // Pasó de verdad con la versión anterior: una pasada parcial sobrescribió un
 // número completo. "Se regeneró" y "se regeneró entero" no son lo mismo.
+//
+// (Las dos compuertas que no dependen del texto ya se comprobaron ARRIBA, antes
+// de llamar al modelo. Esta relectura es para la comparación por piezas, que sí
+// necesita saber cuántas salieron.)
 const [actual] = await sb(`glossa_radar_weekly?select=id,topic_count,state,parcial&week_start=eq.${iso(desde)}`);
-if (actual && actual.state === 'publicado') {
-  console.log('Ya hay un número PUBLICADO para esta semana; no se toca.'); process.exit(0);
-}
 // La compuerta de pisado, asimétrica de verdad:
 //
 //   parcial  → oficial   NUNCA. Antes esta celda pisaba siempre, y era alcanzable

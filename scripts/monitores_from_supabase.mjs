@@ -35,16 +35,11 @@ const CADA = { daily: 1, weekly: 7, biweekly: 14, monthly: 30 };
 
 // La misma ventana que usa el radar para los feeds (BACKFILL_DIAS = 7). Lo que
 // caiga fuera no puede salir en el número, así que analizarlo es tirar cuota.
-// El corte de aceptación es el DOMINGO de la semana abierta, no «7 días atrás»:
-// con lo segundo, el jueves entraba un artículo del viernes anterior que se
-// digería —gastando cuota— para no poder aparecer nunca, porque su semana ya
-// cerró y la abierta empieza en domingo.
-const CORTE = (() => {
-  const d = new Date();
-  const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-  x.setUTCDate(x.getUTCDate() - x.getUTCDay());
-  return x;
-})();
+// El corte de aceptación es el arranque de la semana abierta, de la MISMA
+// función que usa el número. Con «7 días atrás», el jueves entraba un artículo
+// del viernes anterior que se digería —gastando cuota— para no poder aparecer
+// nunca: su semana ya había cerrado.
+let CORTE = new Date(Date.now() - 7 * 864e5);   // se sustituye abajo, tras leer la ventana
 
 /**
  * La compuerta de relevancia, y es lo más valioso de todo esto.
@@ -135,6 +130,12 @@ async function buscar(fuente) {
 }
 
 // ── Corrida ────────────────────────────────────────────────────────────────
+{
+  const [v] = await sb('rpc/glossa_semana_actual', { method: 'POST', body: '{}' });
+  if (v) CORTE = new Date(v.desde);
+  console.log(`Aceptando desde ${CORTE.toISOString().slice(0, 10)} (arranque de la semana, hora de Los Ángeles)`);
+}
+
 const ajus = await ajustes(URL_SB, KEY);
 const gasto = await gastoActual(URL_SB, KEY);
 

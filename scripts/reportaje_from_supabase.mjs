@@ -62,10 +62,13 @@ async function sb(path, init = {}) {
 // `week_start` es ese mismo domingo, no hoy: si el parte se archivara con la
 // fecha del viernes, el número y su reportaje quedarían en semanas distintas y
 // nadie podría cruzarlos.
-const ahora  = process.env.REPORTAJE_HOY ? new Date(process.env.REPORTAJE_HOY) : new Date();
-const finDia = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() + 1));
-const desde  = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()));
-desde.setUTCDate(desde.getUTCDate() - desde.getUTCDay());     // el domingo de esta semana
+const ahora = process.env.REPORTAJE_HOY ? new Date(process.env.REPORTAJE_HOY) : new Date();
+const [ventana] = await sb('rpc/glossa_semana_actual', {
+  method: 'POST', body: JSON.stringify({ ref: ahora.toISOString() }),
+});
+if (!ventana) { console.error('No se pudo leer la ventana de la semana.'); process.exit(1); }
+const desde  = new Date(ventana.desde);
+const finDia = new Date(ventana.hasta);
 const SEMANA = desde.toISOString().slice(0, 10);
 
 // El domingo no se sale a buscar. La ventana de este guion es «de este domingo

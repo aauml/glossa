@@ -246,14 +246,14 @@ async function juzgar(claim, item, hallazgo, intento = 0) {
 }
 
 // ── Corrida ────────────────────────────────────────────────────────────────
-// Ventana anclada al DOMINGO de la semana abierta, como el número que la va a
-// leer. Con «8 días rodantes», el sábado se pagaban búsquedas por afirmaciones
-// de un item del viernes ANTERIOR — que el número ya no puede leer, así que el
-// veredicto no se adjuntaba a nada.
-const ahora = new Date();
-const finDia = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() + 1));
-const desde = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()));
-desde.setUTCDate(desde.getUTCDate() - desde.getUTCDay());
+// La MISMA ventana que leerá el número, pedida a la misma función. Con «8 días
+// rodantes» el sábado se pagaban búsquedas por afirmaciones de un item del
+// viernes ANTERIOR, que el número ya no puede leer: el veredicto no se
+// adjuntaba a nada.
+const [ventana] = await sb('rpc/glossa_semana_actual', { method: 'POST', body: '{}' });
+if (!ventana) { console.error('No se pudo leer la ventana de la semana.'); process.exit(1); }
+const desde = new Date(ventana.desde);
+const finDia = new Date(ventana.hasta);
 
 const ajus = await ajustes(URL_SB, KEY);
 const gasto = await gastoActual(URL_SB, KEY);
