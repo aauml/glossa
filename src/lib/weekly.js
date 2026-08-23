@@ -84,15 +84,10 @@ export function renderIssue(body = {}) {
     <article class="piece" id="${slug(p.title)}">
       <p class="kicker">${String(i + 1).padStart(2, '0')} · of ${piezas.length}${
         p.subject ? ` · <span class="subj">${esc(p.subject)}</span>` : ''}</p>
-      <h2>${esc(p.title)}${(() => {
-        // Al final del título, apuntando al episodio principal de los que usó.
-        // Ahí es donde se busca cuando algo te llama la atención y quieres oírlo,
-        // no al pie después de leer los seiscientos palabras.
-        const e = enlaces[(p.sources || [])[0]];
-        return e?.url
-          ? ` <a class="ir" href="${esc(e.url)}" target="_blank" rel="noopener"
-               title="${esc(e.title || 'source')}" aria-label="Open the source"> ↗</a>` : '';
-      })()}</h2>
+      <!-- El título no lleva enlace. Un titular que se puede pinchar invita a
+           pinchar antes de leer, y aquí lo que se ofrece es la lectura; las
+           fuentes están al pie, que es donde se buscan cuando ya has leído. -->
+      <h2>${esc(p.title)}</h2>
       ${p.dek ? `<p class="dek">${esc(p.dek)}</p>` : ''}
       ${prosa(p.body)}
       ${p.sources_note || (p.sources || []).length ? `<p class="src">${esc(p.sources_note || '')}
@@ -117,10 +112,13 @@ export function renderIssue(body = {}) {
           // cuya premisa entera es que el lector pueda ver la procedencia, tiene
           // que poder distinguir de un vistazo cuáles de estos enlaces eran el
           // coro y cuáles el reporteo que se salió a buscar.
+          // Sin icono: la flecha repetida ocho veces era ocho manchas en una
+          // línea que solo tiene que estar disponible, no llamar. Un enlace es
+          // un enlace; el subrayado ya lo dice.
           const pinta = ([k, e]) =>
             `<a class="fuente${e.kind === 'report' ? ' reportaje' : ''}" href="${esc(e.url)}"
                target="_blank" rel="noopener"
-               title="${esc(e.title || '')}">${esc(k.slice(2))}${e.n > 1 ? ` <span class="n">${e.n}</span>` : ''}<span aria-hidden="true"> ↗</span></a>`;
+               title="${esc(e.title || '')}">${esc(k.slice(2))}${e.n > 1 ? `<span class="n">${e.n}</span>` : ''}</a>`;
           // Los reportajes NUNCA se pliegan: su justificación entera es verse de
           // un vistazo. El tope de seis y el desplegable son solo para el coro.
           const reportes = todos.filter(([, e]) => e.kind === 'report');

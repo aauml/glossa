@@ -58,9 +58,20 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
   <header class="masthead">
     <div class="masthead-inner">
       <a class="masthead-brand" href="/">Glossa</a>
-      <span>Weekly · {desde} – {hasta}</span>
+      <a href="/weekly/archive/">Every issue</a>
     </div>
   </header>
+
+  <!-- La marca de edición. Es lo único que separa la revista de un artículo:
+       misma tipografía, mismo fondo, mismos tamaños — pero con el filete y la
+       cabecera de un número, que se reconocen al instante sin parecer otro
+       sitio. -->
+  <div class="weekly-marca">
+    <div class="weekly-marca-inner">
+      <span class="weekly-marca-tag">Weekly</span>
+      <span class="weekly-marca-fechas">{desde} – {hasta}</span>
+    </div>
+  </div>
 
   <main class="weekly" set:html={renderIssue(b)} />
   <a href="#contents" id="weekly-top" aria-label="Back to contents">↑</a>

@@ -1,81 +1,35 @@
 ---
 export const prerender = false;
-import '../../styles/fonts.css';   // sin esto, Fraunces y Spectral caen a Georgia
-import '../../styles/global.css';
-import '../../styles/weekly.css';
-import { fecha } from '../../lib/weekly.js';
 
-// Existe para que el enlace de la portada no pueda apuntar a un 404. Si no hay
-// ningún número publicado, esta página lo dice; antes prefería enlazar al último
-// número directamente, y eso rompía el primer día.
+// `/weekly/` es el ÚLTIMO NÚMERO, no un índice.
+//
+// Antes era una lista con un enlace: un clic de más para llegar a lo único que
+// se quiere leer. La lista sigue existiendo en `/weekly/archive/`, que es donde
+// se busca cuando lo que quieres es otro número, no el de esta semana.
 const URL_SB = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
 const ANON = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
-// «Sin configuración» y «sin números» NO son lo mismo, y aquí lo eran: faltaba
-// `SUPABASE_ANON_KEY` en el entorno del despliegue y esta página anunciaba «No
-// issue has been published yet» con el primer número de la historia publicado y
-// visible en la base. Un fallo de configuración disfrazado del estado normal
-// del sistema es el más caro de encontrar: nada que mirar, nada que sospechar.
-let numeros = [];
-let averia = null;
 if (!URL_SB || !ANON) {
-  averia = 'the site cannot reach its archive right now';
   console.error('[weekly] falta SUPABASE_URL o SUPABASE_ANON_KEY en el entorno del despliegue');
-} else {
-  const r = await fetch(
-    `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body&state=eq.publicado&order=week_start.desc&limit=52`,
-    { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
-  if (r.ok) numeros = await r.json();
-  else {
-    averia = 'the site cannot reach its archive right now';
-    console.error(`[weekly] la base respondió ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  }
+  return new Response('The site cannot reach its archive right now. This is a fault here, not a missing issue.',
+                      { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 }
+
+const r = await fetch(
+  `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start&state=eq.publicado&order=week_start.desc&limit=1`,
+  { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } });
+
+if (!r.ok) {
+  console.error(`[weekly] la base respondió ${r.status}`);
+  return new Response('The site cannot reach its archive right now.',
+                      { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+}
+
+const [ultimo] = await r.json();
+
+// Sin ningún número publicado no hay adónde ir, y un redirect a un 404 sería
+// peor que decirlo: se manda al archivo, que sabe explicarse.
+return ultimo
+  ? Astro.redirect(`/weekly/${ultimo.week_start}/`, 302)
+  : Astro.redirect('/weekly/archive/', 302);
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weekly · Glossa</title>
-  <meta name="description" content="What a week of listening adds up to, and what it does not." />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="canonical" href="https://glossa.ademas.ai/weekly/" />
-</head>
-<body>
-  <header class="masthead">
-    <div class="masthead-inner">
-      <a class="masthead-brand" href="/">Glossa</a>
-      <span>Weekly</span>
-    </div>
-  </header>
-
-  <main class="weekly">
-    <h1 class="hed">Weekly</h1>
-    <div class="stand">
-      <p>What a week of listening adds up to — and, at the end of each issue, what
-      none of it said. Sections are whatever the week produced; there is no standing
-      list of topics.</p>
-    </div>
-
-    {numeros.length === 0 ? (
-      <p class="weekly-viejo">{averia ? `Something is wrong: ${averia}. This is not the same as there being nothing to read.` : 'No issue has been published yet.'}</p>
-    ) : (
-      <nav class="toc">
-        <h2>Issues</h2>
-        <ol>
-          {numeros.map((n, i) => (
-            <li><a href={`/weekly/${n.week_start}/`}>
-              <span class="n">{String(numeros.length - i).padStart(2, '0')}</span>
-              <span>
-                <span class="subj">{fecha(n.week_start)} – {fecha(n.week_end)}</span>
-                <span class="t">{n.body?.headline ?? 'Untitled'}</span>
-                <span class="d">{(n.body?.standfirst ?? '').split(/\s+/).slice(0, 24).join(' ')}…</span>
-              </span></a></li>
-          ))}
-        </ol>
-      </nav>
-    )}
-  </main>
-</body>
-</html>
