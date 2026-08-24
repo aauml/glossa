@@ -1,0 +1,56 @@
+{
+  "slug": "zulfiqar-fifth-fleet-petrodollar",
+  "issue": "N° 36",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtu.be",
+      "url": "https://youtu.be/yNk129KSV80?si=DLlRYTzFyx1Swj2G",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "respalda": "Zulfiqar argues that recent developments in the Middle East, particularly the inclusion of several regional nations in a defense agreement, reflect a strategic shift that poses a significant challenge to U.S. interests and the dominance of the petrodollar.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "isis-online.org — The IAEA released a quarterly report assessing Iran’s uranium enrichment activities and compliance w",
+      "url": "https://isis-online.org/isis-reports/analysis-of-iaea-iran-verification-and-monitoring-report-august-2024",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "respalda": "The IAEA released a quarterly report assessing Iran’s uranium enrichment activities and compliance with JCPOA monitoring. The analysis notes that Iran has increased its stockpile of enriched uranium and expanded its centrifuge capacity, potentially shortening the timeline for producing weapon-grade uranium. Iran also continues to restrict IAEA monitoring by withdrawing the designation of specific inspectors and failing to reinstall surveillance equipment.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "iranprimer.usip.org — This report provides a chronological summary of IAEA verification reports regarding Iran's nuclear p",
+      "url": "http://iranprimer.usip.org/index.php/blog/2024/may/30/timeline-irans-nuclear-challenges-and-iaea",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "respalda": "This report provides a chronological summary of IAEA verification reports regarding Iran's nuclear program from January 2016 through December 2020. It tracks Iran's compliance with the 2015 Joint Comprehensive Plan of Action (JCPOA), noting various instances where Iran exceeded limits on enriched uranium and heavy water stockpiles, as well as the agency's interactions with Tehran regarding site access and investigations into undeclared nuclear activities.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "armscontrol.org — Iran has breached limits established by the 2018 JCPOA by expanding its uranium enrichment capabilit",
+      "url": "https://www.armscontrol.org/factsheets/status-irans-nuclear-program-1",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "respalda": "Iran has breached limits established by the 2018 JCPOA by expanding its uranium enrichment capabilities and stockpiles. The country has reduced IAEA monitoring and surveillance activities, significantly shortening the time required to produce enough weapons-grade uranium for multiple nuclear bombs.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "securitycouncilreport.org — The Security Council is scheduled to review the biannual report on the implementation of resolution ",
+      "url": "https://www.securitycouncilreport.org/monthly-forecast/2024-12/iran-14.php",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "respalda": "The Security Council is scheduled to review the biannual report on the implementation of resolution 2231 regarding Iran's nuclear program in December 2024. This follows an IAEA Board of Governors resolution that censured Iran for its failure to cooperate with inspectors and its continued enrichment of uranium. Tensions remain high due to an exchange of direct military strikes between Iran and Israel in 2024.",
+      "verificada": "si"
+    }
+  ]
+}
