@@ -830,6 +830,17 @@ Deno.serve(async (req) => {
         return ok({ issues: data ?? [] });
       }
 
+      case 'weekly.delete': {
+        // Borrar es borrar: la fila se va, y si estaba publicada la página del
+        // sitio deja de existir con ella. Lo digerido no se toca — los episodios
+        // y reportajes siguen en la base y saldrían en un corte nuevo.
+        if (!b.week_start) return bad('week_start is required');
+        const { error } = await db.from('glossa_radar_weekly')
+          .delete().eq('week_start', b.week_start);
+        if (error) throw error;
+        return ok({ deleted: true });
+      }
+
       case 'weekly.rebuild': {
         // Lo escribe el Action, no una edge function: el modelo tarda ~16 min y
         // aquí el techo son 150 s. Esto sólo aprieta el botón; el resultado

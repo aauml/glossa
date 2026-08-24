@@ -91,7 +91,7 @@ const FALLOS_PAUSA = Number(ajus.vigilante_fallos_para_pausar ?? 3);
 // vuelven solos a la cola. Lo que no encaje en un patrón conocido se anota, con
 // el mensaje agrupado — diez errores iguales son UN problema, no diez.
 const TRANSITORIO = /429|503|high demand|overloaded|timeout|ETIMEDOUT|ECONNRESET|socket hang up/i;
-const fallidos = await sb('glossa_radar_items?select=id,title,error&state=eq.error&limit=500');
+const fallidos = await sb('glossa_radar_items?select=id,title,error,started_at,created_at&state=eq.error&limit=500');
 
 const recuperables = (fallidos ?? []).filter(i => TRANSITORIO.test(String(i.error ?? '')));
 if (recuperables.length) {
@@ -102,7 +102,24 @@ if (recuperables.length) {
   console.log(`  recuperados a la cola: ${recuperables.length} (fallo pasajero)`);
 }
 
-const duros = (fallidos ?? []).filter(i => !TRANSITORIO.test(String(i.error ?? '')));
+// Lo duro que lleva más de 48 h así no se va a arreglar esperando: se ARCHIVA
+// con su motivo, como los saltados. Antes solo se anotaba, y el panel enseñaba
+// «failed» cada noche sobre el mismo cadáver — un aviso que no cambia nunca
+// enseña a ignorar los avisos. Se mira `started_at` (el último intento), no
+// `created_at`: un elemento viejo puede haber fallado hace una hora.
+let duros = (fallidos ?? []).filter(i => !TRANSITORIO.test(String(i.error ?? '')));
+const hace48h = Date.now() - 48 * 3600e3;
+const paraArchivar = duros.filter(i => new Date(i.started_at ?? i.created_at) < hace48h);
+for (const i of paraArchivar) {
+  await sb(`glossa_radar_items?id=eq.${i.id}`, {
+    method: 'PATCH', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({
+      state: 'skipped', digested_at: new Date().toISOString(),
+      error: `sin poder leerse tras 48 h; archivado — ${String(i.error ?? '').slice(0, 300)}`,
+    }) });
+}
+if (paraArchivar.length) console.log(`  archivados: ${paraArchivar.length} (error duro de más de 48 h)`);
+duros = duros.filter(i => !paraArchivar.includes(i));
 if (duros.length) {
   const porMensaje = {};
   for (const i of duros) {

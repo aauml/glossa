@@ -3,28 +3,10 @@ export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
 ---
 <AdminLayout title="Feed" tab="feed">
-  <h1>Feed</h1>
-  <p class="sub">
-    One box for everything. A channel, a podcast, an article, text you pasted, or a subject
-    you want followed — drop it in and it works out what it was.
-  </p>
-
-  <!-- ── Lo que va mal ──────────────────────────────────────────────────
-       Lo primero de todo, y sólo si hay algo. Un aviso que hay que ir a buscar
-       no es un aviso. -->
-  <div id="inc-lista"></div>
-
-  <!-- ── Esta semana, de un vistazo ─────────────────────────────────────
-       Arriba del todo porque es la pregunta con la que se entra: ¿va bien? Las
-       cuentas del sistema —gasto, cotejos, comité— siguen abajo y plegadas;
-       esas no se miran a diario. -->
-  <div class="admin-cifras" id="st-cifras">
-    <span class="admin-vacio">loading…</span>
-  </div>
-  <p class="admin-nota" id="st-corte" style="margin:10px 0 34px"></p>
-
-  <!-- ── La caja ────────────────────────────────────────────────────────── -->
-  <section class="admin-sec">
+  <!-- ── La caja, antes que nada ─────────────────────────────────────────
+       Sin título ni prosa encima: el placeholder ya dice qué acepta, y todo lo
+       explicado dos veces es espacio quitado a lo que se vino a hacer. -->
+  <section class="admin-sec" style="margin-top:6px">
     <form id="in-form" class="admin-form">
       <label>
         <textarea id="in-caja" rows="3" required
@@ -38,6 +20,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     </form>
     <div id="in-msg"></div>
   </section>
+
+  <!-- ── Esta semana, de un vistazo ─────────────────────────────────────── -->
+  <div class="admin-cifras" id="st-cifras">
+    <span class="admin-vacio">loading…</span>
+  </div>
+  <p class="admin-nota" id="st-corte" style="margin:10px 0 34px"></p>
+
+  <!-- ── Lo que va mal ──────────────────────────────────────────────────
+       Sólo si hay algo, y solo lo que resistió arreglarse solo: el vigilante
+       recupera lo pasajero y archiva lo irrecuperable por su cuenta. -->
+  <div id="inc-lista"></div>
 
   <!-- ── La cola ────────────────────────────────────────────────────────── -->
   <section class="admin-sec">
@@ -214,7 +207,9 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       const filas = d.sources.filter(s => s.kind === k);
       if (!filas.length) return '';
       const enCola = filas.reduce((n, s) => n + Number(s.pendientes || 0), 0);
-      return `<details class="grupo"${enCola ? ' open' : ''}>
+      // Siempre contraídos, con la cuenta en el título: veinte canales abiertos
+      // empujan todo lo demás fuera de la pantalla, haya cola o no.
+      return `<details class="grupo">
         <summary>${etiqueta} <span class="admin-kind">${filas.length}${
           enCola ? ` · ${enCola} in queue` : ''}</span></summary>
         <table class="admin-tabla" style="margin-top:6px">
