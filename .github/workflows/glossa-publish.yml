@@ -61,7 +61,11 @@ jobs:
       - name: Install & build (validate)
         run: |
           npm ci || npm install
-          npm run build
+          # El build se guarda porque su última línea de error ES el diagnóstico
+          # («sortDate no coincide entre idiomas…») y antes moría aquí y a la
+          # cola solo llegaba un «workflow failed» que no decía nada.
+          set -o pipefail
+          npm run build 2>&1 | tee /tmp/glossa-build.log
 
       # slug e issue_no vienen de la cola, no del repo: entran por env y se citan.
       # Interpolarlos con ${{ }} dentro de la cadena de `git commit -m` dejaría
@@ -99,4 +103,9 @@ jobs:
         if: failure()
         env:
           REQUEST_ID: ${{ steps.rid.outputs.id }}
-        run: node scripts/publish_from_supabase.mjs fail "$REQUEST_ID" "glossa-publish workflow failed" || true
+        # El motivo REAL, no una etiqueta: las últimas líneas con error del build
+        # más el enlace a la corrida. Es lo que el panel enseña junto al retry.
+        run: |
+          MOTIVO=$(grep -aE "✗|error" /tmp/glossa-build.log 2>/dev/null | tail -3 | tr '\n' ' · ' | cut -c1-300)
+          node scripts/publish_from_supabase.mjs fail "$REQUEST_ID" \
+            "${MOTIVO:-workflow failed} — https://github.com/aauml/glossa/actions/runs/$GITHUB_RUN_ID" || true

@@ -680,6 +680,36 @@ Deno.serve(async (req) => {
         return ok({ piezas });
       }
 
+      // Reintentar una pieza fallida, desde donde murió. Si su MDX ya está en
+      // la cola de publicación, se relanza SOLO la publicación (gratis, 0049);
+      // si murió antes de escribirse, se relanza la producción entera (0047).
+      case 'piezas.retry': {
+        const itemId = String(b.item_id ?? '');
+        const { data: it } = await db.from('glossa_radar_items')
+          .select('id,progress').eq('id', itemId).eq('origin', 'pieza').single();
+        if (!it) return bad('no such piece');
+        const slug = (it.progress as Record<string, unknown> | null)?.slug;
+        if (slug) {
+          const { data: reqs } = await db.from('glossa_publish_requests')
+            .select('id,state').eq('slug', String(slug))
+            .order('requested_at', { ascending: false }).limit(1);
+          if (reqs?.[0] && reqs[0].state !== 'done') {
+            const { error: e1 } = await db.rpc('glossa_publish_relanzar', { req: reqs[0].id });
+            if (e1) throw e1;
+            await db.from('glossa_radar_items').update({
+              progress: { ...(it.progress as object), pct: 90, fase: 'publishing — retried', error: null,
+                          updated_at: new Date().toISOString() } }).eq('id', itemId);
+            return ok({ relanzado: 'publicacion' });
+          }
+        }
+        const { error: e2 } = await db.rpc('glossa_pieza_dispatch', { item: itemId });
+        if (e2) throw e2;
+        await db.from('glossa_radar_items').update({
+          progress: { pct: 5, fase: 'relaunched — waiting for the runner', updated_at: new Date().toISOString() },
+        }).eq('id', itemId);
+        return ok({ relanzado: 'produccion' });
+      }
+
       // ── El panel ─────────────────────────────────────────────────────────
       case 'sources.panel': {
         // Una sola consulta con los pendientes ya contados. Pedirlos por fuente
@@ -704,9 +734,13 @@ Deno.serve(async (req) => {
         // hecho disfrazadas de cola hicieron preguntar, con razón, «¿esto no
         // debió limpiarse?». Lo demás ya cumplió y se aparta solo.
         const hace48h = new Date(Date.now() - 48 * 3600_000).toISOString();
+        // Las piezas sueltas NO se listan aquí en ningún estado: viven en la
+        // barra de producción mientras se hacen y en Articles al terminar.
+        // Verlas además en la cola las hacía parecer trabajo pendiente.
         const { data, error } = await db.from('glossa_radar_items')
           .select('id,title,url,origin,state,published_at,digested_at,created_at,error,glossa_radar_sources(name)')
-          .or(`state.in.(pending,running,error),and(origin.in.(pegado,pieza),created_at.gte.${hace48h})`)
+          .neq('origin', 'pieza')
+          .or(`state.in.(pending,running,error),and(origin.eq.pegado,created_at.gte.${hace48h})`)
           .order('created_at', { ascending: false }).limit(40);
         if (error) throw error;
         return ok({ items: data ?? [] });

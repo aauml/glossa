@@ -213,10 +213,16 @@ console.log(`Pieza para: «${item.title}» (${item.origin}, ${item.state})`);
 // El avance se escribe en la fila para que el panel lo pinte como barra: diez
 // minutos de caja negra fue exactamente la queja. Nunca falla la corrida por
 // no poder anotarse — la barra es cosmética, la pieza no.
+// `reintentada` la pone el vigilante y tiene que SOBREVIVIR a cada anotación:
+// si el segundo intento la pisara al fallar, el vigilante relanzaría en bucle
+// un fallo determinista — pagándolo cada cuatro horas.
+const REINTENTADA = item?.progress?.reintentada === true;
 const avance = (pct, fase, extra = {}) => SECO ? Promise.resolve() :
   sb(`glossa_radar_items?id=eq.${ITEM}`, {
     method: 'PATCH', headers: { Prefer: 'return=minimal' },
-    body: JSON.stringify({ progress: { pct, fase, ...extra, updated_at: new Date().toISOString() } }),
+    body: JSON.stringify({ progress: { pct, fase, ...extra,
+      ...(REINTENTADA ? { reintentada: true } : {}),
+      updated_at: new Date().toISOString() } }),
   }).catch(() => {});
 
 // Cualquier muerte a partir de aquí deja la barra en «failed» con su motivo:

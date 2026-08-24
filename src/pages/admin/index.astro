@@ -541,7 +541,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       }
       if (!vivo && !fallo) activas++;
       const etiqueta = fallo
-        ? `failed — ${pr.error || p.vivo?.error || ''}`
+        ? `failed — ${pr.error || p.vivo?.error || 'no reason recorded'}
+           <button class="admin-btn sec" data-retry="${p.id}" style="margin-left:8px">Retry</button>`
         : vivo ? `live — <a href="${p.vivo.url}" target="_blank" rel="noopener">read it</a>`
                : `${pct}% · ${fase}`;
       const nombre = pr.issue ? `${pr.issue} · ` : '';
@@ -556,6 +557,13 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     }).join('');
     return activas > 0;
   }
+  delegar($('pz-prog'), '[data-retry]', async (b) => {
+    b.disabled = true; b.textContent = 'relaunching…';
+    const r = await api('piezas.retry', { item_id: b.dataset.retry });
+    if (r.error) { b.disabled = false; b.textContent = `failed: ${String(r.error).slice(0, 40)}`; return; }
+    vigilarPiezas();
+  });
+
   let pzReloj = null;
   async function vigilarPiezas() {
     const hayActivas = await pintarPiezas();

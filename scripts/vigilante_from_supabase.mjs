@@ -136,6 +136,40 @@ if (duros.length) {
   });
 }
 
+// ── 1b. Piezas y publicaciones que murieron: UN reintento automático ───────
+// «Debe asegurarse que se complete y no solo poner el error.» Un fallo puede
+// ser transitorio (Kimi saturado, un runner caído): el vigilante reintenta una
+// vez por su cuenta. A la segunda, el fallo es determinista y reintentar en
+// bucle solo quema corridas: ahí queda el motivo real y el botón Retry del
+// panel. `retries` (0049) es la memoria que separa las dos situaciones.
+{
+  // Publicaciones con el MDX ya escrito: relanzarlas es gratis.
+  const pubsRotas = await sb(
+    `glossa_publish_requests?select=id,slug,retries&state=eq.error&retries=eq.0` +
+    `&requested_at=gte.${new Date(Date.now() - 7 * 864e5).toISOString()}`);
+  for (const p of pubsRotas ?? []) {
+    await sb(`rpc/glossa_publish_relanzar`, { method: 'POST', body: JSON.stringify({ req: p.id }) })
+      .catch(e => console.log(`  ✗ relanzar publicación ${p.slug}: ${String(e).slice(0, 80)}`));
+    console.log(`  publicación relanzada (reintento único): ${p.slug}`);
+  }
+
+  // Piezas que murieron antes de escribirse: se relanza la producción entera,
+  // una vez. La marca vive en el propio progress para no depender de columnas.
+  const piezasRotas = await sb(
+    `glossa_radar_items?select=id,title,progress&origin=eq.pieza` +
+    `&progress->>fase=eq.failed&created_at=gte.${new Date(Date.now() - 7 * 864e5).toISOString()}`);
+  for (const p of piezasRotas ?? []) {
+    if (p.progress?.reintentada) continue;
+    await sb(`rpc/glossa_pieza_dispatch`, { method: 'POST', body: JSON.stringify({ item: p.id }) })
+      .catch(e => console.log(`  ✗ relanzar pieza: ${String(e).slice(0, 80)}`));
+    await sb(`glossa_radar_items?id=eq.${p.id}`, {
+      method: 'PATCH', headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify({ progress: { pct: 5, fase: 'relaunched by the watchdog', reintentada: true,
+                                         updated_at: new Date().toISOString() } }) });
+    console.log(`  pieza relanzada (reintento único): ${String(p.title).slice(0, 50)}`);
+  }
+}
+
 // ── 2. (retirado) Fuentes que dejaron de traer ────────────────────────────
 // Avisaba de una fuente activa que llevaba días sin traer nada. Se quitó: la
 // tabla de fuentes ya enseña un cero en «en cola» y otro en «leídos», que dice
