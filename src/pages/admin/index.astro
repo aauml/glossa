@@ -36,13 +36,14 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
        recupera lo pasajero y archiva lo irrecuperable por su cuenta. -->
   <div id="inc-lista"></div>
 
-  <!-- ── La cola ────────────────────────────────────────────────────────── -->
+  <!-- ── La cola, contraída como todo lo demás ──────────────────────────── -->
   <section class="admin-sec">
-    <h2>Queue <span id="q-cuenta" class="admin-kind"></span></h2>
-    <p class="admin-nota">What is waiting to be read or failed, plus anything you
-      added in the last 48 h so you can see how it ended up. Read items clear out
-      on their own.</p>
-    <div id="q-lista"><span class="admin-vacio">loading…</span></div>
+    <details class="grupo">
+      <summary>Queue <span id="q-cuenta" class="admin-kind"></span></summary>
+      <p class="admin-nota" style="margin-top:8px">What is waiting to be read or failed,
+        plus anything you added in the last 48 h. Read items clear out on their own.</p>
+      <div id="q-lista"><span class="admin-vacio">loading…</span></div>
+    </details>
   </section>
 
   <!-- ── Lo que se sigue ────────────────────────────────────────────────── -->
@@ -76,20 +77,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     <details id="tripas">
       <summary>Under the hood</summary>
       <div style="margin-top:20px">
-        <p class="admin-nota" id="st-gasto"></p>
-        <p class="admin-nota" id="st-cupo" style="margin-top:8px"></p>
-        <!-- Qué hace solo, dicho en dos líneas. Los mandos numéricos y la tabla
-             de reparto que había aquí se quitaron a petición: si el reparto lo
-             decide el sistema y lo corrige el comité, no hay nada que mover a
-             mano — y una tabla que no cambia ninguna decisión es ruido. Los
-             ajustes siguen en glossa_radar_settings para quien opere por SQL. -->
-        <p class="admin-nota" style="margin-top:14px">
-          On its own: every topic gets a free press sweep each Friday; paid searches
-          go where that sweep came back thin, within whatever Tavily quota remains.
-          Claims are cross-checked Saturdays, and on Sundays a committee of three
-          outside models corrects calibration and decides which new sources to try.
-        </p>
-        <p class="admin-nota" id="st-cotejo" style="margin-top:8px"></p>
+        <!-- Lo mínimo. Aquí hubo contadores de gasto (ya viven en la tabla de
+             costos de arriba), el estado del cupo (ídem), mandos numéricos y un
+             párrafo explicando el ciclo — todo se pidió fuera: si lo decide el
+             sistema y lo corrige el comité, leerlo cada día no cambia nada. -->
+        <p class="admin-nota" id="st-cotejo"></p>
         <div id="con-lista" style="margin-top:20px"></div>
         <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
           <input type="checkbox" id="st-auto" />
@@ -384,42 +376,26 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
               e.calladas ? 'sources · quiet 2 weeks' : 'sources')
       + ((e.con_error || 0) ? cifra(e.con_error, 'failed', true) : '');
 
-    // Y debajo, en una línea, lo único que hay que decidir con esos números.
-    // `hasta` es EXCLUSIVO — el primer instante que ya no entra—; el último día
-    // del número es la víspera. Pintado tal cual decía «08/16–08/23» para un
-    // número que cubre hasta el 22: la línea que existe para decidir el corte
-    // nombraba un día que no está en él.
-    // En hora de Los Ángeles, que es donde vive la semana. Con `toISOString` la
-    // víspera se pintaba con la fecha UTC y podía salir un día corrido.
+    // Debajo, solo los dos botones, discretos. La prosa que hubo aquí —el
+    // último número, la ventana, cuántos entrarían— se pidió fuera: las cifras
+    // de arriba ya dicen lo mismo, y la confirmación del corte repite lo
+    // esencial antes de gastar. La ventana del número va en el confirm, en hora
+    // de Los Ángeles y con la víspera como último día (`hasta` es exclusivo).
     const dia = (t) => new Date(t).toLocaleDateString('en-CA',
       { timeZone: 'America/Los_Angeles', month: '2-digit', day: '2-digit' }).replace('-', '/');
-    const ventana = `${dia(e.desde)}–${dia(new Date(e.hasta).getTime() - 864e5)}`;
+    ventana = `${dia(e.desde)}–${dia(new Date(e.hasta).getTime() - 864e5)}`;
+    listos = Number(e.listos || 0);
     // Lo lanzado se recuerda FUERA de este HTML: la nota se repinta con cada
     // refresco y un botón recién pintado es un botón rearmado — apretar «Cut
     // now» dos veces encola dos corridas de Kimi de 15 minutos, y las dos se
     // pagan.
-    const marca = (id, texto) => lanzado[id]
-      ? `<span class="admin-kind">${esc(texto)}</span>`
-      : '';
-    // Y debajo, el estado del último número: qué es, si salió y si tiene español.
-    const u = e.ultimo;
-    const linea = u
-      ? `Last issue · <b>${esc(u.titular || u.semana)}</b> · ${esc(u.estado)}` +
-        `${u.espanol ? ' · ES' : ' · <span style="color:var(--accent)">no ES</span>'}` +
-        ` · <a href="/weekly/${esc(u.semana)}/" target="_blank" rel="noopener">read</a><br>`
-      : '';
-    nota.innerHTML = linea + (e.listos
-      ? `Issue for <b>${esc(ventana)}</b>${e.parcial ? ' (week still open)' : ''} would use ` +
-        `<b>${esc(e.listos)}</b>${porLeer ? `, leaving <b>${esc(porLeer)}</b> still unread out` : ''}` +
-        `${e.rezagados ? `, plus <b>${esc(e.rezagados)}</b> carried over from before` : ''}. ` +
-        (lanzado.corte ? marca('corte', 'cut launched · ~15 min') :
-          `<button class="admin-btn sec" id="st-cortar">Cut now</button>`)
-      : (porLeer ? `Nothing read yet this week; <b>${esc(porLeer)}</b> waiting. ` : 'Nothing read yet this week.'))
-      + (porLeer && e.listos !== undefined
-          ? (lanzado.cola ? ' ' + marca('cola', 'queue reading · reload in a few min')
-                          : ` <button class="admin-btn sec" id="st-cola">Read the queue first</button>`)
-          : '');
+    nota.innerHTML =
+      (lanzado.corte ? `<span class="admin-kind">cut launched · ~15 min</span>`
+                     : `<button class="admin-btn sec" id="st-cortar">Cut now</button>`) + ' ' +
+      (lanzado.cola ? `<span class="admin-kind">queue reading · reload in a few min</span>`
+                    : (porLeer ? `<button class="admin-btn sec" id="st-cola">Read the queue first</button>` : ''));
   }
+  let ventana = '', listos = 0;
 
   // ── El costo, como tabla por mes ────────────────────────────────────────
   // Una fila por mes y el total a la derecha. Las columnas son A DÓNDE va el
@@ -467,15 +443,19 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   const lanzado = { corte: 0, cola: 0 };
 
   delegar($('st-corte'), '#st-cortar', async (b) => {
+    if (!confirm(`Write the issue for ${ventana}${listos ? ` with the ${listos} items ready` : ''}?\n\n` +
+                 `It takes about 15 minutes. You will be taken to Articles, where the draft appears when done.`)) return;
     b.disabled = true; b.textContent = 'launching…';
     const r = await api('weekly.rebuild');
     if (r.error) { b.disabled = false; b.textContent = `failed: ${String(r.error).slice(0, 40)}`; return; }
-    lanzado.corte = 1; b.textContent = 'launched · ~15 min';
+    lanzado.corte = 1;
+    window.location.href = '/admin/weekly/';
   });
 
   // El radar lee ~2 episodios cada 15 min porque eso es lo que cabe en una edge
   // function. Esto llama a la misma función seguida, con pausa entre vueltas.
   delegar($('st-corte'), '#st-cola', async (b) => {
+    if (!confirm('Read the whole queue now, back to back? It spends Gemini quota faster than the usual pace.')) return;
     b.disabled = true; b.textContent = 'reading…';
     const r = await api('queue.drain');
     if (r.error) { b.disabled = false; b.textContent = `failed: ${String(r.error).slice(0, 40)}`; return; }
@@ -484,40 +464,22 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   async function pintarTripas() {
     if (!tripasPintadas) return;
-    const [g, c, con, s] = await Promise.all([
-      api('budget'), api('cotejos.list'), api('consejo.list'), api('settings.get')]);
-
-    if (!g.error && g.uso?.length) {
-      const V = { gemini: ['hoy', 'cap_gemini_dia', '/day'], youtube: ['hoy', 'cap_youtube_dia', '/day'],
-                  tavily: ['mes', 'cap_tavily_mes', '/mo'] };
-      $('st-gasto').textContent = g.uso.map(u => u.proveedor === 'moonshot'
-        ? `kimi $${Number(u.coste_mes).toFixed(2)}/mo`
-        : `${u.proveedor} ${u[(V[u.proveedor] || ['mes'])[0]]}${
-            V[u.proveedor]?.[1] && g.topes[V[u.proveedor][1]] ? `/${g.topes[V[u.proveedor][1]]}` : ''}${
-            (V[u.proveedor] || [, , '/mo'])[2]}`).join('  ·  ');
-    }
-    // ── El cupo, y los mandos para moverlo ────────────────────────────────
-    //
-    // Lo que se enseña no es «cuánto llevamos gastado» sino «cuánto queda y a
-    // dónde va». La cifra de Tavily la anota el guion del reportaje al pasar,
-    // así que se dice cuándo se vio: un número de hace nueve días no es el cupo,
-    // es el cupo de hace nueve días.
-    if (!g.error && g.tavily) {
-      const t = g.tavily;
-      const edad = Math.floor((Date.now() - new Date(t.visto)) / 3600e3);
-      $('st-cupo').innerHTML =
-        `<strong>${t.restantes} of ${t.tope} Tavily credits left</strong> · renews in ${t.dias_para_renovar} d · ` +
-        `${t.busquedas_semana} searches allotted this week · ${t.otros_por_semana}/wk goes to cross-checks and monitors` +
-        `<span class="admin-tenue"> — seen ${edad < 1 ? 'just now' : edad + ' h ago'}</span>`;
-    } else if (!g.error) {
-      $('st-cupo').textContent = 'Tavily quota not read yet — it is recorded by the reporting job when it runs.';
-    }
+    // El gasto y el cupo ya no se piden aquí: viven en la tabla de costos de
+    // arriba, y repetirlos con otro formato fue lo que hizo leer un «usados»
+    // como un «quedan».
+    const [c, con, s] = await Promise.all([
+      api('cotejos.list'), api('consejo.list'), api('settings.get')]);
 
     if (!c.error) {
+      // En palabras, no en claves de la base: «repite» a secas no le dice nada
+      // a quien no escribió el cotejo.
+      const NOMBRE = { documenta: 'confirmed', repite: 'only repeated', contradice: 'contradicted',
+                       sin_hallazgo: 'no trace found', no_concluyente: 'inconclusive' };
       const n = {};
       for (const x of c.cotejos) n[x.verdict] = (n[x.verdict] || 0) + 1;
       $('st-cotejo').textContent = c.cotejos.length
-        ? `Cross-checks: ${Object.entries(n).map(([k, v]) => `${v} ${k}`).join(' · ')}`
+        ? `${c.cotejos.length} claims checked against outside documents: ` +
+          Object.entries(n).map(([k, v]) => `${v} ${NOMBRE[k] || k}`).join(' · ')
         : 'No claims cross-checked yet.';
     }
     if (!con.error) {
