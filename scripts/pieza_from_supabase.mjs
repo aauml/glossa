@@ -350,8 +350,14 @@ es.slug = en.slug; es.track = en.track;   // por si el modelo los «tradujo»
 const mdxSafe = (s) => String(s ?? '').replace(/{/g, '&#123;').replace(/}/g, '&#125;');
 const yamlStr = (s) => JSON.stringify(String(s ?? ''));
 
+// UNA marca de tiempo para las dos ediciones. Calculada dentro de armarMdx,
+// el reloj cruzó un segundo entre la llamada EN y la ES (12:59:59 / 13:00:00),
+// los sortDate no coincidieron y el check de integridad —con razón— paró la
+// publicación entera. La primera pieza real murió exactamente de eso.
+const AHORA = new Date();
+
 function armarMdx(j, lang) {
-  const ahora = new Date();
+  const ahora = AHORA;
   const fecha = ahora.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB',
     { timeZone: 'America/Los_Angeles', day: 'numeric', month: lang === 'es' ? 'short' : 'long', year: 'numeric' })
     .replace(/\./g, '');
