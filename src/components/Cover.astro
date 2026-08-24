@@ -9,10 +9,9 @@ const { lang } = Astro.props;
 
 const COPY = {
   en: {
-    tagline: 'Personal annotated readings. I direct, AI executes.',
-    why: "Most of what I find isn't worth the reading time: short takes, cluttered with ads and distractions. So I built this agent to make the readings I actually want — long-form, grounded, source-verified — useful not just as information, but as study.",
-    credoHTML: 'The ideas, analysis, and arguments are mine; the research, verification, and writing are done by AI. Every claim is searched, cross-checked, and traced to a real source. <strong>Grounded, not invented.</strong>',
-    vision: "Eventually, I'll open Glossa so anyone can create their own. Validating and verifying each reading takes real resources; I'm working on optimizing that. The larger aim: to foster long-form reading.",
+    news: 'Glossa is my editor. Each week it reads the news I follow and writes back what happened: no ads, no side taken, every fact checked against other outlets and other countries.',
+    study: 'The second strand is for a thesis: books, essays and source documents from the library I built for it. Same method, steadier ground — these are the readings I study from.',
+    credoHTML: 'The ideas and the direction are mine; the searching, checking and writing are the machine\'s. <strong>Grounded, not invented.</strong>',
     all: 'All',
     piece: 'piece',
     pieces: 'pieces',
@@ -27,10 +26,9 @@ const COPY = {
     other: { code: 'es', label: 'ES', href: '/es/' },
   },
   es: {
-    tagline: 'Lecturas anotadas personales. Yo dirijo, la IA ejecuta.',
-    why: 'Casi nada de lo que encuentro compensa el tiempo de lectura: textos breves, saturados de anuncios y distracciones. Por eso construí este agente, para hacer las lecturas que de verdad quiero —largas, fundamentadas, con las fuentes verificadas— útiles no solo como información, sino como estudio.',
-    credoHTML: 'Las ideas, el análisis y los argumentos son míos; la investigación, la verificación y la redacción las hace la IA. Cada afirmación se busca, se contrasta y se traza hasta una fuente real. <strong>Fundamentado, no inventado.</strong>',
-    vision: 'Con el tiempo abriré Glossa para que cualquiera pueda crear las suyas. Validar y verificar cada lectura cuesta recursos reales; estoy trabajando en optimizarlo. El objetivo de fondo: fomentar la lectura larga.',
+    news: 'Glossa es mi editor. Cada semana lee las noticias que sigo y me devuelve lo que pasó: sin anuncios, sin tomar partido, cada dato contrastado con otros medios y otros países.',
+    study: 'La segunda hebra es para una tesis: libros, ensayos y documentos de origen de la biblioteca que construí para ella. El mismo método sobre terreno más firme; son las lecturas con las que estudio.',
+    credoHTML: 'Las ideas y la dirección son mías; buscar, verificar y redactar lo hace la máquina. <strong>Fundamentado, no inventado.</strong>',
     all: 'Todos',
     piece: 'pieza',
     pieces: 'piezas',
@@ -96,10 +94,13 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
 ---
 <section class="cover">
   <h1 class="cover-wordmark">Glossa<span class="wm-dot">.</span></h1>
-  <p class="cover-tagline">{t.tagline}</p>
-  <p class="cover-why">{t.why}</p>
+  {/* Las dos hebras con el MISMO peso —el semanal y la tesis— y debajo el
+      credo. Antes esto abría con una línea de eslogan y cerraba con una promesa
+      de futuro; se quitaron las dos: la primera decía el tono en vez de qué es
+      esto, y la segunda hablaba de lo que no existe todavía. */}
+  <p class="cover-why">{t.news}</p>
+  <p class="cover-why">{t.study}</p>
   <p class="cover-credo" set:html={t.credoHTML} />
-  <p class="cover-vision">{t.vision}</p>
 </section>
 
 <section class="contents">

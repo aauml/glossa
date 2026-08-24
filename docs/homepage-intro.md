@@ -8,12 +8,22 @@ Texto de la portada. Bilingüe, sin em dashes.
 
 ## EN
 
-Personal annotated readings. I direct, AI executes.
+Glossa is my editor. Each week it reads the news I follow and writes back what happened: no ads, no side taken, every fact checked against other outlets and other countries.
 
-The ideas, analysis, and arguments are mine; the research, verification, and writing are done by AI. Every claim is searched, cross-checked, and traced to a real source. Grounded, not invented.
+The second strand is for a thesis: books, essays and source documents from the library I built for it. Same method, steadier ground — these are the readings I study from.
+
+The ideas and the direction are mine; the searching, checking and writing are the machine's. **Grounded, not invented.**
 
 ## ES
 
-Lecturas anotadas personales. Yo dirijo, la IA ejecuta.
+Glossa es mi editor. Cada semana lee las noticias que sigo y me devuelve lo que pasó: sin anuncios, sin tomar partido, cada dato contrastado con otros medios y otros países.
 
-Las ideas, el análisis y los argumentos son míos; la investigación, la verificación y la redacción las hace la IA. Cada afirmación se busca, se contrasta y se rastrea hasta una fuente real. Fundamentado, no inventado.
+La segunda hebra es para una tesis: libros, ensayos y documentos de origen de la biblioteca que construí para ella. El mismo método sobre terreno más firme; son las lecturas con las que estudio.
+
+Las ideas y la dirección son mías; buscar, verificar y redactar lo hace la máquina. **Fundamentado, no inventado.**
+
+## Qué se quitó, y por qué
+
+- **La línea de cabecera** («Personal annotated readings. I direct, AI executes.»): decía el tono antes de decir qué es esto. Lo que afirmaba —quién dirige y quién ejecuta— lo dice ahora el último párrafo, que además lo demuestra.
+- **El párrafo de la queja** («Most of what I find isn't worth the reading time…»): abría con lo que está mal en los demás en vez de con lo que hay aquí.
+- **La promesa de futuro** («Eventually, I'll open Glossa…»): hablaba de lo que todavía no existe, en la primera pantalla de lo que sí.
