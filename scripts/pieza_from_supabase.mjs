@@ -161,6 +161,50 @@ async function kimi(prompt, maxTokens = 64000) {
   }
 }
 
+// ── Traducir: la cascada del semanal, no Kimi ────────────────────────────
+// Traducir NO es escribir, y pagarle a un modelo de razonamiento por hacerlo
+// es dinero quemado en pensar lo que no hay que pensar — la lección ya estaba
+// medida en traducir_from_supabase.mjs y aquí se copió tarde: la primera
+// versión mandaba la edición española a Kimi K3 (la mitad del costo de la
+// pieza y ~15 min extra). La cascada: Gemini Flash Lite (gratis) → Grok
+// no-reasoning (~$0.004) → Haiku (~$0.03) → Kimi, solo como último recurso.
+const TRADUCTORES = [
+  { n: 'gemini-3.1-flash-lite',        casa: 'gemini' },
+  { n: 'grok-4.20-0309-non-reasoning', casa: 'xai', env: 'XAI_API_KEY' },
+  { n: 'claude-haiku-4-5-20251001',    casa: 'anthropic', env: 'ANTHROPIC_API_KEY' },
+];
+
+async function traducir(prompt) {
+  for (const m of TRADUCTORES) {
+    if (m.env && !process.env[m.env]) continue;
+    try {
+      if (m.casa === 'gemini') return await gemini([{ text: prompt }], 32000);
+      const esAnthropic = m.casa === 'anthropic';
+      const r = await fetch(esAnthropic ? 'https://api.anthropic.com/v1/messages' : 'https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: esAnthropic
+          ? { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }
+          : { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.XAI_API_KEY}` },
+        body: JSON.stringify({ model: m.n, max_tokens: 32000, messages: [{ role: 'user', content: prompt }] }),
+        signal: AbortSignal.timeout(300_000),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(`${m.casa} ${r.status}: ${JSON.stringify(d).slice(0, 120)}`);
+      const u = d.usage ?? {};
+      const tok = esAnthropic ? (u.input_tokens ?? 0) + (u.output_tokens ?? 0) : (u.total_tokens ?? 0);
+      const coste = esAnthropic
+        ? ((u.input_tokens ?? 0) / 1e6) * 1.0 + ((u.output_tokens ?? 0) / 1e6) * 5.0
+        : ((u.prompt_tokens ?? 0) / 1e6) * 0.20 + ((u.completion_tokens ?? 0) / 1e6) * 0.50;
+      await apuntar(URL_SB, KEY, m.casa, 1, tok, coste);
+      return jsonDeModelo(esAnthropic
+        ? (d.content ?? []).map((x) => x.text || '').join('')
+        : d.choices?.[0]?.message?.content ?? '');
+    } catch (e) { console.log(`  traductor ${m.casa} no pudo: ${String(e).slice(0, 90)}`); }
+  }
+  console.log('  cascada agotada — traduce Kimi (último recurso)');
+  return kimi(prompt, 32000);
+}
+
 // ── 1 · El elemento ──────────────────────────────────────────────────────
 const [item] = await sb(`glossa_radar_items?select=*&id=eq.${ITEM}&limit=1`) ?? [];
 if (!item) { console.error(`No existe el elemento ${ITEM}`); process.exit(1); }
@@ -297,7 +341,7 @@ if (fallos.length) {
 await avance(72, 'Spanish edition', { issue: issueNo, slug: en.slug });
 
 console.log('Versión española…');
-const es = await kimi(promptPiezaES(en));
+const es = await traducir(promptPiezaES(en));
 es.slug = en.slug; es.track = en.track;   // por si el modelo los «tradujo»
 
 // ── 6 · Armar los MDX (el modelo nunca emite markup) ─────────────────────
