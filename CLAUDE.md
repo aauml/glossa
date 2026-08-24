@@ -173,6 +173,7 @@ disponible por si alguien lo quiere" no es un consumidor.
 | `rss.xml` y `rss-es.xml` | lectores por RSS | `<link rel="alternate">` en cada página y en el sitemap |
 | `sources.json` de cada pieza | el lector, al pie del artículo | `src/components/Sources.astro` lo renderiza; sin sidecar no pinta nada |
 | Resúmenes y dossiers del radar (`glossa_radar_*`) | Arturo, en `/admin` | el panel es su única vista; **antes de existir no los leía nadie** |
+| Expedientes de candidatos a fuente (`glossa_radar_candidatos`, `_menciones`) | el consejo del domingo, que decide altas y veredictos con ellos; Arturo en `/admin` solo veta | `scripts/consejo_from_supabase.mjs` fase 2 los consume; sección «Growing on its own» del panel |
 | El cupo de Tavily y su reparto por tema | Arturo, en `/admin` | el panel enseña cuánto queda, a dónde fue y por qué, con los mandos para moverlo |
 
 Esa última fila es justo el fallo que describe el estándar. Los dossiers del

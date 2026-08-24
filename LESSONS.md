@@ -886,3 +886,62 @@ llegaron al repo. El esquema vivía solo dentro del proveedor.
 **Arreglo** — Se recuperaron con
 `select statements[1] from supabase_migrations.schema_migrations`, que guarda el
 SQL aplicado. Y la regla: aplicar y commitear son el mismo paso, no dos.
+
+## Lo que enseñó cerrar el ciclo de fuentes y pulir el panel (2026-08-24)
+
+### Un contador que enseña «usados» se lee como «quedan»
+_Applies to: design system, general_
+
+**Síntoma** — La línea de gasto decía `tavily 117/1000` y Arturo preguntó,
+alarmado, si de verdad quedaban ~120 créditos para todo el mes. Quedaban 883:
+había leído lo gastado como lo restante.
+**Causa** — Un contador rodante sin verbo. `117/1000` no dice si el 117 va
+subiendo o bajando, y el lector completa con el sentido que más le preocupa.
+**Regla** — Toda cifra de cupo lleva el verbo al lado (`117 used of 1000`,
+`883 left`) o va en una tabla con columnas nombradas y el total a la derecha.
+Y el mismo dato no se enseña dos veces con formatos distintos: la segunda
+versión es donde nace la lectura equivocada.
+
+### Si lo decide el sistema, el panel no enseña mandos
+_Applies to: design system, general_
+
+Los mandos numéricos del reportaje (temas, techo, cupo) y la tabla de reparto
+se quitaron a petición del único usuario: «si eso lo decide el agente o el
+comité, yo no tengo nada que opinar o mover ahí». Un control que el usuario no
+puede accionar con criterio no es transparencia, es ruido que desplaza a lo que
+sí decide. Los ajustes siguen en `glossa_radar_settings` para operarlos por SQL.
+La misma regla puso el veto como único mando del vivero de fuentes: el sistema
+propone y el comité decide; la persona conserva exactamente un botón, el de parar.
+
+### El vigilante que solo anota entrena a ignorar avisos
+_Applies to: monitoring_
+
+**Síntoma** — El mismo elemento en `error` aparecía en el panel cada noche,
+idéntico, hasta que el aviso se volvió mobiliario.
+**Regla** — Detectar sin resolver solo vale para lo que una persona debe
+decidir. Lo pasajero se recupera solo (ya se hacía), y lo irrecuperable que
+lleva 48 h se ARCHIVA con su motivo (`skipped`), no se re-anota. Un aviso que
+nunca cambia no es un aviso.
+
+### Una cola que lista trabajo hecho se lee como atasco
+_Applies to: general_
+
+**Síntoma** — «¿Por qué hay 41 en la cola? ¿No debieron limpiarse?» Eran
+reportajes y hallazgos ya digeridos, listados por ser recientes.
+**Causa** — La vista mezclaba «lo que espera» con «lo que las máquinas
+añadieron hace poco», y para el lector una cola solo significa lo primero.
+**Regla** — Una lista llamada cola enseña pendiente/roto, más lo que EL USUARIO
+metió hace poco (para ver en qué acabó). Lo que las máquinas ya despacharon no
+se disfraza de trabajo por hacer.
+
+### El directorio de fuentes crece por expediente, no por fama (D-024)
+_Applies to: LLM, monitoring_
+
+Arquitectura del ciclo, para reutilizar: las menciones que el análisis ya
+detectaba (¿a quién cita esta voz como SU fuente?) dejan de tirarse y forman un
+grafo de citas; el reportaje anota qué medios entregan texto útil; con umbrales
+de independencia (citas de fuentes DISTINTAS, no menciones totales) se forman
+expedientes; un comité de modelos que NO analizan vota altas a prueba y
+veredictos con el historial de verificación; el material a prueba entra
+etiquetado y no corrobora. Los frenos son estructurales: altas por semana
+(cuota) y tope por tema (cámara de eco). La persona no aprueba: veta.
