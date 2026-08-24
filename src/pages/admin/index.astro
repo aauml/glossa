@@ -42,6 +42,9 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   <!-- ── La cola ────────────────────────────────────────────────────────── -->
   <section class="admin-sec">
     <h2>Queue <span id="q-cuenta" class="admin-kind"></span></h2>
+    <p class="admin-nota">What is waiting to be read or failed, plus anything you
+      added in the last 48 h so you can see how it ended up. Read items clear out
+      on their own.</p>
     <div id="q-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
@@ -78,8 +81,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       <div style="margin-top:20px">
         <p class="admin-nota" id="st-gasto"></p>
         <p class="admin-nota" id="st-cupo" style="margin-top:8px"></p>
-        <div id="st-mandos" class="admin-mandos"></div>
-        <div id="st-reparto" class="admin-reparto"></div>
+        <!-- Qué hace solo, dicho en dos líneas. Los mandos numéricos y la tabla
+             de reparto que había aquí se quitaron a petición: si el reparto lo
+             decide el sistema y lo corrige el comité, no hay nada que mover a
+             mano — y una tabla que no cambia ninguna decisión es ruido. Los
+             ajustes siguen en glossa_radar_settings para quien opere por SQL. -->
+        <p class="admin-nota" style="margin-top:14px">
+          On its own: every topic gets a free press sweep each Friday; paid searches
+          go where that sweep came back thin, within whatever Tavily quota remains.
+          Claims are cross-checked Saturdays, and on Sundays a committee of three
+          outside models corrects calibration and decides which new sources to try.
+        </p>
         <p class="admin-nota" id="st-cotejo" style="margin-top:8px"></p>
         <div id="con-lista" style="margin-top:20px"></div>
         <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
@@ -118,13 +130,14 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     resuelto.innerHTML = `→ ${esc(r.label)}`;
     alt.innerHTML = (r.alternativas || []).map((a, i) =>
       `<button class="admin-btn sec" type="button" data-alt="${i}"
-         data-as="${esc(a.as)}" data-kind="${esc(a.kind || '')}">${esc(a.label)}</button>`).join(' ');
+         data-as="${esc(a.as)}" data-kind="${esc(a.kind || '')}" data-solo="${esc(a.solo || '')}">${esc(a.label)}</button>`).join(' ');
   }
   $('in-caja').addEventListener('blur', mirar);
   $('in-caja').addEventListener('paste', () => setTimeout(mirar, 60));
 
   delegar(alt, '[data-alt]', (b) => {
-    forzado = { as: b.dataset.as, kind: b.dataset.kind || undefined };
+    forzado = { as: b.dataset.as, kind: b.dataset.kind || undefined,
+                solo: b.dataset.solo || undefined };
     resuelto.innerHTML = `→ ${esc(b.textContent)} <span style="color:var(--muted)">(your call)</span>`;
     alt.innerHTML = '';
   });
@@ -460,44 +473,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         `<span class="admin-tenue"> — seen ${edad < 1 ? 'just now' : edad + ' h ago'}</span>`;
     } else if (!g.error) {
       $('st-cupo').textContent = 'Tavily quota not read yet — it is recorded by the reporting job when it runs.';
-    }
-
-    if (!g.error && g.mandos) {
-      const M = [
-        ['reportaje_temas_barrido',    'Topics swept',    'How many topics go out to Google News. Free — this one costs nothing to raise.'],
-        ['reportaje_busquedas_semana', 'Weekly ceiling',  'Hard cap on paid searches per week. The real number is usually lower: it is whatever the remaining quota divided by the remaining weeks allows.'],
-        ['reportaje_entran_semana',    'Reports kept',    'How many outside reports may enter one issue.'],
-      ];
-      $('st-mandos').innerHTML = M.map(([k, etq, ayuda]) => `
-        <label class="admin-mando" title="${esc(ayuda)}">
-          <span>${etq}</span>
-          <input type="number" min="0" max="500" data-clave="${k}" value="${esc(String(g.mandos[k] ?? ''))}">
-        </label>`).join('');
-      for (const inp of $('st-mandos').querySelectorAll('input')) {
-        inp.addEventListener('change', async () => {
-          const r = await api('settings.set', { key: inp.dataset.clave, value: Number(inp.value) });
-          msg(r.error ? `No se pudo guardar: ${r.error}` : `${inp.dataset.clave} = ${inp.value}`);
-        });
-      }
-    }
-
-    // A dónde fue el dinero, y por qué. Una fila con cero búsquedas y
-    // `corroborado_gratis` es un acierto —el barrido lo confirmó sin pagar—, no
-    // un hueco; se pinta distinta para que no se lea como un fallo.
-    if (!g.error && g.reparto?.length) {
-      const sem = g.reparto[0].semana;
-      const filas = g.reparto.filter(r => r.semana === sem);
-      $('st-reparto').innerHTML =
-        `<p class="admin-nota" style="margin-top:10px">Where the week of ${esc(sem)} spent its searches</p>` +
-        '<table class="admin-tabla"><tbody>' + filas.map(r => `
-          <tr class="${r.cuota === 0 ? 'admin-gratis' : ''}">
-            <td>${esc(r.label)}</td>
-            <td class="admin-num">${r.medios ?? '—'} outlets</td>
-            <td class="admin-num">${r.paises ?? '—'} countries</td>
-            <td class="admin-num">${r.acuerdo == null ? '—' : r.acuerdo}</td>
-            <td class="admin-num">${r.busquedas}/${r.cuota}</td>
-            <td class="admin-tenue">${esc(r.paro || r.urgencia || '')}</td>
-          </tr>`).join('') + '</tbody></table>';
     }
 
     if (!c.error) {

@@ -385,7 +385,8 @@ async function clasificar(texto: string): Promise<Resuelto> {
     // Un vídeo suelto de YouTube — no el canal.
     if (/(^|\.)youtu\.be$/.test(host) ||
         (/(^|\.)youtube\.com$/.test(host) && (/^\/watch/.test(ruta) || /^\/shorts\//.test(ruta)))) {
-      return { as: 'elemento', url: t, label: 'one YouTube episode' };
+      return { as: 'elemento', url: t, label: 'one YouTube episode',
+               alternativas: [SOLO_PIEZA] };
     }
 
     // Un canal.
@@ -480,7 +481,8 @@ async function clasificar(texto: string): Promise<Resuelto> {
     return {
       as: 'elemento', url: t,
       label: `one article from ${host}`,
-      alternativas: [{ as: 'fuente', kind: 'rss', label: `follow ${host} from now on` }],
+      alternativas: [{ as: 'fuente', kind: 'rss', label: `follow ${host} from now on` },
+                     SOLO_PIEZA],
     };
   }
 
@@ -502,8 +504,16 @@ async function clasificar(texto: string): Promise<Resuelto> {
     };
   }
 
-  return { as: 'elemento', body_text: t, label: 'pasted text', name: lineas[0]?.slice(0, 120) };
+  return { as: 'elemento', body_text: t, label: 'pasted text', name: lineas[0]?.slice(0, 120),
+           alternativas: [SOLO_PIEZA] };
 }
+
+// La alternativa que separa los dos destinos de un elemento suelto: por defecto
+// alimenta el número de la semana; con esto se lee SOLO para un artículo propio
+// (origin='pieza', 0045) y el semanal no lo ve. El artículo se ordena después en
+// conversación, que es el camino de publicación con autoría de siempre.
+const SOLO_PIEZA = { as: 'elemento', solo: '1',
+                     label: 'for a standalone piece — keep it out of the weekly' };
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
@@ -606,8 +616,11 @@ Deno.serve(async (req) => {
           try { titulo = new URL(url).hostname.replace(/^www\./, ''); } catch { /* nada */ }
         }
 
+        // `solo` viene del botón «standalone piece»: mismo camino de lectura,
+        // pero el número de la semana no lo toca (origin='pieza', 0045).
+        const solo = b.solo === '1' || b.solo === true;
         const { data, error } = await db.from('glossa_radar_items').insert({
-          source_id: null, origin: 'pegado',
+          source_id: null, origin: solo ? 'pieza' : 'pegado',
           external_id: url ?? ('pegado:' + await huella(cuerpo!)),
           url: url ?? 'about:blank',
           title: (titulo || cuerpo || '').slice(0, 300) || '(sin título)',
@@ -640,13 +653,16 @@ Deno.serve(async (req) => {
         // ahí semanas después. Una lista llamada «cola» que solo crece no dice
         // qué está en marcha — dice qué ha existido, que es otra pregunta.
         //
-        // Ahora: lo pendiente o roto (venga de donde venga) y lo añadido en las
-        // últimas 48 h, para ver en qué acabó lo que acabas de meter. Lo demás
-        // ya cumplió y se aparta solo.
+        // Ahora: lo pendiente o roto (venga de donde venga) y lo que ARTURO
+        // añadió en las últimas 48 h, para ver en qué acabó lo que acaba de
+        // meter. Lo que traen las máquinas —reportajes del viernes, hallazgos de
+        // monitores— ya digerido NO se lista: cuarenta y una filas de trabajo
+        // hecho disfrazadas de cola hicieron preguntar, con razón, «¿esto no
+        // debió limpiarse?». Lo demás ya cumplió y se aparta solo.
         const hace48h = new Date(Date.now() - 48 * 3600_000).toISOString();
         const { data, error } = await db.from('glossa_radar_items')
           .select('id,title,url,origin,state,published_at,digested_at,created_at,error,glossa_radar_sources(name)')
-          .or(`state.in.(pending,running,error),and(origin.neq.feed,created_at.gte.${hace48h})`)
+          .or(`state.in.(pending,running,error),and(origin.in.(pegado,pieza),created_at.gte.${hace48h})`)
           .order('created_at', { ascending: false }).limit(40);
         if (error) throw error;
         return ok({ items: data ?? [] });

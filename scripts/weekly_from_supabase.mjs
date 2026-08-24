@@ -145,7 +145,10 @@ const [enSemana, rezagados] = await Promise.all([
      `&order=published_at.desc&limit=120`),
 ]);
 
-const items = [...(enSemana ?? []), ...(rezagados ?? [])];
+// Las piezas sueltas (origin='pieza', 0045) se leen con la misma cola pero NO
+// son material del número: se pegaron para un artículo propio, y mezclarlas
+// aquí desharía justo la separación que se pidió.
+const items = [...(enSemana ?? []), ...(rezagados ?? [])].filter(x => x.origin !== 'pieza');
 if (enSemana?.length === 500) {
   console.log('  AVISO: la semana superó las 500 filas; entra lo más nuevo y se recorta lo más viejo.');
 }
