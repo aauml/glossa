@@ -26,9 +26,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     <span class="admin-vacio">loading…</span>
   </div>
   <p class="admin-nota" id="st-corte" style="margin:10px 0 6px"></p>
-  <!-- El dinero, en una línea tenue y sin sección propia: cuánto va gastado el
-       mes por modelo (escuchar, escribir, buscar) y cuánto cupo queda. -->
-  <p class="admin-nota" id="st-costo" style="margin:0 0 34px;opacity:.7"></p>
+  <!-- El dinero: una tabla por mes, con el total al lado. Discreta pero no
+       ambigua — la línea de contadores que hubo aquí hizo leer los créditos
+       GASTADOS de Tavily como los que quedaban. -->
+  <div id="st-costo" style="margin:0 0 34px;opacity:.75"></div>
 
   <!-- ── Lo que va mal ──────────────────────────────────────────────────
        Sólo si hay algo, y solo lo que resistió arreglarse solo: el vigilante
@@ -420,25 +421,43 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
           : '');
   }
 
-  // ── El costo, en una línea ──────────────────────────────────────────────
-  // Lo que va gastado el mes, por modelo y con el cupo al lado. Discreto a
-  // propósito: es para saberlo de un vistazo, no una sección de contabilidad —
-  // el detalle sigue en «Under the hood».
+  // ── El costo, como tabla por mes ────────────────────────────────────────
+  // Una fila por mes y el total a la derecha. Las columnas son A DÓNDE va el
+  // gasto —escuchar, escribir, buscar, el comité—, no la lista de proveedores.
+  // Para Tavily, el mes en curso enseña la cifra OFICIAL de su API (usados/tope,
+  // la anota el reportaje al pasar), porque el contador propio y el oficial
+  // difieren y el oficial es el que corta el servicio.
   async function pintarCosto() {
     const g = await api('budget');
     const el = $('st-costo');
-    if (g.error || !g.uso?.length) { el.textContent = ''; return; }
-    const nombre = (p) => p === 'moonshot' ? 'kimi (writes the issue)'
-                        : p === 'gemini' ? 'gemini (listens)'
-                        : p === 'tavily' ? 'tavily (searches)' : p;
-    const conCoste = g.uso.filter(u => Number(u.coste_mes) > 0);
-    const total = conCoste.reduce((n, u) => n + Number(u.coste_mes), 0);
-    const partes = [`This month: $${total.toFixed(2)}`];
-    for (const u of conCoste) partes.push(`${nombre(u.proveedor)} $${Number(u.coste_mes).toFixed(2)}`);
-    const gem = g.uso.find(u => u.proveedor === 'gemini');
-    if (gem) partes.push(`gemini (listens) ${gem.hoy ?? 0} calls today, free tier`);
-    if (g.tavily) partes.push(`tavily (searches) ${g.tavily.restantes} of ${g.tavily.tope} credits left, $0`);
-    el.textContent = partes.join(' · ');
+    if (g.error || !g.meses?.length) { el.innerHTML = ''; return; }
+    const por = {};
+    for (const r of g.meses) (por[r.mes] ||= {})[r.proveedor] = r;
+    const meses = Object.keys(por).sort().reverse().slice(0, 12);
+    const mesActual = new Date().toISOString().slice(0, 7);
+    const n = (x) => Number(x || 0);
+    const filas = meses.map(m => {
+      const p = por[m];
+      const kimi = n(p.moonshot?.coste);
+      const comite = n(p.deepseek?.coste) + n(p.openai?.coste);
+      const total = Object.values(p).reduce((s, r) => s + n(r.coste), 0);
+      const tavily = (m === mesActual && g.tavily)
+        ? `${g.tavily.usados} of ${g.tavily.tope} used`
+        : `${n(p.tavily?.llamadas)} credits`;
+      return `<tr>
+        <td>${esc(m)}</td>
+        <td class="admin-num">${n(p.gemini?.llamadas)} calls · $0</td>
+        <td class="admin-num">$${kimi.toFixed(2)}</td>
+        <td class="admin-num">${esc(tavily)} · $0</td>
+        <td class="admin-num">${comite ? '$' + comite.toFixed(2) : '$0'}</td>
+        <td class="admin-num"><strong>$${total.toFixed(2)}</strong></td></tr>`;
+    }).join('');
+    el.innerHTML = `<table class="admin-tabla" style="font-size:12.5px">
+      <tr style="color:var(--muted)"><td>month</td><td class="admin-num">listening (gemini)</td>
+        <td class="admin-num">writing (kimi)</td><td class="admin-num">searching (tavily)</td>
+        <td class="admin-num">committee</td><td class="admin-num">total</td></tr>${filas}</table>` +
+      (g.tavily ? `<p class="admin-nota" style="margin-top:4px">Tavily renews in ${
+        esc(String(g.tavily.dias_para_renovar))} d · ${esc(String(g.tavily.restantes))} credits left this cycle</p>` : '');
   }
 
   // El corte lo escribe un Action porque el modelo tarda ~15 min; esto solo

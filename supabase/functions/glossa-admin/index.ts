@@ -918,17 +918,19 @@ Deno.serve(async (req) => {
         // reportaje al pasar, en `tavily_estado`. Darle la clave al panel para
         // que preguntara él habría expuesto un secreto más para obtener la misma
         // cifra. La fecha va al lado para que una cifra rancia se vea rancia.
-        const [{ data: gasto }, { data: ajus }, { data: reps }] = await Promise.all([
+        const [{ data: gasto }, { data: ajus }, { data: reps }, { data: meses }] = await Promise.all([
           db.rpc('glossa_radar_presupuesto'),
           db.from('glossa_radar_settings').select('key,value'),
           db.from('glossa_radar_reportajes')
             .select('label,busquedas,entran,cuota,urgencia,barrido,paro,week_start')
             .order('week_start', { ascending: false }).limit(30),
+          db.rpc('glossa_radar_costo_mensual'),
         ]);
         const set = Object.fromEntries((ajus ?? [])
           .map((r: { key: string; value: unknown }) => [r.key, r.value]));
         return ok({
           uso: gasto ?? [],
+          meses: meses ?? [],
           topes: Object.fromEntries(Object.entries(set).filter(([k]) => k.startsWith('cap_'))),
           tavily: set.tavily_estado ?? null,
           // Los mandos que se suben y se bajan a mano. Van con el resto para que
