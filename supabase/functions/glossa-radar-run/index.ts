@@ -294,6 +294,26 @@ Deno.serve(async (req) => {
         tokens_used: geminiTokens(resp), digested_at: new Date().toISOString(), error: null,
       }).eq('id', item.id);
 
+      // El grafo de citas (0044). Las menciones ya venían en el digest y se
+      // tiraban; guardarlas cuesta un insert y es de lo que nacen los candidatos
+      // a fuente nueva. Si falla no rompe la pasada: el episodio ya quedó
+      // digerido y las menciones de la semana que viene volverán a traerlo.
+      const menciones = (digest.mentions ?? [])
+        .filter((m: any) => m?.name && String(m.name).trim().length > 2)
+        .slice(0, 5)
+        .map((m: any) => ({
+          item_id: item.id,
+          citado: String(m.name).slice(0, 200),
+          clave: claveDeNombre(String(m.name)),
+          tipo: ['persona', 'medio', 'institucion', 'obra'].includes(m.kind) ? m.kind : 'persona',
+          contexto: m.for ? String(m.for).slice(0, 300) : null,
+        }))
+        .filter((m: any) => m.clave.length > 2);
+      if (menciones.length) {
+        await sb.from('glossa_radar_menciones')
+          .upsert(menciones, { onConflict: 'item_id,clave', ignoreDuplicates: true });
+      }
+
       // Ya se reservó hueco arriba; y si aun así no llega, la próxima pasada lo
       // recoge en el paso 2, que ahora sí se ejecuta.
       if (queda() > 10_000) await asignarTemas(sb, item.id, digest);
@@ -328,6 +348,21 @@ Deno.serve(async (req) => {
   log.ms = Date.now() - t0;
   return new Response(JSON.stringify(log), { headers: CORS });
 });
+
+/**
+ * El nombre, normalizado para agrupar: minúsculas, sin acentos, sin títulos de
+ * cortesía ni puntuación. "Prof. Michael Hudson" y "michael hudson" deben caer
+ * en la misma clave; la fusión más fina la hace el consejo al leer.
+ */
+function claveDeNombre(nombre: string): string {
+  return nombre
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\b(prof|dr|mr|mrs|ms|sir|the)\.?\s+/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .slice(0, 120);
+}
 
 /** Encaja el material en la lista de temas, que crece sola. */
 async function asignarTemas(sb: any, itemId: string, digest: any) {

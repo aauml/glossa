@@ -451,3 +451,40 @@ multilingües. Es correcto y queda como etapa siguiente; que GDELT traiga el tex
 es justo lo que la hace posible. Mientras tanto la señal se usa solo para decidir
 **dónde gastar**, nunca para afirmar que algo está corroborado — un umbral que se
 equivoca cuesta unos créditos, no una frase falsa en el número.
+
+## D-024 · El directorio de fuentes crece solo; decide el consejo, Arturo veta
+
+Las cuarenta fuentes eran una lista escrita a mano, y una lista a mano es una
+foto que envejece. La pregunta era cómo hacerla crecer sin que crezca torcida:
+sin que un racimo de canales que se citan entre sí eleve a los suyos, y sin que
+un periodista con fuentes propias e incontrastables entre como verdad o quede
+fuera como ruido.
+
+**La decisión tiene tres partes:**
+
+*1 · Los candidatos nacen del material, no de un directorio.* Dos viveros: las
+**menciones** que el análisis ya detectaba y tiraba (a quién cita cada voz como
+SU fuente de información — el grafo de citas, `glossa_radar_menciones`) y los
+medios que el **reportaje** del viernes encuentra y que entregan texto útil. Se
+descartó indexar listas externas de medios: cuota y suscripciones que no hay, y
+un directorio ajeno hereda el sesgo de quien lo compiló.
+
+*2 · Decide el comité del consejo, no el radar y no Arturo.* La regla es la de
+D-038 de thesis, extendida: quien analiza (Gemini) no vota sobre qué fuentes
+analizará. Arturo pidió explícitamente quedar fuera del bucle de aprobación; su
+única palabra es el **veto** desde el panel, que es la asimetría correcta — el
+sistema no puede meterle una fuente por encima de un no humano, pero tampoco
+depende de que un humano apruebe cada alta.
+
+*3 · La cámara de eco se mide por estructura, no por etiqueta ideológica.*
+Clasificar ideologías es frágil justo donde importa. Lo que se exige es
+independencia contada (citas de fuentes DISTINTAS), la lista de quiénes citan
+delante del comité, y una prueba que se gana aportando: hechos que sobreviven al
+cotejo y relatos distintos de los que ya había. La redundancia degrada — repetir
+lo que los padrinos ya decían no renueva la audición, la termina. El material a
+prueba entra al número etiquetado (`probation`) y tiene prohibido corroborar.
+
+Los frenos son estructurales, no de gusto: `fuentes_altas_por_semana` (cada
+fuente cuesta cuota de Gemini a diario) y `fuentes_tope_por_tema` (promover con
+el cupo lleno exige que algo salga). Ver docs/15-Fuentes-Organicas.md y la
+migración 0044.

@@ -128,84 +128,365 @@ function pregunta(evidencia, reglaActual, ranuraActual) {
   ].filter(Boolean).join('\n');
 }
 
-// ── Corrida ────────────────────────────────────────────────────────────────
-const [ajustesRaw, calibracion] = await Promise.all([
-  sb('glossa_radar_settings?select=key,value'),
-  sb('rpc/glossa_radar_calibracion', { method: 'POST', body: '{}' }),
-]);
-const ajus = Object.fromEntries((ajustesRaw ?? []).map(r => [r.key, r.value]));
-const MINIMO = Number(ajus.consejo_minimo_muestra ?? 12);
-const UMBRAL = Number(ajus.consejo_umbral_calibracion ?? 0.34);
+// ── Utilidades compartidas por las dos fases ───────────────────────────────
 
-const doc = (calibracion ?? []).find(c => c.etiqueta_analisis === 'documentado');
-if (!doc) { console.log('Todavía no hay nada comprobado con etiqueta «documentado».'); process.exit(0); }
-
-const tasa = doc.comprobadas ? Number(doc.confirmadas) / Number(doc.comprobadas) : 1;
-console.log(`Calibración de «documentado»: ${doc.confirmadas} de ${doc.comprobadas} confirmadas (${(tasa * 100).toFixed(0)}%)`);
-
-// El freno que evita corregir por ruido. Con cuatro casos no se toca nada: se
-// espera. Un comité convocado sobre una muestra que no distingue señal de ruido
-// produce una corrección con toda la ceremonia y ninguna base.
-if (Number(doc.comprobadas) < MINIMO) {
-  console.log(`Muestra de ${doc.comprobadas}, hacen falta ${MINIMO}. No se convoca — con estos números no se distingue un fallo real del azar.`);
-  process.exit(0);
-}
-if (tasa >= UMBRAL) {
-  console.log(`Por encima del umbral (${(UMBRAL * 100).toFixed(0)}%). No hace falta corregir nada.`);
-  process.exit(0);
-}
-
-const REGLA = '"documentado" solo si remite a un documento concreto y verificable.';
-const ranuraActual = String(ajus.prompt_calibracion_digest ?? '');
-const evidencia = { periodo: 'desde que existe el cotejo', por_etiqueta: calibracion };
-const q = pregunta(evidencia, REGLA, ranuraActual);
-
-console.log(`Convocando: ${COMITE.map(m => m.casa).join(', ')} — y NO Gemini, que es a quien se corrige.`);
-const votos = await Promise.all(COMITE.map(m => votar(m, q)));
-for (const v of votos)
-  console.log(`  ${v.casa.padEnd(9)} ${v.error ? 'ERROR: ' + v.error : (v.cambiar ? 'cambiar' : 'no cambiar') + ' — ' + String(v.razon ?? '').slice(0, 76)}`);
-
-const validos = votos.filter(v => !v.error);
-if (validos.length < 2) { console.log('Menos de dos votos válidos: no hay comité. No se cambia nada.'); process.exit(1); }
-
-const aFavor = validos.filter(v => v.cambiar && v.propuesta);
-const hayMayoria = aFavor.length > validos.length / 2;
-
-let decision = null, motivo;
-if (!hayMayoria) {
-  motivo = `${aFavor.length} de ${validos.length} a favor: sin mayoría, no se toca nada.`;
-} else {
-  // La propuesta más corta que tenga mayoría. No se fusionan textos de varios
-  // modelos: un pegote de tres frases no lo escribió nadie y no lo revisó nadie.
-  decision = aFavor.map(v => String(v.propuesta).trim()).sort((a, b) => a.length - b.length)[0];
-  motivo = `${aFavor.length} de ${validos.length} a favor. Se toma la propuesta más breve.`;
-}
-console.log(`\n${motivo}`);
-if (decision) console.log(`Nota añadida a la ranura:\n  «${decision}»`);
-
-const coste = validos.reduce((n, v) => n + (v.tokens ?? 0), 0) / 1e6 * 1.0;   // ~$1/Mtok mezclando las tres
-await sb('glossa_radar_consejo', {
-  method: 'POST', headers: { Prefer: 'return=minimal' },
-  body: JSON.stringify([{
-    convocado_por: `calibracion_documentado: ${doc.confirmadas}/${doc.comprobadas}`,
-    ranura: 'prompt_calibracion_digest', evidencia, pregunta: q,
-    votos: votos.map(({ casa, modelo, cambiar, propuesta, razon, error }) =>
-      ({ casa, modelo, cambiar: cambiar ?? null, propuesta: propuesta ?? null, razon: razon ?? null, error: error ?? null })),
-    decision, motivo, aplicado: !!decision, coste_usd: coste,
-  }]),
-});
-// El coste va a la fila del PROVEEDOR, no solo al registro del consejo: la casa
-// kimi comparte fila con el número semanal, y apuntarle $0 dejaba `llamadas`
-// subiendo sin coste que cuadrara — dos columnas de la misma fila en desacuerdo.
-for (const v of validos) if (v.tokens) {
-  await apuntar(URL_SB, KEY, v.casa, 1, v.tokens, (v.tokens / 1e6) * 1.0);
-}
-
-if (decision) {
-  await sb('glossa_radar_settings', {
-    method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-    body: JSON.stringify([{ key: 'prompt_calibracion_digest', value: decision,
-                            updated_at: new Date().toISOString() }]),
+/** Contabiliza los votos de una convocatoria y deja el registro en la base. */
+async function registrar({ convocadoPor, ranura, evidencia, pregunta: q, votos, decision, motivo, aplicado }) {
+  const validos = votos.filter(v => !v.error);
+  const coste = validos.reduce((n, v) => n + (v.tokens ?? 0), 0) / 1e6 * 1.0;   // ~$1/Mtok mezclando las tres
+  await sb('glossa_radar_consejo', {
+    method: 'POST', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify([{
+      convocado_por: convocadoPor, ranura, evidencia, pregunta: q,
+      votos: votos.map(({ casa, modelo, cambiar, propuesta, razon, error, alta, veredicto }) =>
+        ({ casa, modelo, cambiar: cambiar ?? null, propuesta: propuesta ?? null,
+           alta: alta ?? null, veredicto: veredicto ?? null, razon: razon ?? null, error: error ?? null })),
+      decision, motivo, aplicado, coste_usd: coste,
+    }]),
   });
-  console.log('Aplicada. Reversible desde el panel con un clic.');
+  // El coste va a la fila del PROVEEDOR, no solo al registro del consejo: la casa
+  // kimi comparte fila con el número semanal, y apuntarle $0 dejaba `llamadas`
+  // subiendo sin coste que cuadrara — dos columnas de la misma fila en desacuerdo.
+  for (const v of validos) if (v.tokens) {
+    await apuntar(URL_SB, KEY, v.casa, 1, v.tokens, (v.tokens / 1e6) * 1.0);
+  }
 }
+
+// ── Fase 1 · Calibración de las etiquetas ──────────────────────────────────
+async function faseCalibracion(ajus) {
+  const calibracion = await sb('rpc/glossa_radar_calibracion', { method: 'POST', body: '{}' });
+  const MINIMO = Number(ajus.consejo_minimo_muestra ?? 12);
+  const UMBRAL = Number(ajus.consejo_umbral_calibracion ?? 0.34);
+
+  const doc = (calibracion ?? []).find(c => c.etiqueta_analisis === 'documentado');
+  if (!doc) { console.log('Todavía no hay nada comprobado con etiqueta «documentado».'); return; }
+
+  const tasa = doc.comprobadas ? Number(doc.confirmadas) / Number(doc.comprobadas) : 1;
+  console.log(`Calibración de «documentado»: ${doc.confirmadas} de ${doc.comprobadas} confirmadas (${(tasa * 100).toFixed(0)}%)`);
+
+  // El freno que evita corregir por ruido. Con cuatro casos no se toca nada: se
+  // espera. Un comité convocado sobre una muestra que no distingue señal de ruido
+  // produce una corrección con toda la ceremonia y ninguna base.
+  if (Number(doc.comprobadas) < MINIMO) {
+    console.log(`Muestra de ${doc.comprobadas}, hacen falta ${MINIMO}. No se convoca — con estos números no se distingue un fallo real del azar.`);
+    return;
+  }
+  if (tasa >= UMBRAL) {
+    console.log(`Por encima del umbral (${(UMBRAL * 100).toFixed(0)}%). No hace falta corregir nada.`);
+    return;
+  }
+
+  const REGLA = '"documentado" solo si remite a un documento concreto y verificable.';
+  const ranuraActual = String(ajus.prompt_calibracion_digest ?? '');
+  const evidencia = { periodo: 'desde que existe el cotejo', por_etiqueta: calibracion };
+  const q = pregunta(evidencia, REGLA, ranuraActual);
+
+  console.log(`Convocando: ${COMITE.map(m => m.casa).join(', ')} — y NO Gemini, que es a quien se corrige.`);
+  const votos = await Promise.all(COMITE.map(m => votar(m, q)));
+  for (const v of votos)
+    console.log(`  ${v.casa.padEnd(9)} ${v.error ? 'ERROR: ' + v.error : (v.cambiar ? 'cambiar' : 'no cambiar') + ' — ' + String(v.razon ?? '').slice(0, 76)}`);
+
+  const validos = votos.filter(v => !v.error);
+  if (validos.length < 2) { console.log('Menos de dos votos válidos: no hay comité. No se cambia nada.'); process.exitCode = 1; return; }
+
+  const aFavor = validos.filter(v => v.cambiar && v.propuesta);
+  const hayMayoria = aFavor.length > validos.length / 2;
+
+  let decision = null, motivo;
+  if (!hayMayoria) {
+    motivo = `${aFavor.length} de ${validos.length} a favor: sin mayoría, no se toca nada.`;
+  } else {
+    // La propuesta más corta que tenga mayoría. No se fusionan textos de varios
+    // modelos: un pegote de tres frases no lo escribió nadie y no lo revisó nadie.
+    decision = aFavor.map(v => String(v.propuesta).trim()).sort((a, b) => a.length - b.length)[0];
+    motivo = `${aFavor.length} de ${validos.length} a favor. Se toma la propuesta más breve.`;
+  }
+  console.log(`\n${motivo}`);
+  if (decision) console.log(`Nota añadida a la ranura:\n  «${decision}»`);
+
+  await registrar({
+    convocadoPor: `calibracion_documentado: ${doc.confirmadas}/${doc.comprobadas}`,
+    ranura: 'prompt_calibracion_digest', evidencia, pregunta: q, votos,
+    decision, motivo, aplicado: !!decision,
+  });
+
+  if (decision) {
+    await sb('glossa_radar_settings', {
+      method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify([{ key: 'prompt_calibracion_digest', value: decision,
+                              updated_at: new Date().toISOString() }]),
+    });
+    console.log('Aplicada. Reversible desde el panel con un clic.');
+  }
+}
+
+// ── Fase 2 · Fuentes orgánicas (0044) ──────────────────────────────────────
+//
+// El directorio de fuentes crece desde el material: las menciones del radar y
+// los hallazgos del reportaje alimentan expedientes, y aquí el comité decide
+// altas y veredictos. Las mismas tres casas, y la misma razón de fondo: quien
+// analiza los episodios (Gemini) no vota sobre qué fuentes analizará.
+//
+// Dos frenos estructurales, ninguno de gusto:
+//   - `fuentes_altas_por_semana`: cada fuente nueva cuesta cuota de Gemini a
+//     diario; un domingo entusiasta no puede duplicar el gasto del sistema.
+//   - `fuentes_tope_por_tema`: contra la cámara de eco no basta con contar
+//     menciones — todo un racimo citándose a sí mismo produce menciones de
+//     sobra. El tope obliga a elegir, y la pregunta al comité lleva la lista de
+//     QUIÉNES citan al candidato para que la endogamia se vea.
+
+/** Busca el RSS de un medio: primero lo que declare el HTML, luego los caminos de siempre. */
+async function descubrirFeed(homepage) {
+  const candidatas = [];
+  try {
+    const r = await fetch(homepage, { signal: AbortSignal.timeout(12_000),
+                                      headers: { 'User-Agent': 'glossa-radar/1.0' } });
+    if (r.ok) {
+      const html = (await r.text()).slice(0, 300_000);
+      for (const m of html.matchAll(/<link[^>]+type=["']application\/(?:rss|atom)\+xml["'][^>]*>/gi)) {
+        const href = /href=["']([^"']+)["']/i.exec(m[0])?.[1];
+        if (href) { try { candidatas.push(new URL(href, homepage).href); } catch { /* href roto */ } }
+      }
+    }
+  } catch { /* la portada no contestó; se prueban los caminos de siempre */ }
+  for (const p of ['/feed', '/rss', '/rss.xml', '/atom.xml', '/index.xml']) {
+    try { candidatas.push(new URL(p, homepage).href); } catch { /* homepage rota */ }
+  }
+  for (const url of [...new Set(candidatas)].slice(0, 7)) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(10_000),
+                                   headers: { 'User-Agent': 'glossa-radar/1.0' } });
+      if (!r.ok) continue;
+      if (/<(rss|feed|rdf)[\s>]/i.test((await r.text()).slice(0, 5_000))) return url;
+    } catch { /* siguiente candidata */ }
+  }
+  return null;
+}
+
+function preguntaAlta(cand, contexto) {
+  return [
+    'You are one of three independent reviewers on a committee that decides which NEW',
+    'sources a weekly review starts following. The models that analyse the material do',
+    'not get a vote — that is the point of you being here.',
+    '',
+    'THE CANDIDATE:',
+    JSON.stringify(cand, null, 2),
+    '',
+    'CONTEXT — sources already covering the topics this candidate would join, and how',
+    'the current sources fared when their claims were checked against outside documents:',
+    JSON.stringify(contexto, null, 2),
+    '',
+    'Return only a json object, nothing else:',
+    '{"alta": true|false,',
+    ' "razon": "one sentence: what in the evidence justifies this"}',
+    '',
+    'RULES FOR YOUR VOTE:',
+    '- Being cited a lot is NOT enough. Look at WHO cites the candidate: if every citer',
+    '  belongs to the same school or the same conversation, the mentions measure',
+    '  alignment, not reach. An echo chamber produces abundant mentions by itself.',
+    '- What earns admission is the prospect of material the review does not already',
+    '  have: different countries, different method, primary documents, or a track',
+    '  record of publishing figures others later confirmed.',
+    '- Admission is ON PROBATION and scoped to the listed topics. You are not granting',
+    '  trust; you are granting an audition that a later verification pass will grade.',
+    '- If the evidence is thin, vote false. A source added by noise costs quota every',
+    '  single day and crowds out a better one.',
+  ].join('\n');
+}
+
+function preguntaPrueba(fuente, historial) {
+  return [
+    'You are one of three independent reviewers on a committee. A weekly review admitted',
+    'the source below ON PROBATION some weeks ago. Decide its verdict now.',
+    '',
+    'THE SOURCE AND ITS FILE:',
+    JSON.stringify(fuente, null, 2),
+    '',
+    'WHAT HAPPENED WHEN ITS CLAIMS WERE CHECKED against outside documents (verdicts were',
+    'decided by an independent checking pass, not by the source or by this committee):',
+    JSON.stringify(historial, null, 2),
+    '',
+    'Return only a json object, nothing else:',
+    '{"veredicto": "confianza" | "degradar" | "seguir",',
+    ' "razon": "one sentence grounded in the numbers above"}',
+    '',
+    'RULES FOR YOUR VOTE:',
+    '- "confianza" only if it contributed material that HELD UP under checking, or',
+    '  brought accounts genuinely distinct from what the existing sources already said.',
+    '- "degradar" if it only ever repeated what better sources had already said, or its',
+    '  claims were contradicted when checked. Redundancy is a reason to degrade: every',
+    '  slot it occupies costs quota daily and crowds out a different voice.',
+    '- "seguir" (stay on probation) if the sample is still too small to tell. That is a',
+    '  real answer, not a failure to decide.',
+  ].join('\n');
+}
+
+async function faseFuentes(ajus) {
+  console.log('\n── Fuentes orgánicas ──');
+  const MENC_MIN   = Number(ajus.candidato_menciones_minimas ?? 2);
+  const SEM_MIN    = Number(ajus.candidato_semanas_reportaje ?? 2);
+  const TOPE_TEMA  = Number(ajus.fuentes_tope_por_tema ?? 6);
+  const ALTAS_MAX  = Number(ajus.fuentes_altas_por_semana ?? 2);
+  const PRUEBA_SEM = Number(ajus.prueba_semanas_minimas ?? 3);
+
+  // 1. Del grafo de citas a los expedientes. El RPC ya trae la independencia
+  //    contada: cuántas fuentes DISTINTAS citan a cada clave.
+  const expedientes = await sb(`rpc/glossa_radar_expedientes`, {
+    method: 'POST', body: JSON.stringify({ minimo: MENC_MIN }),
+  }).catch(() => []);
+  for (const e of expedientes ?? []) {
+    try {
+      const [hay] = await sb(`glossa_radar_candidatos?select=id,estado,expediente&clave=eq.${encodeURIComponent(e.clave)}&limit=1`) ?? [];
+      if (hay && hay.estado !== 'candidato') continue;   // vetado, a prueba o ya decidido: no se reescribe
+      await sb('glossa_radar_candidatos?on_conflict=clave', {
+        method: 'POST', headers: { Prefer: 'resolution=merge-duplicates' },
+        body: JSON.stringify([{
+          clave: e.clave, nombre: e.citado, tipo: e.tipo,
+          temas: e.temas ?? [],
+          expediente: { ...(hay?.expediente ?? {}),
+                        menciones: { fuentes_distintas: e.fuentes_distintas, total: e.menciones,
+                                     citado_por: e.citado_por, primera: e.primera, ultima: e.ultima } },
+          updated_at: new Date().toISOString(),
+        }]),
+      });
+    } catch (err) { console.log(`  · expediente ${e.clave}: ${String(err).slice(0, 80)}`); }
+  }
+  console.log(`  ${expedientes?.length ?? 0} claves con ≥${MENC_MIN} fuentes citándolas.`);
+
+  // 2. Elegibles para el alta: por menciones independientes o por reportaje repetido.
+  const candidatos = await sb(`glossa_radar_candidatos?select=*&estado=eq.candidato&order=updated_at.desc&limit=60`) ?? [];
+  const elegibles = candidatos.filter(c => {
+    const m = c.expediente?.menciones;
+    const semanas = new Set((c.expediente?.reportaje ?? []).map(x => x.semana));
+    return (m && Number(m.fuentes_distintas) >= MENC_MIN) || semanas.size >= SEM_MIN;
+  });
+  if (!elegibles.length) { console.log('  Ningún candidato alcanza el umbral todavía.'); }
+
+  // El contexto que ve el comité: el cupo por tema y el historial de las fuentes
+  // que ya están, una vez por corrida.
+  const fuentesOrg = await sb(`glossa_radar_sources?select=id,name,estado,temas,active,created_at&candidato_id=not.is.null`) ?? [];
+  const historial  = await sb('rpc/glossa_radar_historial_fuentes', { method: 'POST', body: '{}' }).catch(() => []);
+  const ocupados = {};
+  for (const s of fuentesOrg) if (s.active) for (const t of (s.temas ?? [])) ocupados[t] = (ocupados[t] ?? 0) + 1;
+
+  let altas = 0;
+  for (const c of elegibles.slice(0, 4)) {
+    if (altas >= ALTAS_MAX) { console.log(`  Freno semanal: ya hubo ${ALTAS_MAX} altas.`); break; }
+
+    // Sin feed no hay fuente que sondear. A las personas se les busca el feed
+    // igual (muchos tienen Substack o podcast en su homepage); si no aparece,
+    // el expediente queda a la vista en el panel y no se convoca al comité.
+    let feed = c.feed_url;
+    if (!feed && c.homepage) feed = await descubrirFeed(c.homepage);
+    if (!feed) {
+      await sb(`glossa_radar_candidatos?id=eq.${c.id}`, {
+        method: 'PATCH', body: JSON.stringify({
+          motivo: 'elegible, pero sin feed detectable: no hay nada que sondear todavía',
+          updated_at: new Date().toISOString() }),
+      }).catch(() => {});
+      console.log(`  · ${c.nombre}: elegible y sin feed — queda en el panel.`);
+      continue;
+    }
+
+    const temas = (c.temas ?? []).slice(0, 4);
+    const lleno = temas.filter(t => (ocupados[t] ?? 0) >= TOPE_TEMA);
+    if (temas.length && lleno.length === temas.length) {
+      console.log(`  · ${c.nombre}: sus temas están al tope (${lleno.join(', ')}); no se convoca.`);
+      continue;
+    }
+
+    const contexto = {
+      cupo: { tope_por_tema: TOPE_TEMA, ocupacion: Object.fromEntries(temas.map(t => [t, ocupados[t] ?? 0])) },
+      historial_fuentes_actuales: (historial ?? []).slice(0, 20),
+    };
+    const q = preguntaAlta({ nombre: c.nombre, tipo: c.tipo, temas, expediente: c.expediente }, contexto);
+    const votos = await Promise.all(COMITE.map(m => votar(m, q)));
+    for (const v of votos)
+      console.log(`    ${v.casa.padEnd(9)} ${v.error ? 'ERROR: ' + v.error : (v.alta ? 'alta' : 'no') + ' — ' + String(v.razon ?? '').slice(0, 70)}`);
+    const validos = votos.filter(v => !v.error);
+    const aFavor = validos.filter(v => v.alta === true);
+    const admite = validos.length >= 2 && aFavor.length > validos.length / 2;
+    const motivo = validos.length < 2
+      ? 'menos de dos votos válidos: no hay comité'
+      : `${aFavor.length} de ${validos.length} a favor del alta a prueba`;
+
+    if (admite) {
+      const puesto = await sb('glossa_radar_sources?on_conflict=feed_url&select=id', {
+        method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=representation' },
+        body: JSON.stringify([{
+          kind: 'rss', name: c.nombre, feed_url: feed, homepage: c.homepage,
+          active: true, estado: 'a_prueba', temas, candidato_id: c.id,
+          notes: `alta a prueba por el consejo · ${new Date().toISOString().slice(0, 10)}`,
+        }]),
+      }).catch(err => { console.log(`    ✗ alta: ${String(err).slice(0, 90)}`); return null; });
+      const sourceId = puesto?.[0]?.id;
+      await sb(`glossa_radar_candidatos?id=eq.${c.id}`, {
+        method: 'PATCH', body: JSON.stringify({
+          estado: sourceId ? 'a_prueba' : 'candidato', feed_url: feed,
+          source_id: sourceId ?? null, motivo, decidido_en: new Date().toISOString(),
+          updated_at: new Date().toISOString() }),
+      }).catch(() => {});
+      if (sourceId) { altas++; for (const t of temas) ocupados[t] = (ocupados[t] ?? 0) + 1; }
+      console.log(`    → ${c.nombre} entra A PRUEBA (${temas.join(', ') || 'general'})`);
+    } else {
+      await sb(`glossa_radar_candidatos?id=eq.${c.id}`, {
+        method: 'PATCH', body: JSON.stringify({ motivo, decidido_en: new Date().toISOString(),
+                                                updated_at: new Date().toISOString() }),
+      }).catch(() => {});
+    }
+    await registrar({
+      convocadoPor: `fuentes_organicas alta: ${c.clave}`, ranura: 'fuentes_organicas',
+      evidencia: { candidato: c.clave, expediente: c.expediente, temas, contexto: contexto.cupo },
+      pregunta: q, votos, decision: admite ? `alta a prueba: ${c.nombre} (${feed})` : null,
+      motivo, aplicado: admite,
+    });
+  }
+
+  // 3. Las que llevan semanas a prueba reciben veredicto.
+  const corte = new Date(Date.now() - PRUEBA_SEM * 7 * 864e5).toISOString();
+  const enPrueba = (fuentesOrg ?? []).filter(s => s.estado === 'a_prueba' && s.active && s.created_at < corte);
+  for (const s of enPrueba.slice(0, 4)) {
+    const suyo = (historial ?? []).find(h => h.source_id === s.id) ?? { comprobadas: 0 };
+    const digeridos = await sb(`glossa_radar_items?select=id&source_id=eq.${s.id}&state=eq.digested&limit=500`) ?? [];
+    const q = preguntaPrueba(
+      { nombre: s.name, temas: s.temas, en_prueba_desde: s.created_at, episodios_digeridos: digeridos.length },
+      suyo);
+    const votos = await Promise.all(COMITE.map(m => votar(m, q)));
+    for (const v of votos)
+      console.log(`    ${v.casa.padEnd(9)} ${v.error ? 'ERROR: ' + v.error : String(v.veredicto ?? '?') + ' — ' + String(v.razon ?? '').slice(0, 70)}`);
+    const validos = votos.filter(v => !v.error);
+    if (validos.length < 2) continue;
+    const cuenta = {};
+    for (const v of validos) cuenta[v.veredicto] = (cuenta[v.veredicto] ?? 0) + 1;
+    const [veredicto, n] = Object.entries(cuenta).sort((a, b) => b[1] - a[1])[0] ?? ['seguir', 0];
+    const decide = n > validos.length / 2 ? veredicto : 'seguir';
+    const motivo = `${n} de ${validos.length} por «${decide}»`;
+
+    if (decide === 'confianza') {
+      await sb(`glossa_radar_sources?id=eq.${s.id}`, { method: 'PATCH', body: JSON.stringify({ estado: 'confianza' }) });
+      await sb(`glossa_radar_candidatos?source_id=eq.${s.id}`, {
+        method: 'PATCH', body: JSON.stringify({ estado: 'confianza', motivo, decidido_en: new Date().toISOString(),
+                                                updated_at: new Date().toISOString() }) });
+    } else if (decide === 'degradar') {
+      await sb(`glossa_radar_sources?id=eq.${s.id}`, { method: 'PATCH', body: JSON.stringify({ active: false }) });
+      await sb(`glossa_radar_candidatos?source_id=eq.${s.id}`, {
+        method: 'PATCH', body: JSON.stringify({ estado: 'degradado', motivo, decidido_en: new Date().toISOString(),
+                                                updated_at: new Date().toISOString() }) });
+    }
+    console.log(`    → ${s.name}: ${decide}`);
+    await registrar({
+      convocadoPor: `fuentes_organicas veredicto: ${s.name}`, ranura: 'fuentes_organicas',
+      evidencia: { source_id: s.id, historial: suyo, en_prueba_desde: s.created_at },
+      pregunta: q, votos, decision: decide === 'seguir' ? null : `${decide}: ${s.name}`,
+      motivo, aplicado: decide !== 'seguir',
+    });
+  }
+  if (!elegibles.length && !enPrueba.length) console.log('  Nada que decidir esta semana.');
+}
+
+// ── Corrida ────────────────────────────────────────────────────────────────
+const ajustesRaw = await sb('glossa_radar_settings?select=key,value');
+const ajus = Object.fromEntries((ajustesRaw ?? []).map(r => [r.key, r.value]));
+
+await faseCalibracion(ajus);
+await faseFuentes(ajus);

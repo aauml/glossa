@@ -51,6 +51,23 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     <div id="src-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
+  <!-- ── El vivero (0044) ───────────────────────────────────────────────
+       Las fuentes que el sistema está criando solo: candidatos que las fuentes
+       seguidas citan o que el reportaje encontró, y las altas a prueba que
+       decidió el consejo. Aquí no se aprueba nada — el consejo decide; lo único
+       que puede hacer una persona es vetar, y por eso solo hay ese botón. -->
+  <section class="admin-sec">
+    <details id="viv">
+      <summary>Growing on its own <span id="viv-cuenta" class="admin-kind"></span></summary>
+      <p class="admin-nota" style="margin-top:8px">
+        Sources the system is raising by itself: names the followed channels cite as
+        their own sources, and outlets the Friday reporting run kept finding. The
+        Sunday committee decides admissions and verdicts; your only word here is a veto.
+      </p>
+      <div id="viv-lista" style="margin-top:12px"><span class="admin-vacio">loading…</span></div>
+    </details>
+  </section>
+
   <!-- ── Lo de dentro ───────────────────────────────────────────────────
        Cerrado por defecto. Nada de esto se usa a diario: son las cuentas del
        sistema y la única forma de deshacer una corrección del comité. Quitarlo
@@ -221,6 +238,62 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     b.disabled = true;
     await api('sources.delete', { id: b.dataset.d });
     pintarFuentes(); pintarCola();
+  });
+
+  // ── El vivero ───────────────────────────────────────────────────────────
+  // Se pinta al abrirlo, como las tripas: no es una vista de a diario.
+  let viveroPintado = false;
+  $('viv').addEventListener('toggle', () => {
+    if ($('viv').open && !viveroPintado) { viveroPintado = true; pintarVivero(); }
+  });
+
+  const ESTADO_CAND = { candidato: 'candidate', a_prueba: 'on trial', confianza: 'trusted',
+                        degradado: 'demoted', vetado: 'vetoed' };
+
+  async function pintarVivero() {
+    const d = await api('organicas.list');
+    const el = $('viv-lista');
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    const cand = d.candidatos || [];
+    const enJuego = cand.filter(c => c.estado === 'candidato' || c.estado === 'a_prueba').length;
+    $('viv-cuenta').textContent = enJuego ? `${enJuego} in play` : '';
+    if (!cand.length) {
+      el.innerHTML = '<span class="admin-vacio">Nothing yet — candidates appear as the followed sources cite people and outlets, and as the Friday run finds outlets that deliver.</span>';
+      return;
+    }
+    const resumen = (c) => {
+      const m = c.expediente?.menciones;
+      const rep = c.expediente?.reportaje || [];
+      const partes = [];
+      if (m) partes.push(`cited by ${m.fuentes_distintas} source${m.fuentes_distintas > 1 ? 's' : ''} (${(m.citado_por || []).slice(0, 4).join(', ')})`);
+      if (rep.length) partes.push(`delivered reporting in ${new Set(rep.map(x => x.semana)).size} week(s)`);
+      if (c.motivo) partes.push(c.motivo);
+      return partes.join(' · ');
+    };
+    el.innerHTML = `<table class="admin-tabla">
+      ${cand.map(c => `<tr class="${['vetado', 'degradado'].includes(c.estado) ? 'off' : ''}">
+        <td>${esc(c.nombre)}${flecha(c.homepage || c.feed_url, c.nombre)}
+          <div class="admin-nota">${esc(resumen(c))}</div></td>
+        <td><span class="admin-kind">${esc(ESTADO_CAND[c.estado] || c.estado)}</span></td>
+        <td style="color:var(--muted)">${esc((c.temas || []).slice(0, 3).join(', '))}</td>
+        <td style="white-space:nowrap">${c.estado === 'vetado'
+          ? `<button class="admin-btn sec" data-viv-r="${c.id}">restore</button>`
+          : `<button class="admin-btn sec" data-viv-v="${c.id}" data-n="${esc(c.nombre)}">veto</button>`}</td>
+      </tr>`).join('')}</table>`;
+  }
+
+  delegar($('viv-lista'), '[data-viv-v]', async (b) => {
+    if (!confirm(`Veto “${b.dataset.n}”? The committee will never admit it, and if it is on trial it stops now.`)) return;
+    b.disabled = true;
+    const r = await api('candidatos.vetar', { id: b.dataset.vivV });
+    if (r.error) msg(cajaMsg, r.error, false);
+    pintarVivero(); pintarFuentes();
+  });
+  delegar($('viv-lista'), '[data-viv-r]', async (b) => {
+    b.disabled = true;
+    const r = await api('candidatos.restaurar', { id: b.dataset.vivR });
+    if (r.error) msg(cajaMsg, r.error, false);
+    pintarVivero();
   });
 
   // ── Lo de dentro ────────────────────────────────────────────────────────

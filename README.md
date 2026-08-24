@@ -60,6 +60,7 @@ juegan, qué afirmación respaldan y si están verificadas.
 | [docs/12-Runbook-Code](docs/12-Runbook-Code.md) | Pasos para continuar la construcción en Claude Code |
 | [docs/13-Radar](docs/13-Radar.md) | Leer muchas fuentes por tema sin verlas; dónde vive el reloj y cuánto cuesta |
 | [docs/14-Censo-y-Cupo](docs/14-Censo-y-Cupo.md) | Salir a buscar sobre todos los temas sin que crecer cueste más; cómo se raciona lo de pago |
+| [docs/15-Fuentes-Organicas](docs/15-Fuentes-Organicas.md) | El directorio de fuentes crece solo desde las menciones y el reportaje; el consejo decide, Arturo veta |
 | [docs/Glosario](docs/Glosario.md) | Términos del proyecto |
 
 Y dos archivos que no son diseño sino experiencia, en la raíz porque los lee

@@ -517,6 +517,11 @@ if (process.env.REPORTAJE_SOLO_BARRIDO === '1') {
 // ── Corrida ──────────────────────────────────────────────────────────────
 const partes = [];
 let entranTotal = 0;
+// Medios que entregaron reportaje esta corrida: van al expediente de candidatos
+// (0044). Encontrar a un medio una semana no lo hace fuente; encontrarlo en
+// varias, sobre el mismo tema, es la evidencia con la que el consejo del
+// domingo decide si darlo de alta a prueba.
+const candidatosRun = [];
 
 for (const leido of conCuota) {
   const { tema, material, barrido: lect, urgencia: urg, cuota } = leido;
@@ -738,6 +743,10 @@ for (const leido of conCuota) {
         body: JSON.stringify([{ item_id: itemId, topic_id: tema.topic_id, relevance: 'central' }]),
       }).catch(err => console.log(`     · enlace al tema no escrito para ${e.dom}: ${String(err).slice(0, 80)}`));
       entranTotal++; entraronTema++;
+      candidatosRun.push({
+        dom: e.dom, homepage: `https://${e.dom}`,
+        evidencia: { semana: SEMANA, tema: tema.label, topic_id: tema.topic_id },
+      });
     }
   }
 
@@ -786,6 +795,39 @@ if (!SECO) {
       body: JSON.stringify([fila]),
     }).catch(e => console.log(`  ✗ parte «${x.tema}»: ${String(e).slice(0, 120)}`));
   }
+}
+
+// ── El expediente de candidatos (0044) ────────────────────────────────────
+// Lectura-modificación-escritura por dominio: son pocos por corrida y el guion
+// corre solo, así que no hay con quién chocar. Un dominio vetado no acumula
+// nada — el veto de Arturo es la única palabra que el sistema no discute.
+if (!SECO && candidatosRun.length) {
+  const porDominio = new Map();
+  for (const c of candidatosRun) {
+    (porDominio.get(c.dom) ?? porDominio.set(c.dom, []).get(c.dom)).push(c.evidencia);
+  }
+  for (const [dom, evidencias] of porDominio) {
+    try {
+      const [hay] = await sb(`glossa_radar_candidatos?select=id,estado,expediente&clave=eq.${encodeURIComponent(dom)}&limit=1`) ?? [];
+      if (hay?.estado === 'vetado') continue;
+      const exp = hay?.expediente ?? {};
+      const previas = Array.isArray(exp.reportaje) ? exp.reportaje : [];
+      const vistas = new Set(previas.map(x => `${x.semana}|${x.topic_id}`));
+      const nuevas = evidencias.filter(x => !vistas.has(`${x.semana}|${x.topic_id}`));
+      if (hay && !nuevas.length) continue;
+      const fila = {
+        clave: dom, nombre: dom, tipo: 'medio', homepage: `https://${dom}`,
+        expediente: { ...exp, reportaje: [...previas, ...nuevas] },
+        updated_at: new Date().toISOString(),
+      };
+      await sb('glossa_radar_candidatos?on_conflict=clave', {
+        method: 'POST',
+        headers: { Prefer: 'resolution=merge-duplicates' },
+        body: JSON.stringify([fila]),
+      });
+    } catch (e) { console.log(`  · candidato ${dom}: ${String(e).slice(0, 80)}`); }
+  }
+  console.log(`Expedientes: ${porDominio.size} medios anotados como candidatos.`);
 }
 
 console.log(`\n${busquedas} de ${TOPE_SEMANA_MAX} búsquedas · ${entranTotal} reportajes entran`);

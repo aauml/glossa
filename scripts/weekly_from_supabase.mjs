@@ -132,7 +132,7 @@ if (!cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd')) {
 // Con orden y con la trampa dicha: sin `order`, al pasar de 500 PostgREST
 // devolvía 500 filas ARBITRARIAS — el mismo truncado silencioso que la 0029
 // eliminó para los temas.
-const CAMPOS_ITEM = 'id,title,author,url,published_at,digest,origin,lang,glossa_radar_sources(name)';
+const CAMPOS_ITEM = 'id,title,author,url,published_at,digest,origin,lang,glossa_radar_sources(name,estado)';
 const arrastreDesde = new Date(desde.getTime() - 21 * 864e5);
 
 const [enSemana, rezagados] = await Promise.all([
@@ -340,6 +340,10 @@ const ficha = (x, i) => {
   return {
     id: eid,
     title: x.title, channel: canal(x), when: String(x.published_at).slice(0, 10),
+    // Una fuente a prueba (0044) la dio de alta el consejo desde un expediente,
+    // no Arturo. Su material entra, pero marcado: el prompt le prohíbe contar
+    // como corroboración, y el lector del número la ve señalada.
+    ...(x.glossa_radar_sources?.estado === 'a_prueba' ? { probation: true } : {}),
     speakers: x.digest?.speakers || [x.author],
     title_mismatch: x.digest?.title_mismatch || null,
     thesis: x.digest?.thesis, framing: x.digest?.framing,
@@ -547,6 +551,10 @@ RULES — the first two are the ones that matter:
   NOT settle it — that is one account with five mouths. What settles a claim is
   outside reporting or a document. If neither exists, you may still write the
   claim, but it goes MARKED and with its source named.
+- An episode carrying "probation": true comes from a source this system admitted
+  ON TRIAL — no human vouched for it yet. Its material may inform a piece, but it
+  can NEVER settle a claim, never counts as corroboration, and when you lean on
+  it the claim goes marked with the source named, like any single account.
 - Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
   given a section. Those clusters are what the classification produced, not a
   contents page: several of them are usually one piece, and the labels are the

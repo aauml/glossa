@@ -695,6 +695,44 @@ Deno.serve(async (req) => {
         return ok({ deleted: true });
       }
 
+      // ── Fuentes orgánicas (0044) ─────────────────────────────────────────
+      // El panel MIRA el vivero — candidatos, expedientes y las fuentes que el
+      // consejo dio de alta a prueba— y solo puede hacer una cosa: vetar. Todo
+      // lo demás lo decide el consejo del domingo; esa asimetría es el diseño.
+      case 'organicas.list': {
+        const [cand, fuentes] = await Promise.all([
+          db.from('glossa_radar_candidatos').select('*')
+            .order('updated_at', { ascending: false }).limit(80),
+          db.from('glossa_radar_sources')
+            .select('id,name,feed_url,estado,temas,active,created_at,candidato_id')
+            .not('candidato_id', 'is', null).order('created_at', { ascending: false }),
+        ]);
+        if (cand.error) throw cand.error;
+        if (fuentes.error) throw fuentes.error;
+        return ok({ candidatos: cand.data ?? [], fuentes: fuentes.data ?? [] });
+      }
+      case 'candidatos.vetar': {
+        // El veto es la única palabra humana del ciclo, y apaga también la
+        // fuente si el candidato ya estaba de alta.
+        const { data, error } = await db.from('glossa_radar_candidatos')
+          .update({ estado: 'vetado', motivo: 'vetado desde el panel',
+                    decidido_en: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .eq('id', b.id).select('id,source_id').single();
+        if (error) throw error;
+        if (data?.source_id) {
+          await db.from('glossa_radar_sources').update({ active: false }).eq('id', data.source_id);
+        }
+        return ok({ vetado: true });
+      }
+      case 'candidatos.restaurar': {
+        const { error } = await db.from('glossa_radar_candidatos')
+          .update({ estado: 'candidato', motivo: 'restaurado desde el panel',
+                    decidido_en: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .eq('id', b.id);
+        if (error) throw error;
+        return ok({ restaurado: true });
+      }
+
       // ── Bandeja ──────────────────────────────────────────────────────────
       case 'inbox.add': {
         const url = String(b.url || '').trim();
