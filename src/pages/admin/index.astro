@@ -373,6 +373,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         cifra(cierre, 'until this week closes')
       + cifra(porLeer ? `${porLeer} · ~${horas} h` : '0', 'still to read', porLeer > 0)
       + cifra(e.listos || 0, 'ready for the issue')
+      // En cuántos asuntos se agrupa: son las secciones que tendría el número.
+      // 55 elementos pueden ser cuatro temas o veintinueve, y eso cambia la
+      // decisión de cortar tanto como el recuento.
+      + cifra(e.temas || 0, 'topics to write')
       + cifra(`${e.reportaje || 0}${e.buscados ? ` / ${e.buscados}` : ''}`,
               e.sin_nada ? `outside reports · nothing for ${e.sin_nada}` : 'outside reports')
       + cifra(`${e.fuentes || 0}${e.calladas ? ` · ${e.calladas}` : ''}`,
@@ -392,8 +396,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     // refresco y un botón recién pintado es un botón rearmado — apretar «Cut
     // now» dos veces encola dos corridas de Kimi de 15 minutos, y las dos se
     // pagan.
+    // Lanzado el corte, el botón desaparece y quien informa es la barra de
+    // abajo; sin eso había dos sitios diciendo cosas distintas del mismo trabajo.
     nota.innerHTML =
-      (lanzado.corte ? `<span class="admin-kind">cut launched · ~15 min</span>`
+      (lanzado.corte ? `<span class="admin-kind">cut running — see the bar above</span>`
                      : `<button class="admin-btn sec" id="st-cortar">Cut now</button>`) + ' ' +
       (lanzado.cola ? `<span class="admin-kind">queue reading · reload in a few min</span>`
                     : (porLeer ? `<button class="admin-btn sec" id="st-cola">Read the queue first</button>` : ''));
@@ -451,8 +457,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     b.disabled = true; b.textContent = 'launching…';
     const r = await api('weekly.rebuild');
     if (r.error) { b.disabled = false; b.textContent = `failed: ${String(r.error).slice(0, 40)}`; return; }
+    // Se queda AQUÍ, donde está la barra: irse a Articles antes de que el
+    // número exista solo enseñaba una página vacía durante quince minutos.
     lanzado.corte = 1;
-    window.location.href = '/admin/weekly/';
+    pintarCifras(); vigilarPiezas();
   });
 
   // El radar lee ~2 episodios cada 15 min porque eso es lo que cabe en una edge
@@ -515,12 +523,47 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   // ── Piezas en producción ────────────────────────────────────────────────
   // Barra por pieza: fase + porcentaje. Mientras haya alguna viva se refresca
   // cada 12 s; en cuanto no queda ninguna activa, el reloj se apaga solo.
+  // Una barra, un formato: la usan las piezas y el corte del número.
+  function barra(nombre, etiqueta, pct, tono) {
+    return `<div style="margin-top:14px">
+      <p class="admin-nota" style="margin-bottom:4px">${nombre}
+        <span class="admin-tenue"> — ${etiqueta}</span></p>
+      <div style="height:4px;background:var(--rule-soft);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;border-radius:2px;background:var(--accent);
+                    opacity:${tono};transition:width .6s ease"></div>
+      </div></div>`;
+  }
+
   async function pintarPiezas() {
     const d = await api('piezas.progreso');
     const el = $('pz-prog');
-    if (d.error || !d.piezas?.length) { el.innerHTML = ''; return false; }
+    if (d.error || (!d.piezas?.length && !d.corte)) { el.innerHTML = ''; return false; }
     let activas = 0;
-    el.innerHTML = d.piezas.map(p => {
+
+    // ── El corte del número ───────────────────────────────────────────────
+    let html = '';
+    if (d.corte) {
+      const c = d.corte;
+      const fallo = c.fase === 'failed';
+      const listo = c.fase === 'done';
+      let pct = Number(c.pct || 0), fase = c.fase;
+      if (!listo && !fallo && c.updated_at) {
+        // Escribir el número es una llamada de ~16 min sin nada intermedio.
+        const min = (Date.now() - new Date(c.updated_at).getTime()) / 60000;
+        if (/writing the issue/.test(fase)) {
+          pct = Math.min(92, Math.round(pct + min * 3.5));
+          fase = `${fase} · ${Math.max(1, Math.floor(min))} min in, ~16 typical`;
+        } else if (min > 2) fase = `${fase} · ${Math.floor(min)} min`;
+        activas++;
+      }
+      const etiqueta = fallo ? `failed — ${c.error || 'no reason recorded'}`
+        : listo ? `done — <a href="/admin/weekly/">${c.temas || ''} topics, read the draft</a>`
+                : `${pct}% · ${fase}`;
+      html += barra(`${c.parcial ? 'Partial cut' : 'Weekly issue'} · ${c.semana}`,
+                    etiqueta, fallo ? 100 : listo ? 100 : pct, fallo ? .45 : listo ? 1 : .85);
+    }
+
+    html += (d.piezas || []).map(p => {
       const pr = p.progress || {};
       const fallo = pr.fase === 'failed' || p.vivo?.error;
       const vivo = !!p.vivo?.url;
@@ -546,15 +589,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         : vivo ? `live — <a href="${p.vivo.url}" target="_blank" rel="noopener">read it</a>`
                : `${pct}% · ${fase}`;
       const nombre = pr.issue ? `${pr.issue} · ` : '';
-      return `<div style="margin-top:14px">
-        <p class="admin-nota" style="margin-bottom:4px">${nombre}${(p.title || '').slice(0, 70)}
-          <span class="admin-tenue"> — ${etiqueta}</span></p>
-        <div style="height:4px;background:var(--rule-soft);border-radius:2px;overflow:hidden">
-          <div style="height:100%;width:${fallo ? 100 : pct}%;border-radius:2px;
-                      background:var(--accent);opacity:${fallo ? .45 : vivo ? 1 : .85};
-                      transition:width .6s ease"></div>
-        </div></div>`;
+      return barra(`${nombre}${(p.title || '').slice(0, 70)}`, etiqueta,
+                   fallo ? 100 : pct, fallo ? .45 : vivo ? 1 : .85);
     }).join('');
+
+    el.innerHTML = html;
     return activas > 0;
   }
   delegar($('pz-prog'), '[data-retry]', async (b) => {

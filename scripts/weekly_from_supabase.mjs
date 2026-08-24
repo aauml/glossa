@@ -87,6 +87,24 @@ const weekEnd = new Date(finDia.getTime() - 864e5);
 console.log(`Semana ${iso(desde)} → ${iso(weekEnd)} (hora de Los Ángeles)` +
             `${PARCIAL ? ' · corte parcial, la semana sigue abierta' : ''}`);
 
+// El avance del corte, para la barra del panel. Misma idea que la pieza: un
+// botón que dice «~15 min» y luego nada durante veinte minutos es indistinguible
+// de un botón roto. Se escribe en un ajuste porque el número aún no tiene fila
+// donde anotarlo — la suya se crea al final, que es justo lo que se está
+// esperando. Nunca tumba la corrida: la barra es cosmética, el número no.
+const avance = (pct, fase, extra = {}) =>
+  sb('glossa_radar_settings?on_conflict=key', {
+    method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify([{ key: 'corte_estado', updated_at: new Date().toISOString(),
+      value: { pct, fase, semana: iso(desde), parcial: PARCIAL, ...extra,
+               updated_at: new Date().toISOString() } }]),
+  }).catch(() => {});
+process.on('uncaughtException', async (e) => {
+  await avance(0, 'failed', { error: String(e).slice(0, 300) });
+  console.error(String(e)); process.exit(1);
+});
+await avance(8, 'gathering the week’s material');
+
 // ── Lo que se puede decidir SIN el texto, se decide antes de pagarlo ─────
 // Kimi tarda ~16 minutos y cuesta dinero. Que la semana ya esté publicada, o
 // que un parcial no pueda pisar a un oficial, no dependen de lo que el modelo
@@ -674,6 +692,8 @@ WRITING CONSTRAINTS — these exist because earlier drafts failed on them:
 // salen del mismo presupuesto. Con 16.000 el razonamiento se lo comió entero y
 // `content` volvió VACÍO — un fallo que parecía un error de parseo y no lo era.
 console.log(`Escribiendo con ${MODELO}…`);
+await avance(30, `writing the issue (${MODELO}) — the long stage`,
+             { temas: Math.min(temas?.length ?? 0, TOPE_TEMAS) });
 const t0 = Date.now();
 // `fetch` NO sirve aquí. Su dispatcher aborta a los 300 s esperando cabeceras
 // (UND_ERR_HEADERS_TIMEOUT) y este modelo razona durante ~950 s antes de emitir
@@ -827,6 +847,10 @@ await sb('glossa_radar_weekly?on_conflict=week_start', {
   method: 'POST', body: JSON.stringify(fila),
   headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
 });
+// La fila del número ya existe: a partir de aquí la barra sobra, y el panel la
+// retira sola al ver este `done` (lo que queda —marcar entregados, traducir— no
+// cambia lo que hay que mirar).
+await avance(100, 'done', { temas: secciones.length, titular: numero.headline });
 
 // Lo que estuvo sobre la mesa queda marcado con la semana de este número. No
 // dice que saliera publicado —el presupuesto recorta— dice que tuvo su

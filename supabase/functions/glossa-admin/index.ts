@@ -669,15 +669,35 @@ Deno.serve(async (req) => {
           let vivo: Record<string, unknown> | null = null;
           if (pr.slug) {
             const { data: reqs } = await db.from('glossa_publish_requests')
-              .select('state,url_en,error').eq('slug', String(pr.slug))
+              .select('state,url_en,error,done_at').eq('slug', String(pr.slug))
               .order('requested_at', { ascending: false }).limit(1);
             const q = reqs?.[0];
-            if (q?.state === 'done') vivo = { url: q.url_en };
-            else if (q?.state === 'error') vivo = { error: q.error };
+            if (q?.state === 'done') {
+              // Una pieza terminada se enseña diez minutos —lo justo para ver
+              // el «live» si estabas mirando— y luego desaparece: su sitio es
+              // Articles y la portada, no una barra al 100 % para siempre.
+              const edad = Date.now() - new Date(q.done_at ?? 0).getTime();
+              if (edad > 10 * 60_000) continue;
+              vivo = { url: q.url_en };
+            } else if (q?.state === 'error') vivo = { error: q.error };
           }
           piezas.push({ ...it, vivo });
         }
-        return ok({ piezas });
+
+        // El corte del número, con la misma barra. Vive en un ajuste porque su
+        // fila no existe hasta que termina, que es lo que se está esperando.
+        const { data: cs } = await db.from('glossa_radar_settings')
+          .select('value').eq('key', 'corte_estado').maybeSingle();
+        let corte = (cs?.value ?? null) as Record<string, unknown> | null;
+        if (corte) {
+          const edad = Date.now() - new Date(String(corte.updated_at ?? 0)).getTime();
+          // Terminado se enseña 10 min; vivo, mientras dé señales (una corrida
+          // muerta deja de anotar y a la media hora la barra se retira sola en
+          // vez de mentir que sigue trabajando).
+          const caduca = corte.fase === 'done' ? 10 * 60_000 : 45 * 60_000;
+          if (edad > caduca) corte = null;
+        }
+        return ok({ piezas, corte });
       }
 
       // Reintentar una pieza fallida, desde donde murió. Si su MDX ya está en
