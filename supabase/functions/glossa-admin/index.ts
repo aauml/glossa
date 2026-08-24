@@ -640,10 +640,44 @@ Deno.serve(async (req) => {
           const { error: eDisp } = await db.rpc('glossa_pieza_dispatch', { item: data.id });
           if (eDisp) return ok({ as: 'elemento', item: data,
             label: r.label, aviso: `saved, but the piece run could not be launched: ${eDisp.message}` });
+          // El 5% inicial lo pone esto y no el guion: el runner tarda ~1 min en
+          // arrancar y sin esta marca la barra no existiría justo cuando el
+          // usuario acaba de pegar y está mirando.
+          await db.from('glossa_radar_items').update({
+            progress: { pct: 5, fase: 'launched — waiting for the runner', updated_at: new Date().toISOString() },
+          }).eq('id', data.id);
           return ok({ as: 'elemento', item: data,
-            label: 'standalone piece — being written now; it appears in Articles in ~15 min', aviso });
+            label: 'standalone piece — being written now; watch the bar below', aviso });
         }
         return ok({ as: 'elemento', item: data, label: r.label, aviso });
+      }
+
+      // ── Piezas en producción ─────────────────────────────────────────────
+      case 'piezas.progreso': {
+        // Las de las últimas 24 h con avance anotado. El 100 no lo escribe
+        // nadie: se deduce de la cola de publicación, porque «terminado» solo
+        // significa algo cuando la página existe de verdad.
+        const { data, error } = await db.from('glossa_radar_items')
+          .select('id,title,progress,created_at')
+          .eq('origin', 'pieza').not('progress', 'is', null)
+          .gte('created_at', new Date(Date.now() - 24 * 3600_000).toISOString())
+          .order('created_at', { ascending: false }).limit(5);
+        if (error) throw error;
+        const piezas = [];
+        for (const it of data ?? []) {
+          const pr = (it.progress ?? {}) as Record<string, unknown>;
+          let vivo: Record<string, unknown> | null = null;
+          if (pr.slug) {
+            const { data: reqs } = await db.from('glossa_publish_requests')
+              .select('state,url_en,error').eq('slug', String(pr.slug))
+              .order('requested_at', { ascending: false }).limit(1);
+            const q = reqs?.[0];
+            if (q?.state === 'done') vivo = { url: q.url_en };
+            else if (q?.state === 'error') vivo = { error: q.error };
+          }
+          piezas.push({ ...it, vivo });
+        }
+        return ok({ piezas });
       }
 
       // ── El panel ─────────────────────────────────────────────────────────

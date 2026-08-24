@@ -59,7 +59,14 @@ const quedaTavily = () => cabe(gasto, ajus, 'tavily', 'cap_tavily_mes', 'mes');
 
 if (!quedaKimi()) {
   // Sin escritor no hay pieza: se sale ANTES de gastar nada en digerir o buscar.
-  console.error(`Tope mensual de Kimi alcanzado ($${gasto.moonshot?.coste_mes ?? 0} de $${ajus.cap_moonshot_mes_usd}). La pieza no se escribe.`);
+  // Y se deja dicho en la barra — una pieza que muere sin motivo visible es la
+  // caja negra que esto existe para eliminar.
+  const msg = `Tope mensual de Kimi alcanzado ($${gasto.moonshot?.coste_mes ?? 0} de $${ajus.cap_moonshot_mes_usd}). La pieza no se escribe.`;
+  await sb(`glossa_radar_items?id=eq.${ITEM}`, {
+    method: 'PATCH', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({ progress: { pct: 0, fase: 'failed', error: msg, updated_at: new Date().toISOString() } }),
+  }).catch(() => {});
+  console.error(msg);
   process.exit(1);
 }
 
@@ -135,24 +142,47 @@ const [item] = await sb(`glossa_radar_items?select=*&id=eq.${ITEM}&limit=1`) ?? 
 if (!item) { console.error(`No existe el elemento ${ITEM}`); process.exit(1); }
 console.log(`Pieza para: «${item.title}» (${item.origin}, ${item.state})`);
 
+// El avance se escribe en la fila para que el panel lo pinte como barra: diez
+// minutos de caja negra fue exactamente la queja. Nunca falla la corrida por
+// no poder anotarse — la barra es cosmética, la pieza no.
+const avance = (pct, fase, extra = {}) => SECO ? Promise.resolve() :
+  sb(`glossa_radar_items?id=eq.${ITEM}`, {
+    method: 'PATCH', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({ progress: { pct, fase, ...extra, updated_at: new Date().toISOString() } }),
+  }).catch(() => {});
+
+// Cualquier muerte a partir de aquí deja la barra en «failed» con su motivo:
+// una barra congelada en 45% no le dice a nadie qué pasó ni qué hacer.
+process.on('uncaughtException', async (e) => {
+  await avance(0, 'failed', { error: String(e).slice(0, 300) });
+  console.error(String(e)); process.exit(1);
+});
+process.on('unhandledRejection', async (e) => {
+  await avance(0, 'failed', { error: String(e).slice(0, 300) });
+  console.error(String(e)); process.exit(1);
+});
+async function morir(msg) { await avance(0, 'failed', { error: msg }); console.error(msg); process.exit(1); }
+
 // ── 2 · Digerir, si el radar no llegó antes ──────────────────────────────
 let digest = item.digest;
 if (!digest || item.state !== 'digested') {
-  if (!quedaGemini()) { console.error('Sin cuota de Gemini para digerir. Se reintenta mañana.'); process.exit(1); }
+  if (!quedaGemini()) await morir('Sin cuota de Gemini para digerir. Se reintenta mañana.');
   const esTexto = !!item.body_text;
   const esYoutube = /(?:youtube\.com|youtu\.be)\//.test(String(item.url));
-  if (!esTexto && !esYoutube) { console.error('El elemento no trae texto y no es YouTube: no hay nada que leer.'); process.exit(1); }
+  if (!esTexto && !esYoutube) await morir('El elemento no trae texto y no es YouTube: no hay nada que leer.');
   console.log(`Digiriendo (${esTexto ? 'texto' : 'video'})…`);
+  await avance(12, esTexto ? 'reading the source' : 'listening to the source');
   const parte = esTexto
     ? { text: `CONTENIDO:\n${String(item.body_text).slice(0, 200_000)}` }
     : { fileData: { fileUri: item.url }, videoMetadata: { fps: 0.1 } };
   digest = await gemini([{ text: promptDigestPieza(item, esTexto) }, parte], 8192);
-  if (digest.skip) { console.error('La fuente no tiene contenido analizable.'); process.exit(1); }
+  if (digest.skip) await morir('La fuente no tiene contenido analizable.');
   if (!SECO) await sb(`glossa_radar_items?id=eq.${item.id}`, {
     method: 'PATCH', headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({ state: 'digested', digest, lang: digest.lang ?? null,
                            digested_at: new Date().toISOString(), error: null }) });
 }
+await avance(30, 'checking claims against outside reporting');
 
 // ── 3 · Contexto de fuera: dos búsquedas, cuatro reportes como mucho ─────
 const reportes = [];
@@ -211,6 +241,7 @@ for (const slug of await readdir('src/content/articles')) {
 }
 const issueNo = `N° ${maxNo + 1}`;
 console.log(`Le toca ${issueNo} (la colección tiene ${piezas.length} piezas).`);
+await avance(42, `writing the piece (${MODELO_KIMI}) — the long stage`, { issue: issueNo });
 
 // ── 5 · Kimi escribe, contra contrato ────────────────────────────────────
 function validar(j, lado) {
@@ -237,8 +268,9 @@ if (fallos.length) {
   en = await kimi(promptPieza(digest, reportes, piezas, issueNo) +
     `\n\nYOUR PREVIOUS ATTEMPT BROKE THE CONTRACT: ${fallos.join('; ')}. Fix exactly that.`);
   fallos = validar(en, 'en');
-  if (fallos.length) { console.error(`El contrato sigue roto: ${fallos.join('; ')}`); process.exit(1); }
+  if (fallos.length) await morir(`El contrato sigue roto: ${fallos.join('; ')}`);
 }
+await avance(72, 'Spanish edition', { issue: issueNo, slug: en.slug });
 
 console.log('Versión española…');
 const es = await kimi(promptPiezaES(en));
@@ -357,6 +389,9 @@ await sb('glossa_publish_requests', {
 await sb(`glossa_radar_items?id=eq.${item.id}`, {
   method: 'PATCH', headers: { Prefer: 'return=minimal' },
   body: JSON.stringify({ note: `pieza ${issueNo} · ${en.slug}` }) });
+// El 100 no lo pone este guion: lo deduce el panel cuando la cola de
+// publicación marca `done` para este slug, que es cuando de verdad está en vivo.
+await avance(90, 'publishing — build & deploy', { issue: issueNo, slug: en.slug });
 
 console.log(`\n${issueNo} encolado para publicar: ${en.slug}`);
 console.log('El worker de publicación commitea los MDX y Vercel despliega — en vivo en unos minutos.');

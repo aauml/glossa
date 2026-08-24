@@ -19,6 +19,9 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       </div>
     </form>
     <div id="in-msg"></div>
+    <!-- Piezas en producción: la barra de cada una, de pegarla a verla en vivo.
+         Solo aparece cuando hay algo cocinándose (o recién salido del horno). -->
+    <div id="pz-prog"></div>
   </section>
 
   <!-- ── Esta semana, de un vistazo ─────────────────────────────────────── -->
@@ -147,7 +150,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
                                    : `Queued: ${r.item.title.slice(0, 70)}`, true);
     $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
     forzado = null; ultimoPeek = '';
-    pintarCifras(); pintarCola(); pintarFuentes(); pintarTripas();
+    pintarCifras(); pintarCola(); pintarFuentes(); pintarTripas(); vigilarPiezas();
   };
 
   // ── La cola ─────────────────────────────────────────────────────────────
@@ -509,6 +512,46 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       ? 'The weekly issue will go out without review.' : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes();
+  // ── Piezas en producción ────────────────────────────────────────────────
+  // Barra por pieza: fase + porcentaje. Mientras haya alguna viva se refresca
+  // cada 12 s; en cuanto no queda ninguna activa, el reloj se apaga solo.
+  async function pintarPiezas() {
+    const d = await api('piezas.progreso');
+    const el = $('pz-prog');
+    if (d.error || !d.piezas?.length) { el.innerHTML = ''; return false; }
+    let activas = 0;
+    el.innerHTML = d.piezas.map(p => {
+      const pr = p.progress || {};
+      const fallo = pr.fase === 'failed' || p.vivo?.error;
+      const vivo = !!p.vivo?.url;
+      const pct = vivo ? 100 : Math.max(2, Number(pr.pct || 0));
+      if (!vivo && !fallo) activas++;
+      const etiqueta = fallo
+        ? `failed — ${pr.error || p.vivo?.error || ''}`
+        : vivo ? `live — <a href="${p.vivo.url}" target="_blank" rel="noopener">read it</a>`
+               : `${pct}% · ${pr.fase || 'working'}`;
+      const nombre = pr.issue ? `${pr.issue} · ` : '';
+      return `<div style="margin-top:14px">
+        <p class="admin-nota" style="margin-bottom:4px">${nombre}${(p.title || '').slice(0, 70)}
+          <span class="admin-tenue"> — ${etiqueta}</span></p>
+        <div style="height:4px;background:var(--rule-soft);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${fallo ? 100 : pct}%;border-radius:2px;
+                      background:var(--accent);opacity:${fallo ? .45 : vivo ? 1 : .85};
+                      transition:width .6s ease"></div>
+        </div></div>`;
+    }).join('');
+    return activas > 0;
+  }
+  let pzReloj = null;
+  async function vigilarPiezas() {
+    const hayActivas = await pintarPiezas();
+    if (hayActivas && !pzReloj) {
+      pzReloj = setInterval(async () => {
+        if (!(await pintarPiezas())) { clearInterval(pzReloj); pzReloj = null; }
+      }, 12_000);
+    }
+  }
+
+  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); vigilarPiezas();
 </script>
 </AdminLayout>
