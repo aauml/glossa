@@ -1,0 +1,362 @@
+// pieza_from_supabase.mjs — de un pegado en el panel a una pieza publicada.
+//
+// La sección que no existía: Arturo pega UN video, UN artículo o texto marcado
+// «for a standalone piece» y esto lo convierte en una pieza individual de la
+// colección — con su N° secuencial, su versión española y su procedencia — sin
+// esperar al radar ni tocar el número semanal.
+//
+// Cadena: intake.add (solo_pieza) -> rpc glossa_pieza_dispatch -> este guion
+//         (workflow glossa-pieza.yml) -> digiere si hace falta (Gemini)
+//         -> 2 búsquedas de contexto (Tavily) digeridas como reportes
+//         -> Kimi escribe EN y ES contra contrato JSON (prompts_pieza.mjs)
+//         -> el guion ARMA los MDX (el modelo nunca emite markup)
+//         -> glossa_seeds + glossa_issues (procedencia) + glossa_publish_requests
+//         -> el trigger de la cola dispara glossa-publish.yml, que commitea y
+//            despliega. La pieza aparece en /admin/weekly/ (Articles) y en la
+//            portada al terminar Vercel.
+//
+// Quién escribe y por qué: Kimi, imitando la voz de la colección (decisión de
+// Arturo, 2026-08-24, por costo; ~$0.08/pieza contra ~$0.30 de la alternativa).
+// La voz vive destilada en prompts_pieza.mjs.
+//
+// Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, GEMINI_API_KEY, TAVILY_API_KEY,
+//      MOONSHOT_API_KEY, ITEM_ID. Opcional: PIEZA_MODEL, PIEZA_DRY.
+
+import { readFile, readdir } from 'node:fs/promises';
+import { ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe, cabeCoste } from '../src/lib/presupuesto.js';
+import { dominio, esChatarra, esReferencia, esPlataforma } from '../src/lib/hallazgos.js';
+import { promptReporte } from './prompts_reportaje.mjs';
+import { promptDigestPieza, promptConsultasPieza, promptPieza, promptPiezaES } from './prompts_pieza.mjs';
+
+const URL_SB = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
+const KEY    = process.env.SUPABASE_SERVICE_KEY || '';
+const GEMINI = process.env.GEMINI_API_KEY || '';
+const TAVILY = process.env.TAVILY_API_KEY || '';
+const KIMI   = process.env.MOONSHOT_API_KEY || '';
+const ITEM   = process.env.ITEM_ID || '';
+const SECO   = process.env.PIEZA_DRY === '1';
+const MODELO_KIMI   = process.env.PIEZA_MODEL || 'kimi-k3';
+const MODELO_GEMINI = 'gemini-3.1-flash-lite';
+
+for (const [k, v] of Object.entries({ SUPABASE_URL: URL_SB, SUPABASE_SERVICE_KEY: KEY, GEMINI_API_KEY: GEMINI, MOONSHOT_API_KEY: KIMI, ITEM_ID: ITEM })) {
+  if (!v) { console.error(`Falta ${k}`); process.exit(1); }
+}
+
+const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
+async function sb(path, init = {}) {
+  const r = await fetch(`${URL_SB}/rest/v1/${path}`, { ...init, headers: { ...H, ...(init.headers || {}) } });
+  const t = await r.text();
+  if (!r.ok) throw new Error(`supabase ${r.status}: ${t.slice(0, 300)}`);
+  return t ? JSON.parse(t) : null;
+}
+
+// ── Presupuesto ──────────────────────────────────────────────────────────
+const ajus  = await ajustes(URL_SB, KEY);
+const gasto = await gastoActual(URL_SB, KEY);
+const quedaGemini = () => cabe(gasto, ajus, 'gemini', 'cap_gemini_dia');
+const quedaKimi   = () => cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd');
+const quedaTavily = () => cabe(gasto, ajus, 'tavily', 'cap_tavily_mes', 'mes');
+
+if (!quedaKimi()) {
+  // Sin escritor no hay pieza: se sale ANTES de gastar nada en digerir o buscar.
+  console.error(`Tope mensual de Kimi alcanzado ($${gasto.moonshot?.coste_mes ?? 0} de $${ajus.cap_moonshot_mes_usd}). La pieza no se escribe.`);
+  process.exit(1);
+}
+
+// ── El primer objeto JSON completo de una respuesta (copiado del reportaje) ──
+function jsonDeModelo(txt) {
+  const limpio = String(txt).replace(/^\s*```(?:json)?/, '').replace(/```\s*$/, '').trim();
+  const i = limpio.indexOf('{');
+  if (i < 0) throw new SyntaxError('la respuesta no trae ningún objeto');
+  let prof = 0, cadena = false, escape = false;
+  for (let k = i; k < limpio.length; k++) {
+    const c = limpio[k];
+    if (escape) { escape = false; continue; }
+    if (c === '\\') { escape = true; continue; }
+    if (c === '"') { cadena = !cadena; continue; }
+    if (cadena) continue;
+    if (c === '{') prof++;
+    else if (c === '}' && --prof === 0) return JSON.parse(limpio.slice(i, k + 1));
+  }
+  throw new SyntaxError('objeto sin cerrar');
+}
+
+async function gemini(parts, maxTokens = 4096) {
+  for (let intento = 0; ; intento++) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODELO_GEMINI}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI },
+      body: JSON.stringify({ contents: [{ parts }],
+        generationConfig: { responseMimeType: 'application/json', maxOutputTokens: maxTokens } }),
+    });
+    if (!r.ok) {
+      if ((r.status === 503 || r.status === 429) && intento < 2) {
+        await new Promise(x => setTimeout(x, 5000)); continue;
+      }
+      throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    }
+    const d = await r.json();
+    const tok = d.usageMetadata?.totalTokenCount ?? 0;
+    await apuntar(URL_SB, KEY, 'gemini', 1, tok);
+    apuntarLocal(gasto, 'gemini', 1);
+    return jsonDeModelo((d.candidates?.[0]?.content?.parts ?? []).map(x => x.text || '').join(''));
+  }
+}
+
+async function kimi(prompt, maxTokens = 64000) {
+  for (let intento = 0; ; intento++) {
+    const r = await fetch('https://api.moonshot.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${KIMI}` },
+      body: JSON.stringify({ model: MODELO_KIMI, max_tokens: maxTokens,
+        messages: [{ role: 'user', content: prompt }] }),
+      signal: AbortSignal.timeout(40 * 60_000),
+    });
+    if (!r.ok) {
+      const cuerpo = (await r.text()).slice(0, 200);
+      if ((r.status === 429 || r.status === 503) && intento < 4) {
+        // La cuenta admite una petición a la vez; el hueco puede tardar.
+        const espera = [60, 180, 420, 900][intento] * 1000;
+        console.log(`  kimi ${r.status} — reintento en ${espera / 60000} min`);
+        await new Promise(x => setTimeout(x, espera)); continue;
+      }
+      throw new Error(`moonshot ${r.status}: ${cuerpo}`);
+    }
+    const d = await r.json();
+    const tok = d.usage?.total_tokens ?? 0;
+    const coste = (tok / 1e6) * 2.2;   // mezcla in/out del tramo K3, como el semanal
+    await apuntar(URL_SB, KEY, 'moonshot', 1, tok, coste);
+    return jsonDeModelo(d.choices?.[0]?.message?.content ?? '');
+  }
+}
+
+// ── 1 · El elemento ──────────────────────────────────────────────────────
+const [item] = await sb(`glossa_radar_items?select=*&id=eq.${ITEM}&limit=1`) ?? [];
+if (!item) { console.error(`No existe el elemento ${ITEM}`); process.exit(1); }
+console.log(`Pieza para: «${item.title}» (${item.origin}, ${item.state})`);
+
+// ── 2 · Digerir, si el radar no llegó antes ──────────────────────────────
+let digest = item.digest;
+if (!digest || item.state !== 'digested') {
+  if (!quedaGemini()) { console.error('Sin cuota de Gemini para digerir. Se reintenta mañana.'); process.exit(1); }
+  const esTexto = !!item.body_text;
+  const esYoutube = /(?:youtube\.com|youtu\.be)\//.test(String(item.url));
+  if (!esTexto && !esYoutube) { console.error('El elemento no trae texto y no es YouTube: no hay nada que leer.'); process.exit(1); }
+  console.log(`Digiriendo (${esTexto ? 'texto' : 'video'})…`);
+  const parte = esTexto
+    ? { text: `CONTENIDO:\n${String(item.body_text).slice(0, 200_000)}` }
+    : { fileData: { fileUri: item.url }, videoMetadata: { fps: 0.1 } };
+  digest = await gemini([{ text: promptDigestPieza(item, esTexto) }, parte], 8192);
+  if (digest.skip) { console.error('La fuente no tiene contenido analizable.'); process.exit(1); }
+  if (!SECO) await sb(`glossa_radar_items?id=eq.${item.id}`, {
+    method: 'PATCH', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({ state: 'digested', digest, lang: digest.lang ?? null,
+                           digested_at: new Date().toISOString(), error: null }) });
+}
+
+// ── 3 · Contexto de fuera: dos búsquedas, cuatro reportes como mucho ─────
+const reportes = [];
+if (TAVILY && quedaTavily() && quedaGemini()) {
+  let consultas = [];
+  try { consultas = (await gemini([{ text: promptConsultasPieza(digest) }], 1024)).queries ?? []; }
+  catch (e) { console.log(`  consultas: ${String(e).slice(0, 80)}`); }
+  for (const c of consultas.slice(0, 2)) {
+    if (reportes.length >= 4 || !quedaTavily()) break;
+    let hallazgos = [];
+    try {
+      const r = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${TAVILY}` },
+        body: JSON.stringify({ query: String(c.q).slice(0, 380), max_results: 5,
+          search_depth: 'advanced', include_raw_content: true }),
+      });
+      if (!r.ok) throw new Error(`tavily ${r.status}`);
+      await apuntar(URL_SB, KEY, 'tavily', 2);
+      apuntarLocal(gasto, 'tavily', 2);
+      hallazgos = (await r.json()).results ?? [];
+    } catch (e) { console.log(`  ✗ búsqueda: ${String(e).slice(0, 80)}`); continue; }
+    for (const h of hallazgos) {
+      if (reportes.length >= 4 || !quedaGemini()) break;
+      const url = h.url || '';
+      const texto = String(h.raw_content ?? h.content ?? '');
+      if (!url || texto.length < 400) continue;
+      if (esReferencia(url) || esChatarra(url) || esPlataforma(url)) continue;
+      if (reportes.some(x => x.outlet === dominio(url))) continue;
+      try {
+        const rep = await gemini([{ text: promptReporte(
+          { sitio: dominio(url), titulo: h.title || url, fecha: h.published_date ?? null, texto },
+          { label: digest.thesis?.slice(0, 120) ?? item.title }) }]);
+        if (rep.skip || rep.bears_on_topic === false) continue;
+        reportes.push({ ...rep, url, outlet: dominio(url) });
+        console.log(`  ✓ ${dominio(url)}`);
+      } catch (e) { console.log(`  ✗ digest ${dominio(url)}: ${String(e).slice(0, 60)}`); }
+    }
+  }
+} else {
+  console.log('Sin búsquedas de contexto (falta clave o cuota); la pieza se escribe de la fuente sola.');
+}
+
+// ── 4 · El número que le toca y la colección para callbacks ──────────────
+// El guion corre en el checkout del repo: la colección está aquí mismo.
+const piezas = [];
+let maxNo = 0;
+for (const slug of await readdir('src/content/articles')) {
+  let fm;
+  try { fm = (await readFile(`src/content/articles/${slug}/en.mdx`, 'utf8')).slice(0, 2000); }
+  catch { continue; }
+  const issue = fm.match(/^issue:\s*"(N° (\d+)[a-z]?)"/m);
+  const title = fm.match(/^title:\s*"(.+)"/m);
+  if (issue) maxNo = Math.max(maxNo, Number(issue[2]));
+  if (issue && title) piezas.push({ issue: issue[1], slug, title: JSON.parse(`"${title[1]}"`) });
+}
+const issueNo = `N° ${maxNo + 1}`;
+console.log(`Le toca ${issueNo} (la colección tiene ${piezas.length} piezas).`);
+
+// ── 5 · Kimi escribe, contra contrato ────────────────────────────────────
+function validar(j, lado) {
+  const fallos = [];
+  if (lado === 'en' && !/^[a-z0-9][a-z0-9-]{1,79}$/.test(j.slug ?? '')) fallos.push('slug inválido');
+  if (lado === 'en' && piezas.some(p => p.slug === j.slug)) fallos.push('slug repetido');
+  for (const campo of ['title', 'titleHTML', 'dek', 'coverDek', 'lede']) {
+    if (!j[campo]) fallos.push(`falta ${campo}`);
+  }
+  if ((j.titleHTML?.match(/<em>/g) || []).length !== 1) fallos.push('titleHTML necesita exactamente un <em>');
+  if (!Array.isArray(j.sections) || j.sections.length < 2 || j.sections.length > 7) fallos.push('2-7 secciones');
+  for (const s of j.sections ?? []) {
+    if (!s.blocks?.length) fallos.push(`sección ${s.number} sin bloques`);
+    for (const b of s.blocks ?? []) if (!['p', 'context', 'qa', 'pullquote'].includes(b.type)) fallos.push(`bloque desconocido «${b.type}»`);
+  }
+  return fallos;
+}
+
+console.log(`Escribiendo con ${MODELO_KIMI}…`);
+let en = await kimi(promptPieza(digest, reportes, piezas, issueNo));
+let fallos = validar(en, 'en');
+if (fallos.length) {
+  console.log(`  contrato incumplido (${fallos.join('; ')}) — un reintento`);
+  en = await kimi(promptPieza(digest, reportes, piezas, issueNo) +
+    `\n\nYOUR PREVIOUS ATTEMPT BROKE THE CONTRACT: ${fallos.join('; ')}. Fix exactly that.`);
+  fallos = validar(en, 'en');
+  if (fallos.length) { console.error(`El contrato sigue roto: ${fallos.join('; ')}`); process.exit(1); }
+}
+
+console.log('Versión española…');
+const es = await kimi(promptPiezaES(en));
+es.slug = en.slug; es.track = en.track;   // por si el modelo los «tradujo»
+
+// ── 6 · Armar los MDX (el modelo nunca emite markup) ─────────────────────
+// Las llaves se escapan: en MDX un `{` abre una expresión y una llave suelta
+// en la prosa rompe el build entero.
+const mdxSafe = (s) => String(s ?? '').replace(/{/g, '&#123;').replace(/}/g, '&#125;');
+const yamlStr = (s) => JSON.stringify(String(s ?? ''));
+
+function armarMdx(j, lang) {
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB',
+    { timeZone: 'America/Los_Angeles', day: 'numeric', month: lang === 'es' ? 'short' : 'long', year: 'numeric' })
+    .replace(/\./g, '');
+  const sortDate = ahora.toLocaleString('sv-SE', { timeZone: 'America/Los_Angeles' }).replace(' ', 'T');
+  const numero = lang === 'es' ? issueNo.replace('N° ', 'N.º ') : issueNo;
+
+  const usados = new Set(['Lede', 'Section', 'Standfirst']);
+  if (j.callback) usados.add('Callback');
+  for (const s of j.sections) for (const b of s.blocks) {
+    if (b.type === 'context') usados.add('ContextBox');
+    if (b.type === 'qa') usados.add('QABlock');
+    if (b.type === 'pullquote') usados.add('PullQuote');
+  }
+
+  const fm = [
+    '---',
+    `issue: ${yamlStr(numero)}`,
+    `date: ${yamlStr(fecha)}`,
+    `sortDate: ${yamlStr(sortDate)}`,
+    `language: ${lang}`,
+    `track: ${en.track || 'general'}`,
+    `title: ${yamlStr(j.title)}`,
+    `titleHTML: ${yamlStr(j.titleHTML)}`,
+    `dek: ${yamlStr(j.dek)}`,
+    j.dekHTML ? `dekHTML: ${yamlStr(j.dekHTML)}` : null,
+    `coverDek: ${yamlStr(j.coverDek)}`,
+    `source: ${yamlStr(j.source || item.url)}`,
+    `sourceLabel: ${yamlStr(`${issueNo} · ${(j.source || item.title).replace(/^Based on |^Basado en /, '').slice(0, 80)}`)}`,
+    'topics:',
+    ...(j.topics || []).slice(0, 6).map(t => `  - ${yamlStr(t)}`),
+    '---',
+  ].filter(Boolean).join('\n');
+
+  const imports = [...usados].map(c => c === 'ContextBox' || c === 'QABlock' || c === 'PullQuote' || c === 'Callback' ||
+    c === 'Lede' || c === 'Section' || c === 'Standfirst'
+    ? `import ${c} from '../../../components/${c}.astro';` : null).filter(Boolean).join('\n');
+
+  const cuerpo = [];
+  cuerpo.push(`<Lede>\n${mdxSafe(j.lede)}\n</Lede>`);
+  if (j.callback?.slug) {
+    cuerpo.push(`<Callback issue="${j.callback.issue}" slug="${j.callback.slug}" lang="${lang}">${mdxSafe(j.callback.text)}</Callback>`);
+  }
+  for (const s of j.sections) {
+    const bloques = s.blocks.map(b => {
+      if (b.type === 'context') return `<ContextBox label="${mdxSafe(b.label).replace(/"/g, '&quot;')}">\n${mdxSafe(b.md)}\n</ContextBox>`;
+      if (b.type === 'qa') return `<QABlock speaker="${mdxSafe(b.speaker).replace(/"/g, '&quot;')}">\n${mdxSafe(b.md)}\n</QABlock>`;
+      if (b.type === 'pullquote') return `<PullQuote>${mdxSafe(b.md)}</PullQuote>`;
+      return mdxSafe(b.md);
+    }).join('\n\n');
+    cuerpo.push(`<Section number="${s.number}" title="${mdxSafe(s.titleHTML || s.title).replace(/"/g, '&quot;')}">\n\n` +
+                `<Standfirst>${mdxSafe(s.standfirst)}</Standfirst>\n\n${bloques}\n\n</Section>`);
+  }
+  return `${fm}\n\n${imports}\n\n${cuerpo.join('\n\n')}\n`;
+}
+
+const bodyEn = armarMdx(en, 'en');
+const bodyEs = armarMdx(es, 'es');
+
+// ── 7 · Procedencia y publicación ────────────────────────────────────────
+const sourcesJson = {
+  slug: en.slug, issue: issueNo,
+  sources: [
+    { id: 'src-01', ref: item.title, role: 'primary',
+      tipo: /youtube|youtu\.be/.test(item.url) ? 'video' : (item.body_text ? 'article' : 'link'),
+      url: item.url !== 'about:blank' ? item.url : undefined,
+      como: 'Fuente ancla — pegada por Arturo en el panel (pieza suelta)',
+      respalda: digest.thesis, verificada: 'si' },
+    ...reportes.map((r, i) => ({
+      id: `src-${String(i + 2).padStart(2, '0')}`, ref: `${r.outlet} — ${r.what_happened?.slice(0, 100)}`,
+      role: 'context', tipo: 'report', url: r.url,
+      como: 'Traído por el pipeline para anclar o contrastar afirmaciones de la fuente',
+      respalda: r.what_happened, verificada: 'si' })),
+  ],
+};
+
+if (SECO) {
+  console.log(`\nPIEZA_DRY — no se escribe nada. ${issueNo} · ${en.slug} · ${en.title}`);
+  process.exit(0);
+}
+
+const [seed] = await sb('glossa_seeds?select=id', {
+  method: 'POST', headers: { Prefer: 'return=representation' },
+  body: JSON.stringify([{ authored_by: 'Arturo', mode: 'pieza', track: en.track || 'general',
+    thesis: `Pieza pedida desde el panel sobre: ${item.title}`.slice(0, 500),
+    notes: `item ${item.id} (${item.origin})` }]),
+});
+const [issue] = await sb('glossa_issues?select=id', {
+  method: 'POST', headers: { Prefer: 'return=representation' },
+  body: JSON.stringify([{ slug: en.slug, issue_no: issueNo, track: en.track || 'general',
+    mode: 'pieza', status: 'drafting', title_en: en.title, title_es: es.title,
+    dek_en: en.dek, dek_es: es.dek, topics: en.topics ?? [], seed_id: seed?.id ?? null,
+    model: MODELO_KIMI }]),
+});
+
+await sb('glossa_publish_requests', {
+  method: 'POST', headers: { Prefer: 'return=minimal' },
+  body: JSON.stringify([{ issue_id: issue?.id ?? null, slug: en.slug, issue_no: issueNo,
+    body_en: bodyEn, body_es: bodyEs, sources_json: sourcesJson,
+    state: 'queued', requested_by: 'glossa-pieza (panel)' }]),
+});
+
+// El elemento queda anotado para que la cola y el número sepan que ya cumplió.
+await sb(`glossa_radar_items?id=eq.${item.id}`, {
+  method: 'PATCH', headers: { Prefer: 'return=minimal' },
+  body: JSON.stringify({ note: `pieza ${issueNo} · ${en.slug}` }) });
+
+console.log(`\n${issueNo} encolado para publicar: ${en.slug}`);
+console.log('El worker de publicación commitea los MDX y Vercel despliega — en vivo en unos minutos.');

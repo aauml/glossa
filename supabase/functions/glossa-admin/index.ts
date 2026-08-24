@@ -633,6 +633,16 @@ Deno.serve(async (req) => {
           if ((error as { code?: string }).code === '23505') return bad('that is already in the queue');
           throw error;
         }
+        // Una pieza suelta no espera al radar: se dispara su producción AHORA
+        // (0047). El workflow digiere, trae contexto, escribe con Kimi y encola
+        // la publicación; la pieza aparece en Articles con su N° al terminar.
+        if (solo && data) {
+          const { error: eDisp } = await db.rpc('glossa_pieza_dispatch', { item: data.id });
+          if (eDisp) return ok({ as: 'elemento', item: data,
+            label: r.label, aviso: `saved, but the piece run could not be launched: ${eDisp.message}` });
+          return ok({ as: 'elemento', item: data,
+            label: 'standalone piece — being written now; it appears in Articles in ~15 min', aviso });
+        }
         return ok({ as: 'elemento', item: data, label: r.label, aviso });
       }
 

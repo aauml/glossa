@@ -1,0 +1,224 @@
+// Los prompts de la pieza suelta. Aquí vive la voz, así que se editan con el
+// mismo cuidado que `skills/references/editorial-conventions.md`, del que este
+// archivo es la destilación operativa: lo que allí se le explica a Claude en
+// conversación, aquí se le exige a Kimi por contrato JSON.
+//
+// La decisión de fondo (elegida por Arturo, 2026-08-24): las piezas del
+// pipeline automático las escribe Kimi imitando la voz de la colección, no
+// Claude por API. Por eso el prompt no confía en que el modelo «conozca» el
+// estilo: lo lleva entero, con las reglas que en cuarenta piezas demostraron
+// ser las que producen el formato — y el guion valida el contrato al volver.
+//
+// Kimi devuelve JSON, nunca MDX. El MDX lo arma el guion: un modelo que emite
+// markup inventa componentes, cierra mal las etiquetas y rompe el build; un
+// modelo que llena un contrato JSON solo puede equivocarse en el contenido,
+// que es donde sí se le quiere dejar libertad.
+
+/** Digerir la fuente cuando llegó sin pasar por el radar. Adaptación en Node
+ *  del promptDigest del radar (que vive en TS de Deno y no se puede importar):
+ *  mismas reglas de atribución, misma separación afirmado/atribuido/documentado. */
+export function promptDigestPieza(item, esTexto) {
+  return [
+    'You are preparing source material so an editor can write a guided reading of it.',
+    '',
+    'UNVERIFIED METADATA (from the paste, may be wrong):',
+    `  title: ${item.title}`,
+    item.author ? `  author/guest per the title: ${item.author}` : '',
+    '',
+    esTexto
+      ? 'THE TEXT RULES. If it disagrees with the metadata, ignore the metadata.'
+      : 'THE AUDIO/VIDEO RULES. If what you hear disagrees with the metadata, describe what is actually there.',
+    'Never attribute a claim to a name you did not confirm in the content itself.',
+    '',
+    'Return ONLY a JSON object:',
+    '{',
+    '  "lang": "language of the content (en|es|ru|…)",',
+    '  "speakers": ["who speaks or signs, with affiliation if stated"],',
+    '  "kind": "interview|lecture|article|essay|report|thread|other",',
+    '  "thesis": "the central thesis, 1-2 sentences, English, phrased as \\"X argues that…\\"",',
+    '  "outline": ["the 4-8 moves the source makes, in order — this is what the sections of the reading will follow"],',
+    '  "claims": [{"claim":"concrete falsifiable claim (figure, date, program, attributed statement)",',
+    '              "t":"mm:ss or null","status":"afirmado|atribuido|documentado",',
+    '              "checkable":"what one would consult to confirm or refute it"}],',
+    '  "quotes": [{"text":"verbatim quote, max 40 words","t":"mm:ss or null","who":"who said it"}],',
+    '  "framing":"the frame and starting assumptions, stated without adjectives",',
+    '  "context_needed": ["terms, institutions or episodes the source assumes and a careful general reader would want explained"],',
+    '  "mentions": [{"name":"person or outlet the source cites AS ITS SOURCE","kind":"person|outlet|institution|work","cited_for":"what for"}],',
+    '  "skip": false',
+    '}',
+    '',
+    'Rules:',
+    '- ALL output in ENGLISH regardless of the content language.',
+    '- "status": "afirmado" if said without support; "atribuido" if citing a third party;',
+    '  "documentado" only if it points at a concrete verifiable record.',
+    '- Up to 10 claims, up to 8 quotes. Quotes locate passages — never whole paragraphs.',
+    '- `outline` matters most here: it is the skeleton the piece will be built on.',
+    '- If there is nothing analyzable, set "skip": true.',
+  ].filter(Boolean).join('\n');
+}
+
+/** Consultas para traer contexto de fuera. Menos ambicioso que el del
+ *  reportaje: una pieza necesita 2-3 documentos que anclen o contradigan a la
+ *  fuente, no un censo de prensa mundial. */
+export function promptConsultasPieza(digest) {
+  return [
+    'An editor is about to write a guided reading of ONE source. Before writing,',
+    'they want a small number of outside documents: reporting or records that',
+    'CONFIRM, CONTRADICT or GROUND the source\'s most checkable claims.',
+    '',
+    'THE SOURCE SAYS:',
+    `  thesis: ${digest.thesis}`,
+    ...(digest.claims || []).slice(0, 6).map(c => `  - ${c.claim} (${c.status}; check: ${c.checkable})`),
+    '',
+    'Return ONLY JSON:',
+    '{"queries":[{"q":"the query","lang":"ISO-639-1","why":"which claim this checks"}]}',
+    '',
+    'Rules:',
+    '- Exactly 2 queries. Each costs money. Aim them at the two claims whose',
+    '  confirmation or refutation would most change how the piece is framed.',
+    '- Ask for reporting and records — names, numbers, dates, document titles —',
+    '  never for opinion or commentary.',
+  ].join('\n');
+}
+
+// La voz, destilada de `skills/references/editorial-conventions.md`. Si aquello
+// cambia, esto cambia con ello.
+const VOZ = [
+  'THE VOICE — this format is validated across forty issues; match it, do not reinvent it:',
+  '',
+  '- A guided reading, NOT a summary and NOT a transcript. A summary collapses; this',
+  '  EXPANDS: where the source moves fast past something a careful reader needs, the',
+  '  piece slows down and explains. It never argues with the source; it frames it.',
+  '- Magazine-essay register: The New Yorker, Harper\'s, long-form Atlantic. Calm,',
+  '  knowing, slightly amused where appropriate, never breathless. Sentences earn',
+  '  their length. But essays are also STORIES: every section must end giving the',
+  '  reader a reason to start the next. Never end a section by summarizing it.',
+  '- Lead with people, not concepts. "Isabel Castaneda failed Spanish — her native',
+  '  language — because an algorithm said so" beats "This illustrates the problems',
+  '  of algorithmic decision-making." Reach abstraction only after the concrete case lands.',
+  '- If the source is partisan or has a strong ideological frame, the FIRST section',
+  '  introduces who they are (a context box works well), and from then on the piece',
+  '  uses "X argues" / "in X\'s view" — their voice as theirs, never endorsed, never mocked.',
+  '- The lede is 100-180 words, drops the reader straight into the substance (no "in',
+  '  this piece" framing), and makes a specific, contestable claim. A reader who',
+  '  stops there must still have learned something.',
+  '- The headline wraps EXACTLY ONE phrase in <em> — the word doing the most work.',
+  '  It lifts something concrete from the source; "What X says about Y" is too generic.',
+  '- The dek is one sentence, 25-40 words: [speaker] [verb] [the claim], optionally',
+  '  + what the reader will get. Its <em> variant italicizes one word too.',
+  '- Sections: source-driven count, 2 to 7 (default 5). Never pad, never compress.',
+  '  Each has a two-digit number, a title with one <em> phrase, a one-or-two sentence',
+  '  standfirst, and paragraphs that BUILD. Dense material → paragraphs of at most',
+  '  4 sentences.',
+  '- Context boxes explain what the source assumes: an institution, a treaty, a term.',
+  '  The label names the thing ("What is the JCPOA?"). The box is neutral background,',
+  '  3-6 sentences, no opinion.',
+  '- Quote blocks carry the source\'s own words, lightly cleaned (no "uh", no false',
+  '  starts), meaning preserved exactly. Use 1-3 per piece at the moments where the',
+  '  speaker\'s voice does what paraphrase cannot.',
+  '- At most one pull quote in the whole piece, and only if one line truly deserves it.',
+].join('\n');
+
+/**
+ * La pieza en inglés, como contrato JSON.
+ *
+ * @param digest    lo que dijo la fuente (promptDigestPieza)
+ * @param reportes  documentos de fuera ya digeridos (promptReporte), puede ir vacío
+ * @param piezas    la colección existente [{issue, slug, title}] para callbacks
+ * @param issueNo   el número que le toca, p. ej. «N° 43»
+ */
+export function promptPieza(digest, reportes, piezas, issueNo) {
+  return [
+    'You write for a small bilingual publication of annotated readings. Each piece',
+    'takes ONE source — an interview, a lecture, an article — and turns it into a',
+    'guided reading a careful generalist can trust.',
+    '',
+    VOZ,
+    '',
+    `THIS PIECE IS ${issueNo}.`,
+    '',
+    'THE SOURCE, digested:',
+    JSON.stringify(digest),
+    '',
+    reportes.length
+      ? 'OUTSIDE DOCUMENTS fetched to check the source\'s claims — use them to ground,\n' +
+        'confirm or push back in the prose ("Reuters reported…", "the filing shows…").\n' +
+        'Where an outside record CONTRADICTS the source, that tension goes IN the piece,\n' +
+        'stated plainly, not resolved by silence:\n' + JSON.stringify(reportes)
+      : '(no outside documents were fetched; write from the source alone and mark its',
+    reportes.length ? '' : 'unsupported claims as claims — "X asserts", "by X\'s count")',
+    '',
+    'THE EXISTING COLLECTION (for one optional callback, only if a piece genuinely',
+    'relates):',
+    JSON.stringify(piezas.slice(0, 60)),
+    '',
+    'Return ONLY a JSON object, no markdown fences:',
+    '{',
+    '  "slug": "speaker-or-topic-kebab-case, 3-5 words, unique vs the collection above",',
+    '  "track": "general|thesis|ai-policy|finance|geopolitics",',
+    '  "title": "plain text headline",',
+    '  "titleHTML": "same headline with exactly one <em>…</em> phrase",',
+    '  "dek": "one sentence, 25-40 words, plain",',
+    '  "dekHTML": "same with one <em> word",',
+    '  "coverDek": "2-3 sentence summary for the cover: what the source argues and why it matters",',
+    '  "source": "Based on … · outlet/show — how the piece should credit its source",',
+    '  "topics": ["3-6 topical tags, Title Case"],',
+    '  "lede": "the opening paragraph, 100-180 words, plain prose",',
+    '  "callback": null or {"slug":"from the collection","issue":"its N°","text":"1-2 sentences linking that piece to this one"},',
+    '  "sections": [',
+    '    {"number":"01", "title":"plain", "titleHTML":"with one <em>", "standfirst":"1-2 sentences",',
+    '     "blocks":[',
+    '       {"type":"p","md":"a paragraph; markdown emphasis allowed"},',
+    '       {"type":"context","label":"What is …?","md":"3-6 neutral sentences"},',
+    '       {"type":"qa","speaker":"surname","md":"the source\'s own words, cleaned"},',
+    '       {"type":"pullquote","md":"one line, only once in the whole piece"}',
+    '     ]}',
+    '  ]',
+    '}',
+    '',
+    'Hard rules:',
+    '- 2 to 7 sections; each section has at least 2 blocks and at most 8.',
+    '- Follow the source\'s own moves (the digest\'s `outline`), not a template.',
+    '- Quote blocks only with words that are in the digest\'s quotes or clearly implied',
+    '  verbatim content; NEVER invent a quotation.',
+    '- Facts you did not get from the source or the outside documents do not exist.',
+    '- No em-dash festival, no "delve", no closing paragraph that summarizes the piece.',
+    '- The last section ends on what remains open or what to watch, not on a recap.',
+  ].filter(Boolean).join('\n');
+}
+
+/**
+ * La versión española: artículo paralelo, no traducción palabra a palabra.
+ * Registro peninsular — es la convención de la colección de piezas
+ * (`references/spanish-translation.md`), a diferencia del semanal, que decidió
+ * es-MX en D-020. Se imita la colección, no el semanal.
+ */
+export function promptPiezaES(piezaEN) {
+  return [
+    'Translate this annotated-reading piece into Spanish as a PARALLEL ARTICLE —',
+    'same structure, same components, same editorial voice — in the register of',
+    'El País Semanal / Granta en español: Iberian Spanish, editorial, alive.',
+    '',
+    'THE PIECE (JSON):',
+    JSON.stringify(piezaEN),
+    '',
+    'Return ONLY a JSON object with EXACTLY the same shape and the same keys.',
+    'Translate: title, titleHTML, dek, dekHTML, coverDek, source, topics, lede,',
+    'callback.text if present, and every section title/titleHTML/standfirst/blocks.',
+    'Keep IDENTICAL: slug, track, section numbers, block types, speaker names,',
+    'callback.slug and callback.issue.',
+    '',
+    'Register rules (they are what makes it read native):',
+    '- Spain, editorial: «ordenador», «móvil»; pretérito perfecto compuesto for',
+    '  events still touching the present («ha dicho»), indefinido for closed ones.',
+    '- «Angular quotes» for quotations inside prose; translate quoted speech into',
+    '  Spanish (readers know the convention means "this is what was said", not',
+    '  "these were the exact syllables").',
+    '- No bureaucratic calques: «aplicar», never «implementar»; «quienes deciden»,',
+    '  never «decisores»; «padres», never «progenitores».',
+    '- Technical vocabulary yes, BOE register no. Sentences stay alive.',
+    '- titleHTML and dekHTML keep exactly one <em> phrase each, on the Spanish word',
+    '  that now does the most work (it may not be the literal translation of the',
+    '  English one).',
+  ].join('\n');
+}

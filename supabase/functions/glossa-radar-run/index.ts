@@ -182,15 +182,18 @@ Deno.serve(async (req) => {
   const v = ven?.[0];
   let pend: any[] = [];
   if (v) {
+    // Las piezas sueltas (origin='pieza') no son de este bucle: las digiere su
+    // propio workflow al momento de pegarse (0047). Leerlas aquí también sería
+    // pagar dos veces el mismo episodio.
     const { data: dentro } = await sb.from('glossa_radar_items')
-      .select(CAMPOS).eq('state', 'pending')
+      .select(CAMPOS).eq('state', 'pending').neq('origin', 'pieza')
       .gte('published_at', v.desde).lt('published_at', v.hasta)
       .order('published_at', { ascending: true }).limit(8);
     pend = dentro ?? [];
   }
   if (pend.length < 8) {
     const { data: resto } = await sb.from('glossa_radar_items')
-      .select(CAMPOS).eq('state', 'pending')
+      .select(CAMPOS).eq('state', 'pending').neq('origin', 'pieza')
       .order('published_at', { ascending: false }).limit(8);
     const ya = new Set(pend.map((x: any) => x.id));
     for (const r of resto ?? []) if (!ya.has(r.id) && pend.length < 8) pend.push(r);
