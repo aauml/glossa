@@ -524,12 +524,26 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       const pr = p.progress || {};
       const fallo = pr.fase === 'failed' || p.vivo?.error;
       const vivo = !!p.vivo?.url;
-      const pct = vivo ? 100 : Math.max(2, Number(pr.pct || 0));
+      let pct = vivo ? 100 : Math.max(2, Number(pr.pct || 0));
+      let fase = pr.fase || 'working';
+      // La escritura es UNA llamada a Kimi de 15-25 min sin nada intermedio que
+      // anotar: una barra quieta ahí se lee como rota. Se la hace avanzar con
+      // el reloj —calibrada a los ~18 min típicos de K3, tope en 70— y se dice
+      // cuántos minutos lleva, que es lo que de verdad se sabe.
+      if (!vivo && !fallo && pr.updated_at) {
+        const min = (Date.now() - new Date(pr.updated_at).getTime()) / 60000;
+        if (/writing the piece/.test(fase)) {
+          pct = Math.min(70, Math.round(pct + min * 1.6));
+          fase = `${fase} · ${Math.max(1, Math.floor(min))} min in, ~15-20 typical`;
+        } else if (min > 2) {
+          fase = `${fase} · ${Math.floor(min)} min`;
+        }
+      }
       if (!vivo && !fallo) activas++;
       const etiqueta = fallo
         ? `failed — ${pr.error || p.vivo?.error || ''}`
         : vivo ? `live — <a href="${p.vivo.url}" target="_blank" rel="noopener">read it</a>`
-               : `${pct}% · ${pr.fase || 'working'}`;
+               : `${pct}% · ${fase}`;
       const nombre = pr.issue ? `${pr.issue} · ` : '';
       return `<div style="margin-top:14px">
         <p class="admin-nota" style="margin-bottom:4px">${nombre}${(p.title || '').slice(0, 70)}
