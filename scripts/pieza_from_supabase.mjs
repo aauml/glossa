@@ -110,26 +110,50 @@ async function gemini(parts, maxTokens = 4096) {
   }
 }
 
-async function kimi(prompt, maxTokens = 64000) {
-  for (let intento = 0; ; intento++) {
-    const r = await fetch('https://api.moonshot.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${KIMI}` },
-      body: JSON.stringify({ model: MODELO_KIMI, max_tokens: maxTokens,
-        messages: [{ role: 'user', content: prompt }] }),
-      signal: AbortSignal.timeout(40 * 60_000),
+// Por `https.request` y NO por `fetch`, igual que el semanal, y no es estilo:
+// el fetch de Node (undici) corta a los 5 minutos de esperar cabeceras y ese
+// límite no lo controla AbortSignal. Kimi K3 tarda ~16 minutos en contestar
+// una pieza — la primera corrida real murió exactamente ahí (HeadersTimeoutError).
+import { request as httpsRequest } from 'node:https';
+
+function kimiCrudo(cuerpo) {
+  return new Promise((ok, ko) => {
+    const req = httpsRequest({
+      hostname: 'api.moonshot.ai', path: '/v1/chat/completions', method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(cuerpo),
+                 Authorization: `Bearer ${KIMI}` },
+    }, res => {
+      let b = '';
+      res.setEncoding('utf8');
+      res.on('data', c => { b += c; });
+      res.on('end', () => (res.statusCode < 300 ? ok(b)
+        : ko(Object.assign(new Error(`moonshot ${res.statusCode}: ${b.slice(0, 300)}`),
+                           { status: res.statusCode }))));
     });
-    if (!r.ok) {
-      const cuerpo = (await r.text()).slice(0, 200);
-      if ((r.status === 429 || r.status === 503) && intento < 4) {
+    req.on('error', ko);
+    // 35 min, por debajo del corte del workflow, para que el error lo dé este
+    // guion — que sabe decir qué pasó — y no un corte seco del runner.
+    req.setTimeout(35 * 60_000, () => req.destroy(new Error('kimi sin respuesta en 35 min')));
+    req.end(cuerpo);
+  });
+}
+
+async function kimi(prompt, maxTokens = 64000) {
+  const cuerpo = JSON.stringify({ model: MODELO_KIMI, max_tokens: maxTokens,
+    messages: [{ role: 'user', content: prompt }] });
+  for (let intento = 0; ; intento++) {
+    let bruto;
+    try { bruto = await kimiCrudo(cuerpo); }
+    catch (e) {
+      if ((e.status === 429 || e.status === 503) && intento < 4) {
         // La cuenta admite una petición a la vez; el hueco puede tardar.
         const espera = [60, 180, 420, 900][intento] * 1000;
-        console.log(`  kimi ${r.status} — reintento en ${espera / 60000} min`);
+        console.log(`  kimi ${e.status} — reintento en ${espera / 60000} min`);
         await new Promise(x => setTimeout(x, espera)); continue;
       }
-      throw new Error(`moonshot ${r.status}: ${cuerpo}`);
+      throw e;
     }
-    const d = await r.json();
+    const d = JSON.parse(bruto);
     const tok = d.usage?.total_tokens ?? 0;
     const coste = (tok / 1e6) * 2.2;   // mezcla in/out del tramo K3, como el semanal
     await apuntar(URL_SB, KEY, 'moonshot', 1, tok, coste);
