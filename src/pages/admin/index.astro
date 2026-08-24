@@ -25,7 +25,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   <div class="admin-cifras" id="st-cifras">
     <span class="admin-vacio">loading…</span>
   </div>
-  <p class="admin-nota" id="st-corte" style="margin:10px 0 34px"></p>
+  <p class="admin-nota" id="st-corte" style="margin:10px 0 6px"></p>
+  <!-- El dinero, en una línea tenue y sin sección propia: cuánto va gastado el
+       mes por modelo (escuchar, escribir, buscar) y cuánto cupo queda. -->
+  <p class="admin-nota" id="st-costo" style="margin:0 0 34px;opacity:.7"></p>
 
   <!-- ── Lo que va mal ──────────────────────────────────────────────────
        Sólo si hay algo, y solo lo que resistió arreglarse solo: el vigilante
@@ -417,6 +420,27 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
           : '');
   }
 
+  // ── El costo, en una línea ──────────────────────────────────────────────
+  // Lo que va gastado el mes, por modelo y con el cupo al lado. Discreto a
+  // propósito: es para saberlo de un vistazo, no una sección de contabilidad —
+  // el detalle sigue en «Under the hood».
+  async function pintarCosto() {
+    const g = await api('budget');
+    const el = $('st-costo');
+    if (g.error || !g.uso?.length) { el.textContent = ''; return; }
+    const nombre = (p) => p === 'moonshot' ? 'kimi (writes the issue)'
+                        : p === 'gemini' ? 'gemini (listens)'
+                        : p === 'tavily' ? 'tavily (searches)' : p;
+    const conCoste = g.uso.filter(u => Number(u.coste_mes) > 0);
+    const total = conCoste.reduce((n, u) => n + Number(u.coste_mes), 0);
+    const partes = [`This month: $${total.toFixed(2)}`];
+    for (const u of conCoste) partes.push(`${nombre(u.proveedor)} $${Number(u.coste_mes).toFixed(2)}`);
+    const gem = g.uso.find(u => u.proveedor === 'gemini');
+    if (gem) partes.push(`gemini (listens) ${gem.hoy ?? 0} calls today, free tier`);
+    if (g.tavily) partes.push(`tavily (searches) ${g.tavily.restantes} of ${g.tavily.tope} credits left, $0`);
+    el.textContent = partes.join(' · ');
+  }
+
   // El corte lo escribe un Action porque el modelo tarda ~15 min; esto solo
   // aprieta el botón. Es el mismo que el de la pestaña Weekly.
   // Qué se ha lanzado ya en esta visita. Vive a nivel de módulo porque la nota
@@ -504,6 +528,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       ? 'The weekly issue will go out without review.' : 'The weekly issue will wait for you.'), !r.error);
   };
 
-  pintarIncidencias(); pintarCifras(); pintarCola(); pintarFuentes();
+  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes();
 </script>
 </AdminLayout>
