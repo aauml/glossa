@@ -1,0 +1,48 @@
+name: Glossa boletín (la entrega semanal por correo)
+
+# Manda un correo a quien lo pidió: el número de la semana y las piezas
+# escritas en ella. Nada más.
+#
+# El reloj: domingos 12:30 UTC = 05:30 en Los Ángeles. Va DESPUÉS del número
+# (10:00 UTC) y de su traducción (11:00), y con margen sobre los quince minutos
+# que tarda Kimi cuando se ralentiza. Mandarlo antes dejaría a los suscriptores
+# en español con enlaces a una página que todavía no existe, y a todos con un
+# número a medio escribir.
+#
+# Si no hay número publicado para esa semana, el guion sale sin mandar nada:
+# una entrega vacía es peor que ninguna.
+
+on:
+  schedule:
+    - cron: '30 12 * * 0'
+  workflow_dispatch:
+    inputs:
+      seco:
+        description: '1 = armar y enseñar el correo sin mandarlo'
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-boletin
+  cancel-in-progress: false
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  GLOSSA_RESEND_KEY: ${{ secrets.GLOSSA_RESEND_KEY }}
+
+jobs:
+  boletin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Send the weekly email
+        env:
+          BOLETIN_DRY: ${{ github.event.inputs.seco }}
+        run: node scripts/boletin_from_supabase.mjs

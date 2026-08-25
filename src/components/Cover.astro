@@ -12,6 +12,10 @@ const COPY = {
     news: 'Glossa is my editor. I give it the sites, videos, podcasts and writers I follow. Every Sunday it reads them and writes back what happened that week, checked against other outlets. No ads, no side taken.',
     unaPieza: 'I can also paste in one article, or just name a topic. Then it looks up what other sources say, searches my own library of papers and documents, and writes a single piece on it.',
     accesoHTML: 'Want a Glossa of your own? <a href="mailto:hola@ademas.ai">hola@ademas.ai</a>.',
+    subT: 'Would you like Glossa in your inbox?',
+    subP: 'One email on Sundays: the week’s issue and the pieces written that week. No ads.',
+    subPlaceholder: 'your@email',
+    subBoton: 'Subscribe',
     all: 'All',
     piece: 'piece',
     pieces: 'pieces',
@@ -31,6 +35,10 @@ const COPY = {
     news: 'Glossa es mi editor. Le doy los sitios, vídeos, pódcast y autores que sigo. Cada domingo los lee y me escribe qué pasó esa semana, contrastado con otros medios. Sin anuncios y sin tomar partido.',
     unaPieza: 'También puedo pegarle un artículo, o solo decirle un tema. Entonces busca qué dicen otras fuentes, consulta mi biblioteca de papers y documentos, y escribe una sola pieza sobre eso.',
     accesoHTML: '¿Quieres tu propia Glossa? <a href="mailto:hola@ademas.ai">hola@ademas.ai</a>.',
+    subT: '¿Quieres recibir Glossa por correo?',
+    subP: 'Un correo los domingos: el número de la semana y las piezas escritas esos días. Sin anuncios.',
+    subPlaceholder: 'tu@correo',
+    subBoton: 'Suscribirme',
     all: 'Todos',
     piece: 'pieza',
     pieces: 'piezas',
@@ -223,7 +231,53 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
   </div>
 
   <p class="cover-empty" hidden>{t.empty}</p>
+
+  {/* La caja del boletín, al final y en el raíl de siempre: se ofrece después
+      de que haya algo que leer, no antes de la primera línea. */}
+  <div class="sub-caja">
+    <div class="sub-rail">{t.subT}</div>
+    <div class="sub-cuerpo">
+      <p class="sub-nota">{t.subP}</p>
+      <form class="sub-form" id="sub-form" data-lang={lang}>
+        <input type="email" id="sub-email" required autocomplete="email"
+               placeholder={t.subPlaceholder} aria-label={t.subT} />
+        <button type="submit" id="sub-btn">{t.subBoton}</button>
+      </form>
+      <p class="sub-msg" id="sub-msg" hidden></p>
+    </div>
+  </div>
 </section>
+
+<script is:inline define:vars={{ endpoint: (import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL || '') + '/functions/v1/glossa-boletin' }}>
+  (function () {
+    var f = document.getElementById('sub-form');
+    if (!f) return;
+    var msg = document.getElementById('sub-msg');
+    var btn = document.getElementById('sub-btn');
+    f.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var email = document.getElementById('sub-email').value.trim();
+      if (!email) return;
+      btn.disabled = true;
+      try {
+        var r = await fetch(endpoint, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, lang: f.dataset.lang }),
+        });
+        var d = await r.json();
+        msg.textContent = d.error || d.mensaje;
+        msg.hidden = false;
+        // El formulario se retira al acertar: dejarlo invita a mandarlo otra
+        // vez y a recibir dos correos de confirmación.
+        if (!d.error) f.hidden = true;
+      } catch (err) {
+        msg.textContent = 'Could not reach the server. Try again in a minute.';
+        msg.hidden = false;
+      }
+      btn.disabled = false;
+    });
+  })();
+</script>
 
 <footer class="footer">
   <span>{t.footer}</span>

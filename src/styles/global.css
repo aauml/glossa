@@ -786,3 +786,44 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 @media (max-width: 860px) {
   .cover-filter { grid-template-columns: 1fr; gap: 10px; }
 }
+
+/* ── El boletín ──────────────────────────────────────────────────────────
+   Misma retícula que todo lo demás: el ofrecimiento en el raíl, la caja en la
+   columna ancha. Discreta a propósito: una regla fina arriba, sin recuadro de
+   color ni botón grande. Quien la quiera, la ve; quien no, no tropieza. */
+.sub-caja {
+  display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
+  gap: 8px 44px; margin-top: 34px; padding: 24px 0 8px;
+  border-top: 0.5px solid var(--rule-soft);
+}
+.sub-rail {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(11px * var(--reader-scale));
+  letter-spacing: 0.08em; color: var(--ink-soft); padding-top: 3px;
+}
+.sub-nota {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(11.5px * var(--reader-scale));
+  line-height: 1.5; color: var(--muted); margin: 0 0 12px; max-width: 52ch;
+}
+.sub-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.sub-form input {
+  flex: 1 1 220px; max-width: 320px; background: transparent;
+  border: 0; border-bottom: 1px solid var(--rule-soft); padding: 6px 2px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(12.5px * var(--reader-scale));
+  color: var(--ink); letter-spacing: 0.02em;
+}
+.sub-form input::placeholder { color: var(--muted); opacity: 0.7; }
+.sub-form input:focus { outline: none; border-bottom-color: var(--accent); }
+.sub-form button {
+  background: none; border: 0; cursor: pointer; padding: 6px 0;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(12px * var(--reader-scale));
+  letter-spacing: 0.06em; color: var(--accent); border-bottom: 1px solid currentColor;
+}
+.sub-form button:disabled { opacity: 0.5; cursor: default; }
+.sub-msg {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(12px * var(--reader-scale));
+  color: var(--ink-soft); margin: 10px 0 0;
+}
+
+@media (max-width: 860px) {
+  .sub-caja { grid-template-columns: 1fr; gap: 10px; }
+}
