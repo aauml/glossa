@@ -763,6 +763,31 @@ Deno.serve(async (req) => {
           ({ ...t, sector: porId.get(String(t.topic_id)) ?? 'Other' })) });
       }
 
+      // Los departamentos del número: cuáles existen y qué te interesa de cada
+      // uno. Sustituyen a fijar temas sueltos — un sector no cambia solo, y la
+      // lista de temas sí.
+      case 'secciones.list': {
+        const [{ data: secs, error }, { data: temas }] = await Promise.all([
+          db.from('glossa_radar_secciones').select('*').order('orden'),
+          db.from('glossa_radar_topics').select('sector').is('merged_into', null),
+        ]);
+        if (error) throw error;
+        const cuenta: Record<string, number> = {};
+        for (const t of temas ?? []) cuenta[t.sector ?? 'Other'] = (cuenta[t.sector ?? 'Other'] ?? 0) + 1;
+        return ok({ secciones: (secs ?? []).map(s => ({ ...s, temas: cuenta[s.sector] ?? 0 })) });
+      }
+
+      case 'secciones.set': {
+        if (!b.sector) return bad('sector is required');
+        const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+        if (b.activo !== undefined) patch.activo = !!b.activo;
+        if (b.interes !== undefined) patch.interes = String(b.interes).slice(0, 400) || null;
+        const { error } = await db.from('glossa_radar_secciones')
+          .update(patch).eq('sector', b.sector);
+        if (error) throw error;
+        return ok({ guardado: true });
+      }
+
       case 'temas.fijar': {
         if (!b.topic_id) return bad('topic_id is required');
         const fijo = b.fijo !== false;

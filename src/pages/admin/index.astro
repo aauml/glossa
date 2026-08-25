@@ -71,12 +71,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
        se mudó a Articles, que es donde está el número. -->
   <section class="admin-sec">
     <details class="grupo" open>
-      <summary>Topics <span id="tm-cuenta" class="admin-kind"></span></summary>
-      <p class="admin-nota" style="margin-top:8px">Pinned topics are the sections of the
-        weekly issue. Pinning one also folds in the near-duplicates the classifier had
-        split off, so a subject stops living under three names.</p>
+      <summary>Sections <span id="tm-cuenta" class="admin-kind"></span></summary>
+      <p class="admin-nota" style="margin-top:8px">The departments of the weekly, like a
+        magazine's. Switch on the ones you want and write, in one line, what interests you
+        there: that line decides what gets in when there is more material than fits. Each
+        department carries one to three pieces, or says it was quiet.</p>
       <p class="admin-nota" id="tm-nota" style="color:var(--accent)"></p>
-      <div id="tm-lista" style="margin-top:12px"><span class="admin-vacio">loading…</span></div>
+      <div id="sec-lista" style="margin-top:14px"><span class="admin-vacio">loading…</span></div>
+      <details style="margin-top:20px">
+        <summary class="admin-nota" style="cursor:pointer">What the classifier found, by department</summary>
+        <div id="tm-lista" style="margin-top:10px"><span class="admin-vacio">loading…</span></div>
+      </details>
     </details>
   </section>
 
@@ -447,6 +452,39 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     pintarConsejo();
   });
 
+  // ── Los departamentos ───────────────────────────────────────────────────
+  // Sustituyen a fijar temas uno a uno: un sector no cambia solo y la lista de
+  // temas sí. La línea de interés no es decorativa — va al prompt y es lo que
+  // decide qué entra cuando sobra material.
+  async function pintarSecciones() {
+    const d = await api('secciones.list');
+    const el = $('sec-lista');
+    if (!el || d.error) return;
+    const activas = d.secciones.filter(s => s.activo).length;
+    $('tm-cuenta').textContent = activas ? `${activas} on` : 'none on';
+    el.innerHTML = `<table class="admin-tabla">${d.secciones.map(s => `<tr>
+      <td style="white-space:nowrap"><label style="display:flex;gap:8px;align-items:baseline;cursor:pointer">
+        <input type="checkbox" data-sec="${esc(s.sector)}"${s.activo ? ' checked' : ''}>
+        <span${s.activo ? ' style="color:var(--ink)"' : ''}>${esc(s.sector)}</span></label></td>
+      <td style="width:100%"><input class="sec-interes" data-int="${esc(s.sector)}"
+        placeholder="what interests you here" value="${esc(s.interes || '')}"></td>
+      <td class="admin-tenue" style="white-space:nowrap">${s.temas}</td></tr>`).join('')}</table>`;
+  }
+  delegar($('sec-lista'), '[data-sec]', async (b) => {
+    const r = await api('secciones.set', { sector: b.dataset.sec, activo: b.checked });
+    if (r.error) { b.checked = !b.checked; return; }
+    pintarSecciones();
+  });
+  // El interés se guarda al salir del campo, no a cada tecla.
+  document.addEventListener('change', async (e) => {
+    const i = e.target.closest?.('.sec-interes');
+    if (!i) return;
+    const r = await api('secciones.set', { sector: i.dataset.int, interes: i.value });
+    const n = $('tm-nota');
+    n.textContent = r.error ? `No se pudo guardar: ${r.error}` : 'Saved.';
+    setTimeout(() => { n.textContent = ''; }, 3000);
+  });
+
   // ── Los temas ───────────────────────────────────────────────────────────
   // Sustituye a dos bloques que se quitaron: el vivero de fuentes y las
   // tripas. Aquí sí se decide algo — qué asuntos tienen sección propia — y se
@@ -628,6 +666,6 @@ ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.l
     </tr>`).join('')}</table>`;
   }
 
-  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); pintarTemas(); pintarConsejo(); pintarAccesos(); vigilarPiezas();
+  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); pintarSecciones(); pintarTemas(); pintarConsejo(); pintarAccesos(); vigilarPiezas();
 </script>
 </AdminLayout>

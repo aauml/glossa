@@ -317,24 +317,23 @@ const racimos = elegidos.map(t => {
 // Los temas FIJOS: los que Arturo eligió de la lista de propuestas. Tienen
 // sección aunque esta semana no traigan nada, y entonces la sección lo dice —
 // que ninguna de tus fuentes tocara un asunto es información, no un hueco.
-// Un tope, y es una red de seguridad, no una regla editorial: fijar temas es
-// libre, pero el número no puede intentar escribir cuarenta secciones. Con
-// cinco tarda dieciséis minutos; con cuarenta se sale del techo de tokens, del
-// reloj, o devuelve secciones de dos frases. Si hay más de los que caben,
-// entran los que MÁS material trajeron esta semana y se dice cuáles se
-// quedaron fuera — callarlo sería un número incompleto sin avisar.
-const TOPE_FIJOS = Number(ajus.weekly_secciones_fijas ?? 8);
-let fijos = await sb('glossa_radar_topics?select=id,slug,label,description&fijo=is.true');
-if (fijos?.length > TOPE_FIJOS) {
-  const peso = new Map((temas ?? []).map(t => [t.topic_id, t.n_items ?? 0]));
-  const ordenados = [...fijos].sort((a, b) => (peso.get(b.id) ?? 0) - (peso.get(a.id) ?? 0));
-  const fuera = ordenados.slice(TOPE_FIJOS);
-  fijos = ordenados.slice(0, TOPE_FIJOS);
-  console.log(`  AVISO: hay ${fijos.length + fuera.length} temas fijados y el tope es ${TOPE_FIJOS}. ` +
-              `Fuera de este número: ${fuera.map(t => t.label).join(' · ')}`);
+// ── Los departamentos ───────────────────────────────────────────────────
+// Las secciones del número son SECTORES, no temas sueltos: un sector no cambia
+// solo y la lista de temas sí. Dentro de cada uno caben una a tres piezas, cada
+// una sobre un asunto con su tesis — una sección tan ancha como «Geopolitics &
+// war» escrita de una pieza sería un repaso, que es el aplanamiento que esta
+// publicación existe para no cometer.
+const departamentos = await sb('glossa_radar_secciones?select=sector,interes,orden&activo=is.true&order=orden');
+const porSector = {};
+if (departamentos?.length) {
+  const mat = await sb('rpc/glossa_radar_material_por_sector', {
+    method: 'POST',
+    body: JSON.stringify({ desde: desde.toISOString(), hasta: finDia.toISOString() }),
+  });
+  for (const m of mat ?? []) (porSector[m.sector] ||= []).push(m);
+  console.log(`  ${departamentos.length} departamento(s): ` + departamentos.map(x =>
+    `${x.sector} (${(porSector[x.sector] ?? []).length} asuntos)`).join(' · '));
 }
-const idsFijos = new Set((fijos ?? []).map(t => t.id));
-if (fijos?.length) console.log(`  ${fijos.length} tema(s) fijo(s): ${fijos.map(t => t.label).join(' · ')}`);
 
 if (temas?.length) {
   console.log(`  ${temas.length} temas con material` +
@@ -617,17 +616,20 @@ RULES — the first two are the ones that matter:
   most two of these per piece. A piece that assumes the vocabulary is writing
   for people who already know, which is the one audience that does not need it.
 
-${fijos?.length ? `- THESE SUBJECTS GET A SECTION, ALWAYS. They are the standing subjects, chosen
-  deliberately, and the issue is organised around them:
-${fijos.map(t => `    · ${t.label}${t.description ? ` — ${t.description}` : ''}`).join('\n')}
-  If a subject got material this week, write its section from that material. If it
-  got NOTHING, still give it its section and say so plainly in one sentence: no
-  source touched it this week. That silence is information — it says the week was
-  quiet on a subject the reader is following, which a missing section cannot say.
-  Beyond these, add AT MOST two sections for whatever else the week produced, and
-  only if it genuinely stands on its own.
-` : ''}- Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
-  given a section. Those clusters are what the classification produced, not a
+${departamentos?.length ? `- THE ISSUE HAS THESE DEPARTMENTS, IN THIS ORDER, EVERY WEEK. They are the
+  standing shape of the magazine, and what follows each one is what its editor
+  cares about — that line decides what gets in when more material arrived than fits:
+${departamentos.map(x => `    · ${x.sector}${x.interes ? ` — ${x.interes}` : ''}
+      subjects this week: ${(porSector[x.sector] ?? []).slice(0, 8).map(m => `${m.label} (${m.n_items})`).join(', ') || 'none'}`).join('\n')}
+
+  Inside each department write ONE TO THREE pieces, each about a single subject
+  with its own thesis — never one piece that surveys the department. A department
+  that got no material still gets its heading and one sentence saying the week was
+  quiet there: a reader following that department needs to know it was quiet, and
+  a missing heading cannot say that.
+  Across the whole issue, 8 pieces at most: it has to be readable on a Sunday.
+` : ''}${departamentos?.length ? '' : `- Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
+  given a section.`} Those clusters are what the classification produced, not a
   contents page: several of them are usually one piece, and the labels are the
   classifier's, not yours to reuse.
 - Where a cluster is marked as carried in another language, weigh it by what it
