@@ -39,6 +39,12 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
        recupera lo pasajero y archiva lo irrecuperable por su cuenta. -->
   <div id="inc-lista"></div>
 
+  <!-- Una corrección del comité en vigor. Vivía dentro de «Under the hood», que
+       se quitó; pero es lo único de allí que se puede DESHACER, y una corrección
+       aplicada sin manera de revertirla habría sido una pérdida real. Ahora sale
+       aquí, y solo cuando hay una. -->
+  <div id="con-lista"></div>
+
   <!-- ── Quién pidió su propia Glossa ───────────────────────────────────── -->
   <section class="admin-sec">
     <details class="grupo">
@@ -66,44 +72,26 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     <div id="src-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
-  <!-- ── El vivero (0044) ───────────────────────────────────────────────
-       Las fuentes que el sistema está criando solo: candidatos que las fuentes
-       seguidas citan o que el reportaje encontró, y las altas a prueba que
-       decidió el consejo. Aquí no se aprueba nada — el consejo decide; lo único
-       que puede hacer una persona es vetar, y por eso solo hay ese botón. -->
+  <!-- ── Los temas ───────────────────────────────────────────────────────
+       Sustituye a dos bloques que se quitaron por inútiles: el vivero de
+       fuentes (pedía vetos que nunca llegaban; el veto vive ahora junto a la
+       fuente, en Following) y las tripas (contadores que no cambiaban ninguna
+       decisión). Lo único de las tripas que sí decidía algo —revertir una
+       corrección del comité, y el interruptor de auto-publicar— no se pierde:
+       la corrección aparece arriba solo cuando hay una viva, y el interruptor
+       se mudó a Articles, que es donde está el número. -->
   <section class="admin-sec">
-    <details id="viv">
-      <summary>Growing on its own <span id="viv-cuenta" class="admin-kind"></span></summary>
-      <p class="admin-nota" style="margin-top:8px">
-        Sources the system is raising by itself: names the followed channels cite as
-        their own sources, and outlets the Friday reporting run kept finding. The
-        Sunday committee decides admissions and verdicts; your only word here is a veto.
-      </p>
-      <div id="viv-lista" style="margin-top:12px"><span class="admin-vacio">loading…</span></div>
+    <details class="grupo">
+      <summary>Subjects <span id="tm-cuenta" class="admin-kind"></span></summary>
+      <p class="admin-nota" style="margin-top:8px">What the classifier keeps finding,
+        ordered by how many <em>different</em> channels touched it: 74 items from two
+        channels is not a subject, it is a channel. Pin one and it gets its own section
+        in every issue, even on a week when nothing happens — the section says so, and
+        that is information too.</p>
+      <div id="tm-lista" style="margin-top:12px"><span class="admin-vacio">loading…</span></div>
     </details>
   </section>
 
-  <!-- ── Lo de dentro ───────────────────────────────────────────────────
-       Cerrado por defecto. Nada de esto se usa a diario: son las cuentas del
-       sistema y la única forma de deshacer una corrección del comité. Quitarlo
-       del todo dejaría una corrección aplicada sin manera de revertirla. -->
-  <section class="admin-sec">
-    <details id="tripas">
-      <summary>Under the hood</summary>
-      <div style="margin-top:20px">
-        <!-- Lo mínimo. Aquí hubo contadores de gasto (ya viven en la tabla de
-             costos de arriba), el estado del cupo (ídem), mandos numéricos y un
-             párrafo explicando el ciclo — todo se pidió fuera: si lo decide el
-             sistema y lo corrige el comité, leerlo cada día no cambia nada. -->
-        <p class="admin-nota" id="st-cotejo"></p>
-        <div id="con-lista" style="margin-top:20px"></div>
-        <label style="display:flex;gap:9px;align-items:baseline;margin-top:26px;font-size:13px">
-          <input type="checkbox" id="st-auto" />
-          <span>Publish the weekly issue without review</span>
-        </label>
-      </div>
-    </details>
-  </section>
 
 <script>
   import { api, esc, msg, delegar } from '../../lib/panel.js';
@@ -166,7 +154,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
                                    : `Queued: ${r.item.title.slice(0, 70)}`, true);
     $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
     forzado = null; ultimoPeek = '';
-    pintarCifras(); pintarCola(); pintarFuentes(); pintarTripas(); vigilarPiezas();
+    pintarCifras(); pintarCola(); pintarFuentes(); vigilarPiezas();
   }
   $('in-form').onsubmit = (e) => { e.preventDefault(); enviar(); };
 
@@ -262,69 +250,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     b.disabled = true;
     await api('sources.delete', { id: b.dataset.d });
     pintarFuentes(); pintarCola();
-  });
-
-  // ── El vivero ───────────────────────────────────────────────────────────
-  // Se pinta al abrirlo, como las tripas: no es una vista de a diario.
-  let viveroPintado = false;
-  $('viv').addEventListener('toggle', () => {
-    if ($('viv').open && !viveroPintado) { viveroPintado = true; pintarVivero(); }
-  });
-
-  const ESTADO_CAND = { candidato: 'candidate', a_prueba: 'on trial', confianza: 'trusted',
-                        degradado: 'demoted', vetado: 'vetoed' };
-
-  async function pintarVivero() {
-    const d = await api('organicas.list');
-    const el = $('viv-lista');
-    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    const cand = d.candidatos || [];
-    const enJuego = cand.filter(c => c.estado === 'candidato' || c.estado === 'a_prueba').length;
-    $('viv-cuenta').textContent = enJuego ? `${enJuego} in play` : '';
-    if (!cand.length) {
-      el.innerHTML = '<span class="admin-vacio">Nothing yet — candidates appear as the followed sources cite people and outlets, and as the Friday run finds outlets that deliver.</span>';
-      return;
-    }
-    const resumen = (c) => {
-      const m = c.expediente?.menciones;
-      const rep = c.expediente?.reportaje || [];
-      const partes = [];
-      if (m) partes.push(`cited by ${m.fuentes_distintas} source${m.fuentes_distintas > 1 ? 's' : ''} (${(m.citado_por || []).slice(0, 4).join(', ')})`);
-      if (rep.length) partes.push(`delivered reporting in ${new Set(rep.map(x => x.semana)).size} week(s)`);
-      if (c.motivo) partes.push(c.motivo);
-      return partes.join(' · ');
-    };
-    el.innerHTML = `<table class="admin-tabla">
-      ${cand.map(c => `<tr class="${['vetado', 'degradado'].includes(c.estado) ? 'off' : ''}">
-        <td>${esc(c.nombre)}${flecha(c.homepage || c.feed_url, c.nombre)}
-          <div class="admin-nota">${esc(resumen(c))}</div></td>
-        <td><span class="admin-kind">${esc(ESTADO_CAND[c.estado] || c.estado)}</span></td>
-        <td style="color:var(--muted)">${esc((c.temas || []).slice(0, 3).join(', '))}</td>
-        <td style="white-space:nowrap">${c.estado === 'vetado'
-          ? `<button class="admin-btn sec" data-viv-r="${c.id}">restore</button>`
-          : `<button class="admin-btn sec" data-viv-v="${c.id}" data-n="${esc(c.nombre)}">veto</button>`}</td>
-      </tr>`).join('')}</table>`;
-  }
-
-  delegar($('viv-lista'), '[data-viv-v]', async (b) => {
-    if (!confirm(`Veto “${b.dataset.n}”? The committee will never admit it, and if it is on trial it stops now.`)) return;
-    b.disabled = true;
-    const r = await api('candidatos.vetar', { id: b.dataset.vivV });
-    if (r.error) msg(cajaMsg, r.error, false);
-    pintarVivero(); pintarFuentes();
-  });
-  delegar($('viv-lista'), '[data-viv-r]', async (b) => {
-    b.disabled = true;
-    const r = await api('candidatos.restaurar', { id: b.dataset.vivR });
-    if (r.error) msg(cajaMsg, r.error, false);
-    pintarVivero();
-  });
-
-  // ── Lo de dentro ────────────────────────────────────────────────────────
-  // Se pinta solo al abrirlo: son cinco consultas que nadie necesita al entrar.
-  let tripasPintadas = false;
-  $('tripas').addEventListener('toggle', () => {
-    if ($('tripas').open && !tripasPintadas) { tripasPintadas = true; pintarTripas(); }
   });
 
   // ── Lo que va mal ───────────────────────────────────────────────────────
@@ -500,52 +425,60 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     lanzado.cola = 1; b.textContent = 'reading · reload in a few min';
   });
 
-  async function pintarTripas() {
-    if (!tripasPintadas) return;
-    // El gasto y el cupo ya no se piden aquí: viven en la tabla de costos de
-    // arriba, y repetirlos con otro formato fue lo que hizo leer un «usados»
-    // como un «quedan».
-    const [c, con, s] = await Promise.all([
-      api('cotejos.list'), api('consejo.list'), api('settings.get')]);
-
-    if (!c.error) {
-      // En palabras, no en claves de la base: «repite» a secas no le dice nada
-      // a quien no escribió el cotejo.
-      const NOMBRE = { documenta: 'confirmed', repite: 'only repeated', contradice: 'contradicted',
-                       sin_hallazgo: 'no trace found', no_concluyente: 'inconclusive' };
-      const n = {};
-      for (const x of c.cotejos) n[x.verdict] = (n[x.verdict] || 0) + 1;
-      $('st-cotejo').textContent = c.cotejos.length
-        ? `${c.cotejos.length} claims checked against outside documents: ` +
-          Object.entries(n).map(([k, v]) => `${v} ${NOMBRE[k] || k}`).join(' · ')
-        : 'No claims cross-checked yet.';
-    }
-    if (!con.error) {
-      const activas = Object.entries(con.ranuras || {}).filter(([, v]) => v && String(v).trim());
-      $('con-lista').innerHTML = activas.length
-        ? `<div class="admin-msg">${activas.map(([k, v]) =>
-            `<strong>Correction in force</strong> (${esc(k.replace('prompt_calibracion_', ''))}): ${esc(v)}
-             <button class="admin-btn sec" data-rev="${esc(
-               (con.deliberaciones.find(x => x.aplicado && x.ranura === k) || {}).id || '')}"
-               data-ran="${esc(k)}">revert</button>`).join('<br>')}</div>`
-        : `<p class="admin-nota">No correction in force · ${con.deliberaciones.length} committee session(s)</p>`;
-    }
-    $('st-auto').checked = s.settings?.auto_publish === true;
+  // ── La corrección del comité, si la hay ─────────────────────────────────
+  async function pintarConsejo() {
+    const [c, s] = await Promise.all([api('consejo.list'), api('settings.get')]);
+    const el = $('con-lista');
+    if (!el || c.error || s.error) return;
+    const activas = Object.entries(s)
+      .filter(([k, v]) => k.startsWith('prompt_calibracion_') && v);
+    if (!activas.length) { el.innerHTML = ''; return; }
+    el.innerHTML = activas.map(([k, v]) => `<div class="admin-msg" style="margin-bottom:22px">
+      <strong>A committee correction is in force.</strong>
+      <div class="admin-nota" style="margin-top:6px">${esc(String(v))}</div>
+      <button class="admin-btn sec" data-rev="${esc(k)}" style="margin-top:10px">Revert it</button>
+    </div>`).join('');
   }
-
   delegar($('con-lista'), '[data-rev]', async (b) => {
-    if (!confirm('Revert this correction?')) return;
+    if (!confirm('Revert this correction? The stage goes back to how it behaved before.')) return;
     b.disabled = true;
-    const r = await api('consejo.revertir', { id: b.dataset.rev, ranura: b.dataset.ran });
-    msg(cajaMsg, r.error || 'Reverted.', !r.error);
-    pintarTripas();
+    const r = await api('settings.set', { key: b.dataset.rev, value: '' });
+    if (r.error) { b.disabled = false; b.textContent = 'failed'; return; }
+    pintarConsejo();
   });
 
-  $('st-auto').onchange = async (e) => {
-    const r = await api('settings.set', { key: 'auto_publish', value: e.target.checked });
-    msg(cajaMsg, r.error || (e.target.checked
-      ? 'The weekly issue will go out without review.' : 'The weekly issue will wait for you.'), !r.error);
-  };
+  // ── Los temas ───────────────────────────────────────────────────────────
+  // Sustituye a dos bloques que se quitaron: el vivero de fuentes y las
+  // tripas. Aquí sí se decide algo — qué asuntos tienen sección propia — y se
+  // decide eligiendo de lo que el clasificador ya produjo, nunca tecleando.
+  async function pintarTemas() {
+    const d = await api('temas.list');
+    const el = $('tm-lista');
+    if (!el) return;
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    const fijos = d.temas.filter(t => t.fijo);
+    const libres = d.temas.filter(t => !t.fijo).slice(0, 14);
+    $('tm-cuenta').textContent = fijos.length ? `${fijos.length} pinned` : '';
+
+    const fila = (t, esFijo) => `<tr>
+      <td><button class="admin-btn sec" data-tema="${esc(t.topic_id)}" data-fijo="${esFijo ? '0' : '1'}"
+            title="${esc(t.description || '')}">${esFijo ? 'unpin' : 'pin'}</button></td>
+      <td>${esc(t.label)}</td>
+      <td class="admin-tenue" style="white-space:nowrap">${t.canales} channels · ${t.elementos} items${
+        Number(t.semanas) > 1 ? ` · ${t.semanas} weeks` : ''}</td></tr>`;
+
+    el.innerHTML =
+      (fijos.length ? `<p class="admin-nota">Your sections</p>
+         <table class="admin-tabla">${fijos.map(t => fila(t, true)).join('')}</table>` : '') +
+      `<p class="admin-nota" style="margin-top:${fijos.length ? '16px' : '0'}">Proposed</p>
+       <table class="admin-tabla">${libres.map(t => fila(t, false)).join('')}</table>`;
+  }
+  delegar($('tm-lista'), '[data-tema]', async (b) => {
+    b.disabled = true;
+    const r = await api('temas.fijar', { topic_id: b.dataset.tema, fijo: b.dataset.fijo === '1' });
+    if (r.error) { b.disabled = false; b.textContent = 'failed'; return; }
+    pintarTemas();
+  });
 
   // ── Piezas en producción ────────────────────────────────────────────────
   // Barra por pieza: fase + porcentaje. Mientras haya alguna viva se refresca
@@ -669,6 +602,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     </tr>`).join('')}</table>`;
   }
 
-  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); pintarAccesos(); vigilarPiezas();
+  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); pintarTemas(); pintarConsejo(); pintarAccesos(); vigilarPiezas();
 </script>
 </AdminLayout>

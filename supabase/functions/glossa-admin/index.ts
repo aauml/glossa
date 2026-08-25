@@ -749,6 +749,25 @@ Deno.serve(async (req) => {
         return ok({ accesos: data ?? [] });
       }
 
+      // Los temas: lo que el clasificador ya produjo, con la evidencia que
+      // permite elegir. Arturo fija de aquí; no teclea nombres, porque un
+      // nombre tecleado no coincide con ninguna etiqueta y nace vacío.
+      case 'temas.list': {
+        const { data, error } = await db.rpc('glossa_radar_temas_propuestos', { dias: 21 });
+        if (error) throw error;
+        return ok({ temas: data ?? [] });
+      }
+
+      case 'temas.fijar': {
+        if (!b.topic_id) return bad('topic_id is required');
+        const fijo = b.fijo !== false;
+        const { error } = await db.from('glossa_radar_topics')
+          .update({ fijo, fijado_at: fijo ? new Date().toISOString() : null })
+          .eq('id', b.topic_id);
+        if (error) throw error;
+        return ok({ fijo });
+      }
+
       // ── El panel ─────────────────────────────────────────────────────────
       case 'sources.panel': {
         // Una sola consulta con los pendientes ya contados. Pedirlos por fuente

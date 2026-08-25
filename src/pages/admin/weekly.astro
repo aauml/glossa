@@ -37,6 +37,13 @@ const piezas = await articlesByLang('en');
     <div id="wk-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
+  <!-- El único ajuste que gobierna el número, y por eso vive aquí y no en el
+       Feed: si el domingo se publica solo o espera a que lo mires. -->
+  <label class="admin-nota" style="display:flex;gap:9px;align-items:baseline;margin:26px 0">
+    <input type="checkbox" id="st-auto" />
+    <span>Publish the weekly issue without review</span>
+  </label>
+
   <!-- ── Las piezas ─────────────────────────────────────────────────────── -->
   <section class="admin-sec">
     <h2>Pieces <span class="admin-kind">{piezas.length}</span></h2>
@@ -130,6 +137,18 @@ const piezas = await articlesByLang('en');
     msg('Deleted.', true);
     pintarBorrador(); pintarLista();
   });
+
+  // El interruptor de auto-publicar: se lee al entrar y se guarda al tocarlo.
+  (async () => {
+    const s = await api('settings.get');
+    if (!s.error) $('st-auto').checked = s.auto_publicar === true;
+  })();
+  $('st-auto').onchange = async (e) => {
+    const r = await api('settings.set', { key: 'auto_publicar', value: e.target.checked });
+    msg(r.error ? `No se pudo guardar: ${r.error}` : (e.target.checked
+      ? 'The Sunday issue will publish itself when the fuse passes.'
+      : 'The issue will wait for you.'), !r.error);
+  };
 
   pintarBorrador(); pintarLista();
 </script>

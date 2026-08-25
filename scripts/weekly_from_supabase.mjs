@@ -314,6 +314,13 @@ const racimos = elegidos.map(t => {
     : '';
   return `${t.label} — ${canales}${fuera}${lengua}`;
 });
+// Los temas FIJOS: los que Arturo eligió de la lista de propuestas. Tienen
+// sección aunque esta semana no traigan nada, y entonces la sección lo dice —
+// que ninguna de tus fuentes tocara un asunto es información, no un hueco.
+const fijos = await sb('glossa_radar_topics?select=id,slug,label,description&fijo=is.true');
+const idsFijos = new Set((fijos ?? []).map(t => t.id));
+if (fijos?.length) console.log(`  ${fijos.length} tema(s) fijo(s): ${fijos.map(t => t.label).join(' · ')}`);
+
 if (temas?.length) {
   console.log(`  ${temas.length} temas con material` +
     (temas.length > TOPE_TEMAS ? ` (se le pasan los ${TOPE_TEMAS} mayores)` : ''));
@@ -595,7 +602,16 @@ RULES — the first two are the ones that matter:
   most two of these per piece. A piece that assumes the vocabulary is writing
   for people who already know, which is the one audience that does not need it.
 
-- Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
+${fijos?.length ? `- THESE SUBJECTS GET A SECTION, ALWAYS. They are the standing subjects, chosen
+  deliberately, and the issue is organised around them:
+${fijos.map(t => `    · ${t.label}${t.description ? ` — ${t.description}` : ''}`).join('\n')}
+  If a subject got material this week, write its section from that material. If it
+  got NOTHING, still give it its section and say so plainly in one sentence: no
+  source touched it this week. That silence is information — it says the week was
+  quiet on a subject the reader is following, which a missing section cannot say.
+  Beyond these, add AT MOST two sections for whatever else the week produced, and
+  only if it genuinely stands on its own.
+` : ''}- Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
   given a section. Those clusters are what the classification produced, not a
   contents page: several of them are usually one piece, and the labels are the
   classifier's, not yours to reuse.
