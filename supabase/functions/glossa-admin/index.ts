@@ -362,30 +362,39 @@ async function clasificar(texto: string): Promise<Resuelto> {
     const titular = lineas.slice(1).find(l => l.length > 20 && l.split(/\s+/).length > 3);
     return {
       as: 'elemento', url, body_text: lineas.slice(1).join('\n'),
-      label: 'an article, with its text',
+      label: 'an article, with its text · goes into the weekly',
       name: (titular ?? lineas[1]).slice(0, 200),
+      alternativas: [SOLO_PIEZA],
     };
   }
 
   // Texto largo o con saltos, sin ser una URL suelta: material pegado.
+  //
+  // Esta rama NO ofrecía «pieza suelta» y la de texto corto sí: pegar un
+  // artículo entero —el caso normal— era justo el que se quedaba sin la
+  // opción. El botón decía «Add» y nada explicaba a dónde iba.
   if (!ES_URL.test(t) && (lineas.length > 1 || t.length > 400)) {
     return {
       as: 'elemento', body_text: t,
-      label: 'pasted text',
+      label: 'pasted text · goes into the weekly',
       name: lineas[0].slice(0, 120),
+      alternativas: [SOLO_PIEZA],
     };
   }
 
   if (ES_URL.test(t)) {
     let u: URL;
-    try { u = new URL(t); } catch { return { as: 'elemento', body_text: t, label: 'pasted text' }; }
+    try { u = new URL(t); } catch {
+      return { as: 'elemento', body_text: t, label: 'pasted text · goes into the weekly',
+               alternativas: [SOLO_PIEZA] };
+    }
     const host = u.hostname.replace(/^www\./, '');
     const ruta = u.pathname;
 
     // Un vídeo suelto de YouTube — no el canal.
     if (/(^|\.)youtu\.be$/.test(host) ||
         (/(^|\.)youtube\.com$/.test(host) && (/^\/watch/.test(ruta) || /^\/shorts\//.test(ruta)))) {
-      return { as: 'elemento', url: t, label: 'one YouTube episode',
+      return { as: 'elemento', url: t, label: 'one YouTube episode · goes into the weekly',
                alternativas: [SOLO_PIEZA] };
     }
 
@@ -480,7 +489,7 @@ async function clasificar(texto: string): Promise<Resuelto> {
     // Cualquier otra URL con ruta: un artículo concreto.
     return {
       as: 'elemento', url: t,
-      label: `one article from ${host}`,
+      label: `one article from ${host} · goes into the weekly`,
       alternativas: [{ as: 'fuente', kind: 'rss', label: `follow ${host} from now on` },
                      SOLO_PIEZA],
     };
