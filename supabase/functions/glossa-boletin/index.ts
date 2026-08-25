@@ -37,11 +37,6 @@ const T = {
     cuerpo: 'One email a week, on Sundays: the weekly issue and any pieces written that week. Nothing else, and no ads.',
     boton: 'Confirm subscription',
     pie: 'If this was not you, ignore this email and nothing happens.',
-    graciasT: 'You are in.',
-    graciasP: 'The next issue arrives on Sunday. Every email has an unsubscribe link.',
-    bajaT: 'Unsubscribed.',
-    bajaP: 'No more emails. You can subscribe again from the site whenever you like.',
-    volver: 'Back to Glossa',
   },
   es: {
     asunto: 'Confirma tu suscripción a Glossa',
@@ -49,31 +44,20 @@ const T = {
     cuerpo: 'Un correo por semana, los domingos: el número semanal y las piezas escritas esos días. Nada más, y sin anuncios.',
     boton: 'Confirmar suscripción',
     pie: 'Si no fuiste tú, ignora este correo y no pasa nada.',
-    graciasT: 'Listo.',
-    graciasP: 'El próximo número llega el domingo. Cada correo lleva su enlace para darse de baja.',
-    bajaT: 'Baja hecha.',
-    bajaP: 'No recibirás más correos. Puedes volver a suscribirte desde el sitio cuando quieras.',
-    volver: 'Volver a Glossa',
   },
 };
 
-/** Una página mínima, con la misma paleta del sitio. */
-function pagina(lang: 'en' | 'es', titulo: string, texto: string) {
-  const t = T[lang];
-  return new Response(`<!DOCTYPE html><html lang="${lang}"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex"><title>${titulo} · Glossa</title>
-<style>
-  body { background:#F5EFE6; color:#1A1A1A; font-family:Georgia,'Spectral',serif;
-         display:flex; min-height:100vh; margin:0; align-items:center; justify-content:center; padding:24px; }
-  main { max-width:32rem; }
-  h1 { font-size:28px; font-weight:500; margin:0 0 12px; letter-spacing:-0.01em; }
-  p { font-size:16px; line-height:1.6; color:#454545; margin:0 0 22px; }
-  a { color:#7A1F1F; font-family:'IBM Plex Sans',system-ui,sans-serif; font-size:13px;
-      letter-spacing:0.04em; text-decoration:none; border-bottom:1px solid currentColor; }
-</style></head><body><main>
-<h1>${titulo}</h1><p>${texto}</p><a href="${SITIO}${lang === 'es' ? '/es/' : '/'}">${t.volver}</a>
-</main></body></html>`, { headers: { ...CORS, 'Content-Type': 'text/html; charset=utf-8' } });
+/**
+ * A la página del sitio, con un 302.
+ *
+ * Una edge function NO puede servir una página: Supabase le impone
+ * `content-type: text/plain` y `content-security-policy: sandbox`, así que el
+ * HTML llegaba al navegador como texto y se veía el código. La función hace lo
+ * suyo —tocar la fila— y el aviso lo da el sitio, que para eso existe.
+ */
+function aviso(lang: 'en' | 'es', s: 'ok' | 'baja' | 'mal') {
+  const ruta = lang === 'es' ? '/es/boletin/' : '/newsletter/';
+  return Response.redirect(`${SITIO}${ruta}?s=${s}`, 302);
 }
 
 async function enviarConfirmacion(email: string, lang: 'en' | 'es', token: string) {
@@ -113,26 +97,25 @@ Deno.serve(async (req) => {
 
   if (confirmar || baja) {
     const token = (confirmar ?? baja)!;
-    if (!/^[0-9a-f-]{36}$/i.test(token)) return pagina(langUrl, '—', 'Bad link.');
+    if (!/^[0-9a-f-]{36}$/i.test(token)) return aviso(langUrl, 'mal');
     const { data: fila } = await sb.from('glossa_subscribers')
       .select('id,lang,state').eq('token', token).maybeSingle();
-    if (!fila) return pagina(langUrl, '—', 'That link is no longer valid.');
+    if (!fila) return aviso(langUrl, 'mal');
     const lang = (fila.lang === 'es' ? 'es' : 'en') as 'en' | 'es';
-    const t = T[lang];
 
     if (confirmar) {
       // Confirmar una baja NO la revive: quien se dio de baja tendría que
       // volver a suscribirse, que es una decisión suya y no de un enlace viejo.
-      if (fila.state === 'baja') return pagina(lang, t.bajaT, t.bajaP);
+      if (fila.state === 'baja') return aviso(lang, 'baja');
       await sb.from('glossa_subscribers')
         .update({ state: 'confirmado', confirmed_at: new Date().toISOString() })
         .eq('id', fila.id);
-      return pagina(lang, t.graciasT, t.graciasP);
+      return aviso(lang, 'ok');
     }
     await sb.from('glossa_subscribers')
       .update({ state: 'baja', unsubscribed_at: new Date().toISOString() })
       .eq('id', fila.id);
-    return pagina(lang, t.bajaT, t.bajaP);
+    return aviso(lang, 'baja');
   }
 
   // ── Alta ────────────────────────────────────────────────────────────────

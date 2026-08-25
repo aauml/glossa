@@ -1,0 +1,9 @@
+---
+// Server-rendered: lee `?s=` para saber qué decir. Ver BoletinAviso.astro.
+export const prerender = false;
+import CoverLayout from '../layouts/CoverLayout.astro';
+import BoletinAviso from '../components/BoletinAviso.astro';
+---
+<CoverLayout lang="en">
+  <BoletinAviso lang="en" />
+</CoverLayout>

@@ -1,0 +1,41 @@
+---
+// La página a la que llegan los enlaces del correo: confirmar y darse de baja.
+//
+// Vive aquí y no en la edge function porque una edge function NO puede servir
+// una página: Supabase le fuerza `content-type: text/plain` y una CSP de
+// sandbox, así que el navegador enseñaba el HTML en crudo. La función hace el
+// trabajo (tocar la fila) y manda aquí con un 302.
+//
+// Tres estados en una sola página, por `?s=`: ok (confirmado), baja, y mal
+// (enlace caducado o falso). Server-rendered para poder leer ese parámetro sin
+// una línea de JavaScript.
+const { lang } = Astro.props;
+const s = Astro.url.searchParams.get('s') === 'baja' ? 'baja'
+        : Astro.url.searchParams.get('s') === 'ok' ? 'ok' : 'mal';
+
+const COPY = {
+  en: {
+    ok:   { t: 'You are in.',   p: 'The next issue arrives on Sunday. Every email has an unsubscribe link at the foot.' },
+    baja: { t: 'Unsubscribed.', p: 'No more emails. You can subscribe again from the site whenever you like.' },
+    mal:  { t: 'That link is no longer valid.', p: 'It may have already been used, or it belongs to an address that is no longer on the list.' },
+    volver: 'Back to Glossa',
+  },
+  es: {
+    ok:   { t: 'Listo.',        p: 'El próximo número llega el domingo. Cada correo lleva al pie su enlace para darse de baja.' },
+    baja: { t: 'Baja hecha.',   p: 'No recibirás más correos. Puedes volver a suscribirte desde el sitio cuando quieras.' },
+    mal:  { t: 'Ese enlace ya no vale.', p: 'Puede que ya se haya usado, o que sea de una dirección que ya no está en la lista.' },
+    volver: 'Volver a Glossa',
+  },
+};
+const t = COPY[lang];
+const inicio = lang === 'es' ? '/es/' : '/';
+---
+<section class="cover">
+  <div class="cover-head">
+    <h1 class="cover-wordmark aviso-titulo">{t[s].t}</h1>
+    <div class="cover-intro">
+      <p class="cover-why">{t[s].p}</p>
+      <a class="cover-acceso" href={inicio}>{t.volver}</a>
+    </div>
+  </div>
+</section>
