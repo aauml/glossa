@@ -181,7 +181,8 @@ disponible por si alguien lo quiere" no es un consumidor.
 | Resúmenes y dossiers del radar (`glossa_radar_*`) | Arturo, en `/admin` | el panel es su única vista; **antes de existir no los leía nadie** |
 | Expedientes de candidatos a fuente (`glossa_radar_candidatos`, `_menciones`) | el consejo del domingo, que decide altas y veredictos con ellos; Arturo en `/admin` solo veta | `scripts/consejo_from_supabase.mjs` fase 2 los consume; sección «Growing on its own» del panel |
 | El cupo de Tavily y su reparto por tema | Arturo, en `/admin` | el panel enseña cuánto queda, a dónde fue y por qué, con los mandos para moverlo |
-| El boletín semanal (correo) | quien se suscribió desde la portada, en su buzón | `glossa_subscribers` con estado `confirmado`; cada correo lleva su enlace de baja y `last_sent_at` registra la entrega |
+| Peticiones de «quiero la mía» | Arturo, en `/admin` → Access requests | `glossa_subscribers` con `intent='acceso'`; quien la deja recibe acuse, y la respuesta se escribe a mano |
+| El boletín semanal (correo) | **nadie todavía**: montado y probado, sin exponer en la portada | cuando se exponga, `glossa_subscribers` con `intent='boletin'` y `state='confirmado'`; cada correo lleva su enlace de baja |
 
 Esa última fila es justo el fallo que describe el estándar. Los dossiers del
 radar se diseñaron sin lector: se habrían generado cada noche sin que nadie los

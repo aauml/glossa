@@ -32,6 +32,13 @@ const ES_CORREO = /^[^\s@]+@[^\s@.]+\.[^\s@]+$/;
 
 const T = {
   en: {
+    // Pedir una Glossa propia: NO es una lista, es una petición que se contesta
+    // a mano. Por eso no lleva enlace de confirmación — no hay nada recurrente
+    // que confirmar — y por eso el correo dice que la respuesta llega escrita.
+    accesoAsunto: 'Your own Glossa',
+    accesoSaludo: 'You asked about running your own Glossa.',
+    accesoCuerpo: 'Your own sources, your own subjects, your own readings. It runs on a small budget and a lot of care, so places open a few at a time. I will write back from this address when there is one for you.',
+    accesoPie: 'If this was not you, ignore this email and nothing happens.',
     asunto: 'Confirm your Glossa subscription',
     saludo: 'You asked for Glossa in your inbox.',
     cuerpo: 'One email a week, on Sundays: the weekly issue and any pieces written that week. Nothing else, and no ads.',
@@ -39,6 +46,10 @@ const T = {
     pie: 'If this was not you, ignore this email and nothing happens.',
   },
   es: {
+    accesoAsunto: 'Tu propia Glossa',
+    accesoSaludo: 'Preguntaste por tener tu propia Glossa.',
+    accesoCuerpo: 'Tus fuentes, tus asuntos, tus lecturas. Esto funciona con un presupuesto pequeño y mucho cuidado, así que los sitios se abren de poco en poco. Te escribo desde esta dirección en cuanto haya uno para ti.',
+    accesoPie: 'Si no fuiste tú, ignora este correo y no pasa nada.',
     asunto: 'Confirma tu suscripción a Glossa',
     saludo: 'Pediste recibir Glossa en tu correo.',
     cuerpo: 'Un correo por semana, los domingos: el número semanal y las piezas escritas esos días. Nada más, y sin anuncios.',
@@ -58,6 +69,27 @@ const T = {
 function aviso(lang: 'en' | 'es', s: 'ok' | 'baja' | 'mal') {
   const ruta = lang === 'es' ? '/es/boletin/' : '/newsletter/';
   return Response.redirect(`${SITIO}${ruta}?s=${s}`, 302);
+}
+
+/** El acuse de una petición de acceso. Sin enlaces: no hay nada que confirmar. */
+async function enviarAcceso(email: string, lang: 'en' | 'es') {
+  const clave = Deno.env.get('GLOSSA_RESEND_KEY');
+  if (!clave) throw new Error('falta GLOSSA_RESEND_KEY');
+  const t = T[lang];
+  const html = `<div style="background:#F5EFE6;padding:32px 20px;font-family:Georgia,serif;color:#1A1A1A">
+<div style="max-width:32rem;margin:0 auto">
+  <div style="font-size:22px;letter-spacing:-0.01em;margin-bottom:22px">Glossa<span style="color:#7A1F1F">.</span></div>
+  <p style="font-size:16px;line-height:1.6;margin:0 0 10px">${t.accesoSaludo}</p>
+  <p style="font-size:15px;line-height:1.6;color:#454545;margin:0 0 24px">${t.accesoCuerpo}</p>
+  <p style="font-size:12px;line-height:1.5;color:#6E6E6E;margin:0">${t.accesoPie}</p>
+</div></div>`;
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${clave}` },
+    body: JSON.stringify({ from: 'Glossa <glossa@ademas.ai>', to: [email],
+                           subject: t.accesoAsunto, html, reply_to: 'hola@ademas.ai' }),
+  });
+  if (!r.ok) throw new Error(`resend ${r.status}: ${(await r.text()).slice(0, 200)}`);
 }
 
 async function enviarConfirmacion(email: string, lang: 'en' | 'es', token: string) {
@@ -125,6 +157,9 @@ Deno.serve(async (req) => {
 
   const email = String(b.email ?? '').trim().toLowerCase();
   const lang = (b.lang === 'es' ? 'es' : 'en') as 'en' | 'es';
+  // `acceso` por defecto: es lo único que la portada ofrece ahora mismo. El
+  // camino del boletín sigue entero para cuando se vuelva a exponer.
+  const intent = b.intent === 'boletin' ? 'boletin' : 'acceso';
   const ok = (m: string) => new Response(JSON.stringify({ ok: true, mensaje: m }),
     { headers: { ...CORS, 'Content-Type': 'application/json' } });
 
@@ -134,7 +169,31 @@ Deno.serve(async (req) => {
   }
 
   const { data: ya } = await sb.from('glossa_subscribers')
-    .select('id,state,token,lang').eq('email', email).maybeSingle();
+    .select('id,state,token,lang,intent').eq('email', email).maybeSingle();
+
+  // ── Pedir una Glossa propia ─────────────────────────────────────────────
+  if (intent === 'acceso') {
+    const dicho = lang === 'es'
+      ? 'Anotado. Te escribo en cuanto haya sitio.'
+      : 'Noted. I will write back when there is a place for you.';
+    try {
+      if (!ya) {
+        const { error } = await sb.from('glossa_subscribers')
+          .insert({ email, lang, intent: 'acceso', origen: `portada ${lang}` });
+        if (error) throw error;
+      } else if (ya.intent !== 'acceso') {
+        // Estaba por el boletín y ahora pide acceso: se guarda la petición sin
+        // tocar su suscripción, que es otra cosa que ya decidió.
+        await sb.from('glossa_subscribers').update({ origen: `portada ${lang} · pidió acceso` }).eq('id', ya.id);
+      }
+      await enviarAcceso(email, lang);
+      return ok(dicho);
+    } catch (e) {
+      console.error(String(e));
+      return new Response(JSON.stringify({ error: 'Could not send the email. Try again in a minute.' }),
+        { status: 500, headers: { ...CORS, 'Content-Type': 'application/json' } });
+    }
+  }
 
   // La respuesta es la MISMA exista o no la dirección. Decir «ya estás suscrito»
   // convertiría esta caja en un comprobador de quién lee Glossa.

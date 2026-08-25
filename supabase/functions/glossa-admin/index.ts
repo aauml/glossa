@@ -730,6 +730,16 @@ Deno.serve(async (req) => {
         return ok({ relanzado: 'produccion' });
       }
 
+      // Quién ha pedido su propia Glossa. Existe porque una petición que nadie
+      // lee es peor que no tener caja: la persona escribió y espera respuesta.
+      case 'accesos.list': {
+        const { data, error } = await db.from('glossa_subscribers')
+          .select('email,lang,created_at,origen').eq('intent', 'acceso')
+          .order('created_at', { ascending: false }).limit(50);
+        if (error) throw error;
+        return ok({ accesos: data ?? [] });
+      }
+
       // ── El panel ─────────────────────────────────────────────────────────
       case 'sources.panel': {
         // Una sola consulta con los pendientes ya contados. Pedirlos por fuente

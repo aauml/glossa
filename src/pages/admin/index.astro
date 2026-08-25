@@ -39,6 +39,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
        recupera lo pasajero y archiva lo irrecuperable por su cuenta. -->
   <div id="inc-lista"></div>
 
+  <!-- ── Quién pidió su propia Glossa ───────────────────────────────────── -->
+  <section class="admin-sec">
+    <details class="grupo">
+      <summary>Access requests <span id="ac-cuenta" class="admin-kind"></span></summary>
+      <p class="admin-nota" style="margin-top:8px">People who left their email on the
+        cover asking for their own. They got an acknowledgement; the actual reply is
+        yours to write.</p>
+      <div id="ac-lista"><span class="admin-vacio">loading…</span></div>
+    </details>
+  </section>
+
   <!-- ── La cola, contraída como todo lo demás ──────────────────────────── -->
   <section class="admin-sec">
     <details class="grupo">
@@ -613,6 +624,20 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     }
   }
 
-  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); vigilarPiezas();
+  // ── Peticiones de acceso ────────────────────────────────────────────────
+  async function pintarAccesos() {
+    const d = await api('accesos.list');
+    const el = $('ac-lista');
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    $('ac-cuenta').textContent = d.accesos.length || '';
+    if (!d.accesos.length) { el.innerHTML = '<span class="admin-vacio">None yet.</span>'; return; }
+    el.innerHTML = `<table class="admin-tabla">${d.accesos.map(a => `<tr>
+      <td><a href="mailto:${esc(a.email)}">${esc(a.email)}</a></td>
+      <td class="admin-tenue">${esc(a.lang)}</td>
+      <td class="admin-tenue" style="white-space:nowrap">${esc(String(a.created_at).slice(0, 10))}</td>
+    </tr>`).join('')}</table>`;
+  }
+
+  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); pintarAccesos(); vigilarPiezas();
 </script>
 </AdminLayout>
