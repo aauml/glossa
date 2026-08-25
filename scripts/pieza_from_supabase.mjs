@@ -125,15 +125,15 @@ const SIN_SALDO = /insufficient balance|exceeded_current_quota|suspended|billing
 function kimiCrudo(cuerpo) {
   return new Promise((ok, ko) => {
     const req = httpsRequest({
-      hostname: 'api.moonshot.ai', path: '/v1/chat/completions', method: 'POST',
+      hostname: CASA.host, path: CASA.path, method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(cuerpo),
-                 Authorization: `Bearer ${KIMI}` },
+                 Authorization: `Bearer ${CLAVE_ESCRITOR}` },
     }, res => {
       let b = '';
       res.setEncoding('utf8');
       res.on('data', c => { b += c; });
       res.on('end', () => (res.statusCode < 300 ? ok(b)
-        : ko(Object.assign(new Error(`moonshot ${res.statusCode}: ${b.slice(0, 300)}`),
+        : ko(Object.assign(new Error(`${CASA.casa} ${res.statusCode}: ${b.slice(0, 300)}`),
                            { status: res.statusCode }))));
     });
     req.on('error', ko);
@@ -144,6 +144,21 @@ function kimiCrudo(cuerpo) {
   });
 }
 
+// Quién escribe. Se elige por el nombre del modelo y no por una bandera aparte:
+// `PIEZA_MODEL=grok-4.20-0309-non-reasoning` basta para cambiar de casa. Los
+// precios son los que ya usa la cascada de traducción, para no tener dos
+// verdades sobre lo mismo.
+const CASAS = {
+  kimi:  { host: 'api.moonshot.ai', path: '/v1/chat/completions', env: 'MOONSHOT_API_KEY',
+           precio: (u) => ((u.total_tokens ?? 0) / 1e6) * 2.2, casa: 'moonshot' },
+  grok:  { host: 'api.x.ai',        path: '/v1/chat/completions', env: 'XAI_API_KEY',
+           precio: (u) => ((u.prompt_tokens ?? 0) / 1e6) * 0.20 + ((u.completion_tokens ?? 0) / 1e6) * 0.50,
+           casa: 'xai' },
+};
+const CASA = CASAS[MODELO_KIMI.startsWith('grok') ? 'grok' : 'kimi'];
+const CLAVE_ESCRITOR = process.env[CASA.env] || '';
+if (!CLAVE_ESCRITOR) { console.error(`Falta ${CASA.env} para escribir con ${MODELO_KIMI}`); process.exit(1); }
+
 async function kimi(prompt, maxTokens = 64000) {
   const cuerpo = JSON.stringify({ model: MODELO_KIMI, max_tokens: maxTokens,
     messages: [{ role: 'user', content: prompt }] });
@@ -152,8 +167,8 @@ async function kimi(prompt, maxTokens = 64000) {
     try { bruto = await kimiCrudo(cuerpo); }
     catch (e) {
       if (SIN_SALDO.test(String(e.message))) {
-        throw new Error('la cuenta de Moonshot (Kimi) no tiene saldo: recárgala en ' +
-                        'platform.moonshot.ai y relanza la pieza desde el panel');
+        throw new Error(`la cuenta de ${CASA.casa} no tiene saldo: recárgala y relanza ` +
+                        'la pieza desde el panel');
       }
       if ((e.status === 429 || e.status === 503) && intento < 4) {
         // La cuenta admite una petición a la vez; el hueco puede tardar.
@@ -164,9 +179,9 @@ async function kimi(prompt, maxTokens = 64000) {
       throw e;
     }
     const d = JSON.parse(bruto);
-    const tok = d.usage?.total_tokens ?? 0;
-    const coste = (tok / 1e6) * 2.2;   // mezcla in/out del tramo K3, como el semanal
-    await apuntar(URL_SB, KEY, 'moonshot', 1, tok, coste);
+    const u = d.usage ?? {};
+    const tok = u.total_tokens ?? 0;
+    await apuntar(URL_SB, KEY, CASA.casa, 1, tok, CASA.precio(u));
     return jsonDeModelo(d.choices?.[0]?.message?.content ?? '');
   }
 }
@@ -344,7 +359,7 @@ function validar(j, lado) {
   return fallos;
 }
 
-console.log(`Escribiendo con ${MODELO_KIMI}…`);
+console.log(`Escribiendo con ${MODELO_KIMI} (${CASA.casa})…`);
 let en = await kimi(promptPieza(digest, reportes, piezas, issueNo));
 let fallos = validar(en, 'en');
 if (fallos.length) {
@@ -450,7 +465,21 @@ const sourcesJson = {
 };
 
 if (SECO) {
-  console.log(`\nPIEZA_DRY — no se escribe nada. ${issueNo} · ${en.slug} · ${en.title}`);
+  // En seco no se publica, pero SÍ se mide: sin cifras, comparar dos modelos es
+  // comparar impresiones. Son las mismas medidas que se le tomaron a la
+  // colección para decidir las reglas de registro.
+  const prosa = en.sections.flatMap(x => x.blocks.filter(b => b.type === 'p').map(b => b.md))
+    .concat(en.lede).join(' ');
+  const frases = prosa.split(/(?<=[.!?])\s+/).filter(x => x.trim().length > 25);
+  const largas = frases.map(x => x.split(/\s+/).length).sort((a, b) => b - a);
+  const palabras = prosa.split(/\s+/).length;
+  const cajas = en.sections.flatMap(x => x.blocks).filter(b => b.type === 'context').length;
+  console.log(`\nPIEZA_DRY · ${MODELO_KIMI} · ${issueNo} · ${en.slug}`);
+  console.log(`  titular: ${en.title}`);
+  console.log(`  ${palabras} palabras · ${en.sections.length} secciones · ${cajas} cuadros de contexto`);
+  console.log(`  media ${(palabras / Math.max(1, frases.length)).toFixed(1)} palabras/frase · ` +
+              `la más larga ${largas[0]} · por encima de 35: ${largas.filter(x => x > 35).length}`);
+  console.log(`\n  LEDE: ${String(en.lede).slice(0, 400)}`);
   process.exit(0);
 }
 

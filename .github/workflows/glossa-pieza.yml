@@ -19,7 +19,10 @@ on:
         description: 'id del elemento en glossa_radar_items'
         required: true
       model:
-        description: 'Modelo (kimi-k3 por defecto; kimi-k2.6 es 3x más rápido)'
+        description: 'Modelo: kimi-k3 (defecto), kimi-k2.6 (3x más rápido), grok-4.20-0309-non-reasoning'
+        required: false
+      seco:
+        description: '1 = escribir y MEDIR sin publicar (para comparar modelos)'
         required: false
 
 permissions:
@@ -37,6 +40,9 @@ env:
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
   MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+  # Para escribir con Grok en vez de Kimi. La cascada de traducción ya usa esta
+  # misma cuenta, así que la clave existe desde antes.
+  XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
   # La cascada de traducción (los mismos de glossa-traducir.yml): Gemini gratis
   # primero; Grok y Haiku de reserva. Kimi escribe, no traduce.
   XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
@@ -56,4 +62,5 @@ jobs:
         env:
           ITEM_ID: ${{ github.event.inputs.item_id }}
           PIEZA_MODEL: ${{ github.event.inputs.model }}
+          PIEZA_DRY: ${{ github.event.inputs.seco }}
         run: node scripts/pieza_from_supabase.mjs
