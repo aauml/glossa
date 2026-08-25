@@ -1,20 +1,26 @@
 # Spanish translation conventions
 
-The Spanish version is not a translation of the English version — it's a parallel article. Same structure, same exhibits, same editorial voice in Iberian Spanish. Translate the meaning and the register, not the words.
+The Spanish version is not a translation of the English version — it's a parallel article. Same structure, same exhibits, same editorial voice. **Interpret**: reorder, split, join, change the verb, drop the possessives English needs and Spanish does not. The test is whether a reader would guess it was written in Spanish. A sentence that only works because it kept the English shape is wrong even when every word is right.
 
-## Iberian register, not Latin American
+Spanish runs 15–20% longer than English, so length caps travel with it: no sentence over 40 words, and where the English broke a sentence in two, Spanish may need three.
 
-Lecturas uses Spanish as written in Spain, doctoral/editorial register. This means:
+## Mexican register, not Iberian
+
+**Corrected 2026-08-25.** This file said "Spanish as written in Spain" and the weekly's prompt said Mexico (D-020), so the two Spanish surfaces of the same site disagreed — pieces in `ordenador`/`móvil`, the weekly in a Mexican register, for the same reader. The decision that stands is D-020's, and its reasoning applies to both: the Spanish-language sources this publication follows are Mexican and the reader is in Los Angeles, so the peninsular register sounds borrowed.
+
+In practice: no `vosotros`, no `coger`, no `vale`; `computadora` over `ordenador`, `celular` over `móvil`, `carro` over `coche`; the sober register of a Mexican daily, neither colloquial nor stiff. The 43 pieces already published in Iberian Spanish are not being rewritten — they stay as a record of what the convention was.
+
+The rest of this file (avoiding bureaucratic calques, number formatting, track register) applies unchanged:
 
 - **«» for primary quotes**, "" only for secondary quotes inside «». Never use Spanish double-tilde quotes.
 - **No vosotros** in editorial voice (it's an essayistic register, mostly third person and impersonal forms). When the source uses second-person plural and you need to translate it, "ustedes" is a fallback but usually you can rephrase impersonally.
-- **Verb forms** that signal Spain: "ordenador" not "computadora," "móvil" not "celular," "aparcar" not "estacionar," "coche" not "carro." But these are rarely relevant in geopolitical pieces.
+- **Vocabulary** that signals Mexico: "computadora" not "ordenador," "celular" not "móvil," "estacionar" not "aparcar," "carro" not "coche." Rarely relevant in geopolitical pieces, decisive when it appears.
 - **Past tenses**: prefer pretérito perfecto compuesto ("ha dicho," "ha terminado") for events still relevant to the present, pretérito indefinido ("dijo," "terminó") for closed actions. Latin American Spanish tends to use indefinido for both; don't.
 - **Dequeísmo and queísmo**: avoid both. "Pienso que" not "pienso de que." "Me alegro de que" not "me alegro que."
 
 ## Track-specific register
 
-All tracks share the magazine-essay model (*El País Semanal*, *Granta*, *Jot Down*). But different tracks operate at different points on the accessible-to-specialist spectrum. The key rule: **technical vocabulary is fine; bureaucratic register is not.** A piece can use the word "impugnación" (precise, necessary) without lapsing into "progenitores" (stiff, unnecessary when "padres" exists).
+All tracks share the magazine-essay model (*Letras Libres*, *Nexos*, *Gatopardo*). But different tracks operate at different points on the accessible-to-specialist spectrum. The key rule: **technical vocabulary is fine; bureaucratic register is not.** A piece can use the word "impugnación" (precise, necessary) without lapsing into "progenitores" (stiff, unnecessary when "padres" exists).
 
 Track-specific guidance:
 

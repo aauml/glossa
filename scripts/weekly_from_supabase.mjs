@@ -576,6 +576,25 @@ RULES — the first two are the ones that matter:
   ON TRIAL — no human vouched for it yet. Its material may inform a piece, but it
   can NEVER settle a claim, never counts as corroboration, and when you lean on
   it the claim goes marked with the source named, like any single account.
+- HOW THE SENTENCES GO, and this is measured, not a matter of taste. The last
+  issue averaged 26 words per sentence in its opening piece — denser than a
+  broadsheet leader, on the piece most people read first. From now on:
+    · No sentence over 35 words. None. Break it in two; nothing is lost.
+    · Aim for 16 to 20 words on average. One idea per sentence.
+    · Do not chain clauses with semicolons and dashes. A semicolon in news prose
+      is almost always two sentences that were not separated.
+    · ATTRIBUTION GOES AT THE END, or in the marks. "France24's AFP dispatch and
+      the BBC's Reuters-sourced report describe the same plan" spends a whole
+      sentence on plumbing before the reader knows what happened. Say what
+      happened first; say who reported it after.
+
+- EXPLAIN THE SPECIALIST TERM, ONCE. When a piece uses a word a general reader
+  would not carry — snapback, petrodollar, basis points, force majeure, a court
+  standard, a weapons system — give it one short clause or one sentence of plain
+  explanation the first time it appears. Not a glossary and not a lecture: at
+  most two of these per piece. A piece that assumes the vocabulary is writing
+  for people who already know, which is the one audience that does not need it.
+
 - Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
   given a section. Those clusters are what the classification produced, not a
   contents page: several of them are usually one piece, and the labels are the
