@@ -25,9 +25,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   </section>
 
   <!-- ── Esta semana, de un vistazo ─────────────────────────────────────── -->
-  <div class="admin-cifras" id="st-cifras">
-    <span class="admin-vacio">loading…</span>
-  </div>
+  <p class="admin-cifras" id="st-cifras"><span class="admin-vacio">loading…</span></p>
   <p class="admin-nota" id="st-corte" style="margin:10px 0 6px"></p>
   <!-- El dinero: una tabla por mes, con el total al lado. Discreta pero no
        ambigua — la línea de contadores que hubo aquí hizo leer los créditos
@@ -317,19 +315,19 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const h = Math.floor((faltaMs % 864e5) / 36e5);
     const cierre = faltaMs <= 0 ? 'now' : d ? `${d}d ${h}h` : `${h}h`;
 
-    el.innerHTML =
-        cifra(cierre, 'until this week closes')
-      + cifra(porLeer ? `${porLeer} · ~${horas} h` : '0', 'still to read', porLeer > 0)
-      + cifra(e.listos || 0, 'ready for the issue')
-      // En cuántos asuntos se agrupa: son las secciones que tendría el número.
-      // 55 elementos pueden ser cuatro temas o veintinueve, y eso cambia la
-      // decisión de cortar tanto como el recuento.
-      + cifra(e.temas || 0, 'topics to write')
-      + cifra(`${e.reportaje || 0}${e.buscados ? ` / ${e.buscados}` : ''}`,
-              e.sin_nada ? `outside reports · nothing for ${e.sin_nada}` : 'outside reports')
-      + cifra(`${e.fuentes || 0}${e.calladas ? ` · ${e.calladas}` : ''}`,
-              e.calladas ? 'sources · quiet 2 weeks' : 'sources')
-      + ((e.con_error || 0) ? cifra(e.con_error, 'failed', true) : '');
+    // Todo en UN renglón. Seis bloques con su número grande y su rótulo debajo
+    // ocupaban media pantalla para decir seis cosas que caben en una línea, y
+    // ninguna de ellas se mira más de un segundo.
+    const dato = (n, t, acento) => `<b${acento ? ' style="color:var(--accent)"' : ''}>${esc(n)}</b> ${esc(t)}`;
+    el.innerHTML = [
+      dato(cierre, 'to close'),
+      dato(porLeer ? `${porLeer}` : '0', porLeer ? `to read · ~${horas} h` : 'to read', porLeer > 0),
+      dato(e.listos || 0, 'ready'),
+      dato(e.temas || 0, 'topics'),
+      dato(`${e.reportaje || 0}${e.buscados ? `/${e.buscados}` : ''}`, 'outside'),
+      dato(`${e.fuentes || 0}`, e.calladas ? `sources · ${e.calladas} quiet` : 'sources'),
+      ...((e.con_error || 0) ? [dato(e.con_error, 'failed', true)] : []),
+    ].join('<span class="admin-tenue"> · </span>');
 
     // Debajo, solo los dos botones, discretos. La prosa que hubo aquí —el
     // último número, la ventana, cuántos entrarían— se pidió fuera: las cifras

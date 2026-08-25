@@ -41,6 +41,39 @@ async function huella(s: string) {
  * Es pública y no pide clave. Se usa para eso y solo para eso: traducir un id a
  * una URL de feed, que luego se comprueba como cualquier otra.
  */
+/**
+ * Un episodio suelto de Apple Podcasts.
+ *
+ * `?i=<id>` identifica UN episodio; el id de la ruta identifica el PROGRAMA. El
+ * clasificador solo miraba el segundo, así que pegar un episodio ofrecía seguir
+ * el pódcast entero y nunca la pieza — que era justo lo que se pedía.
+ *
+ * La API de Apple no encuentra un episodio por su id a secas: hay que pedir los
+ * del programa y buscar el que coincide. Se devuelve su descripción, que son
+ * las notas del episodio: no es la transcripción, pero es texto real y a menudo
+ * son dos o tres mil caracteres.
+ */
+async function resolverEpisodioApple(url: string) {
+  const ep = /[?&]i=(\d{5,})/.exec(url)?.[1];
+  const prog = /\/id(\d{5,})/.exec(url)?.[1];
+  if (!ep || !prog) return null;
+  try {
+    const r = await fetch(`https://itunes.apple.com/lookup?id=${prog}&entity=podcastEpisode&limit=60`,
+                          { signal: AbortSignal.timeout(12_000) });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const x = (d?.results ?? []).find((y: Record<string, unknown>) => String(y.trackId) === ep);
+    if (!x) return null;
+    return {
+      titulo: String(x.trackName ?? ''),
+      programa: String(x.collectionName ?? ''),
+      texto: String(x.description ?? ''),
+      pagina: String(x.trackViewUrl ?? url),
+      audio: String(x.episodeUrl ?? ''),
+    };
+  } catch { return null; }
+}
+
 async function resolverApple(url: string) {
   const id = /\/id(\d{5,})/.exec(url)?.[1] ?? /[?&]i=(\d{5,})/.exec(url)?.[1];
   if (!id) return { ok: false as const, error: 'that Apple Podcasts link carries no show id' };
@@ -419,6 +452,23 @@ async function clasificar(texto: string): Promise<Resuelto> {
     // Sin esto caía hasta el final y se daba de alta como «un artículo de
     // podcasts.apple.com», que no es ni artículo ni fuente.
     if (/(^|\.)(podcasts|music)\.apple\.com$/.test(host)) {
+      // Con `?i=` es UN episodio: se ofrece como elemento —con la pieza suelta
+      // delante— y seguir el programa entero queda como alternativa.
+      const uno = /[?&]i=\d{5,}/.test(t) ? await resolverEpisodioApple(t) : null;
+      if (uno) {
+        const hayTexto = uno.texto.length >= 400;
+        return {
+          as: 'elemento', url: uno.pagina, body_text: hayTexto ? uno.texto : undefined,
+          name: uno.titulo,
+          label: `one episode of ${uno.programa}` + (hayTexto
+            ? ' · goes into the weekly'
+            : ' — Apple gives no text for it; paste the transcript'),
+          aviso: hayTexto
+            ? 'Only the episode notes are available, not a transcript: the piece will be thinner than one built from the audio.'
+            : undefined,
+          alternativas: [SOLO_PIEZA, { as: 'fuente', kind: 'podcast', label: `follow ${uno.programa}` }],
+        };
+      }
       const ap = await resolverApple(t);
       if (!ap.ok) {
         return { as: 'elemento', url: t,
