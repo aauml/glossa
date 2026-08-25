@@ -8,13 +8,17 @@ Texto de la portada. Bilingüe, sin em dashes.
 
 ## EN
 
-Glossa is my editor. I give it links, pasted text, YouTube videos, podcasts, outlets, authors and subjects to follow — and the papers, books and source documents in my library; it reads them, checks what they claim against other outlets, other countries and the record, and writes back one reading: no ads, no side taken.
+Glossa is my editor. I point it at links, videos, podcasts, outlets and authors, and each Sunday it writes back one reading of the week: what happened, checked against other outlets and other countries, no ads, no side taken.
+
+Paste a single article or talk, or just name a subject, and it writes a piece on that instead: it goes out for the counterpoint and for what the record says, then writes from that and from my library of papers, academic texts and primary documents, which it keeps and searches by meaning.
 
 Want a Glossa of your own? [Get in touch](https://ademas.ai/#:~:text=Terms-,About,-ademas.ai).
 
 ## ES
 
-Glossa es mi editor. Le doy enlaces, textos pegados, vídeos de YouTube, pódcast, medios, autores y asuntos que seguir, y los papers, libros y documentos de mi biblioteca; los lee, contrasta lo que afirman con otros medios, otros países y el registro, y me devuelve una sola lectura: sin anuncios y sin tomar partido.
+Glossa es mi editor. Le señalo enlaces, vídeos, pódcast, medios y autores, y cada domingo me devuelve una sola lectura de la semana: qué pasó, contrastado con otros medios y otros países, sin anuncios y sin tomar partido.
+
+Pego un artículo o una charla, o solo nombro un asunto, y escribe una pieza sobre eso: sale a buscar el contrapunto y lo que dice el registro, y redacta con eso y con mi biblioteca de papers, textos académicos y documentos de origen, que él mismo mantiene y consulta por significado.
 
 ¿Quieres tu propia Glossa? [Escríbeme](https://ademas.ai/#:~:text=Terms-,About,-ademas.ai).
 
