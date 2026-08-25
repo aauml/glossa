@@ -66,7 +66,7 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 
 /* ======== Masthead — restrained ======== */
 .masthead { border-bottom: 0.5px solid var(--rule-soft); padding: 16px 0; background: var(--bg); }
-.masthead-inner { max-width: 980px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; }
+.masthead-inner { max-width: var(--medida); margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; }
 .masthead-section { color: var(--muted); font-weight: 500; text-decoration: none; transition: color 0.15s ease; }
 .masthead-section:hover { color: var(--ink); }
 .masthead-brand { color: var(--ink); font-weight: 500; letter-spacing: 0.01em; text-transform: none; font-size: 15px; font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif; }
@@ -89,19 +89,30 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 .masthead-meta-sep { color: var(--muted); margin: 0 4px; opacity: 0.5; }
 
 /* ======== Cover ======== */
-.cover { max-width: 980px; margin: 0 auto; padding: 48px 32px 34px; border-bottom: 0.5px solid var(--rule-soft); }
-.cover-wordmark { font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif; font-weight: 500; font-size: clamp(52px, 9.5vw, 104px); line-height: 0.95; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 20px; }
-.cover-why { font-family: 'Spectral', serif; font-weight: 300; font-size: calc(clamp(14px, 1.5vw, 16px) * var(--reader-scale)); line-height: 1.6; color: var(--ink-soft); max-width: 580px; margin-bottom: 18px; }
-.cover-credo { font-family: 'IBM Plex Sans', sans-serif; font-weight: 400; font-size: calc(12.5px * var(--reader-scale)); line-height: 1.55; letter-spacing: 0.01em; color: var(--muted); max-width: 560px; margin-bottom: 18px; padding-left: 14px; border-left: 2px solid var(--accent); }
+.cover { max-width: var(--medida); margin: 0 auto; padding: 48px 32px 34px; border-bottom: 0.5px solid var(--rule-soft); }
+.cover-wordmark { margin: 0; font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif; font-weight: 500; font-size: clamp(52px, 9.5vw, 104px); line-height: 0.92; letter-spacing: -0.015em; color: var(--ink); }
+/* La cabecera: el nombre a la izquierda, las dos hebras a su derecha y sobre
+   la misma línea base. En estrecho se apila, que es como debe leerse. */
+.cover-head { display: grid; grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr); gap: 30px 52px; align-items: end; }
+.cover-intro { padding-bottom: 6px; }
+.cover-why { font-family: 'Spectral', serif; font-weight: 300; font-size: calc(clamp(14px, 1.4vw, 16px) * var(--reader-scale)); line-height: 1.62; color: var(--ink-soft); max-width: 58ch; margin: 0 0 14px; }
+.cover-intro .cover-why:last-child { margin-bottom: 0; }
+@media (max-width: 860px) {
+  .cover-head { grid-template-columns: 1fr; align-items: start; gap: 18px; }
+  .cover-intro { padding-bottom: 0; }
+}
+.cover-credo { margin-top: 26px; font-family: 'IBM Plex Sans', sans-serif; font-weight: 400; font-size: calc(12.5px * var(--reader-scale)); line-height: 1.55; letter-spacing: 0.01em; color: var(--muted); max-width: 560px; margin-bottom: 18px; padding-left: 14px; border-left: 2px solid var(--accent); }
 .cover-credo strong { color: var(--accent); font-weight: 600; }
 .cover-meta { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; display: flex; align-items: center; gap: 12px; }
 .cover-meta-bar { width: 20px; height: 1px; background: var(--rule-soft); }
 
-.contents { max-width: 720px; margin: 0 auto; padding: 30px 32px 80px; }
+.contents { max-width: var(--medida); margin: 0 auto; padding: 30px 32px 80px; }
 .contents-section-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--muted); font-weight: 500; text-align: left; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 0.5px solid var(--rule-soft); }
 
 .article-card {
-  display: block;
+  display: grid;
+  grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
+  gap: 8px 44px; align-items: start;
   border-bottom: 0.5px solid var(--rule-soft);
   padding: 26px 0 28px;
   background: transparent;
@@ -143,7 +154,7 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 
 .placeholder-card { border-top: 0.5px dashed var(--rule-soft); padding: 18px 0; text-align: left; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
 
-.footer { max-width: 720px; margin: 0 auto; padding: 32px 32px 60px; border-top: 0.5px solid var(--rule-soft); font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.06em; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+.footer { max-width: var(--medida); margin: 0 auto; padding: 32px 32px 60px; border-top: 0.5px solid var(--rule-soft); font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.06em; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
 .footer a { color: var(--muted); text-decoration: none; }
 .footer a:hover { color: var(--ink); }
 
@@ -602,58 +613,110 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    no una utilidad del sitio. Se distingue de las piezas por la regla superior y
    el rótulo, no por un color distinto — sigue siendo Glossa. */
 .cover-weekly {
-  display: block; text-decoration: none; color: inherit;
-  border-top: 0; padding: 18px 0 14px; margin-bottom: 0;
+  display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
+  gap: 10px 44px; align-items: start;
+  text-decoration: none; color: inherit; padding: 20px 0 18px;
 }
 
-/* La cadencia y la fecha, en una línea y en versalitas de la sans: es el pie de
-   imprenta. Que diga «CADA DOMINGO · 16 DE AGOSTO DE 2026» antes que ninguna
-   otra cosa es lo que identifica el bloque como una revista periódica, y ahorra
-   la frase que antes lo explicaba —y que confundía, porque describía el tono en
-   vez de decir qué era. */
-.cover-weekly-tag {
-  display: block; font-family: 'IBM Plex Sans', sans-serif; font-size: 10px;
-  letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent);
-  margin-bottom: 8px;
-}
-.cover-weekly-fecha { color: var(--ink-soft); }
-.cover-weekly-fecha::before { content: " · "; color: var(--rule, var(--ink-soft)); }
-
-/* «The Weekly» es el nombre de la cabecera, no del número: manda en tamaño. */
+/* El rótulo: nombre de la cabecera, qué número es y la cadencia. Va en su
+   propia columna porque es el pie de imprenta, no una línea del contenido. */
+.cover-weekly-flag { display: flex; flex-direction: column; gap: 6px; }
 .cover-weekly-title {
-  display: block; font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif;
-  font-weight: 400; font-size: clamp(26px, 4vw, 34px); line-height: 1.08;
-  letter-spacing: -0.015em; margin-bottom: 10px;
-}
-
-/* El titular del número en curso. Debajo del nombre de la cabecera y por encima
-   de los temas: la jerarquía sola cuenta qué es cada cosa. */
-.cover-weekly-numero {
-  display: block; margin-bottom: 5px;
   font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif;
-  font-size: calc(16px * var(--reader-scale)); line-height: 1.28;
-  letter-spacing: -0.005em; color: var(--ink); max-width: 46ch;
+  font-weight: 400; font-size: clamp(24px, 3.1vw, 32px); line-height: 1.02;
+  letter-spacing: -0.015em; color: var(--ink);
+}
+/* «This week» / «Latest issue»: el dato que faltaba. Una portada que solo
+   promete «cada domingo» no dice si el domingo se cumplió. */
+.cover-weekly-tag {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
+}
+.cover-weekly-fecha {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(11.5px * var(--reader-scale));
+  letter-spacing: 0.04em; color: var(--ink-soft);
+}
+.cover-weekly-cadencia {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
 }
 
-/* Los asuntos, separados por punto medio. Sin viñetas: es un apunte, no una
-   sección. */
+/* El número en curso: su titular manda en esta columna, y debajo los asuntos.
+   Es el contenido — de ahí que ocupe la columna ancha. */
+.cover-weekly-cuerpo { display: flex; flex-direction: column; gap: 12px; }
+.cover-weekly-numero {
+  font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif;
+  font-weight: 500; font-size: calc(clamp(19px, 2.3vw, 25px) * var(--reader-scale));
+  line-height: 1.16; letter-spacing: -0.01em; color: var(--ink); max-width: 30ch;
+  transition: color 0.18s ease;
+}
+/* Los asuntos, como sumario: separados por filete vertical, no por viñetas. */
 .cover-weekly-temas {
-  display: block; font-family: 'IBM Plex Sans', sans-serif;
-  font-size: calc(12px * var(--reader-scale)); line-height: 1.5;
-  color: var(--ink-soft); max-width: 58ch;
+  list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(11.5px * var(--reader-scale));
+  letter-spacing: 0.02em; color: var(--ink-soft);
+}
+.cover-weekly-temas li { display: inline-flex; align-items: center; }
+.cover-weekly-temas li:not(:last-child)::after {
+  content: ''; width: 1px; height: 10px; background: var(--rule-soft); margin: 0 12px;
 }
 
-.cover-weekly:hover .cover-weekly-title,
 .cover-weekly:hover .cover-weekly-numero { color: var(--accent); }
 
-/* El borde grueso envuelve el bloque entero, para que la revista se lea como una
-   pieza cerrada de la portada y no como un párrafo suelto. */
-.cover-weekly-wrap { border-top: 2px solid var(--ink); margin-bottom: 8px; }
+/* Reglas gruesas arriba y abajo: encierran el semanal como un bloque propio y
+   lo separan de la lista de piezas, que es lo que antes no ocurría. */
+.cover-weekly-wrap {
+  border-top: 2px solid var(--ink); border-bottom: 0.5px solid var(--rule-soft);
+  margin-bottom: 30px;
+}
 
 .cover-weekly-archivo {
-  display: inline-block; padding-bottom: 18px;
+  display: inline-block; padding-bottom: 16px;
   font-family: 'IBM Plex Sans', sans-serif; font-size: 11px;
   letter-spacing: 0.06em; color: var(--ink-soft); text-decoration: none;
   border-bottom: 1px solid transparent;
 }
 .cover-weekly-archivo:hover { color: var(--accent); border-bottom-color: currentColor; }
+
+@media (max-width: 860px) {
+  .cover-weekly { grid-template-columns: 1fr; gap: 14px; }
+}
+
+
+/* ── Una medida para toda la página ──────────────────────────────────────
+   Las reglas y los rótulos ocupan el ancho; el TEXTO no. Una línea de 980 px
+   no se lee, y ese era el efecto de ensanchar el contenedor sin poner medida
+   a la prosa. */
+:root { --medida: 980px; }
+.article-card-title { max-width: 24ch; }
+.article-card.featured .article-card-title { max-width: 20ch; }
+.article-card-dek { max-width: 62ch; }
+
+
+/* ── La retícula de la página ────────────────────────────────────────────
+   Un solo esqueleto para todo lo que se lista: raíl izquierdo con los datos
+   (número, fecha, sección) y columna ancha con el texto. Lo usan la cabecera,
+   el semanal y cada pieza — que es lo que hace que la página se lea como una
+   publicación y no como tres bloques distintos apilados. */
+.article-card-rail {
+  display: flex; flex-direction: column; gap: 5px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(10.5px * var(--reader-scale));
+  letter-spacing: 0.12em; color: var(--muted); padding-top: 4px;
+}
+.article-card-cuerpo { min-width: 0; }
+.article-card.featured .article-card-rail { padding-top: 2px; }
+.article-card.featured .featured-tag { margin-bottom: 2px; }
+
+/* La medida de lectura ya la da la columna: los topes en `ch` que hacían falta
+   cuando el texto ocupaba el ancho entero ahora sobran y estrangulaban el
+   titular a media columna. */
+.article-card-title { max-width: 20ch; }
+.article-card.featured .article-card-title { max-width: 16ch; }
+.article-card-dek { max-width: 54ch; }
+
+@media (max-width: 860px) {
+  .article-card { grid-template-columns: 1fr; gap: 10px; }
+  .article-card-rail { flex-direction: row; flex-wrap: wrap; gap: 14px; }
+  .article-card-title, .article-card.featured .article-card-title,
+  .article-card-dek { max-width: none; }
+}
