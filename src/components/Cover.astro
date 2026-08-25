@@ -10,7 +10,7 @@ const { lang } = Astro.props;
 const COPY = {
   en: {
     news: 'Glossa is my editor. I give it links, pasted text, YouTube videos, podcasts, outlets, authors and subjects to follow — and the papers, books and source documents in my library; it reads them, checks what they claim against other outlets, other countries and the record, and writes back one reading: no ads, no side taken.',
-    accesoHTML: 'Want a Glossa of your own? <a href="/about/">Get in touch</a>.',
+    accesoHTML: 'Want a Glossa of your own? <a href="https://ademas.ai/#:~:text=Terms-,About,-ademas.ai" rel="noopener">Get in touch</a>.',
     all: 'All',
     piece: 'piece',
     pieces: 'pieces',
@@ -28,7 +28,7 @@ const COPY = {
   },
   es: {
     news: 'Glossa es mi editor. Le doy enlaces, textos pegados, vídeos de YouTube, pódcast, medios, autores y asuntos que seguir, y los papers, libros y documentos de mi biblioteca; los lee, contrasta lo que afirman con otros medios, otros países y el registro, y me devuelve una sola lectura: sin anuncios y sin tomar partido.',
-    accesoHTML: '¿Quieres tu propia Glossa? <a href="/es/about/">Escríbeme</a>.',
+    accesoHTML: '¿Quieres tu propia Glossa? <a href="https://ademas.ai/#:~:text=Terms-,About,-ademas.ai" rel="noopener">Escríbeme</a>.',
     all: 'Todos',
     piece: 'pieza',
     pieces: 'piezas',
@@ -114,9 +114,10 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
     <h1 class="cover-wordmark">Glossa<span class="wm-dot">.</span></h1>
     <div class="cover-intro">
       <p class="cover-why">{t.news}</p>
-      {/* Lo demás —la hebra de la tesis, quién hace qué, el método— se fue a
-          /about: la portada tiene que decir qué es esto en una respiración, y
-          quien quiera el resto tiene dónde leerlo. */}
+      {/* El contacto es el «About» de ademas.ai, que ya existe: Glossa no
+          necesita una página que repita lo que ese sitio ya dice. Va por
+          fragmento de texto porque esa vista se dibuja con JavaScript y no
+          tiene ruta propia. */}
       <p class="cover-acceso" set:html={t.accesoHTML} />
     </div>
   </div>

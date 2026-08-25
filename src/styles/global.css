@@ -783,28 +783,6 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 .cover-acceso a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
 .cover-acceso a:hover, .cover-acceso:hover { color: var(--accent); border-bottom-color: currentColor; }
 
-/* ── /about ──────────────────────────────────────────────────────────── */
-.about-titulo { font-size: clamp(38px, 6vw, 64px); }
-.about-bloque {
-  display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
-  gap: 8px 44px; padding: 24px 0; border-bottom: 0.5px solid var(--rule-soft);
-}
-.about-rail {
-  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(10.5px * var(--reader-scale));
-  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-top: 4px;
-}
-.about-cuerpo p {
-  font-family: 'Spectral', serif; font-weight: 300;
-  font-size: calc(15px * var(--reader-scale)); line-height: 1.62;
-  color: var(--ink-soft); max-width: 62ch; margin: 0 0 12px;
-}
-.about-cuerpo p:last-child { margin-bottom: 0; }
-.about-contacto {
-  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(12.5px * var(--reader-scale));
-  letter-spacing: 0.04em; color: var(--accent); text-decoration: none;
-  border-bottom: 1px solid currentColor;
-}
-
 @media (max-width: 860px) {
-  .cover-filter, .about-bloque { grid-template-columns: 1fr; gap: 10px; }
+  .cover-filter { grid-template-columns: 1fr; gap: 10px; }
 }
