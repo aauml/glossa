@@ -701,6 +701,36 @@ Deno.serve(async (req) => {
             kind, name: nombre, notes: b.notes ?? null,
             feed_url: buscada ? null : normalizarFeed(String(r.feed_url)),
           };
+          // ¿Ya se sigue esto por otra puerta? El mismo programa por Apple y
+          // por su web son dos URLs distintas y una sola fuente: darlas de alta
+          // las dos mete cada episodio DOS VECES en el número, con guids
+          // distintos, y nada lo delataría salvo leerlo repetido.
+          //
+          // No se decide por detrás: se dice qué hay y se ofrece cambiarlo.
+          const norm = (x: string) => x.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 40);
+          const { data: yaHay } = await db.from('glossa_radar_sources')
+            .select('id,name,kind,feed_url').eq('active', true);
+          const gemela = (yaHay ?? []).find((v: { name: string; feed_url: string | null }) =>
+            norm(v.name) === norm(nombre) && v.feed_url !== fila.feed_url);
+          if (gemela && b.reemplazar !== true) {
+            return ok({
+              as: 'duplicada', source: gemela, feed_url: fila.feed_url,
+              label: `You already follow «${gemela.name}» through ${
+                (() => { try { return new URL(String(gemela.feed_url)).host; } catch { return 'another feed'; } })()
+              }. Adding this one too would read every episode twice.`,
+              alternativas: [{ as: 'fuente', reemplazar: '1',
+                               label: 'replace the old feed with this one' }],
+            });
+          }
+          if (gemela && b.reemplazar === true) {
+            const { data: cambiada, error: eUp } = await db.from('glossa_radar_sources')
+              .update({ feed_url: fila.feed_url, kind, name: nombre, consecutive_failures: 0 })
+              .eq('id', gemela.id).select('*').single();
+            if (eUp) throw eUp;
+            return ok({ as: 'fuente', source: cambiada,
+                        label: `«${nombre}» now follows ${new URL(String(fila.feed_url)).host}` });
+          }
+
           const { data, error } = await db.from('glossa_radar_sources')
             .insert(fila).select('*').single();
           if (error) {

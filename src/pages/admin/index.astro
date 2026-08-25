@@ -125,7 +125,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     resuelto.innerHTML = `→ ${esc(r.label)}`;
     alt.innerHTML = (r.alternativas || []).map((a, i) =>
       `<button class="admin-btn sec" type="button" data-alt="${i}"
-         data-as="${esc(a.as)}" data-kind="${esc(a.kind || '')}" data-solo="${esc(a.solo || '')}">${esc(a.label)}</button>`).join(' ');
+         data-as="${esc(a.as)}" data-kind="${esc(a.kind || '')}" data-solo="${esc(a.solo || '')}"
+         data-reemplazar="${esc(a.reemplazar || '')}">${esc(a.label)}</button>`).join(' ');
   }
   $('in-caja').addEventListener('blur', mirar);
   $('in-caja').addEventListener('paste', () => setTimeout(mirar, 60));
@@ -136,7 +137,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   // había pasado. Dos destinos, dos botones, cada uno hace lo suyo.
   delegar(alt, '[data-alt]', (b) => {
     forzado = { as: b.dataset.as, kind: b.dataset.kind || undefined,
-                solo: b.dataset.solo || undefined };
+                solo: b.dataset.solo || undefined,
+                reemplazar: b.dataset.reemplazar === '1' || undefined };
     enviar();
   });
 
@@ -153,6 +155,15 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if (r.error) { msg(cajaMsg, r.error, false); return; }
     // El aviso del alta —«lleva 11 días sin publicar»— viaja ahora en la
     // respuesta; antes se veía en el peek y desaparecía al confirmar.
+    // Una fuente que ya se sigue por otra puerta no es un alta ni un error:
+    // es una decisión, y el botón para tomarla viaja en la respuesta.
+    if (r.as === 'duplicada') {
+      msg(cajaMsg, r.label, false);
+      alt.innerHTML = (r.alternativas || []).map((a, i) =>
+        `<button class="admin-btn sec" type="button" data-alt="${i}" data-as="fuente"
+           data-reemplazar="${esc(a.reemplazar || '')}">${esc(a.label)}</button>`).join(' ');
+      return;
+    }
     if (r.as === 'fuente' && r.aviso) { msg(cajaMsg, `Now following: ${r.source.name} — ${r.aviso}`, true); }
     else msg(cajaMsg, r.as === 'fuente' ? `Now following: ${r.source.name}`
                                    : `Queued: ${r.item.title.slice(0, 70)}`, true);
