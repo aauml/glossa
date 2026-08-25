@@ -744,6 +744,12 @@ async function pedirAKimi(prompt = PROMPT, intento = 0) {
     req.setTimeout(35 * 60_000, () => req.destroy(new Error('sin respuesta en 35 min')));
     req.end(cuerpo);
   }).catch(async (e) => {
+    // Sin saldo no es esperar: es que no hay cuenta que valga. Se rinde ya, y
+    // el mensaje dice qué hacer en vez de dejar «429» a secas en el registro.
+    if (/insufficient balance|exceeded_current_quota|suspended|billing/i.test(String(e.message))) {
+      throw new Error('la cuenta de Moonshot (Kimi) no tiene saldo: recárgala en ' +
+                      'platform.moonshot.ai y vuelve a cortar el número desde el panel');
+    }
     const transitorio = e.status === 429 || e.status === 503;
     if (!transitorio || intento >= 4) throw e;
     // Esperas largas a propósito: si el hueco lo tiene otra corrida, puede tardar

@@ -116,6 +116,12 @@ async function gemini(parts, maxTokens = 4096) {
 // una pieza — la primera corrida real murió exactamente ahí (HeadersTimeoutError).
 import { request as httpsRequest } from 'node:https';
 
+// Un 429 puede ser DOS cosas distintas y tratarlas igual costó 26 minutos de
+// runner: «vas muy rápido», que se arregla esperando, y «la cuenta no tiene
+// saldo», que no se arregla nunca. El segundo se reconoce por el cuerpo y se
+// rinde en el acto, diciendo qué hay que hacer.
+const SIN_SALDO = /insufficient balance|exceeded_current_quota|suspended|billing/i;
+
 function kimiCrudo(cuerpo) {
   return new Promise((ok, ko) => {
     const req = httpsRequest({
@@ -145,6 +151,10 @@ async function kimi(prompt, maxTokens = 64000) {
     let bruto;
     try { bruto = await kimiCrudo(cuerpo); }
     catch (e) {
+      if (SIN_SALDO.test(String(e.message))) {
+        throw new Error('la cuenta de Moonshot (Kimi) no tiene saldo: recárgala en ' +
+                        'platform.moonshot.ai y relanza la pieza desde el panel');
+      }
       if ((e.status === 429 || e.status === 503) && intento < 4) {
         // La cuenta admite una petición a la vez; el hueco puede tardar.
         const espera = [60, 180, 420, 900][intento] * 1000;
