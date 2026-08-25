@@ -138,19 +138,24 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   $('in-caja').addEventListener('blur', mirar);
   $('in-caja').addEventListener('paste', () => setTimeout(mirar, 60));
 
+  // Pulsar una alternativa ENVÍA. Antes solo marcaba la elección y había que
+  // pulsar «Add» después: dos botones, uno que parecía una acción y no lo era.
+  // Se perdió un artículo entero por eso — el texto seguía en la caja y nada
+  // había pasado. Dos destinos, dos botones, cada uno hace lo suyo.
   delegar(alt, '[data-alt]', (b) => {
     forzado = { as: b.dataset.as, kind: b.dataset.kind || undefined,
                 solo: b.dataset.solo || undefined };
-    resuelto.innerHTML = `→ ${esc(b.textContent)} <span style="color:var(--muted)">(your call)</span>`;
-    alt.innerHTML = '';
+    enviar();
   });
 
-  $('in-form').onsubmit = async (e) => {
-    e.preventDefault();
+  async function enviar() {
     const t = $('in-caja').value.trim();
     if (!t) return;
     $('in-add').disabled = true;
-    msg(cajaMsg, 'reading it…', true);
+    alt.innerHTML = '';
+    // Qué se está haciendo, no un genérico: bajar un artículo o resolver un
+    // canal tarda unos segundos y en silencio parece que no pasó nada.
+    msg(cajaMsg, forzado?.solo ? 'reading it and starting the piece…' : 'reading it…', true);
     const r = await api('intake.add', { texto: t, ...(forzado || {}) });
     $('in-add').disabled = false;
     if (r.error) { msg(cajaMsg, r.error, false); return; }
@@ -162,7 +167,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
     forzado = null; ultimoPeek = '';
     pintarCifras(); pintarCola(); pintarFuentes(); pintarTripas(); vigilarPiezas();
-  };
+  }
+  $('in-form').onsubmit = (e) => { e.preventDefault(); enviar(); };
 
   // ── La cola ─────────────────────────────────────────────────────────────
   const ESTADO = { pending: 'waiting', running: 'reading now', digested: 'read',
@@ -580,6 +586,14 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       const vivo = !!p.vivo?.url;
       let pct = vivo ? 100 : Math.max(2, Number(pr.pct || 0));
       let fase = pr.fase || 'working';
+      // Cuánto suele tardar cada fase, medido en las corridas reales. Un
+      // porcentaje sin reloj no contesta lo único que se pregunta quien mira:
+      // ¿me espero o me voy?
+      const DURA = { 'launched': '~1 min', 'relaunched': '~1 min',
+                     'listening to the source': '~2 min', 'reading the source': '~1 min',
+                     'checking claims': '~2 min', 'writing the piece': '~15 min',
+                     'Spanish edition': '~2 min', 'publishing': '~4 min' };
+      const dura = Object.entries(DURA).find(([k]) => fase.startsWith(k))?.[1];
       // La escritura es UNA llamada a Kimi de 15-25 min sin nada intermedio que
       // anotar: una barra quieta ahí se lee como rota. Se la hace avanzar con
       // el reloj —calibrada a los ~18 min típicos de K3, tope en 70— y se dice
@@ -588,9 +602,9 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         const min = (Date.now() - new Date(pr.updated_at).getTime()) / 60000;
         if (/writing the piece/.test(fase)) {
           pct = Math.min(70, Math.round(pct + min * 1.6));
-          fase = `${fase} · ${Math.max(1, Math.floor(min))} min in, ~15-20 typical`;
-        } else if (min > 2) {
-          fase = `${fase} · ${Math.floor(min)} min`;
+          fase = `${fase} · ${Math.max(1, Math.floor(min))} min in of ~15`;
+        } else {
+          fase = `${fase}${dura ? ` · ${dura}` : ''}${min > 2 ? ` · ${Math.floor(min)} min in` : ''}`;
         }
       }
       if (!vivo && !fallo) activas++;
