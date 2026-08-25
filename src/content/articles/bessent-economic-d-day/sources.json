@@ -8,8 +8,9 @@
       "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
       "role": "primary",
       "tipo": "article",
-      "respalda": "Scott Bessent argues that the US is prepared to expand secondary sanctions on Iran's key economic sectors and its trading partners to compel them to cease commercial ties with Tehran.",
-      "verificada": "si"
+      "verificada": "si",
+      "claim_en": "Scott Bessent argues that the US is prepared to expand secondary sanctions on Iran's key economic sectors and its trading partners to compel them to cease commercial ties with Tehran.",
+      "claim_es": "Bessent sostiene que Estados Unidos está listo para ampliar las sanciones secundarias sobre los sectores económicos clave de Irán, y fija un plazo a bancos, navieras y gobiernos que sigan operando con Teherán."
     },
     {
       "id": "src-02",
@@ -18,8 +19,9 @@
       "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
       "role": "context",
       "tipo": "report",
-      "respalda": "The U.S. government increased its use of economic statecraft in 2024, issuing a higher number of financial sanctions and entity-based export controls compared to the previous year. This rise is attributed to geopolitical tensions involving Russia, China, and the Middle East, as well as evolving cooperation between U.S. adversaries. The report tracks figures from the Treasury Department's Specially Designated Nationals and Blocked Persons List and the Commerce Department's Entity List.",
-      "verificada": "si"
+      "verificada": "si",
+      "claim_en": "The U.S. government increased its use of economic statecraft in 2024, issuing a higher number of financial sanctions and entity-based export controls compared to the previous year. This rise is attributed to geopolitical tensions involving Russia, China, and the Middle East, as well as evolving cooperation between U.S. adversaries. The report tracks figures from the Treasury Department's Specially Designated Nationals and Blocked Persons List and the Commerce Department's Entity List.",
+      "claim_es": "El gobierno estadounidense intensificó su uso de la coerción económica en 2024, con más designaciones financieras que en años anteriores."
     },
     {
       "id": "src-03",
@@ -28,8 +30,9 @@
       "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
       "role": "context",
       "tipo": "report",
-      "respalda": "The U.S. Department of the Treasury sanctioned six entities and individuals across China, India, Russia, and Iran. The actions targeted support networks for Mahan Air, which is accused of assisting the IRGC, and an Iran-based startup alleged to be an IRGC front company facilitating military targeting.",
-      "verificada": "si"
+      "verificada": "si",
+      "claim_en": "The U.S. Department of the Treasury sanctioned six entities and individuals across China, India, Russia, and Iran. The actions targeted support networks for Mahan Air, which is accused of assisting the IRGC, and an Iran-based startup alleged to be an IRGC front company facilitating military targeting.",
+      "claim_es": "El Tesoro sancionó a seis entidades y personas de China, India y Rusia por su papel en el comercio de petróleo iraní."
     },
     {
       "id": "src-04",
@@ -38,8 +41,9 @@
       "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
       "role": "context",
       "tipo": "report",
-      "respalda": "The Iran Primer published an updated timeline of U.S. sanctions imposed on Iranian individuals, companies, and organizations from 2005 through February 2025. The list includes various executive orders and legislative acts used to target sectors such as nuclear proliferation, ballistic missile development, and energy.",
-      "verificada": "si"
+      "verificada": "si",
+      "claim_en": "The Iran Primer published an updated timeline of U.S. sanctions imposed on Iranian individuals, companies, and organizations from 2005 through February 2025. The list includes various executive orders and legislative acts used to target sectors such as nuclear proliferation, ballistic missile development, and energy.",
+      "claim_es": "The Iran Primer publicó una cronología actualizada de las sanciones estadounidenses a personas, empresas y organizaciones iraníes desde 2005."
     },
     {
       "id": "src-05",
@@ -48,8 +52,9 @@
       "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
       "role": "context",
       "tipo": "report",
-      "respalda": "Ukraine implemented sanctions against six individuals from Russia, Iran, and China, along with various entities involved in the production of Iranian Shahed drones. The measures were formally enacted via a presidential decree following a National Security and Defense Council decision. The sanctions specifically include restrictions on the Iranian airline Iran Air.",
-      "verificada": "si"
+      "verificada": "si",
+      "claim_en": "Ukraine implemented sanctions against six individuals from Russia, Iran, and China, along with various entities involved in the production of Iranian Shahed drones. The measures were formally enacted via a presidential decree following a National Security and Defense Council decision. The sanctions specifically include restrictions on the Iranian airline Iran Air.",
+      "claim_es": "Ucrania sancionó a seis personas de Rusia, Irán y China, junto con varias entidades vinculadas a esas redes."
     }
   ]
 }

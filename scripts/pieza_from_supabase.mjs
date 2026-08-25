@@ -372,7 +372,12 @@ if (fallos.length) {
 await avance(72, 'Spanish edition', { issue: issueNo, slug: en.slug });
 
 console.log('Versión española…');
-const es = await traducir(promptPiezaES(en));
+// Las glosas de las fuentes se traducen CON la pieza: el pie de procedencia lo
+// lee el lector igual que el cuerpo, y cada edición debe enseñar la suya.
+const glosasEN = [digest.thesis, ...reportes.map(r => r.what_happened)].map(x => String(x ?? '').slice(0, 400));
+const es = await traducir(promptPiezaES(en, glosasEN));
+const glosasES = Array.isArray(es.sources_gloss) && es.sources_gloss.length === glosasEN.length
+  ? es.sources_gloss : glosasEN.map(() => null);
 es.slug = en.slug; es.track = en.track;   // por si el modelo los «tradujo»
 
 // ── 6 · Armar los MDX (el modelo nunca emite markup) ─────────────────────
@@ -451,16 +456,20 @@ const bodyEs = armarMdx(es, 'es');
 const sourcesJson = {
   slug: en.slug, issue: issueNo,
   sources: [
+    // `claim_en` y `claim_es`, NO `respalda`: el componente del pie busca la
+    // glosa del idioma que está pintando. Escribiendo solo `respalda` —nombre
+    // español con texto inglés dentro— la edición inglesa no enseñaba glosa
+    // ninguna y la española enseñaba la inglesa.
     { id: 'src-01', ref: item.title, role: 'primary',
       tipo: /youtube|youtu\.be/.test(item.url) ? 'video' : (item.body_text ? 'article' : 'link'),
       url: item.url !== 'about:blank' ? item.url : undefined,
       como: 'Fuente ancla — pegada por Arturo en el panel (pieza suelta)',
-      respalda: digest.thesis, verificada: 'si' },
+      claim_en: glosasEN[0], claim_es: glosasES[0] ?? undefined, verificada: 'si' },
     ...reportes.map((r, i) => ({
       id: `src-${String(i + 2).padStart(2, '0')}`, ref: `${r.outlet} — ${r.what_happened?.slice(0, 100)}`,
       role: 'context', tipo: 'report', url: r.url,
       como: 'Traído por el pipeline para anclar o contrastar afirmaciones de la fuente',
-      respalda: r.what_happened, verificada: 'si' })),
+      claim_en: glosasEN[i + 1], claim_es: glosasES[i + 1] ?? undefined, verificada: 'si' })),
   ],
 };
 

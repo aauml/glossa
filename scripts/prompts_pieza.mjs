@@ -204,7 +204,7 @@ export function promptPieza(digest, reportes, piezas, issueNo) {
  * (`references/spanish-translation.md`), a diferencia del semanal, que decidió
  * es-MX en D-020. Se imita la colección, no el semanal.
  */
-export function promptPiezaES(piezaEN) {
+export function promptPiezaES(piezaEN, glosas = []) {
   return [
     'Translate this annotated-reading piece into Spanish as a PARALLEL ARTICLE —',
     'same structure, same components, same editorial voice — in the register of',
@@ -213,7 +213,14 @@ export function promptPiezaES(piezaEN) {
     'THE PIECE (JSON):',
     JSON.stringify(piezaEN),
     '',
-    'Return ONLY a JSON object with EXACTLY the same shape and the same keys.',
+    // Las glosas del pie de fuentes viajan con la pieza porque son parte de lo
+    // que lee el lector, no metadatos: sin ellas, la edición española acababa
+    // enseñando la glosa inglesa y la inglesa no enseñaba ninguna.
+    glosas.length ? 'THE SOURCE GLOSSES (what each source supports), same order:' : '',
+    glosas.length ? JSON.stringify(glosas) : '',
+    '',
+    'Return ONLY a JSON object with EXACTLY the same shape and the same keys' +
+      (glosas.length ? ', PLUS a "sources_gloss" array with those glosses in Spanish, same order and same length.' : '.'),
     'Translate: title, titleHTML, dek, dekHTML, coverDek, source, topics, lede,',
     'callback.text if present, and every section title/titleHTML/standfirst/blocks.',
     'Keep IDENTICAL: slug, track, section numbers, block types, speaker names,',
