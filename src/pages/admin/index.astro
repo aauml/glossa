@@ -491,13 +491,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   // temas sí. La línea de interés no es decorativa — va al prompt y es lo que
   // decide qué entra cuando sobra material.
   async function pintarSecciones() {
-    const d = await api('secciones.list');
     const el = $('sec-lista');
-    if (!el || d.error) return;
+    if (!el) return;
+    // Envuelto y con el error a la vista: la versión anterior se rendía en
+    // silencio y dejaba «loading…» para siempre, que desde fuera es
+    // indistinguible de una consulta lenta. Un fallo tiene que decirse.
+    let d;
+    try { d = await api('secciones.list'); }
+    catch (e) { el.innerHTML = `<span class="admin-vacio">${esc(String(e))}</span>`; return; }
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     const activas = d.secciones.filter(s => s.activo).length;
     $('tm-cuenta').textContent = activas ? `${activas} on` : 'none on';
-    const nt = $('tm-nuevos');
-    if (nt) nt.textContent = nuevosT ? ` ${nuevosT} new` : '';
     el.innerHTML = `<table class="admin-tabla">${d.secciones.map(s => `<tr>
       <td style="white-space:nowrap"><label style="display:flex;gap:8px;align-items:baseline;cursor:pointer">
         <input type="checkbox" data-sec="${esc(s.sector)}"${s.activo ? ' checked' : ''}>
@@ -534,6 +538,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const libres = d.temas.filter(t => !t.fijo).slice(0, 60);
     // Cuántos temas nuevos hay, para decirlo en la cabecera de la sección.
     const nuevosT = d.temas.filter(t => esNuevo('temas', t.creado)).length;
+    const nt = $('tm-nuevos');
+    if (nt) nt.textContent = nuevosT ? ` ${nuevosT} new` : '';
     // El aviso vive donde se toma la decisión. Pasado el tope, el número deja
     // fuera los que menos material trajeron, y eso hay que saberlo AQUÍ.
     const TOPE = 8;
