@@ -131,7 +131,9 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 .article-card-topics li:not(:last-child)::after { content: '·'; color: var(--rule-soft); margin: 0 10px; }
 
 /* ---- Topic filter (text, no buttons) ---- */
-.cover-filter { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: calc(12px * var(--reader-scale)); letter-spacing: 0.02em; padding: 0 0 16px; margin-bottom: 22px; border-bottom: 0.5px solid var(--rule-soft); }
+/* Los filtros comparten la retícula de la página: recuento en el raíl, temas
+   en la columna ancha, todo en una línea. */
+.cover-filter { display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr); gap: 8px 44px; align-items: baseline; font-family: 'IBM Plex Sans', sans-serif; font-size: calc(11.5px * var(--reader-scale)); letter-spacing: 0.02em; padding: 0 0 14px; margin-bottom: 20px; border-bottom: 0.5px solid var(--rule-soft); }
 .filter-topics { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; }
 .cover-count { color: var(--muted); letter-spacing: 0.08em; white-space: nowrap; }
 .cover-filter .f { cursor: pointer; color: var(--muted); background: none; border: none; border-bottom: 1px solid transparent; padding: 0 0 2px; font: inherit; letter-spacing: inherit; transition: color 0.12s ease, border-color 0.12s ease; }
@@ -757,4 +759,52 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   .cover-weekly-cuerpo { order: 3; }
   .cover-weekly-archivo { order: 4; }
   .cover-weekly { display: flex; flex-direction: column; gap: 6px; }
+}
+
+
+/* Una sola línea de temas que se desliza. `scrollbar-width: none` porque la
+   barra dentro de una fila de 20 px de alto es más ruido que ayuda; el corte
+   se ve porque el último tema queda a medias, que es la señal de siempre. */
+.filter-topics {
+  /* `nowrap` explícito: una regla anterior ponía `wrap` y los temas seguían
+     cayendo en dos renglones pese al deslizamiento. */
+  display: flex; flex-wrap: nowrap; gap: 20px; overflow-x: auto;
+  scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 2px;
+}
+.filter-topics::-webkit-scrollbar { display: none; }
+.filter-topics .f { white-space: nowrap; flex: 0 0 auto; }
+
+/* La línea de acceso, bajo la única frase de la portada. */
+.cover-acceso {
+  display: inline-block; margin-top: 14px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(12px * var(--reader-scale));
+  letter-spacing: 0.02em; color: var(--muted); text-decoration: none;
+}
+.cover-acceso a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+.cover-acceso a:hover, .cover-acceso:hover { color: var(--accent); border-bottom-color: currentColor; }
+
+/* ── /about ──────────────────────────────────────────────────────────── */
+.about-titulo { font-size: clamp(38px, 6vw, 64px); }
+.about-bloque {
+  display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
+  gap: 8px 44px; padding: 24px 0; border-bottom: 0.5px solid var(--rule-soft);
+}
+.about-rail {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(10.5px * var(--reader-scale));
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-top: 4px;
+}
+.about-cuerpo p {
+  font-family: 'Spectral', serif; font-weight: 300;
+  font-size: calc(15px * var(--reader-scale)); line-height: 1.62;
+  color: var(--ink-soft); max-width: 62ch; margin: 0 0 12px;
+}
+.about-cuerpo p:last-child { margin-bottom: 0; }
+.about-contacto {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(12.5px * var(--reader-scale));
+  letter-spacing: 0.04em; color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+@media (max-width: 860px) {
+  .cover-filter, .about-bloque { grid-template-columns: 1fr; gap: 10px; }
 }

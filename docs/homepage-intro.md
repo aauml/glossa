@@ -8,22 +8,30 @@ Texto de la portada. Bilingüe, sin em dashes.
 
 ## EN
 
-Glossa is my editor. Each week it reads the news I follow and writes back what happened: no ads, no side taken, every fact checked against other outlets and other countries.
+Glossa is my editor. I give it links, pasted text, YouTube videos, podcasts, outlets, authors and subjects to follow — and the papers, books and source documents in my library; it reads them, checks what they claim against other outlets, other countries and the record, and writes back one reading: no ads, no side taken.
 
-The second strand is for a thesis: books, essays and source documents from the library I built for it. Same method, steadier ground — these are the readings I study from.
-
-The ideas and the direction are mine; the searching, checking and writing are the machine's. **Grounded, not invented.**
+Want a Glossa of your own? [Get in touch](/about/).
 
 ## ES
 
-Glossa es mi editor. Cada semana lee las noticias que sigo y me devuelve lo que pasó: sin anuncios, sin tomar partido, cada dato contrastado con otros medios y otros países.
+Glossa es mi editor. Le doy enlaces, textos pegados, vídeos de YouTube, pódcast, medios, autores y asuntos que seguir, y los papers, libros y documentos de mi biblioteca; los lee, contrasta lo que afirman con otros medios, otros países y el registro, y me devuelve una sola lectura: sin anuncios y sin tomar partido.
 
-La segunda hebra es para una tesis: libros, ensayos y documentos de origen de la biblioteca que construí para ella. El mismo método sobre terreno más firme; son las lecturas con las que estudio.
+¿Quieres tu propia Glossa? [Escríbeme](/es/about/).
 
-Las ideas y la dirección son mías; buscar, verificar y redactar lo hace la máquina. **Fundamentado, no inventado.**
+## Por qué la portada es una sola frase
 
-## Qué se quitó, y por qué
+Describe lo que Arturo HACE con Glossa —qué le entrega y qué recibe—, no el tono
+ni la misión. Todo lo demás vive en `/about/`: las dos hebras, qué significa
+«contrastado», quién hace qué, y cómo pedir acceso. Lo que se quitó de aquí y
+por qué:
 
-- **La línea de cabecera** («Personal annotated readings. I direct, AI executes.»): decía el tono antes de decir qué es esto. Lo que afirmaba —quién dirige y quién ejecuta— lo dice ahora el último párrafo, que además lo demuestra.
-- **El párrafo de la queja** («Most of what I find isn't worth the reading time…»): abría con lo que está mal en los demás en vez de con lo que hay aquí.
-- **La promesa de futuro** («Eventually, I'll open Glossa…»): hablaba de lo que todavía no existe, en la primera pantalla de lo que sí.
+- **La línea de eslogan** («Personal annotated readings. I direct, AI executes»):
+  decía el tono antes de decir la cosa.
+- **El párrafo de la queja** sobre los demás medios: abría por lo ajeno.
+- **La promesa de abrirlo algún día**: hablaba de lo que no existe todavía. Ahora
+  es una línea discreta que enlaza a `/about/`, donde se explica de verdad.
+- **El credo y la hebra de la tesis**: siguen escritos, pero en `/about/`.
+
+El contacto apunta a `https://ademas.ai/` porque su sección «About me» se dibuja
+con JavaScript y no tiene URL propia; si algún día la tiene, se cambia en
+`src/components/About.astro`.

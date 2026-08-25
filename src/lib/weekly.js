@@ -50,6 +50,24 @@ export const fecha = (s, lang = 'en') => {
                               { ...FECHA, timeZone: 'UTC' });
 };
 
+/**
+ * El rango que cubre un número: «16–22 August 2026», no una fecha suelta.
+ *
+ * Un número semanal cubre SIETE días y enseñar solo el domingo hacía pensar que
+ * eso era todo lo que traía. Cuando los dos extremos caen en el mismo mes, el
+ * mes y el año no se repiten: es la convención de cualquier revista y ahorra la
+ * mitad de la línea.
+ */
+export const rango = (inicio, fin, lang = 'en') => {
+  const a = new Date(`${inicio}T12:00:00Z`), b = new Date(`${fin}T12:00:00Z`);
+  if (isNaN(a) || isNaN(b)) return fecha(inicio, lang);
+  const loc = lang === 'es' ? 'es-MX' : 'en-GB';
+  const mismoMes = a.getUTCMonth() === b.getUTCMonth() && a.getUTCFullYear() === b.getUTCFullYear();
+  if (!mismoMes) return `${fecha(inicio, lang)} – ${fecha(fin, lang)}`;
+  const dia = a.toLocaleDateString(loc, { day: 'numeric', timeZone: 'UTC' });
+  return `${dia}–${fecha(fin, lang)}`;
+};
+
 // La leyenda explica una inversión: aquí una marca es una ADVERTENCIA, y la
 // prosa sin marcar es lo asentado. Antes se marcaba todo —cada frase llevaba su
 // etiqueta— y eso obligaba a escribir «X sostiene que…» en cada párrafo, con lo

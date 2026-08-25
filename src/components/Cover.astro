@@ -1,5 +1,5 @@
 ---
-import { fecha } from '../lib/weekly.js';
+import { fecha, rango } from '../lib/weekly.js';
 import { articlesByLang, topTopics } from '../lib/collection.js';
 
 // Portada compartida por las dos lenguas. Antes solo existía en inglés y la
@@ -9,9 +9,8 @@ const { lang } = Astro.props;
 
 const COPY = {
   en: {
-    news: 'Glossa is my editor. Each week it reads the news I follow and writes back what happened: no ads, no side taken, every fact checked against other outlets and other countries.',
-    study: 'The second strand is for a thesis: books, essays and source documents from the library I built for it. Same method, steadier ground — these are the readings I study from.',
-    credoHTML: 'The ideas and the direction are mine; the searching, checking and writing are the machine\'s. <strong>Grounded, not invented.</strong>',
+    news: 'Glossa is my editor. I give it links, pasted text, YouTube videos, podcasts, outlets, authors and subjects to follow — and the papers, books and source documents in my library; it reads them, checks what they claim against other outlets, other countries and the record, and writes back one reading: no ads, no side taken.',
+    accesoHTML: 'Want a Glossa of your own? <a href="/about/">Get in touch</a>.',
     all: 'All',
     piece: 'piece',
     pieces: 'pieces',
@@ -28,9 +27,8 @@ const COPY = {
     other: { code: 'es', label: 'ES', href: '/es/' },
   },
   es: {
-    news: 'Glossa es mi editor. Cada semana lee las noticias que sigo y me devuelve lo que pasó: sin anuncios, sin tomar partido, cada dato contrastado con otros medios y otros países.',
-    study: 'La segunda hebra es para una tesis: libros, ensayos y documentos de origen de la biblioteca que construí para ella. El mismo método sobre terreno más firme; son las lecturas con las que estudio.',
-    credoHTML: 'Las ideas y la dirección son mías; buscar, verificar y redactar lo hace la máquina. <strong>Fundamentado, no inventado.</strong>',
+    news: 'Glossa es mi editor. Le doy enlaces, textos pegados, vídeos de YouTube, pódcast, medios, autores y asuntos que seguir, y los papers, libros y documentos de mi biblioteca; los lee, contrasta lo que afirman con otros medios, otros países y el registro, y me devuelve una sola lectura: sin anuncios y sin tomar partido.',
+    accesoHTML: '¿Quieres tu propia Glossa? <a href="/es/about/">Escríbeme</a>.',
     all: 'Todos',
     piece: 'pieza',
     pieces: 'piezas',
@@ -66,7 +64,7 @@ try {
   const ANON   = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
   if (URL_SB && ANON) {
     const r = await fetch(
-      `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,body,body_es` +
+      `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body,body_es` +
       `&state=eq.publicado&order=week_start.desc&limit=1`,
       { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` },
         signal: AbortSignal.timeout(4000) });
@@ -87,7 +85,8 @@ const temas = ((cuerpo?.pieces) ?? [])
   .map(p => String(p?.subject ?? p?.title ?? '').trim())
   .filter(Boolean)
   .slice(0, 6);
-const fechaNumero = ultimo ? fecha(ultimo.week_start, lang) : null;
+// El rango que cubre, no el domingo suelto: un número trae siete días.
+const fechaNumero = ultimo ? rango(ultimo.week_start, ultimo.week_end, lang) : null;
 
 // ¿El número que hay es el de ESTA semana o el de la pasada? La portada decía
 // «cada domingo · 16 de agosto» un día 24, y quien lo leía no podía saber si el
@@ -115,19 +114,27 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
     <h1 class="cover-wordmark">Glossa<span class="wm-dot">.</span></h1>
     <div class="cover-intro">
       <p class="cover-why">{t.news}</p>
-      <p class="cover-why">{t.study}</p>
+      {/* Lo demás —la hebra de la tesis, quién hace qué, el método— se fue a
+          /about: la portada tiene que decir qué es esto en una respiración, y
+          quien quiera el resto tiene dónde leerlo. */}
+      <p class="cover-acceso" set:html={t.accesoHTML} />
     </div>
   </div>
-  <p class="cover-credo" set:html={t.credoHTML} />
 </section>
 
 <section class="contents">
+  {/* Los filtros, en el raíl de la retícula y en UNA línea que se desliza.
+      Ocupaban tres renglones a ancho completo —más alto que el bloque del
+      semanal— para una utilidad que casi nunca se toca. Ahora el recuento va a
+      la izquierda, donde van los datos en toda la página, y los temas corren a
+      su derecha; lo que no cabe se alcanza deslizando, sin empujar la portada
+      hacia abajo. */}
   <div class="cover-filter">
+    <span class="cover-count">{articles.length} {articles.length === 1 ? t.piece : t.pieces} · 2026</span>
     <div class="filter-topics" id="filter">
       <button class="f on" data-t="all">{t.all}</button>
       {topics.map(x => <button class="f" data-t={x}>{x}</button>)}
     </div>
-    <span class="cover-count">{articles.length} {articles.length === 1 ? t.piece : t.pieces} · 2026</span>
   </div>
 
   {/* El semanal es una CABECERA, no una pieza más: por eso ocupa el ancho
