@@ -8,7 +8,7 @@ Texto de la portada. Bilingüe, sin em dashes.
 
 ## EN
 
-Glossa is my editor. I give it the sites, videos, podcasts and writers I follow. Every Sunday it reads them and writes back what happened that week, checked against other outlets and other countries. No ads, no side taken.
+Glossa is my editor. I give it the sites, videos, podcasts and writers I follow. Every Sunday it reads them and writes back what happened that week, checked against other outlets. No ads, no side taken.
 
 I can also paste in one article, or just name a topic. Then it looks up what other sources say, searches my own library of papers and documents, and writes a single piece on it.
 
@@ -16,7 +16,7 @@ Want a Glossa of your own? [Get in touch](https://ademas.ai/#:~:text=Terms-,Abou
 
 ## ES
 
-Glossa es mi editor. Le doy los sitios, vídeos, pódcast y autores que sigo. Cada domingo los lee y me escribe qué pasó esa semana, contrastado con otros medios y otros países. Sin anuncios y sin tomar partido.
+Glossa es mi editor. Le doy los sitios, vídeos, pódcast y autores que sigo. Cada domingo los lee y me escribe qué pasó esa semana, contrastado con otros medios. Sin anuncios y sin tomar partido.
 
 También puedo pegarle un artículo, o solo decirle un tema. Entonces busca qué dicen otras fuentes, consulta mi biblioteca de papers y documentos, y escribe una sola pieza sobre eso.
 
