@@ -40,11 +40,8 @@ env:
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
   MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
-  # Para escribir con Grok en vez de Kimi. La cascada de traducción ya usa esta
-  # misma cuenta, así que la clave existe desde antes.
-  XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
-  # La cascada de traducción (los mismos de glossa-traducir.yml): Gemini gratis
-  # primero; Grok y Haiku de reserva. Kimi escribe, no traduce.
+  # Una sola vez: sirve para las DOS cosas — traducir (cascada: Gemini gratis,
+  # luego Grok, luego Haiku) y, si se pide, escribir la pieza con Grok.
   XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
