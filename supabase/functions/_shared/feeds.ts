@@ -269,3 +269,47 @@ export async function episodiosYouTube(canalId: string, apiKey: string):
   }
   return { entradas, filtrados };
 }
+
+
+/**
+ * El mismo episodio, buscado en YouTube.
+ *
+ * El peldaño que faltaba. Cuando un pódcast no publica transcripción, su página
+ * no da nada y el feed solo trae notas, casi siempre queda una salida: el vídeo
+ * del episodio, que Gemini SÍ sabe escuchar. Es la diferencia entre un episodio
+ * saltado y uno leído entero.
+ *
+ * Cuesta 100 unidades de las 10.000 diarias, así que solo se llama cuando todo
+ * lo gratis ya falló.
+ *
+ * Y comprueba que sea EL episodio, no uno del mismo programa: se exige que el
+ * título del vídeo comparta la mayoría de las palabras largas con el del
+ * episodio. Un vídeo equivocado sería peor que ninguno — se analizaría el
+ * contenido de otro y nadie lo notaría.
+ */
+export async function buscarEnYouTube(titulo: string, programa: string, key: string) {
+  const fichas = (t: string) => new Set(
+    t.toLowerCase().replace(/[^a-z0-9áéíóúñü ]/g, ' ').split(/\s+/).filter(w => w.length >= 4));
+  const suyas = fichas(titulo);
+  if (suyas.size < 2) return null;
+
+  try {
+    const q = encodeURIComponent(`${titulo} ${programa}`.slice(0, 180));
+    const r = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q=${q}&key=${key}`,
+      { signal: AbortSignal.timeout(12_000) });
+    if (!r.ok) return null;
+    const d = await r.json();
+    for (const it of d.items ?? []) {
+      const suyo = fichas(String(it.snippet?.title ?? ''));
+      const comunes = [...suyas].filter(w => suyo.has(w)).length;
+      // Dos tercios de las palabras del título del episodio. Con menos, es otro
+      // episodio del mismo programa y el análisis hablaría de lo que no es.
+      if (comunes / suyas.size >= 0.66) {
+        return { videoId: String(it.id?.videoId ?? ''), titulo: String(it.snippet?.title ?? ''),
+                 canal: String(it.snippet?.channelTitle ?? '') };
+      }
+    }
+    return null;
+  } catch { return null; }
+}

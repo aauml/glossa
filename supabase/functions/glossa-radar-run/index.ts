@@ -12,7 +12,7 @@
 // Nada de aquí se publica. Es material de lectura privado.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { CORS, requireToken } from '../_shared/auth.ts';
-import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube, textoDePagina } from '../_shared/feeds.ts';
+import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube, textoDePagina, buscarEnYouTube } from '../_shared/feeds.ts';
 import { gemini, geminiJson, geminiTokens, MODELO_DIGEST, VIDEO_FPS } from '../_shared/gemini.ts';
 import { promptDigest, promptTemas } from '../_shared/prompts.ts';
 import { ajustes, uso, apuntar, cabe } from '../_shared/presupuesto.ts';
@@ -253,12 +253,29 @@ Deno.serve(async (req) => {
         item.body_text = texto.slice(0, 200_000);
         await sb.from('glossa_radar_items').update({ body_text: item.body_text }).eq('id', item.id);
       } else if (!item.body_text) {
-        await sb.from('glossa_radar_items').update({
-          state: 'skipped', digested_at: new Date().toISOString(),
-          error: `sin texto: la página del episodio devolvió ${texto.length} caracteres — probablemente se dibuja con JavaScript`,
-        }).eq('id', item.id);
-        saltados.push(String(item.title).slice(0, 50));
-        continue;
+        // Antes de rendirse: el mismo episodio en YouTube, que Gemini sí sabe
+        // escuchar. Es el único camino que queda cuando el programa no publica
+        // transcripción, y convierte un episodio saltado en uno leído entero.
+        const key = Deno.env.get('GLOSSA_YOUTUBE_KEY');
+        const video = (key && cabe(gasto, ajus, 'youtube', 'cap_youtube_dia'))
+          ? await buscarEnYouTube(String(item.title), item.glossa_radar_sources?.name ?? '', key)
+          : null;
+        if (video?.videoId) {
+          await apuntar(sb, 'youtube', 100);   // lo que cuesta una búsqueda
+          item.url = `https://www.youtube.com/watch?v=${video.videoId}`;
+          await sb.from('glossa_radar_items').update({
+            url: item.url,
+            note: `sin transcripción; se analiza el vídeo hallado en YouTube: «${video.titulo.slice(0, 80)}» (${video.canal})`,
+          }).eq('id', item.id);
+          (log.hallados_en_youtube ||= []).push(String(item.title).slice(0, 50));
+        } else {
+          await sb.from('glossa_radar_items').update({
+            state: 'skipped', digested_at: new Date().toISOString(),
+            error: `sin texto: la página no dio nada y tampoco hay vídeo de este episodio en YouTube`,
+          }).eq('id', item.id);
+          saltados.push(String(item.title).slice(0, 50));
+          continue;
+        }
       }
     }
 

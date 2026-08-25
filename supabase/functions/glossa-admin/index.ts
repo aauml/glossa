@@ -53,6 +53,50 @@ async function huella(s: string) {
  * las notas del episodio: no es la transcripción, pero es texto real y a menudo
  * son dos o tres mil caracteres.
  */
+/**
+ * La MEJOR superficie de un programa, no la primera que se pegó.
+ *
+ * Apple y Spotify son escaparates: distribuyen audio y no publican texto. El
+ * sitio del propio programa casi siempre sí —transcripción o notas largas— y su
+ * RSS suele traer más que su web. Pegar el escaparate y quedarse ahí era
+ * conformarse con lo que menos da.
+ *
+ * Solo mira lo que el feed ya declara (`link` del canal, `itunes:owner`): no
+ * inventa dominios ni sale a buscar a ciegas.
+ */
+async function mejorFeed(feedUrl: string) {
+  try {
+    const r = await fetch(feedUrl, { redirect: 'follow', signal: AbortSignal.timeout(12_000) });
+    if (!r.ok) return null;
+    const xml = (await r.text()).slice(0, 200_000);
+    const cab = xml.split('<item>')[0];
+    const sitio = /<link[^>]*>\s*(?:<!\[CDATA\[)?\s*(https?:\/\/[^<\]\s]+)/i.exec(cab)?.[1];
+    if (!sitio) return null;
+    const host = new URL(sitio).host.replace(/^www\./, '');
+    if (/megaphone|libsyn|buzzsprout|podbean|anchor|simplecast|acast|spotify|apple/.test(host)) return null;
+
+    // ¿Publica su propio feed? Suele traer el texto entero donde el de audio
+    // solo trae notas: 262.000 caracteres contra 3.610 en el caso medido.
+    for (const ruta of ['/latest/rss/', '/rss/', '/feed/', '/rss.xml', '/feed.xml']) {
+      try {
+        const u = new URL(ruta, sitio).href;
+        const rr = await fetch(u, { redirect: 'follow', signal: AbortSignal.timeout(8000) });
+        if (!rr.ok) continue;
+        const t = (await rr.text()).slice(0, 300_000);
+        if (!/<(rss|feed)[\s>]/i.test(t)) continue;
+        const item = t.split('<item>')[1] ?? '';
+        const cuerpo = /<content:encoded>([\s\S]*?)<\/content:encoded>/i.exec(item)?.[1] ?? '';
+        const propio = cuerpo.length;
+        const audio = (/<content:encoded>([\s\S]*?)<\/content:encoded>/i.exec(xml.split('<item>')[1] ?? '')?.[1] ?? '').length;
+        if (propio > Math.max(audio * 2, 8000)) {
+          return { feed_url: u, sitio: host, caracteres: propio };
+        }
+      } catch { /* siguiente ruta */ }
+    }
+    return null;
+  } catch { return null; }
+}
+
 async function resolverEpisodioApple(url: string) {
   const ep = /[?&]i=(\d{5,})/.exec(url)?.[1];
   const prog = /\/id(\d{5,})/.exec(url)?.[1];
@@ -475,7 +519,16 @@ async function clasificar(texto: string): Promise<Resuelto> {
                  label: `an Apple Podcasts link — but ${ap.error}`, aviso: ap.error };
       }
       const chk = await feedResponde(ap.feed_url);
+      const mejorAp = chk.ok ? await mejorFeed(ap.feed_url) : null;
       const nombre = nombreCorto(ap.nombre ?? (chk.ok ? chk.nombre : undefined));
+      if (mejorAp) {
+        return {
+          as: 'fuente', kind: 'podcast', feed_url: mejorAp.feed_url, name: nombre, saludable: true,
+          label: `a podcast · ${nombre ?? 'untitled'} — Apple only distributes the audio, so this ` +
+                 `follows its own site (${mejorAp.sitio}), where the full text is: ` +
+                 `${Math.round(mejorAp.caracteres / 1000)}k characters per episode`,
+        };
+      }
       const callado = chk.ok ? avisoDeSilencio(chk.diasDesdeUltimo) : undefined;
       return {
         as: 'fuente', kind: 'podcast', feed_url: ap.feed_url, name: nombre,
@@ -506,6 +559,18 @@ async function clasificar(texto: string): Promise<Resuelto> {
       // mirarlo.
       const kind = chk.ok && chk.esPodcast ? 'podcast' : 'rss';
       const callado = chk.ok ? avisoDeSilencio(chk.diasDesdeUltimo) : undefined;
+      // ¿Hay una superficie mejor que esta? Se dice y se ofrece; no se cambia
+      // por detrás, que sería dar de alta algo distinto de lo que se pegó.
+      const mejor = kind === 'podcast' ? await mejorFeed(t) : null;
+      if (mejor) {
+        return {
+          as: 'fuente', kind, feed_url: mejor.feed_url,
+          name: chk.ok ? nombreCorto(chk.nombre) : undefined, saludable: true,
+          label: `a podcast · ${(chk.ok ? chk.nombre : undefined) ?? 'untitled'} — using its own site (${mejor.sitio}), ` +
+                 `which publishes the full text: ${Math.round(mejor.caracteres / 1000)}k characters per episode`,
+          alternativas: [{ as: 'fuente', kind, label: 'use the audio feed instead' }],
+        };
+      }
       return {
         as: 'fuente', kind, feed_url: t, name: chk.ok ? nombreCorto(chk.nombre) : undefined,
         saludable: chk.ok,
