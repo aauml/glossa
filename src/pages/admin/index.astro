@@ -438,26 +438,36 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const meses = Object.keys(por).sort().reverse().slice(0, 12);
     const mesActual = new Date().toISOString().slice(0, 7);
     const n = (x) => Number(x || 0);
+    // Cada proveedor cae en UN cubo y el resto en «other models». Antes las
+    // columnas eran fijas —gemini, kimi, tavily, comité— y quien traduce (Grok
+    // o Haiku, cuando Gemini no puede) sumaba al total sin aparecer en ninguna:
+    // dinero gastado que no se veía de dónde salía.
+    const CUBO = { gemini: 'escuchar', moonshot: 'escribir', tavily: 'buscar',
+                   xai: 'traducir', anthropic: 'traducir', youtube: 'escuchar' };
     const filas = meses.map(m => {
       const p = por[m];
-      const kimi = n(p.moonshot?.coste);
-      const comite = n(p.deepseek?.coste) + n(p.openai?.coste);
-      const total = Object.values(p).reduce((s, r) => s + n(r.coste), 0);
+      const suma = (cubo) => Object.entries(p)
+        .filter(([prov]) => (CUBO[prov] ?? 'otros') === cubo)
+        .reduce((acc, [, r]) => acc + n(r.coste), 0);
+      const total = Object.values(p).reduce((acc, r) => acc + n(r.coste), 0);
       const tavily = (m === mesActual && g.tavily)
         ? `${g.tavily.usados} of ${g.tavily.tope} used`
         : `${n(p.tavily?.llamadas)} credits`;
+      const dol = (x) => x ? '$' + x.toFixed(2) : '$0';
       return `<tr>
         <td>${esc(m)}</td>
-        <td class="admin-num">${n(p.gemini?.llamadas)} calls · $0</td>
-        <td class="admin-num">$${kimi.toFixed(2)}</td>
-        <td class="admin-num">${esc(tavily)} · $0</td>
-        <td class="admin-num">${comite ? '$' + comite.toFixed(2) : '$0'}</td>
+        <td class="admin-num">${n(p.gemini?.llamadas)} calls · ${dol(suma('escuchar'))}</td>
+        <td class="admin-num">${dol(suma('escribir'))}</td>
+        <td class="admin-num">${dol(suma('traducir'))}</td>
+        <td class="admin-num">${esc(tavily)} · ${dol(suma('buscar'))}</td>
+        <td class="admin-num">${dol(suma('otros'))}</td>
         <td class="admin-num"><strong>$${total.toFixed(2)}</strong></td></tr>`;
     }).join('');
     el.innerHTML = `<table class="admin-tabla" style="font-size:12.5px">
-      <tr style="color:var(--muted)"><td>month</td><td class="admin-num">listening (gemini)</td>
-        <td class="admin-num">writing (kimi)</td><td class="admin-num">searching (tavily)</td>
-        <td class="admin-num">committee</td><td class="admin-num">total</td></tr>${filas}</table>` +
+      <tr style="color:var(--muted)"><td>month</td><td class="admin-num">listening</td>
+        <td class="admin-num">writing</td><td class="admin-num">translating</td>
+        <td class="admin-num">searching</td>
+        <td class="admin-num">other models</td><td class="admin-num">total</td></tr>${filas}</table>` +
       (g.tavily ? `<p class="admin-nota" style="margin-top:4px">Tavily renews in ${
         esc(String(g.tavily.dias_para_renovar))} d · ${esc(String(g.tavily.restantes))} credits left this cycle</p>` : '');
   }
