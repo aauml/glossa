@@ -755,7 +755,12 @@ Deno.serve(async (req) => {
       case 'temas.list': {
         const { data, error } = await db.rpc('glossa_radar_temas_propuestos', { dias: 21 });
         if (error) throw error;
-        return ok({ temas: data ?? [] });
+        // El sector vive en la tabla, no en el RPC: se pega aquí para no tocar
+        // una función que ya usan otros.
+        const { data: sec } = await db.from('glossa_radar_topics').select('id,sector');
+        const porId = new Map((sec ?? []).map((x: { id: string; sector: string }) => [x.id, x.sector]));
+        return ok({ temas: (data ?? []).map((t: Record<string, unknown>) =>
+          ({ ...t, sector: porId.get(String(t.topic_id)) ?? 'Other' })) });
       }
 
       case 'temas.fijar': {

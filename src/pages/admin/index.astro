@@ -457,7 +457,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if (!el) return;
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     const fijos = d.temas.filter(t => t.fijo);
-    const libres = d.temas.filter(t => !t.fijo).slice(0, 24);
+    const libres = d.temas.filter(t => !t.fijo).slice(0, 60);
     $('tm-cuenta').textContent = fijos.length ? `${fijos.length} pinned` : '';
 
     // Sin cifras a la vista. «14 channels · 45 items» es la evidencia con la
@@ -469,13 +469,24 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       title="${esc(t.label)}${t.description ? ' — ' + esc(t.description) : ''}
 ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.label)}</button>`;
 
+    // Agrupados por sector, en un orden fijo: 196 temas en una sola fila
+    // mezclan la guerra de Ucrania con la liga de fútbol. Agrupados, el ruido
+    // colapsa bajo un encabezado que se ignora de un vistazo.
+    const ORDEN = ['Geopolitics & war', 'Economy & markets', 'Energy & resources',
+                   'U.S. politics', 'Latin America', 'AI & technology',
+                   'Media & information', 'Justice & crime', 'Society & culture', 'Other'];
+    const porSector = {};
+    for (const t of libres) (porSector[t.sector || 'Other'] ||= []).push(t);
+    const grupos = ORDEN.filter(s => porSector[s]?.length).map(s => `
+      <p class="admin-sector">${esc(s)}</p>
+      <div class="temas">${porSector[s].map(t => chip(t, false)).join('')}</div>`).join('');
+
     el.innerHTML =
       (fijos.length
         ? `<p class="admin-nota">In the weekly</p>
            <div class="temas">${fijos.map(t => chip(t, true)).join('')}</div>`
         : '') +
-      `<p class="admin-nota" style="margin-top:${fijos.length ? '18px' : '0'}">More</p>
-       <div class="temas">${libres.map(t => chip(t, false)).join('')}</div>`;
+      `<div style="margin-top:${fijos.length ? '20px' : '0'}">${grupos}</div>`;
   }
   delegar($('tm-lista'), '[data-tema]', async (b) => {
     b.disabled = true;

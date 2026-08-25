@@ -141,3 +141,11 @@ details.grupo > summary:hover,
 /* Las listas de las secciones, más discretas: mismo contenido, menos peso. */
 .admin-sec .admin-tabla td { padding: 5px 10px 5px 0; font-size: 12.5px; }
 .admin-sec .grupo > summary { font-size: 13px; }
+
+/* El encabezado de cada sector: lo justo para separar, no para competir. */
+.admin-sector {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  margin: 16px 0 2px;
+}
+.admin-sector:first-child { margin-top: 0; }
