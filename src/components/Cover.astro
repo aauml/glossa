@@ -11,7 +11,7 @@ const COPY = {
   en: {
     news: 'Glossa is my editor. I give it the sites, videos, podcasts and writers I follow. Every Sunday it reads them and writes back what happened that week, checked against other outlets. No ads, no side taken.',
     unaPieza: 'I can also paste in one article, or just name a topic. Then it looks up what other sources say, searches my own library of papers and documents, and writes a single piece on it.',
-    accesoHTML: 'Want a Glossa of your own? <a href="https://ademas.ai/#:~:text=Terms-,About,-ademas.ai" rel="noopener">Get in touch</a>.',
+    accesoHTML: 'Want a Glossa of your own? <a href="https://ademas.ai/" rel="noopener">Get in touch</a>.',
     all: 'All',
     piece: 'piece',
     pieces: 'pieces',
@@ -30,7 +30,7 @@ const COPY = {
   es: {
     news: 'Glossa es mi editor. Le doy los sitios, vídeos, pódcast y autores que sigo. Cada domingo los lee y me escribe qué pasó esa semana, contrastado con otros medios. Sin anuncios y sin tomar partido.',
     unaPieza: 'También puedo pegarle un artículo, o solo decirle un tema. Entonces busca qué dicen otras fuentes, consulta mi biblioteca de papers y documentos, y escribe una sola pieza sobre eso.',
-    accesoHTML: '¿Quieres tu propia Glossa? <a href="https://ademas.ai/#:~:text=Terms-,About,-ademas.ai" rel="noopener">Escríbeme</a>.',
+    accesoHTML: '¿Quieres tu propia Glossa? <a href="https://ademas.ai/" rel="noopener">Escríbeme</a>.',
     all: 'Todos',
     piece: 'pieza',
     pieces: 'piezas',
@@ -122,10 +122,12 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
           y dejaba fuera la mitad de la colección. */}
       <p class="cover-why">{t.news}</p>
       <p class="cover-why">{t.unaPieza}</p>
-      {/* El contacto es el «About» de ademas.ai, que ya existe: Glossa no
-          necesita una página que repita lo que ese sitio ya dice. Va por
-          fragmento de texto porque esa vista se dibuja con JavaScript y no
-          tiene ruta propia. */}
+      {/* El contacto lleva a ademas.ai, donde está su «About».
+          Al sitio, no a la sección: comprobado en su código que esa vista es
+          estado de React que abre el enlace del pie, y que del URL solo lee
+          parámetros UTM. No hay ruta, hash ni fragmento que la abra desde
+          fuera, así que un enlace más preciso sería un enlace roto. Si algún
+          día ademas.ai atiende algo como #about, se cambia esta línea. */}
       <p class="cover-acceso" set:html={t.accesoHTML} />
     </div>
   </div>

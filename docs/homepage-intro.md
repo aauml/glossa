@@ -12,7 +12,7 @@ Glossa is my editor. I give it the sites, videos, podcasts and writers I follow.
 
 I can also paste in one article, or just name a topic. Then it looks up what other sources say, searches my own library of papers and documents, and writes a single piece on it.
 
-Want a Glossa of your own? [Get in touch](https://ademas.ai/#:~:text=Terms-,About,-ademas.ai).
+Want a Glossa of your own? [Get in touch](https://ademas.ai/).
 
 ## ES
 
@@ -20,7 +20,7 @@ Glossa es mi editor. Le doy los sitios, vídeos, pódcast y autores que sigo. Ca
 
 También puedo pegarle un artículo, o solo decirle un tema. Entonces busca qué dicen otras fuentes, consulta mi biblioteca de papers y documentos, y escribe una sola pieza sobre eso.
 
-¿Quieres tu propia Glossa? [Escríbeme](https://ademas.ai/#:~:text=Terms-,About,-ademas.ai).
+¿Quieres tu propia Glossa? [Escríbeme](https://ademas.ai/).
 
 ## Por qué la portada es una sola frase
 
@@ -39,7 +39,9 @@ ni la misión. Lo que se quitó de aquí y por qué:
 Glossa NO tiene página «about» propia: la de ademas.ai ya existe y repetirla
 serían dos textos que se contradicen con el tiempo. El enlace apunta allí.
 
-El contacto va por fragmento de texto porque esa sección se dibuja con
-JavaScript y no tiene ruta propia (Chrome y Edge saltan a ella; Safari y Firefox
-abren el inicio). Si algún día gana URL propia, se cambia en
-`src/components/Cover.astro`.
+El contacto apunta a `https://ademas.ai/`, al sitio y no a su sección «About».
+Se intentó enlazar la sección y no se puede: allí es estado de React que abre el
+enlace del pie, y del URL solo se leen parámetros UTM. No hay ruta, hash ni
+fragmento de texto que la abra desde fuera. Para poder enlazarla habría que
+añadir en ademas.ai un manejador que abra esa vista con, por ejemplo, `#about`;
+entonces se cambia el enlace en `src/components/Cover.astro`.
