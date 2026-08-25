@@ -1,7 +1,12 @@
 // Lectura de RSS. YouTube y los podcasts publican feeds abiertos: no hay que
 // raspar nada ni usar claves. Es la vía limpia para saber qué hay nuevo.
 
-export type Entrada = { external_id: string; url: string; title: string; published_at: string };
+export type Entrada = { external_id: string; url: string; title: string; published_at: string;
+                        // Lo que el feed ya trae escrito. No es la transcripción, pero
+                        // en muchos programas son dos o tres mil caracteres de notas, y
+                        // es lo único que hay cuando la página del episodio se dibuja
+                        // con JavaScript. Ver `parsearFeed`.
+                        texto?: string };
 
 /** Extrae el contenido de la primera etiqueta que coincida. */
 const tag = (xml: string, nombre: string) => {
@@ -70,11 +75,24 @@ export function parsearFeed(xml: string, kind: string): Entrada[] {
     if (!url) continue;
     const guid = limpiar(tag(it, 'guid')) || url;
     const fecha = tag(it, 'pubDate');
+    // El TEXTO DEL FEED, que estaba delante todo el tiempo.
+    //
+    // The Cognitive Revolution se saltaba entero —«la página devolvió 73
+    // caracteres», porque Megaphone la dibuja con JavaScript— mientras su
+    // propio feed traía 3.610 caracteres de notas por episodio. Se pedía por la
+    // ventana lo que estaba sobre la mesa.
+    //
+    // Sigue siendo el plan B: si la página del episodio da transcripción (la de
+    // Dwarkesh da 78.000 caracteres), esa gana. Esto es el suelo, no el techo.
+    const texto = limpiar(tag(it, 'content:encoded')) ||
+                  limpiar(tag(it, 'description')) ||
+                  limpiar(tag(it, 'itunes:summary'));
     out.push({
       external_id: guid,
       url,
       title: limpiar(tag(it, 'title')),
       published_at: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
+      ...(texto && texto.length >= 400 ? { texto } : {}),
     });
   }
   return out;
@@ -100,9 +118,18 @@ export async function textoDePagina(url: string): Promise<string> {
     const sinRuido = html
       .replace(/<(script|style|nav|header|footer|aside|form)[^>]*>[\s\S]*?<\/\1>/gi, ' ')
       .replace(/<!--[\s\S]*?-->/g, ' ');
-    const art = /<article[^>]*>([\s\S]*?)<\/article>/i.exec(sinRuido)
-             || /<main[^>]*>([\s\S]*?)<\/main>/i.exec(sinRuido);
-    const cuerpo = art ? art[1] : sinRuido;
+    // Se prueban TODOS los <article> y <main> y gana el más largo, no el
+    // primero. Ese detalle costó una fuente entera: la página de The Cognitive
+    // Revolution abre con un <article> decorativo de 73 caracteres y el
+    // transcript —204.592— viene después, así que el extractor devolvía 73, el
+    // radar concluía «se dibuja con JavaScript» y saltaba cada episodio.
+    //
+    // Y si el mejor trozo es más pobre que la página entera, se queda la página:
+    // más vale menú de más que transcripción de menos.
+    const trozos = [...sinRuido.matchAll(/<(article|main)[^>]*>([\s\S]*?)<\/\1>/gi)]
+      .map(m => m[2]);
+    const mejor = trozos.sort((a, b) => b.length - a.length)[0] ?? '';
+    const cuerpo = mejor.length > sinRuido.length * 0.4 ? mejor : sinRuido;
     return cuerpo
       .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')

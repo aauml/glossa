@@ -102,6 +102,11 @@ Deno.serve(async (req) => {
           .map(e => ({
             source_id: src.id, origin: 'feed', external_id: e.external_id, url: e.url,
             title: e.title, author: partirInvitado(e.title), published_at: e.published_at,
+            // Lo que el feed ya traía escrito. Al digerir, si la página del
+            // episodio da algo mejor (una transcripción), lo pisa; si no da
+            // nada —Megaphone y sus páginas de JavaScript—, esto evita que el
+            // episodio se salte por falta de texto.
+            ...(e.texto ? { body_text: e.texto.slice(0, 200_000) } : {}),
           }));
         if (filas.length) {
           // Árbitro: `external_id`, con índice único COMPLETO (migración 0010).
@@ -238,12 +243,16 @@ Deno.serve(async (req) => {
     // La transcripción vive en la página del episodio, no en el feed. Cuando la
     // página no da nada —renderizada por JavaScript— el elemento se SALTA con
     // su motivo, que es distinto de fallar: no hay nada que leer ahí.
-    if (!item.body_text && !/(?:youtube\.com|youtu\.be)\//.test(String(item.url))) {
+    // Se busca la página incluso teniendo texto del feed: las notas del feed
+    // son el suelo y la transcripción de la página es el techo. Solo se cambia
+    // si la página trae claramente MÁS.
+    if (!/(?:youtube\.com|youtu\.be)\//.test(String(item.url)) &&
+        (!item.body_text || String(item.body_text).length < 6000)) {
       const texto = await textoDePagina(String(item.url));
-      if (texto.length >= 400) {
+      if (texto.length >= 400 && texto.length > String(item.body_text ?? '').length) {
         item.body_text = texto.slice(0, 200_000);
         await sb.from('glossa_radar_items').update({ body_text: item.body_text }).eq('id', item.id);
-      } else {
+      } else if (!item.body_text) {
         await sb.from('glossa_radar_items').update({
           state: 'skipped', digested_at: new Date().toISOString(),
           error: `sin texto: la página del episodio devolvió ${texto.length} caracteres — probablemente se dibuja con JavaScript`,
