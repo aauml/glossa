@@ -47,11 +47,12 @@ const COPY = {
 };
 const t = COPY[lang];
 const inicio = lang === 'es' ? '/es/' : '/';
-// El contacto vive en ademas.ai, en su sección «About me». Esa vista se dibuja
-// con JavaScript y NO tiene URL propia —comprobado: cualquier ruta del sitio
-// devuelve la misma página—, así que el enlace lleva al sitio, no a la sección.
-// Si algún día esa sección gana su propia dirección, se cambia aquí y ya.
-const CONTACTO = 'https://ademas.ai/';
+// El contacto vive en la sección «About» de ademas.ai. Esa vista se dibuja con
+// JavaScript y no tiene ruta propia, así que se enlaza con un fragmento de
+// texto (la dirección que pasó Arturo): Chrome y Edge saltan y resaltan; Safari
+// y Firefox ignoran el fragmento y abren el inicio, que sigue siendo el sitio
+// correcto. Si algún día esa sección gana URL propia, se cambia aquí.
+const CONTACTO = 'https://ademas.ai/#:~:text=Terms-,About,-ademas.ai';
 ---
 <section class="cover">
   <div class="cover-head">
