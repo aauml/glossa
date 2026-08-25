@@ -8,17 +8,17 @@ Texto de la portada. Bilingüe, sin em dashes.
 
 ## EN
 
-Glossa is my editor. I point it at links, videos, podcasts, outlets and authors, and each Sunday it writes back one reading of the week: what happened, checked against other outlets and other countries, no ads, no side taken.
+Glossa is my editor. I give it the sites, videos, podcasts and writers I follow. Every Sunday it reads them and writes back what happened that week, checked against other outlets and other countries. No ads, no side taken.
 
-Paste a single article or talk, or just name a subject, and it writes a piece on that instead: it goes out for the counterpoint and for what the record says, then writes from that and from my library of papers, academic texts and primary documents, which it keeps and searches by meaning.
+I can also paste in one article, or just name a topic. Then it looks up what other sources say, searches my own library of papers and documents, and writes a single piece on it.
 
 Want a Glossa of your own? [Get in touch](https://ademas.ai/#:~:text=Terms-,About,-ademas.ai).
 
 ## ES
 
-Glossa es mi editor. Le señalo enlaces, vídeos, pódcast, medios y autores, y cada domingo me devuelve una sola lectura de la semana: qué pasó, contrastado con otros medios y otros países, sin anuncios y sin tomar partido.
+Glossa es mi editor. Le doy los sitios, vídeos, pódcast y autores que sigo. Cada domingo los lee y me escribe qué pasó esa semana, contrastado con otros medios y otros países. Sin anuncios y sin tomar partido.
 
-Pego un artículo o una charla, o solo nombro un asunto, y escribe una pieza sobre eso: sale a buscar el contrapunto y lo que dice el registro, y redacta con eso y con mi biblioteca de papers, textos académicos y documentos de origen, que él mismo mantiene y consulta por significado.
+También puedo pegarle un artículo, o solo decirle un tema. Entonces busca qué dicen otras fuentes, consulta mi biblioteca de papers y documentos, y escribe una sola pieza sobre eso.
 
 ¿Quieres tu propia Glossa? [Escríbeme](https://ademas.ai/#:~:text=Terms-,About,-ademas.ai).
 
