@@ -52,8 +52,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
        la corrección aparece arriba solo cuando hay una viva, y el interruptor
        se mudó a Articles, que es donde está el número. -->
   <section class="admin-sec">
-    <details class="grupo" open>
-      <summary>Sections <span id="tm-cuenta" class="admin-kind"></span></summary>
+    <details class="grupo" open data-visto="temas">
+      <summary>Sections <span id="tm-cuenta" class="admin-kind"></span><span id="tm-nuevos" class="admin-nuevo"></span></summary>
       <p class="admin-nota" style="margin-top:8px">The departments of the weekly, like a
         magazine's. Switch on the ones you want and write, in one line, what interests you
         there: that line decides what gets in when there is more material than fits. Each
@@ -76,8 +76,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   <!-- ── Quién pidió su propia Glossa ───────────────────────────────────── -->
   <section class="admin-sec">
-    <details class="grupo">
-      <summary>Access requests <span id="ac-cuenta" class="admin-kind"></span></summary>
+    <details class="grupo" data-visto="accesos">
+      <summary>Access requests <span id="ac-cuenta" class="admin-kind"></span><span id="ac-nuevos" class="admin-nuevo"></span></summary>
       <p class="admin-nota" style="margin-top:8px">People who left their email on the
         cover asking for their own. They got an acknowledgement; the actual reply is
         yours to write.</p>
@@ -88,8 +88,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
   <!-- ── La cola, contraída como todo lo demás ──────────────────────────── -->
   <section class="admin-sec">
-    <details class="grupo">
-      <summary>Queue <span id="q-cuenta" class="admin-kind"></span></summary>
+    <details class="grupo" data-visto="cola">
+      <summary>Queue <span id="q-cuenta" class="admin-kind"></span><span id="q-nuevos" class="admin-nuevo"></span></summary>
       <p class="admin-nota" style="margin-top:8px">What is waiting to be read or failed,
         plus anything you added in the last 48 h. Read items clear out on their own.</p>
       <div id="q-lista"><span class="admin-vacio">loading…</span></div>
@@ -102,6 +102,28 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   import { hace } from '../../lib/tiempo.js';
 
   const $ = (id) => document.getElementById(id);
+
+  // ── Qué es nuevo desde la última vez ────────────────────────────────────
+  //
+  // «Nuevo» es lo aparecido después de la última vez que MIRASTE esa sección,
+  // no de la última recarga: si se marcara al pintar, nada sería nuevo nunca
+  // porque el panel se pinta solo cada 30 segundos.
+  //
+  // La marca se guarda al ABRIR el plegable, así que lo nuevo sigue en negrita
+  // mientras lo lees y deja de estarlo la próxima vez que vuelvas.
+  const visto = (clave) => {
+    try { return localStorage.getItem(`glossa-visto-${clave}`) || '1970-01-01'; }
+    catch { return '1970-01-01'; }
+  };
+  const marcarVisto = (clave) => {
+    try { localStorage.setItem(`glossa-visto-${clave}`, new Date().toISOString()); } catch { /* modo privado */ }
+  };
+  const esNuevo = (clave, fecha) => !!fecha && String(fecha) > visto(clave);
+  // Cuando se abre una sección, lo que había pasa a estar visto.
+  document.addEventListener('toggle', (e) => {
+    const d = e.target.closest?.('details[data-visto]');
+    if (d?.open) marcarVisto(d.dataset.visto);
+  }, true);
   const cajaMsg = $('in-msg'), resuelto = $('in-resuelto'), alt = $('in-alt');
   const listaQ = $('q-lista'), listaSrc = $('src-lista');
 
@@ -188,9 +210,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if (d.error) { listaQ.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     const esperando = d.items.filter(i => i.state === 'pending' || i.state === 'running').length;
     $('q-cuenta').textContent = esperando ? `${esperando} waiting` : 'all read';
+    const nQ = d.items.filter(i => esNuevo('cola', i.created_at)).length;
+    $('q-nuevos').textContent = nQ ? ` ${nQ} new` : '';
     if (!d.items.length) { listaQ.innerHTML = '<span class="admin-vacio">Nothing here.</span>'; return; }
     listaQ.innerHTML = `<table class="admin-tabla">
-      ${d.items.map(i => `<tr>
+      ${d.items.map(i => `<tr${esNuevo('cola', i.created_at) ? ' class="fila-nueva"' : ''}>
         <td>${esc(i.title)}${flecha(i.url, i.title)}
           ${i.error ? `<div class="admin-nota" style="color:var(--accent)">${esc(i.error)}</div>` : ''}</td>
         <td style="color:var(--muted);white-space:nowrap">${esc(procedencia(i))}</td>
@@ -472,6 +496,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if (!el || d.error) return;
     const activas = d.secciones.filter(s => s.activo).length;
     $('tm-cuenta').textContent = activas ? `${activas} on` : 'none on';
+    const nt = $('tm-nuevos');
+    if (nt) nt.textContent = nuevosT ? ` ${nuevosT} new` : '';
     el.innerHTML = `<table class="admin-tabla">${d.secciones.map(s => `<tr>
       <td style="white-space:nowrap"><label style="display:flex;gap:8px;align-items:baseline;cursor:pointer">
         <input type="checkbox" data-sec="${esc(s.sector)}"${s.activo ? ' checked' : ''}>
@@ -506,6 +532,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     const fijos = d.temas.filter(t => t.fijo);
     const libres = d.temas.filter(t => !t.fijo).slice(0, 60);
+    // Cuántos temas nuevos hay, para decirlo en la cabecera de la sección.
+    const nuevosT = d.temas.filter(t => esNuevo('temas', t.creado)).length;
     // El aviso vive donde se toma la decisión. Pasado el tope, el número deja
     // fuera los que menos material trajeron, y eso hay que saberlo AQUÍ.
     const TOPE = 8;
@@ -516,7 +544,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     // que el sistema ORDENA la lista, no algo que ayude a decidir: el tema se
     // reconoce por el nombre. Los números viajan en el `title`, para quien
     // quiera mirarlos, y el espacio que ocupaban se usa para ver más temas.
-    const chip = (t, esFijo) => `<button class="tema${esFijo ? ' on' : ''}"
+    const chip = (t, esFijo) => `<button class="tema${esFijo ? ' on' : ''}${
+      esNuevo('temas', t.creado) ? ' nuevo' : ''}"
       data-tema="${esc(t.topic_id)}" data-fijo="${esFijo ? '0' : '1'}"
       title="${esc(t.label)}${t.description ? ' — ' + esc(t.description) : ''}
 ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.label)}</button>`;
@@ -668,8 +697,11 @@ ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.l
     const el = $('ac-lista');
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     $('ac-cuenta').textContent = d.accesos.length || '';
+    const nA = d.accesos.filter(a => esNuevo('accesos', a.created_at)).length;
+    $('ac-nuevos').textContent = nA ? ` ${nA} new` : '';
     if (!d.accesos.length) { el.innerHTML = '<span class="admin-vacio">None yet.</span>'; return; }
-    el.innerHTML = `<table class="admin-tabla">${d.accesos.map(a => `<tr>
+    el.innerHTML = `<table class="admin-tabla">${d.accesos.map(a => `<tr${
+      esNuevo('accesos', a.created_at) ? ' class="fila-nueva"' : ''}>
       <td><a href="mailto:${esc(a.email)}">${esc(a.email)}</a></td>
       <td class="admin-tenue">${esc(a.lang)}</td>
       <td class="admin-tenue" style="white-space:nowrap">${esc(String(a.created_at).slice(0, 10))}</td>

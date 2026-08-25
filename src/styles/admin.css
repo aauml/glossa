@@ -186,3 +186,14 @@ details.grupo > summary:hover,
   color: var(--muted); margin: 18px 0 2px; display: block;
 }
 .admin-cifras b { color: var(--ink); font-weight: 600; font-size: 12.5px; }
+
+
+/* ── Lo nuevo desde la última vez ────────────────────────────────────────
+   Negrita y un punto de acento. No un color de fondo ni una etiqueta «NEW»:
+   la lista tiene que seguir siendo una lista, no un tablero de avisos. */
+.admin-nuevo { color: var(--accent); font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em; }
+.fila-nueva > td:first-child { font-weight: 600; color: var(--ink); }
+.fila-nueva > td:first-child::before { content: '·'; color: var(--accent); margin-right: 6px; }
+.tema.nuevo { font-weight: 600; color: var(--ink); }
+.tema.nuevo::after { content: '·'; color: var(--accent); margin-left: 4px; }
