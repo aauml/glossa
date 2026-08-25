@@ -529,13 +529,21 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   // Sustituye a dos bloques que se quitaron: el vivero de fuentes y las
   // tripas. Aquí sí se decide algo — qué asuntos tienen sección propia — y se
   // decide eligiendo de lo que el clasificador ya produjo, nunca tecleando.
+  // Qué sectores están desplegados. Vive fuera de la función porque el panel se
+  // repinta solo y, si no, cada refresco volvería a cerrarlos en las narices.
+  const abiertos = new Set();
   async function pintarTemas() {
     const d = await api('temas.list');
     const el = $('tm-lista');
     if (!el) return;
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     const fijos = d.temas.filter(t => t.fijo);
-    const libres = d.temas.filter(t => !t.fijo).slice(0, 60);
+    // SIN corte global. Antes se pintaban los 60 primeros de 193, ordenados por
+    // canales, así que el recorte se comía las colas de los sectores pequeños:
+    // de «AI & technology» se veían 2 de 26 y de «Latin America» 4 de 8. Un
+    // recorte que se lleva sectores enteros no es una lista, es una muestra.
+    // Se recorta POR SECTOR más abajo, donde el usuario puede ver que hay más.
+    const libres = d.temas.filter(t => !t.fijo);
     // Cuántos temas nuevos hay, para decirlo en la cabecera de la sección.
     const nuevosT = d.temas.filter(t => esNuevo('temas', t.creado)).length;
     const nt = $('tm-nuevos');
@@ -564,9 +572,17 @@ ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.l
                    'Media & information', 'Justice & crime', 'Society & culture', 'Other'];
     const porSector = {};
     for (const t of libres) (porSector[t.sector || 'Other'] ||= []).push(t);
-    const grupos = ORDEN.filter(s => porSector[s]?.length).map(s => `
-      <p class="admin-sector">${esc(s)}</p>
-      <div class="temas">${porSector[s].map(t => chip(t, false)).join('')}</div>`).join('');
+    // Doce por sector, y si hay más se dice cuántos y se pueden abrir. Doce es
+    // lo que cabe en dos líneas sin que la sección se vuelva un muro.
+    const POR_SECTOR = 12;
+    const grupos = ORDEN.filter(s => porSector[s]?.length).map(s => {
+      const lista = porSector[s];
+      const cabe = abiertos.has(s) ? lista : lista.slice(0, POR_SECTOR);
+      const resto = lista.length - cabe.length;
+      return `<p class="admin-sector">${esc(s)} <span class="admin-tenue">${lista.length}</span></p>
+        <div class="temas">${cabe.map(t => chip(t, false)).join('')}${
+          resto > 0 ? `<button class="tema mas" data-mas="${esc(s)}">+${resto} more</button>` : ''}</div>`;
+    }).join('');
 
     el.innerHTML =
       (fijos.length
@@ -575,6 +591,7 @@ ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.l
         : '') +
       `<div style="margin-top:${fijos.length ? '20px' : '0'}">${grupos}</div>`;
   }
+  delegar($('tm-lista'), '[data-mas]', (b) => { abiertos.add(b.dataset.mas); pintarTemas(); });
   delegar($('tm-lista'), '[data-tema]', async (b) => {
     b.disabled = true;
     const r = await api('temas.fijar', { topic_id: b.dataset.tema, fijo: b.dataset.fijo === '1' });

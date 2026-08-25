@@ -197,3 +197,6 @@ details.grupo > summary:hover,
 .fila-nueva > td:first-child::before { content: '·'; color: var(--accent); margin-right: 6px; }
 .tema.nuevo { font-weight: 600; color: var(--ink); }
 .tema.nuevo::after { content: '·'; color: var(--accent); margin-left: 4px; }
+
+/* El «+N more» de cada sector: la misma ficha, en tono de nota. */
+.tema.mas { color: var(--accent); opacity: .8; }
