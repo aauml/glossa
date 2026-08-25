@@ -945,3 +945,75 @@ expedientes; un comité de modelos que NO analizan vota altas a prueba y
 veredictos con el historial de verificación; el material a prueba entra
 etiquetado y no corrobora. Los frenos son estructurales: altas por semana
 (cuota) y tope por tema (cámara de eco). La persona no aprueba: veta.
+
+## Lo que enseñó el día de los pódcast y los departamentos (2026-08-25)
+
+### El mensaje de error que mentía tapó el fallo durante días
+_Applies to: general, monitoring_
+
+**Síntoma** — Un pódcast entero llevaba días sin leerse. El registro decía «la
+página devolvió 73 caracteres — probablemente se dibuja con JavaScript».
+**Causa** — No era JavaScript. La página abre con un `<article>` decorativo de 73
+caracteres y el extractor se quedaba con **el primero** que encontraba; la
+transcripción —204.592 caracteres— venía después, en otro bloque.
+**Por qué costó tanto** — El diagnóstico era plausible y estaba escrito por el
+propio código, así que nadie lo puso en duda. Un mensaje de error que AFIRMA una
+causa («se dibuja con JavaScript») en vez de describir el hecho («no encontré
+texto») convierte una hipótesis en una conclusión y cierra la investigación.
+**Regla** — Los mensajes de error describen lo observado, no lo inferido. Y al
+extraer contenido, se prueban todos los candidatos y gana el mayor, nunca el
+primero.
+
+### Antes de decir «no existe», haber buscado de verdad
+_Applies to: general_
+
+El panel afirmaba «FT publishes no feed» de tres periódicos que sí lo publican:
+la lista de rutas tenía seis entradas y sus feeds estaban en la séptima. Dos
+lecciones: una lista de rutas conocidas envejece y hay que probarla contra
+sitios reales; y el texto debe decir «no encontré» —lo único que se sabe— en vez
+de «no existe», que es una afirmación sobre el mundo.
+
+### Dos señales independientes, o no se funde nada
+_Applies to: LLM, general_
+
+Al agrupar temas duplicados, el solapamiento de material solo daba dos
+resultados: con umbral bajo fundía cosas distintas que se hablan a la vez
+(«ciberespionaje» dentro de «fricción EE.UU.-Irán»), y con umbral alto no fundía
+nada. La salida fue exigir DOS señales que fallan de formas distintas: compartir
+la mayoría del material Y una palabra con contenido en la etiqueta. Es la regla
+editorial de la casa —coincidir no es corroborar— aplicada a la maquinaria.
+
+### Un ensayo en seco no debe dejar rastro
+_Applies to: monitoring, general_
+
+`WEEKLY_DRY` no escribía número pero sí escribía su progreso, así que el panel
+mostró media hora una barra al 30 % de un corte que nadie pidió. En un sistema
+donde el estado ES la interfaz, el modo de prueba tiene que ser mudo: si no
+escribe el trabajo, tampoco escribe su rastro.
+
+### El 429 que no se arregla esperando
+_Applies to: LLM_
+
+Una corrida reintentó 26 minutos contra «your account is suspended due to
+insufficient balance». Un 429 son dos cosas —«vas muy rápido» y «no tienes
+saldo»— y solo la primera se cura esperando. Se distinguen por el cuerpo de la
+respuesta; la segunda debe fallar al primer intento y decir qué hacer.
+
+### La misma fuente por dos puertas se lee dos veces
+_Applies to: general_
+
+Un pódcast seguido por su distribuidor (Megaphone) y por su web son dos URLs y
+una sola fuente: darlas de alta ambas mete cada episodio dos veces en la salida,
+con identificadores distintos, y nada lo delata salvo leerlo repetido. Al dar de
+alta hay que comparar por NOMBRE, no por URL, y ofrecer sustituir en vez de
+duplicar — sin cambiarlo por detrás, que sería dar de alta algo distinto de lo
+que se pidió.
+
+### El escaparate no es la fuente
+_Applies to: general_
+
+Apple y los distribuidores de audio publican el enclosure y las notas; el sitio
+del propio programa publica la transcripción. Medido en el mismo episodio: 3.610
+caracteres contra 262.149. Cuando algo se puede seguir por varias superficies,
+la que hay que seguir es la que más TEXTO da, y merece la pena resolverla
+automáticamente al dar de alta.
