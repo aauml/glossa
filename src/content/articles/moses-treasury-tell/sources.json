@@ -1,0 +1,50 @@
+{
+  "slug": "moses-treasury-tell",
+  "issue": "N° 38",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=EfKxbRuLZG0",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "Danny Moses argues that the U.S. Treasury's new plan to buy back bonds by utilizing the Treasury General Account (TGA) reveals a financial crisis and confirms a long-term, unsustainable dependence on debt-funded market intervention.",
+      "claim_es": "Danny Moses sostiene que el nuevo plan del Tesoro de EE. UU. para recomprar bonos usando su Cuenta General (TGA) revela una crisis financiera y confirma una dependencia insostenible del intervencionismo financiado con deuda.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "qz.com — The U.S. Treasury is considering utilizing its near-$950 billion Treasury General Account (TGA) to f",
+      "url": "https://qz.com/treasury-general-account-bond-buybacks-082426",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The U.S. Treasury is considering utilizing its near-$950 billion Treasury General Account (TGA) to fund its bond buyback program. Officials stated the account is available for purchasing off-the-run securities, though specific funding amounts and timing remain undecided. This potential strategy serves as an alternative to the previously expected approach of using short-term bill sales.",
+      "claim_es": "El Tesoro de EE. UU. contempla utilizar los 950 mil millones de dólares de su Cuenta General (TGA) para fondear su programa de recompras. Las autoridades indican que el saldo está disponible para activos 'off-the-run', aunque los montos y tiempos son inciertos. Esta estrategia alternativa sustituye la expectativa previa de emitir letras a corto plazo.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "newyorkfed.org — The Federal Reserve Bank of New York published a staff report examining the mechanics and historical",
+      "url": "https://www.newyorkfed.org/medialibrary/media/research/staff_reports/sr304.html",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The Federal Reserve Bank of New York published a staff report examining the mechanics and historical results of U.S. Treasury buyback operations. The report specifically reviews the operations conducted between 2000 and 2001, when the Treasury repurchased debt during a period of budget surpluses. It also assesses the potential applications for future buyback programs to manage market liquidity and",
+      "claim_es": "La Fed de Nueva York publicó un informe técnico sobre la mecánica y resultados históricos de las recompras de deuda. El documento revisa las operaciones de 2000-2001, cuando el Tesoro recompró deuda en épocas de superávit presupuestario, analizando su utilidad para gestionar la liquidez del mercado y los rendimientos futuros.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "reuters.com — The U.S. Treasury Department announced it will increase the size of liquidity support buyback operat",
+      "url": "https://www.reuters.com/world/us-treasury-double-sizes-some-debt-buyback-operations-least-4-billion-2026-08-19",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The U.S. Treasury Department announced it will increase the size of liquidity support buyback operations for longer-dated nominal coupon securities from $2 billion to at least $4 billion per operation. The policy change is effective from September 9 through November 4 and targets the 10-year to 20-year and 20-year to 30-year sectors.",
+      "claim_es": "El Departamento del Tesoro anunció un incremento en las operaciones de recompra de bonos con cupón nominal de largo plazo, pasando de 2 mil millones a un mínimo de 4 mil millones de dólares por operación. El cambio es vigente del 9 de septiembre al 4 de noviembre y afecta a los sectores de 10-20 y 20-30 años.",
+      "verificada": "si"
+    }
+  ]
+}
