@@ -11,18 +11,13 @@ const ORDER = ['en', 'es'];
   <div class="masthead-inner">
     <a class="masthead-section masthead-brand" href="/" style="font-size:14px">← Glossa</a>
     <span class="masthead-meta">
-      <span class="lang-switch">
-        {ORDER.map((code, i) => (
-          <>
-            {i > 0 && <span class="lang-sep">·</span>}
-            {code === lang
-              ? <span class="lang-active">{LABEL[code]}</span>
-              : langs.includes(code)
-                ? <a href={`/articles/${slug}/${code}/`} class="lang-link">{LABEL[code]}</a>
-                : <span class="lang-absent" title={code === 'es' ? 'Sin versión en español' : 'No English version'}>{LABEL[code]}</span>}
-          </>
-        ))}
-      </span>
+      {/* Solo la OTRA lengua. Si esa pieza no existe traducida, se pinta
+          apagada en vez de enlazar a una página que no se genera. */}
+      {ORDER.filter(code => code !== lang).map(code => (
+        langs.includes(code)
+          ? <a href={`/articles/${slug}/${code}/`} class="lang-link" hreflang={code}>{LABEL[code]}</a>
+          : <span class="lang-absent" title={code === 'es' ? 'Sin versión en español' : 'No English version'}>{LABEL[code]}</span>
+      ))}
       <SizeSwitch separator />
       <ThemeSwitch separator />
     </span>

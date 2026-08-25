@@ -1,0 +1,17 @@
+---
+// El panel, como icono. La palabra «panel» era el objeto más ancho de la barra
+// y el único dirigido a UNA persona; en móvil se llevaba el espacio que
+// necesitaban los controles que sí usa cualquier lector.
+//
+// El glifo es una silueta de persona, hermana del círculo mitad lleno del tema:
+// mismo tamaño, mismo trazo, misma caja táctil.
+const { separator = false } = Astro.props;
+---
+{separator && <span class="masthead-meta-sep">·</span>}
+<a class="masthead-panel" href="/admin/" rel="nofollow" aria-label="Panel" title="Panel">
+  <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false">
+    <circle cx="8" cy="5.4" r="2.6" fill="none" stroke="currentColor" stroke-width="1.1"/>
+    <path d="M2.9 13.6a5.1 5.1 0 0 1 10.2 0" fill="none" stroke="currentColor"
+          stroke-width="1.1" stroke-linecap="round"/>
+  </svg>
+</a>

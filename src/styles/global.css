@@ -79,13 +79,6 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 .lang-link { color: var(--muted); text-decoration: none; transition: color 0.15s ease; }
 .lang-link:hover { color: var(--ink); }
 
-.text-size-switch { display: inline-flex; align-items: baseline; gap: 2px; font-family: 'IBM Plex Sans', sans-serif; }
-.text-size-switch button { background: none; border: none; cursor: pointer; padding: 6px 8px; color: var(--muted); font-family: inherit; font-weight: 500; line-height: 1; letter-spacing: 0; min-width: 28px; min-height: 28px; }
-.text-size-switch button[data-size="sm"] { font-size: 11px; }
-.text-size-switch button[data-size="md"] { font-size: 13px; }
-.text-size-switch button[data-size="lg"] { font-size: 17px; }
-.text-size-switch button.active { color: var(--ink); font-weight: 600; }
-.text-size-switch button:hover { color: var(--ink); }
 .masthead-meta-sep { color: var(--muted); margin: 0 4px; opacity: 0.5; }
 
 /* ======== Cover ======== */
@@ -135,7 +128,7 @@ a.inline-link:hover, .article a:not(.callback):not(.masthead-section):not(.masth
 
 .article-card-topics { list-style: none; display: flex; flex-wrap: wrap; align-items: center; font-family: 'IBM Plex Sans', sans-serif; font-size: calc(10px * var(--reader-scale)); letter-spacing: 0.06em; color: var(--muted); font-weight: 400; padding: 0; margin: 0; }
 .article-card-topics li { display: inline-flex; align-items: center; }
-.article-card-topics li:not(:last-child)::after { content: '\\2022'; color: var(--rule-soft); margin: 0 10px; }
+.article-card-topics li:not(:last-child)::after { content: '·'; color: var(--rule-soft); margin: 0 10px; }
 
 /* ---- Topic filter (text, no buttons) ---- */
 .cover-filter { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; font-size: calc(12px * var(--reader-scale)); letter-spacing: 0.02em; padding: 0 0 16px; margin-bottom: 22px; border-bottom: 0.5px solid var(--rule-soft); }
@@ -614,8 +607,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    el rótulo, no por un color distinto — sigue siendo Glossa. */
 .cover-weekly {
   display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
-  gap: 10px 44px; align-items: start;
-  text-decoration: none; color: inherit; padding: 20px 0 18px;
+  gap: 10px 44px; align-items: start; padding: 20px 0 18px;
 }
 
 /* El rótulo: nombre de la cabecera, qué número es y la cadencia. Va en su
@@ -632,10 +624,10 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; font-weight: 600;
   letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
 }
-.cover-weekly-fecha {
-  font-family: 'IBM Plex Sans', sans-serif; font-size: calc(11.5px * var(--reader-scale));
-  letter-spacing: 0.04em; color: var(--ink-soft);
-}
+/* La fecha, en la misma línea que «This week / Latest issue»: son un solo dato
+   —qué número es este— y estaban en columnas distintas. */
+.cover-weekly-fecha { color: var(--ink-soft); font-weight: 400; letter-spacing: 0.04em; }
+.cover-weekly-fecha::before { content: ' · '; color: var(--rule-soft); }
 .cover-weekly-cadencia {
   font-family: 'IBM Plex Sans', sans-serif; font-size: 10px;
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
@@ -643,8 +635,9 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 
 /* El número en curso: su titular manda en esta columna, y debajo los asuntos.
    Es el contenido — de ahí que ocupe la columna ancha. */
-.cover-weekly-cuerpo { display: flex; flex-direction: column; gap: 12px; }
+.cover-weekly-cuerpo { display: flex; flex-direction: column; gap: 9px; }
 .cover-weekly-numero {
+  display: block; text-decoration: none;
   font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif;
   font-weight: 500; font-size: calc(clamp(19px, 2.3vw, 25px) * var(--reader-scale));
   line-height: 1.16; letter-spacing: -0.01em; color: var(--ink); max-width: 30ch;
@@ -661,7 +654,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   content: ''; width: 1px; height: 10px; background: var(--rule-soft); margin: 0 12px;
 }
 
-.cover-weekly:hover .cover-weekly-numero { color: var(--accent); }
+.cover-weekly-numero:hover { color: var(--accent); }
 
 /* Reglas gruesas arriba y abajo: encierran el semanal como un bloque propio y
    lo separan de la lista de piezas, que es lo que antes no ocurría. */
@@ -671,7 +664,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 }
 
 .cover-weekly-archivo {
-  display: inline-block; padding-bottom: 16px;
+  display: inline-block; margin-top: 2px;
   font-family: 'IBM Plex Sans', sans-serif; font-size: 11px;
   letter-spacing: 0.06em; color: var(--ink-soft); text-decoration: none;
   border-bottom: 1px solid transparent;
@@ -719,4 +712,49 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   .article-card-rail { flex-direction: row; flex-wrap: wrap; gap: 14px; }
   .article-card-title, .article-card.featured .article-card-title,
   .article-card-dek { max-width: none; }
+}
+
+
+/* ── La barra, con un objeto por decisión ────────────────────────────────
+   Antes había cinco: dos idiomas, tres tamaños. En móvil no cabían y el
+   conjunto se leía como un panel de mandos, no como una cabecera. */
+.text-size-switch {
+  background: none; border: none; cursor: pointer; padding: 6px 8px;
+  min-width: 30px; min-height: 30px; line-height: 1; letter-spacing: 0;
+  font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; color: var(--muted);
+  transition: color 0.12s ease, font-size 0.12s ease;
+}
+.text-size-switch:hover { color: var(--ink); }
+/* La letra crece con el tamaño elegido: el propio botón dice dónde estás. */
+.text-size-switch[data-size="sm"] { font-size: 11px; }
+.text-size-switch[data-size="md"] { font-size: 13px; }
+.text-size-switch[data-size="lg"] { font-size: 16px; color: var(--ink); }
+
+/* El panel, como icono hermano del de claro/oscuro. */
+.masthead-panel { display: inline-flex; align-items: center; justify-content: center;
+  min-width: 30px; min-height: 30px; color: var(--muted); text-decoration: none;
+  transition: color 0.12s ease; }
+.masthead-panel:hover { color: var(--ink); }
+
+/* Un solo idioma: el que se ofrece. Con caja táctil, que antes no tenía. */
+.lang-link { display: inline-flex; align-items: center; min-height: 30px; padding: 0 2px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; font-weight: 500;
+  letter-spacing: 0.06em; color: var(--muted); text-decoration: none; }
+.lang-link:hover { color: var(--ink); }
+.lang-absent { opacity: 0.35; font-size: 11px; letter-spacing: 0.06em; }
+
+@media (max-width: 720px) {
+  /* En móvil, los separadores sobran: los objetos ya se distinguen por forma. */
+  .masthead-meta { gap: 2px; }
+  .masthead-meta-sep { display: none; }
+}
+
+
+@media (max-width: 860px) {
+  .cover-weekly-flag { display: contents; }
+  .cover-weekly-title { order: 1; }
+  .cover-weekly-cadencia { order: 2; margin-bottom: 6px; }
+  .cover-weekly-cuerpo { order: 3; }
+  .cover-weekly-archivo { order: 4; }
+  .cover-weekly { display: flex; flex-direction: column; gap: 6px; }
 }

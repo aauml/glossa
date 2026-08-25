@@ -20,9 +20,16 @@
     });
   });
 
-  // --- tamaño de texto ---
-  var btns = document.querySelectorAll('.text-size-switch button');
-  function paint(s){ btns.forEach(function(b){ b.classList.toggle('active', b.dataset.size === s); }); }
+  // --- tamaño de texto: UN botón que cicla ---
+  var SIZES = ['sm', 'md', 'lg'];
+  var NOMBRE = { sm: 'Small', md: 'Medium', lg: 'Large' };
+  var btns = document.querySelectorAll('[data-size-cycle]');
+  function paint(s){
+    btns.forEach(function(b){
+      b.dataset.size = s;
+      b.title = 'Text size: ' + (NOMBRE[s] || s);
+    });
+  }
   var cur = document.documentElement.getAttribute('data-text-size') || 'md';
   paint(cur);
 
@@ -60,7 +67,8 @@
   btns.forEach(function(b){
     b.addEventListener('click', function(){
       var anchor = captureAnchor();
-      var s = b.dataset.size;
+      var actual = document.documentElement.getAttribute('data-text-size') || 'md';
+      var s = SIZES[(SIZES.indexOf(actual) + 1) % SIZES.length];
       document.documentElement.setAttribute('data-text-size', s);
       try { localStorage.setItem('glossa-text-size', s); } catch(e){}
       paint(s);

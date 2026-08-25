@@ -1,6 +1,7 @@
 ---
 import SizeSwitch from './SizeSwitch.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
+import PanelLink from './PanelLink.astro';
 
 // La revista traía una cabecera hecha a mano: solo la marca y una fecha. Sin
 // claro/oscuro, sin tamaño de texto, sin idioma y sin panel — todo lo que el
@@ -26,8 +27,7 @@ const archivo = lang === 'es' ? '/es/weekly/archive/' : '/weekly/archive/';
       {otro && <a class="lang-link" href={otro}>{T.otra}</a>}
       <SizeSwitch separator />
       <ThemeSwitch separator />
-      <span class="masthead-meta-sep">·</span>
-      <a class="masthead-panel" href="/admin/" rel="nofollow">{T.panel}</a>
+      <PanelLink separator />
     </span>
   </div>
 </header>

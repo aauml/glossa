@@ -134,30 +134,35 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
       entero en dos columnas —el rótulo a la izquierda, el número a la derecha—
       con reglas gruesas arriba y abajo. Antes se presentaba con la misma forma
       que un artículo y por eso se leía como uno más. */}
+  {/* El semanal: enlaza el TÍTULO DEL NÚMERO, que es lo que se va a leer.
+      Antes el enlace envolvía el bloque entero —rótulo, fecha, temas—, así que
+      no había nada que señalara qué se abría al pulsar; y la fecha vivía en la
+      columna del rótulo, lejos del titular al que pertenece. Ahora fecha,
+      titular y temas van juntos: son el número. */}
   <div class="cover-weekly-wrap">
-    <a class="cover-weekly" href={lang === "es" ? "/es/weekly/" : "/weekly/"}>
+    <div class="cover-weekly">
       <div class="cover-weekly-flag">
         <span class="cover-weekly-title">{t.weekly.title}</span>
-        {/* Qué número es este: el de esta semana, o el último que salió. Decir
-            solo «cada domingo» dejaba a la portada afirmando una cadencia sin
-            decir si se estaba cumpliendo. */}
-        <span class="cover-weekly-tag">{esDeEstaSemana ? t.weekly.thisWeek : t.weekly.latest}</span>
-        {fechaNumero && <span class="cover-weekly-fecha">{fechaNumero}</span>}
         <span class="cover-weekly-cadencia">{t.weekly.tag}</span>
+        <a class="cover-weekly-archivo" href={hrefArchivo}>{t.weekly.archivo}</a>
       </div>
       <div class="cover-weekly-cuerpo">
-        {tituloNumero && <span class="cover-weekly-numero">{tituloNumero}</span>}
+        <span class="cover-weekly-tag">
+          {esDeEstaSemana ? t.weekly.thisWeek : t.weekly.latest}
+          {fechaNumero && <span class="cover-weekly-fecha">{fechaNumero}</span>}
+        </span>
+        {tituloNumero && (
+          <a class="cover-weekly-numero" href={lang === "es" ? "/es/weekly/" : "/weekly/"}>
+            {tituloNumero}
+          </a>
+        )}
         {temas.length > 0 && (
           <ul class="cover-weekly-temas">
             {temas.map(x => <li>{x}</li>)}
           </ul>
         )}
       </div>
-    </a>
-    {/* Fuera del enlace de arriba a propósito: un <a> dentro de otro <a> no es
-        HTML válido y el navegador lo desmonta, con lo que el bloque entero deja
-        de ser pulsable. */}
-    <a class="cover-weekly-archivo" href={hrefArchivo}>{t.weekly.archivo}</a>
+    </div>
   </div>
 
   {featured && (
