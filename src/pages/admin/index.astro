@@ -72,9 +72,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   <section class="admin-sec">
     <details class="grupo" open>
       <summary>Topics <span id="tm-cuenta" class="admin-kind"></span></summary>
-      <p class="admin-nota" style="margin-top:8px">Pinned topics become the sections of
-        the weekly issue, week after week. A week with nothing on one says so instead of
-        dropping it. The list below is what the reading keeps turning up, best first.</p>
+      <p class="admin-nota" style="margin-top:8px">Pinned topics are the sections of the
+        weekly issue. Pinning one also folds in the near-duplicates the classifier had
+        split off, so a subject stops living under three names.</p>
+      <p class="admin-nota" id="tm-nota" style="color:var(--accent)"></p>
       <div id="tm-lista" style="margin-top:12px"><span class="admin-vacio">loading…</span></div>
     </details>
   </section>
@@ -480,6 +481,13 @@ ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.l
     b.disabled = true;
     const r = await api('temas.fijar', { topic_id: b.dataset.tema, fijo: b.dataset.fijo === '1' });
     if (r.error) { b.disabled = false; b.textContent = 'failed'; return; }
+    // Lo que absorbió se dice UNA vez y se va: es la consecuencia de lo que
+    // acabas de hacer, no un estado que haya que vigilar.
+    if (r.absorbidos?.length) {
+      const n = $('tm-nota');
+      n.textContent = `Folded in: ${r.absorbidos.join(' · ')}`;
+      setTimeout(() => { n.textContent = ''; }, 8000);
+    }
     pintarTemas();
   });
 

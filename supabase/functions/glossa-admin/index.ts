@@ -765,6 +765,16 @@ Deno.serve(async (req) => {
           .update({ fijo, fijado_at: fijo ? new Date().toISOString() : null })
           .eq('id', b.topic_id);
         if (error) throw error;
+
+        // Fijar UNIFICA: el tema absorbe a los que ya eran el mismo asunto y
+        // hereda su material (0054). Sin esto, fijar dos variantes daría dos
+        // secciones alimentadas por los mismos episodios. Soltar lo deshace.
+        if (fijo) {
+          const { data: fundidos } = await db.rpc('glossa_radar_fundir_en',
+            { destino: b.topic_id, umbral: 0.6 });
+          return ok({ fijo, absorbidos: (fundidos ?? []).map((x: { label: string }) => x.label) });
+        }
+        await db.rpc('glossa_radar_desfundir', { destino: b.topic_id });
         return ok({ fijo });
       }
 
