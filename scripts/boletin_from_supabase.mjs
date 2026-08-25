@@ -2,8 +2,11 @@
 //
 // Un correo, los domingos, con lo de esos siete días: el número de la semana y
 // las piezas publicadas en ella. Sin anuncios, sin píxel de apertura, sin
-// «también te puede interesar». El asunto es el titular del número —lo más
-// informativo que hay— y dentro, cada cosa con sus temas.
+// «también te puede interesar».
+//
+// Es un AVISO de qué salió, no una copia de lo que salió: cada cosa con su
+// título, sus temas y su enlace, y nada más. Lo que hay que leer está en el
+// sitio, que es donde se lee bien.
 //
 // Corre DESPUÉS del número y de su traducción: sin número publicado no hay
 // entrega, y mandarla antes de traducir dejaría a los suscriptores en español
@@ -111,10 +114,6 @@ function armar(lang, token) {
   const fechas = rango(numero.week_start, numero.week_end, lang);
   const urlNum = `${SITIO}${lang === 'es' ? '/es' : ''}/weekly/${numero.week_start}/`;
   const temasNum = (cuerpo?.pieces ?? []).map(p => p?.subject).filter(Boolean).slice(0, 6);
-  // La entrada del número: 80-120 palabras que ya vienen escritas y dicen qué
-  // tuvo de particular la semana. Sin esto el correo era una lista de enlaces,
-  // y un correo que no se puede leer no es una entrega: es un aviso.
-  const entrada = String(cuerpo?.intro ?? '').trim();
 
   const bloquePiezas = piezas.map(p => {
     const d = (lang === 'es' && p.es) ? p.es : p.en;
@@ -122,7 +121,6 @@ function armar(lang, token) {
     return `<tr><td style="padding:0 0 26px">
       <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.12em;color:#7A1F1F;padding-bottom:5px">${esc(d.issue ?? '')}</div>
       <a href="${url}" style="font-family:Georgia,serif;font-size:19px;line-height:1.25;color:#1A1A1A;text-decoration:none">${esc(d.titulo)}</a>
-      ${d.dek ? `<div style="font-family:Georgia,serif;font-size:14px;line-height:1.6;color:#454545;padding-top:8px">${esc(d.dek)}</div>` : ''}
       ${d.temas?.length ? `<div style="font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#6E6E6E;padding-top:8px">${d.temas.map(esc).join(' &middot; ')}</div>` : ''}
       <div style="padding-top:8px"><a href="${url}" style="font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:0.06em;color:#7A1F1F">${esc(t.leer)}</a></div>
     </td></tr>`;
@@ -137,7 +135,6 @@ function armar(lang, token) {
     <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#7A1F1F;padding-bottom:8px">${esc(t.issue)}</div>
     <a href="${urlNum}" style="font-family:Georgia,serif;font-size:23px;line-height:1.2;color:#1A1A1A;text-decoration:none">${esc(cuerpo?.headline ?? t.issue)}</a>
     ${temasNum.length ? `<div style="font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#6E6E6E;padding-top:8px">${temasNum.map(esc).join(' &middot; ')}</div>` : ''}
-    ${entrada ? `<div style="font-family:Georgia,serif;font-size:15px;line-height:1.65;color:#454545;padding-top:14px">${esc(entrada)}</div>` : ''}
     <div style="padding-top:12px"><a href="${urlNum}" style="font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:0.06em;color:#7A1F1F">${esc(t.leer)}</a></div>
   </td></tr>
 
