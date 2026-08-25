@@ -638,7 +638,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     vigilarPiezas();
   });
 
-  let pzReloj = null;
+  // Dos ritmos, y el lento no se apaga NUNCA. Antes el reloj solo arrancaba si
+  // ya había una pieza viva al cargar la página: una lanzada desde otra
+  // pestaña, relanzada por el vigilante o pedida por API no aparecía jamás en
+  // una página abierta, y desde fuera eso es indistinguible de que no pasó nada.
+  let pzReloj = null, pzLento = null;
   async function vigilarPiezas() {
     const hayActivas = await pintarPiezas();
     if (hayActivas && !pzReloj) {
@@ -646,6 +650,9 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         if (!(await pintarPiezas())) { clearInterval(pzReloj); pzReloj = null; }
       }, 12_000);
     }
+    // El latido lento: cada 30 s comprueba si ha aparecido algo, venga de donde
+    // venga. Es una consulta pequeña y evita tener que recargar a mano.
+    if (!pzLento) pzLento = setInterval(vigilarPiezas, 30_000);
   }
 
   // ── Peticiones de acceso ────────────────────────────────────────────────
