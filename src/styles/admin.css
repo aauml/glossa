@@ -120,3 +120,26 @@ details.grupo > summary:hover,
 /* El título de una sección puede llevar una cuenta a su derecha, en el mismo
    renglón: es el dato que se busca al mirarla. */
 .admin-sec h2 .admin-kind { margin-left: 8px; text-transform: none; letter-spacing: 0.04em; }
+
+
+/* ── Los temas, como fichas ──────────────────────────────────────────────
+   Una tabla con tres columnas de cifras dejaba ver siete temas; en fichas
+   caben veinticinco en el mismo alto. El nombre es lo que se lee, y la
+   evidencia —canales, elementos, semanas— viaja en el `title` para quien la
+   quiera. */
+.temas { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tema {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; line-height: 1.2;
+  padding: 5px 10px; cursor: pointer; color: var(--muted);
+  background: none; border: 0.5px solid var(--rule-soft); border-radius: 2px;
+  transition: color .12s ease, border-color .12s ease;
+}
+.tema:hover { color: var(--ink); border-color: var(--muted); }
+/* Fijado: el acento y un punto delante. La forma dice el estado sin leer nada. */
+.tema.on { color: var(--accent); border-color: var(--accent); }
+.tema.on::before { content: '·'; margin-right: 5px; }
+.tema:disabled { opacity: .5; cursor: default; }
+
+/* Las listas de las secciones, más discretas: mismo contenido, menos peso. */
+.admin-sec .admin-tabla td { padding: 5px 10px 5px 0; font-size: 12.5px; }
+.admin-sec .grupo > summary { font-size: 13px; }
