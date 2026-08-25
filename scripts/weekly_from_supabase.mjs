@@ -317,7 +317,22 @@ const racimos = elegidos.map(t => {
 // Los temas FIJOS: los que Arturo eligió de la lista de propuestas. Tienen
 // sección aunque esta semana no traigan nada, y entonces la sección lo dice —
 // que ninguna de tus fuentes tocara un asunto es información, no un hueco.
-const fijos = await sb('glossa_radar_topics?select=id,slug,label,description&fijo=is.true');
+// Un tope, y es una red de seguridad, no una regla editorial: fijar temas es
+// libre, pero el número no puede intentar escribir cuarenta secciones. Con
+// cinco tarda dieciséis minutos; con cuarenta se sale del techo de tokens, del
+// reloj, o devuelve secciones de dos frases. Si hay más de los que caben,
+// entran los que MÁS material trajeron esta semana y se dice cuáles se
+// quedaron fuera — callarlo sería un número incompleto sin avisar.
+const TOPE_FIJOS = Number(ajus.weekly_secciones_fijas ?? 8);
+let fijos = await sb('glossa_radar_topics?select=id,slug,label,description&fijo=is.true');
+if (fijos?.length > TOPE_FIJOS) {
+  const peso = new Map((temas ?? []).map(t => [t.topic_id, t.n_items ?? 0]));
+  const ordenados = [...fijos].sort((a, b) => (peso.get(b.id) ?? 0) - (peso.get(a.id) ?? 0));
+  const fuera = ordenados.slice(TOPE_FIJOS);
+  fijos = ordenados.slice(0, TOPE_FIJOS);
+  console.log(`  AVISO: hay ${fijos.length + fuera.length} temas fijados y el tope es ${TOPE_FIJOS}. ` +
+              `Fuera de este número: ${fuera.map(t => t.label).join(' · ')}`);
+}
 const idsFijos = new Set((fijos ?? []).map(t => t.id));
 if (fijos?.length) console.log(`  ${fijos.length} tema(s) fijo(s): ${fijos.map(t => t.label).join(' · ')}`);
 

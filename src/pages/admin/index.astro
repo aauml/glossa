@@ -458,7 +458,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
     const fijos = d.temas.filter(t => t.fijo);
     const libres = d.temas.filter(t => !t.fijo).slice(0, 60);
-    $('tm-cuenta').textContent = fijos.length ? `${fijos.length} pinned` : '';
+    // El aviso vive donde se toma la decisión. Pasado el tope, el número deja
+    // fuera los que menos material trajeron, y eso hay que saberlo AQUÍ.
+    const TOPE = 8;
+    $('tm-cuenta').textContent = fijos.length
+      ? `${fijos.length} pinned${fijos.length > TOPE ? ` · only ${TOPE} fit in an issue` : ''}` : '';
 
     // Sin cifras a la vista. «14 channels · 45 items» es la evidencia con la
     // que el sistema ORDENA la lista, no algo que ayude a decidir: el tema se
