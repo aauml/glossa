@@ -342,7 +342,17 @@ async function nombreDeSitio(url: string) {
 
 /** ¿Este dominio publica un feed? Devuelve la URL del feed si lo encuentra. */
 async function buscarFeed(origen: string) {
-  for (const ruta of ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/index.xml']) {
+  // Probadas contra sitios reales, no inventadas: seis rutas dejaban fuera al
+  // FT (/rss/home), a The Economist (/latest/rss.xml) y a El País
+  // (/rss/elpais/portada.xml), que sí publican feed — el panel decía «publishes
+  // no feed» de tres periódicos que lo publican.
+  //
+  // El orden es por probabilidad, y se para en la primera que conteste: un
+  // sitio corriente resuelve en la primera o la segunda.
+  for (const ruta of ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/index.xml',
+                      '/rss/home', '/latest/rss.xml', '/latest/rss/', '/feed/rss',
+                      '/rss/index.xml', '/feeds/all.atom.xml', '/blog/rss.xml',
+                      '/rss/elpais/portada.xml', '/?feed=rss2']) {
     const u = origen.replace(/\/+$/, '') + ruta;
     const r = await feedResponde(u);
     if (r.ok) return { feed_url: u, nombre: r.nombre };
@@ -596,7 +606,8 @@ async function clasificar(texto: string): Promise<Resuelto> {
       const nombre = await nombreDeSitio(u.origin) ?? host;
       return {
         as: 'fuente', kind: 'tema', name: nombre,
-        label: `${nombre} publishes no feed — it would be followed by searching the site`,
+        label: `no feed found for ${nombre} — it would be followed by searching the site instead. ` +
+               `If you know its feed URL, paste that and it gets followed properly`,
         alternativas: [{ as: 'elemento', label: 'just this page, once' }],
       };
     }
