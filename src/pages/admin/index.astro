@@ -45,16 +45,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
        aquí, y solo cuando hay una. -->
   <div id="con-lista"></div>
 
-  <!-- ── La cola, contraída como todo lo demás ──────────────────────────── -->
-  <section class="admin-sec">
-    <details class="grupo">
-      <summary>Queue <span id="q-cuenta" class="admin-kind"></span></summary>
-      <p class="admin-nota" style="margin-top:8px">What is waiting to be read or failed,
-        plus anything you added in the last 48 h. Read items clear out on their own.</p>
-      <div id="q-lista"><span class="admin-vacio">loading…</span></div>
-    </details>
-  </section>
-
   <!-- ── Los temas ───────────────────────────────────────────────────────
        Sustituye a dos bloques que se quitaron por inútiles: el vivero de
        fuentes (pedía vetos que nunca llegaban; el veto vive ahora junto a la
@@ -94,6 +84,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         cover asking for their own. They got an acknowledgement; the actual reply is
         yours to write.</p>
       <div id="ac-lista"><span class="admin-vacio">loading…</span></div>
+    </details>
+  </section>
+
+
+  <!-- ── La cola, contraída como todo lo demás ──────────────────────────── -->
+  <section class="admin-sec">
+    <details class="grupo">
+      <summary>Queue <span id="q-cuenta" class="admin-kind"></span></summary>
+      <p class="admin-nota" style="margin-top:8px">What is waiting to be read or failed,
+        plus anything you added in the last 48 h. Read items clear out on their own.</p>
+      <div id="q-lista"><span class="admin-vacio">loading…</span></div>
     </details>
   </section>
 

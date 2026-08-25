@@ -92,7 +92,12 @@ console.log(`Semana ${iso(desde)} → ${iso(weekEnd)} (hora de Los Ángeles)` +
 // de un botón roto. Se escribe en un ajuste porque el número aún no tiene fila
 // donde anotarlo — la suya se crea al final, que es justo lo que se está
 // esperando. Nunca tumba la corrida: la barra es cosmética, el número no.
+// En seco NO se anota: un ensayo no escribe ningún número, y dejar su rastro en
+// el progreso pinta en el panel un corte que nadie pidió y que nunca va a
+// terminar. Pasó: tres ensayos seguidos dejaron la barra en «writing the issue»
+// durante media hora.
 const avance = (pct, fase, extra = {}) =>
+  process.env.WEEKLY_DRY ? Promise.resolve() :
   sb('glossa_radar_settings?on_conflict=key', {
     method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
     body: JSON.stringify([{ key: 'corte_estado', updated_at: new Date().toISOString(),
