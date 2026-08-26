@@ -21,7 +21,7 @@ import { promptSeccion, promptIntro } from '../_shared/prompts.ts';
 const MODELO = 'gemini-3-flash-preview';
 const PRESUPUESTO_MS = 120_000;
 
-const db = () => createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+const db = () => createClient(Deno.env.get('SUPABASE_URL')!, (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!  /* SB_SECRET_KEY: lo fija legacy-keys-retire.yml antes de revocar la inyectada legacy (plan de rotación 2026-08-23) */);
 
 /** Lunes de la semana que contiene una fecha. */
 function lunes(d: Date) {

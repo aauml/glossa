@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'issue_no inválido: formato "N° 33"' }), { status: 400, headers: CORS });
     }
 
-    const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    const sb = createClient(Deno.env.get('SUPABASE_URL')!, (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!  /* SB_SECRET_KEY: lo fija legacy-keys-retire.yml antes de revocar la inyectada legacy (plan de rotación 2026-08-23) */);
 
     // Procedencia opcional en el propio payload.
     //

@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: `track inválido: ${[...TRACKS].join('|')}` }), { status: 400, headers: CORS });
     }
 
-    const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    const sb = createClient(Deno.env.get('SUPABASE_URL')!, (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!  /* SB_SECRET_KEY: lo fija legacy-keys-retire.yml antes de revocar la inyectada legacy (plan de rotación 2026-08-23) */);
     const { data, error } = await sb
       .from('glossa_research_requests')
       .insert({

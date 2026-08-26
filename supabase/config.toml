@@ -1,0 +1,32 @@
+# Declaración de las edge functions de Glossa.
+#
+# Existía una trampa sin este archivo: `supabase functions deploy` asume
+# verify_jwt = true cuando no encuentra la función declarada, así que un
+# despliegue rutinario dejaba la función CERRADA y dejaba de responder sin
+# avisar. Las seis nacieron abiertas (verify_jwt = false) porque las llaman
+# workflows y el trigger de pg_net con su propio token; se declara aquí para
+# que ningún redespliegue futuro lo cambie por accidente.
+#
+# Añadido 2026-08-26, al parchear las seis para la rotación de llaves de
+# Supabase (thesis D-054). Mismo patrón que supabase/config.toml del repo
+# aauml/thesis.
+
+project_id = "glossa"
+
+[functions.glossa-admin]
+verify_jwt = false
+
+[functions.glossa-boletin]
+verify_jwt = false
+
+[functions.glossa-enqueue]
+verify_jwt = false
+
+[functions.glossa-radar-run]
+verify_jwt = false
+
+[functions.glossa-research-enqueue]
+verify_jwt = false
+
+[functions.glossa-weekly-run]
+verify_jwt = false

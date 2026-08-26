@@ -21,7 +21,7 @@ import { ajustes, uso, apuntar, cabe } from '../_shared/presupuesto.ts';
 const PRESUPUESTO_MS = 120_000;   // de los 150 s disponibles; el resto es margen
 const BACKFILL_DIAS  = 7;         // al dar de alta una fuente, no procesar su archivo
 
-const db = () => createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+const db = () => createClient(Deno.env.get('SUPABASE_URL')!, (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!  /* SB_SECRET_KEY: lo fija legacy-keys-retire.yml antes de revocar la inyectada legacy (plan de rotación 2026-08-23) */);
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });

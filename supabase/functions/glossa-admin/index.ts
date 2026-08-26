@@ -14,7 +14,7 @@ import { idDeCanal } from '../_shared/feeds.ts';
 
 const sb = () => createClient(
   Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!  /* SB_SECRET_KEY: lo fija legacy-keys-retire.yml antes de revocar la inyectada legacy (plan de rotación 2026-08-23) */,
 );
 
 const ok  = (data: unknown) => new Response(JSON.stringify(data), { headers: CORS });

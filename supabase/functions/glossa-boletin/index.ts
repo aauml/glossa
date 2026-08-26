@@ -13,7 +13,7 @@
 // Los dos GET existen porque un enlace de correo es un GET: no se puede pedir
 // un POST desde un cliente de correo.
 //
-// Env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GLOSSA_RESEND_KEY.
+// Env: SUPABASE_URL, SB_SECRET_KEY (con respaldo SUPABASE_SERVICE_ROLE_KEY), GLOSSA_RESEND_KEY.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const CORS = {
@@ -23,7 +23,7 @@ const CORS = {
 };
 
 const SITIO = 'https://glossa.ademas.ai';
-const db = () => createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+const db = () => createClient(Deno.env.get('SUPABASE_URL')!, (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!  /* SB_SECRET_KEY: lo fija legacy-keys-retire.yml antes de revocar la inyectada legacy (plan de rotación 2026-08-23) */);
 
 // Deliberadamente flojo: valida la FORMA, no la existencia. Un regex severo
 // rechaza direcciones válidas raras (`+`, puntos, dominios largos) y el único
