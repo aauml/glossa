@@ -222,20 +222,48 @@ details.grupo > summary:hover,
   line-height: 1.45;
 }
 
-/* Las puertas: varias formas de seguir lo mismo, para marcar las que valgan. */
-.admin-puertas { margin: .4rem 0 .1rem 1rem; }
-.admin-puerta {
+/* Las puertas: varias formas de seguir lo mismo, para marcar las que valgan.
+   Van DENTRO del formulario, así que heredaban `.admin-form label` —display
+   grid y versalitas— y salían con la casilla apilada encima del texto y el
+   rótulo en mayúsculas. Todo lo de aquí es para deshacer esa herencia. */
+.admin-puertas { margin: .5rem 0 .2rem; }
+.admin-puertas b {
   display: block;
-  font-size: .82rem;
-  margin: .18rem 0;
-  cursor: pointer;
-  line-height: 1.4;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .35rem;
 }
-.admin-puerta input { margin-right: .4rem; }
+.admin-form label.admin-puerta,
+.admin-puerta {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  line-height: 1.45;
+  margin: .3rem 0;
+  cursor: pointer;
+}
+.admin-form .admin-puerta input[type="checkbox"],
+.admin-puerta input[type="checkbox"] {
+  flex: none;
+  width: 13px; height: 13px;
+  margin: .22rem 0 0;
+  padding: 0;
+  border: none;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.admin-puerta > span { display: block; }
 .admin-puerta em {
   display: block;
-  margin-left: 1.4rem;
-  font-size: .75rem;
+  margin-top: .1rem;
+  font-size: 11.5px;
   font-style: normal;
+  text-transform: none;
+  letter-spacing: 0;
   color: var(--muted);
 }

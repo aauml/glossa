@@ -12,7 +12,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <textarea id="in-caja" rows="3" required
           placeholder="A link, a whole article pasted in, or a subject to follow"></textarea>
       </label>
-      <p class="admin-nota" id="in-resuelto"></p>
+      <!-- Un div, no un <p>: dentro lleva líneas y casillas, y un <p> con un
+           <div> dentro lo cierra el navegador por su cuenta, dejando todo
+           desperdigado por fuera. -->
+      <div class="admin-nota" id="in-resuelto"></div>
       <div class="admin-acciones">
         <button class="admin-btn" type="submit" id="in-add">Add</button>
         <span id="in-alt"></span>
@@ -159,10 +162,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       // Varias puertas para lo mismo —web, audio, YouTube, Substack— se marcan
       // y se añaden juntas. Antes se elegía una por él y las demás ni se decían.
       ((r.opciones || []).length > 1
-        ? `<div class="admin-puertas">` + r.opciones.map((o, i) =>
+        ? `<div class="admin-puertas"><b>Pick what to follow — you can tick more than one:</b>` +
+          r.opciones.map((o, i) =>
             `<label class="admin-puerta"><input type="checkbox" data-puerta="${i}"
-               ${i === 0 ? 'checked' : ''}> <span>${esc(o.label)}</span>` +
-            (o.detalle ? `<em>${esc(o.detalle)}</em>` : '') + `</label>`).join('') +
+               ${i === 0 ? 'checked' : ''}><span>${esc(o.label)}` +
+            (o.detalle ? `<em>${esc(o.detalle)}</em>` : '') + `</span></label>`).join('') +
           `</div>` : '');
     puertas = (r.opciones || []).length > 1 ? r.opciones : null;
     alt.innerHTML = (r.alternativas || []).map((a, i) =>

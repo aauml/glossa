@@ -502,7 +502,7 @@ async function superficiesDe(entrada: { origen?: string; html?: string; nombre?:
       tareas.push(feedResponde(url).then(c => c.ok ? [{
         as: 'fuente' as const, kind: c.esPodcast ? 'podcast' : 'rss', feed_url: url,
         name: nombreCorto(c.nombre),
-        label: `${c.esPodcast ? 'Podcast feed' : 'Feed'} · ${c.nombre ?? url}`,
+        label: `${c.esPodcast ? 'Podcast feed' : 'Their own site'} · ${c.nombre ?? url}`,
         detalle: vistaDeMuestras(c.muestras).join(' · '),
       }] : []));
     }
@@ -987,7 +987,7 @@ async function clasificar(texto: string): Promise<Resuelto> {
           const opts: Opcion[] = [{
             as: 'fuente', kind: 'rss', feed_url: seccion.feed_url,
             name: seccion.nombre || u.pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' '),
-            label: `Just ${seccion.nombre ?? 'this section'}`,
+            label: `Follow this column only · ${seccion.nombre ?? u.pathname.split('/').filter(Boolean).pop()}`,
             detalle: vistaDeMuestras(seccion.muestras).join(' · '),
           }];
           const todo = await buscarFeed(u.origin);
@@ -996,11 +996,12 @@ async function clasificar(texto: string): Promise<Resuelto> {
             opts.push({
               as: 'fuente', kind: 'rss', feed_url: todo.feed_url,
               name: todo.nombre ?? host,
-              label: `The whole of ${host}`,
+              label: `Follow all of ${host} · everything the paper publishes`,
               detalle: c.ok ? vistaDeMuestras(c.muestras).join(' · ') : undefined,
             });
           }
-          opts.push({ as: 'elemento', label: 'Only this page, once' });
+          opts.push({ as: 'elemento', label: 'Read this page once',
+                      detalle: 'Nothing gets followed; it just goes into the weekly' });
           return opts;
         })(),
         alternativas: [{ as: 'elemento', label: 'only this page, once' }, SOLO_PIEZA],
