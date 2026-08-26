@@ -8,14 +8,19 @@
  * afirmación. Sin esta leyenda, un subrayado dorado es un subrayado dorado.
  */
 const { lang = 'en' } = Astro.props;
+// «lo dice un documento» describía el mecanismo y no decía qué gana el lector.
+// Lo que necesita saber es CUÁNTO SOSTIENE cada frase, así que la leyenda dice
+// eso: corroborado, de una sola fuente, o sin respaldo.
 const T = lang === 'es'
   ? { titulo: 'Sin marca quiere decir que lo comprobamos. Con marca, cuidado.',
-      doc: 'lo dice un documento', attr: 'lo dice una sola fuente',
-      said: 'alguien lo dijo y nada lo respalda',
+      doc: 'corroborado: hay un documento que lo sostiene',
+      attr: 'lo sostiene una sola fuente, y nada más',
+      said: 'se afirma, y no encontramos nada que lo respalde',
       n: { doc: 'dorado', attr: 'punteado', said: 'liso' } }
   : { titulo: 'No mark means we checked it. A mark means be careful.',
-      doc: 'a document says so', attr: 'only one source says so',
-      said: 'someone said it, nothing backs it',
+      doc: 'corroborated: a document or record backs it',
+      attr: 'one source only, nothing else backs it',
+      said: 'asserted, and nothing we found backs it',
       n: { doc: 'gold', attr: 'dotted', said: 'plain' } };
 ---
 <div class="legend legend-articulo">

@@ -449,6 +449,17 @@ const glosasES = Array.isArray(es.sources_gloss) && es.sources_gloss.length === 
   ? es.sources_gloss : glosasEN.map(() => null);
 es.slug = en.slug; es.track = en.track;   // por si el modelo los «tradujo»
 
+// El `title` español llegó una vez en INGLÉS mientras el `titleHTML` venía bien
+// traducido: el modelo tradujo la versión con <em> y se saltó la lisa. Nadie lo
+// vio en la página —que pinta el titleHTML— pero el <title> de la pestaña, la
+// tarjeta de compartir y el buscador usan el liso, así que la edición española
+// se anunciaba en inglés por todas partes menos donde se leía.
+if (es.title && en.title && es.title.trim() === en.title.trim() &&
+    es.titleHTML && es.titleHTML.trim() !== en.titleHTML?.trim()) {
+  es.title = es.titleHTML.replace(/<[^>]+>/g, '').trim();
+  console.log(`  el título español venía sin traducir; se toma del titleHTML: «${es.title}»`);
+}
+
 // La edición española NO se validaba: el contrato solo miraba la inglesa. Una
 // traducción hereda la voz del original, pero puede introducirla de nuevo por
 // su cuenta —«según el relato», «la columna sostiene»— y ahí nadie miraba.

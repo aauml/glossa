@@ -81,17 +81,17 @@ export const rango = (inicio, fin, lang = 'en') => {
 export const LEYENDA = `
 <div class="legend">
   <b>No mark means we checked it. A mark means be careful.</b>
-  <span><span class="doc">gold</span> a document says so</span>
-  <span><span class="attr">dotted</span> only one source says so</span>
-  <span><span class="said">plain</span> someone said it, nothing backs it</span>
+  <span><span class="doc">gold</span> corroborated: a document or record backs it</span>
+  <span><span class="attr">dotted</span> one source only, nothing else backs it</span>
+  <span><span class="said">plain</span> asserted, and nothing we found backs it</span>
 </div>`;
 
 export const LEYENDA_ES = `
 <div class="legend">
   <b>Sin marca quiere decir que lo comprobamos. Con marca, cuidado.</b>
-  <span><span class="doc">dorado</span> lo dice un documento</span>
-  <span><span class="attr">punteado</span> lo dice una sola fuente</span>
-  <span><span class="said">liso</span> alguien lo dijo y nada lo respalda</span>
+  <span><span class="doc">dorado</span> corroborado: hay un documento que lo sostiene</span>
+  <span><span class="attr">punteado</span> lo sostiene una sola fuente, y nada más</span>
+  <span><span class="said">liso</span> se afirma, y no encontramos nada que lo respalde</span>
 </div>`;
 
 /**

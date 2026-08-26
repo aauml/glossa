@@ -11,10 +11,24 @@
       // La URL limpia: sin el #ancla al que hayas saltado leyendo, que mandaría
       // a quien lo abra a mitad de una sección en vez de al principio.
       const url = location.origin + location.pathname;
-      try { await navigator.clipboard.writeText(url); }
+
+      // Con el TITULAR, para que lo pegado se lea. Un enlace pelado en un chat
+      // no dice de qué es, y quien lo recibe decide si lo abre por esa línea.
+      // Se toma del titular de ESTA página, así que el enlace inglés viaja con
+      // su título en inglés y el español con el suyo — sin listas de traducción
+      // ni un segundo sitio donde el título pueda quedarse viejo.
+      const h = btn.closest('h1');
+      let titulo = '';
+      if (h) {
+        const copia = h.cloneNode(true);
+        for (const x of copia.querySelectorAll('.copiar')) x.remove();
+        titulo = copia.textContent.replace(/\s+/g, ' ').trim();
+      }
+      const texto = titulo ? `${titulo}\n${url}` : url;
+      try { await navigator.clipboard.writeText(texto); }
       catch {
         const t = document.createElement('textarea');
-        t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
+        t.value = texto; t.style.position = 'fixed'; t.style.opacity = '0';
         document.body.appendChild(t); t.select();
         // Si tampoco esto copia, NO se dice «copiado»: callar es mejor que mentir.
         try { document.execCommand('copy'); } catch { document.body.removeChild(t); return; }
