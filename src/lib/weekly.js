@@ -7,6 +7,8 @@
 // plantilla con huecos obligaría a rellenarlos, y rellenar es exactamente lo
 // que este proyecto dice no hacer.
 
+import { botonCopiar } from './copiar.js';
+
 const ESCAPES = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
 export const esc = s => String(s ?? '').replace(/[<>&"']/g, c => ESCAPES[c]);
 
@@ -238,7 +240,7 @@ export function renderIssue(body = {}, lang = 'en') {
     `<li>${prosa(c).replace(/^<p>|<\/p>$/g, '')}</li>`).join('');
 
   return `
-  ${body.headline ? `<h1 class="hed">${esc(body.headline)}</h1>` : ''}
+  ${body.headline ? `<h1 class="hed">${esc(body.headline)}${botonCopiar(lang)}</h1>` : ''}
   ${body.standfirst ? `<div class="stand">${prosa(body.standfirst)}</div>` : ''}
   ${lang === 'es' ? LEYENDA_ES : LEYENDA}
   <nav class="toc" id="contents">

@@ -4,7 +4,8 @@ import ArticleMasthead from '../components/ArticleMasthead.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
 import Sources from '../components/Sources.astro';
 import { tarjetaArticulo } from '../lib/og.js';
-import Share from '../components/Share.astro';
+import CopiarScript from '../components/CopiarScript.astro';
+import { botonCopiar } from '../lib/copiar.js';
 const { entry, slug, lang, langs = ['en', 'es'] } = Astro.props;
 const { data } = entry;
 
@@ -38,15 +39,14 @@ const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${c
             ogImage={tarjetaArticulo(slug, lang)}>
   <ArticleMasthead lang={lang} slug={slug} langs={langs} />
   <section class="hero">
-    <h1 class="hero-headline" set:html={data.titleHTML} />
+    <h1 class="hero-headline" set:html={(data.titleHTML || data.title) + botonCopiar(lang)} />
     <p class="hero-dek" set:html={data.dekHTML || data.dek} />
     <div class="hero-meta">
       <span>{data.issue}</span>
       <span class="hero-meta-bar"></span>
       <span>{data.date}</span>
       {data.source && <><span class="hero-meta-bar"></span><span>{data.source}</span></>}
-      <span class="hero-meta-bar"></span>
-      <Share lang={lang} />
+
     </div>
     {wordCount > 0 && (
       <div class="hero-reading-meta">
@@ -60,5 +60,6 @@ const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${c
     <slot />
   </article>
   <Sources slug={slug} lang={lang} />
+  <CopiarScript />
   <ReadingProgress />
 </BaseLayout>

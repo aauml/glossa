@@ -12,17 +12,15 @@ import PanelLink from './PanelLink.astro';
 // traducción; en el archivo, el archivo del otro idioma.
 const { lang = 'en', otro = null, meta = null } = Astro.props;
 const T = lang === 'es'
-  ? { archivo: 'Todos los números', panel: 'panel', otra: 'EN' }
-  : { archivo: 'Every issue',       panel: 'panel', otra: 'ES' };
+  ? { panel: 'panel', otra: 'EN' }
+  : { panel: 'panel', otra: 'ES' };
 const inicio  = lang === 'es' ? '/es/' : '/';
-const archivo = lang === 'es' ? '/es/weekly/archive/' : '/weekly/archive/';
 ---
 <header class="masthead">
   <div class="masthead-inner">
     <a class="masthead-brand" href={inicio}>Glossa<span class="wm-dot">.</span></a>
     <span class="masthead-meta">
       {meta && <span class="masthead-meta-sep">{meta}</span>}
-      <a class="masthead-panel" href={archivo}>{T.archivo}</a>
       {otro && <span class="masthead-meta-sep">·</span>}
       {otro && <a class="lang-link" href={otro}>{T.otra}</a>}
       <SizeSwitch separator />

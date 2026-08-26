@@ -6,7 +6,7 @@ import PrefsHead from '../../../components/PrefsHead.astro';
 import PrefsBody from '../../../components/PrefsBody.astro';
 import '../../../styles/global.css';
 import '../../../styles/weekly.css';
-import Share from '../../../components/Share.astro';
+import CopiarScript from '../../../components/CopiarScript.astro';
 import { tarjetaSemanal } from '../../../lib/og.js';
 import { renderIssue, fecha } from '../../../lib/weekly.js';
 
@@ -85,13 +85,12 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
   <div class="weekly-marca">
     <div class="weekly-marca-inner">
       <span class="weekly-marca-tag">Weekly</span>
-      <span class="weekly-marca-fechas">{desde} – {hasta}
-        <a class="weekly-marca-idioma" href={`/es/weekly/${week}/`}>Español</a></span>
-      <Share lang="en" />
+      <span class="weekly-marca-fechas">{desde} – {hasta}</span>
     </div>
   </div>
 
   <main class="weekly" set:html={renderIssue(b)} />
+  <CopiarScript />
   <a href="#contents" id="weekly-top" aria-label="Back to contents">↑</a>
 
   <script is:inline>

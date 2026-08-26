@@ -1,0 +1,28 @@
+---
+// El comportamiento del botón de copiar. La marca la pone `botonCopiar()`
+// dentro del titular; esto solo la hace funcionar, y va una vez por página.
+---
+<script>
+  for (const caja of document.querySelectorAll('[data-copiar]')) {
+    const btn = caja.querySelector('button');
+    const ok = caja.querySelector('[data-ok]');
+    let reloj = null;
+    btn.addEventListener('click', async () => {
+      // La URL limpia: sin el #ancla al que hayas saltado leyendo, que mandaría
+      // a quien lo abra a mitad de una sección en vez de al principio.
+      const url = location.origin + location.pathname;
+      try { await navigator.clipboard.writeText(url); }
+      catch {
+        const t = document.createElement('textarea');
+        t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
+        document.body.appendChild(t); t.select();
+        // Si tampoco esto copia, NO se dice «copiado»: callar es mejor que mentir.
+        try { document.execCommand('copy'); } catch { document.body.removeChild(t); return; }
+        document.body.removeChild(t);
+      }
+      ok.hidden = false;
+      clearTimeout(reloj);
+      reloj = setTimeout(() => { ok.hidden = true; }, 1600);
+    });
+  }
+</script>

@@ -832,15 +832,27 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    más trabajo que el que ahorra. */
 .copiar { display: inline-flex; align-items: center; gap: 6px; }
 .copiar button {
+  /* `font: inherit` no es adorno: sin él el botón se queda en los 13 px por
+     defecto del navegador, y como el icono mide 1em, dentro de un titular de
+     53 px seguía saliendo del tamaño de una coma. */
+  font: inherit;
   display: inline-flex; align-items: center;
   background: none; border: none; padding: 0; cursor: pointer;
   color: var(--muted); line-height: 0;
   transition: color 0.15s ease;
 }
 .copiar button:hover { color: var(--accent); }
+.copiar svg { width: 1em; height: 1em; }
 .copiar-ok {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 10px; letter-spacing: 0.06em; color: var(--muted);
   white-space: nowrap;
 }
 .copiar-ok[hidden] { display: none; }
+
+/* En el titular del artículo, igual: tamaño de texto normal dentro de un
+   titular grande, y a media altura de la última línea. */
+.hero-headline .copiar { font-size: .34em; margin-left: .34em; vertical-align: .18em; }
+.hero-headline .copiar button { color: var(--muted); opacity: .55; }
+.hero-headline .copiar button:hover { opacity: 1; }
+.hero-headline .copiar button:hover { color: var(--accent); }

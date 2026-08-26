@@ -257,18 +257,15 @@ html { scroll-behavior: smooth; }
   margin-top: 18px;
 }
 .weekly-marca-inner {
-  max-width: 34rem; margin: 0 auto; padding: 10px 32px 0;
+  /* Aire abajo: la línea de marca y el titular estaban pegados, y el titular
+     es lo que tiene que respirar. */
+  max-width: 34rem; margin: 0 auto; padding: 10px 32px 22px;
   display: flex; justify-content: space-between; align-items: baseline;
   font-family: 'IBM Plex Sans', sans-serif; font-size: 10px;
   letter-spacing: 0.16em; text-transform: uppercase;
 }
 .weekly-marca-tag { color: var(--accent); font-weight: 600; }
 .weekly-marca-fechas { color: var(--muted); }
-.weekly-marca-idioma {
-  color: var(--accent); text-decoration: none; margin-left: 10px;
-  border-bottom: 1px solid var(--rule-soft);
-}
-.weekly-marca-idioma:hover { border-color: var(--accent); }
 @media (max-width: 720px) { .weekly-marca-inner { padding-inline: 24px; } }
 @media (max-width: 640px) { .weekly-marca-inner { padding-inline: 20px; } }
 
@@ -309,3 +306,11 @@ html { scroll-behavior: smooth; }
   padding: var(--w2) 0 var(--w2) 2.9rem;
   font-size: .86rem; color: var(--muted); font-style: italic;
 }
+
+/* El botón de copiar, al final del titular: al tamaño del texto normal, no al
+   del titular, y separado por un espacio de palabra. Con `baseline` se sentaba
+   sobre la línea de la última letra y parecía un signo de puntuación. */
+.weekly .hed .copiar { font-size: .34em; margin-left: .34em; vertical-align: .18em; }
+.weekly .hed .copiar button { color: var(--muted); opacity: .55; }
+.weekly .hed .copiar button:hover { opacity: 1; }
+.weekly .hed .copiar button:hover { color: var(--accent); }
