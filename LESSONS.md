@@ -1059,3 +1059,97 @@ alta. Se enseñan todas, con la evidencia de cada una, y se marcan las que valga
 _Applies to:_ cualquier alta que resuelva un identificador a un recurso cuando
 hay más de un camino. Enseñar las opciones cuesta unas peticiones; equivocarse
 de camino cuesta el contenido.
+
+## Una regla escrita en un solo sitio es una regla que no rige
+
+La edición española debía poner el equivalente inglés de las cifras grandes
+—«130 mil millones (130 billion)»— y llevaba semanas escrito. En la skill. Que
+es lo que gobierna cuando un humano escribe a mano, no lo que leen los dos
+guiones que escriben solos cada semana. Nunca se aplicó, y nadie podía verlo
+salvo leyendo el resultado.
+
+Lo mismo con la voz: se puso primero en el guion de la pieza y no en el del
+número; luego en la prosa y no en el titular ni en el resumen de portada, que
+son lo único que se ve fuera del artículo. Cada vez, la regla parecía puesta.
+
+Cuando un sistema tiene varias superficies que producen lo mismo, una regla se
+escribe en TODAS a la vez o no se ha escrito. Y conviene una lista de cuáles
+son, porque de memoria siempre falta una.
+
+_Applies to:_ cualquier repo con más de un generador —prompts, plantillas,
+guiones— produciendo la misma clase de salida.
+
+## Un prompt es una petición; la garantía es código
+
+«¿Y si creo otro, lo hará bien?» La respuesta honesta era «probablemente», y
+probablemente no basta cuando la regla define el producto.
+
+La regla de voz pasó al contrato que ya validaba el slug: si el texto vuelve
+rompiéndola, se reintenta UNA vez diciendo exactamente qué rompió, y si insiste
+la pieza muere con el motivo escrito donde el humano lo ve. Probado contra texto
+real —el que había fallado y el que estaba bien— antes de darlo por bueno.
+
+_Applies to:_ todo lo que un modelo produzca contra un contrato. La comprobación
+mecánica cuesta una tarde y convierte «suele obedecer» en «no publica si no».
+
+## El escaparate también es prosa
+
+La pieza pasó el contrato de voz a la primera —veinte marcas, ni una frase
+hablando del texto— y salió con «Raymundo Riva Palacio argues that…» en el dek y
+en el resumen de portada. El filtro miraba el cuerpo; el dek y la portada no son
+cuerpo, y son lo ÚNICO que se ve fuera del artículo: en la portada, en la
+tarjeta de compartir, en el buscador.
+
+_Applies to:_ cualquier regla de estilo o de exactitud aplicada al contenido.
+Los metadatos —título, resumen, texto alternativo, vista previa— se ven más que
+el contenido y suelen quedar fuera del filtro.
+
+## Las vistas previas se cachean por URL, no por contenido
+
+Se rediseñó la tarjeta de compartir, la nueva quedó guardada en la misma
+dirección, y al compartir seguía saliendo la vieja. El fichero era el correcto;
+lo que no cambiaba era la URL, que es lo único que WhatsApp, X y los demás
+miran. Un enlace ya compartido conserva su vista previa vieja en esa
+conversación para siempre.
+
+La URL lleva ahora la versión del diseño. Y el `cache-control` estaba mal
+escrito —«31536000» sin `max-age=`—, así que además no se cacheaba nada.
+
+_Applies to:_ og:image, miniaturas, cualquier recurso que un tercero cachee.
+Versiona la URL o no has publicado nada.
+
+## El dato estaba, y el código lo tiraba
+
+Una columna firmada se publicó como «columna anónima, autor y medio no
+identificados». La firma venía en el feed, en `dc:creator`. El lector de feeds
+no lo miraba: sacaba el autor del TÍTULO, que sirve para el invitado de un
+podcast y para nada más. Toda la prensa entraba sin firma.
+
+Y quien escribía la pieza tampoco recibía la URL ni el nombre de la fuente
+seguida, que estaban en la base a un JOIN de distancia. Con eso, «anónima» era
+una inferencia razonable sobre datos incompletos.
+
+_Applies to:_ cualquier tubería donde un extremo infiere lo que el otro ya sabía.
+Antes de pedirle a un modelo que deduzca algo, comprueba si el dato viaja.
+
+## «Sin clasificar» no es una categoría
+
+El panel agrupaba por sector y ponía en «Other» lo que aún no tenía ninguno. Seis
+temas de México aparecieron ahí, y la lectura natural fue que el clasificador se
+equivocaba. No se equivocaba: no había llegado a ellos —corría cada cuatro horas
+y el radar crea temas a todas horas—.
+
+Juntar «ninguno» con «desconocido» convierte una espera en un error aparente, y
+manda a investigar donde no hay nada roto.
+
+_Applies to:_ cualquier interfaz que agrupe por un campo que se rellena tarde.
+
+## Cancelar no es gratis
+
+Cancelé una corrida creyendo que era un duplicado de la que acababa de lanzar.
+Era la pieza que el usuario había pegado un minuto antes, sobre otro asunto. La
+coincidencia de hora bastó para convencerme, y no comprobé el identificador del
+elemento, que estaba a una consulta.
+
+_Applies to:_ toda acción destructiva sobre trabajo en curso. La regla barata es
+mirar QUÉ se cancela, no cuándo empezó.
