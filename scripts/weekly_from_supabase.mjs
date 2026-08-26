@@ -595,6 +595,10 @@ RULES — the first two are the ones that matter:
   piece knowing what is going on — not knowing which podcast said what.
   Name a source ONLY when the naming carries information: the claim is contested,
   nobody outside confirmed it, or who said it IS the story.
+  And never write ABOUT the material: no "the episode treats this as settled", no
+  "several channels covered it", no telling the reader how to weigh what follows.
+  What carries that is the mark on the claim — gold, dotted, plain — and the
+  sources folded at the foot of each piece. Both are printed by the page itself.
 
 - COINCIDING IS NOT CORROBORATING, and that rule now decides when you may state
   something plainly. Five channels that share an orbit repeating one thing does

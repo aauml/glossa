@@ -861,12 +861,20 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    Vivía solo en la revista. Desde que la pieza afirma en vez de repartir
    atribuciones en cada frase, la marca es lo único que dice cuánto sostiene
    cada cosa: tiene que verse igual en los dos sitios. */
-.article .doc  { border-bottom: 2px solid var(--gold); padding-bottom: .5px; }
-.article .attr { border-bottom: 1px dotted var(--accent); padding-bottom: .5px; }
-.article .said { border-bottom: 1px solid var(--rule-soft); padding-bottom: .5px; }
+/* La leyenda va FUERA de <article>, así que las marcas de su muestra no
+   entraban por `.article .doc`: enseñaba «gold / dotted / plain» en texto liso,
+   que es una leyenda que no muestra lo que explica. */
+.article .doc,  .legend-articulo .doc  { border-bottom: 2px solid var(--gold); padding-bottom: .5px; }
+.article .attr, .legend-articulo .attr { border-bottom: 1px dotted var(--accent); padding-bottom: .5px; }
+.article .said, .legend-articulo .said { border-bottom: 1px solid var(--rule-soft); padding-bottom: .5px; }
 
+/* La leyenda va en la MISMA columna que el texto (720 px, como `.hero` y
+   `.article`), no en la del sitio: puesta a `--medida` salía volada a la
+   izquierda del artículo, como un elemento de otra página. */
 .legend-articulo {
-  max-width: var(--medida); margin: 0 auto 34px; padding: 12px 32px;
+  /* 656 = 720 menos los 32 de sangría a cada lado: así los filetes empiezan y
+     terminan donde empieza y termina el texto, en vez de asomar por fuera. */
+  max-width: 656px; margin: 0 auto 34px; padding: 12px 0;
   border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft);
   display: flex; flex-wrap: wrap; gap: 6px 22px;
   font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--muted);
