@@ -34,13 +34,39 @@ async function subir(ruta, png) {
   if (!r.ok) throw new Error(`subiendo ${ruta}: ${r.status} ${(await r.text()).slice(0, 160)}`);
 }
 
-/** Frontmatter mínimo: solo los tres campos que la tarjeta necesita. */
+/**
+ * El `dek` de una pieza no cabe entero. Se prefiere su primera frase; si no
+ * hay punto —el caso normal, son frases largas de una sola oración— se corta
+ * por el último espacio y se dice que sigue.
+ *
+ * Cortar a pelo por caracteres partía la palabra: la primera tarjeta acabó en
+ * «the insurance-and-mining clock that bl».
+ */
+function resumir(dek, tope = 165) {
+  const t = String(dek).replace(/\s+/g, ' ').trim();
+  if (t.length <= tope) return t;
+  // El punto de una abreviatura NO termina la frase: cortar por «(?<=\.)\s»
+  // dejaba «entre lo que produce EE.UU.» —media idea— y en inglés haría lo
+  // mismo con «U.S.». Se exige que antes del punto haya tres letras minúsculas,
+  // que es lo que distingue una palabra de una sigla.
+  const frase = t.split(/(?<=[a-záéíóúñü]{3}[.!?])\s+(?=[A-ZÁÉÍÓÚÑ¿¡])/)[0];
+  if (frase.length <= tope) return frase;
+  let corte = t.slice(0, tope);
+  corte = corte.slice(0, corte.lastIndexOf(' '));
+  // Y no se termina en una palabra vacía: «…a slogan, the…» deja al lector
+  // esperando el sustantivo que no llega.
+  const VACIAS = /\s+(the|a|an|and|or|of|to|in|for|that|with|from|by|on|el|la|los|las|un|una|y|o|de|del|que|con|para|por|en)$/i;
+  while (VACIAS.test(corte)) corte = corte.replace(VACIAS, '');
+  return corte.replace(/[,;:]$/, '') + '…';
+}
+
+/** Frontmatter mínimo: solo los campos que la tarjeta necesita. */
 function frontmatter(txt) {
   const m = /^---\n([\s\S]*?)\n---/.exec(txt);
   if (!m) return {};
   const out = {};
   for (const linea of m[1].split('\n')) {
-    const kv = /^(issue|date|title):\s*(.+)$/.exec(linea);
+    const kv = /^(issue|date|title|dek|source):\s*(.+)$/.exec(linea);
     if (kv) out[kv[1]] = kv[2].trim().replace(/^["']|["']$/g, '');
   }
   return out;
@@ -61,8 +87,9 @@ for (const slug of readdirSync(DIR)) {
     if (!fm.title) { console.log(`  sin título: ${f}`); continue; }
     // «N° 43 · 25 August 2026»: el número identifica la pieza dentro de la
     // colección y la fecha dice si es de esta semana o de hace un año.
-    const pie = [fm.issue, fm.date].filter(Boolean).join(' · ');
-    await subir(ruta, await tarjeta({ titulo: fm.title, fecha: pie, lang }));
+    const pie = [fm.issue, fm.date].filter(Boolean).join(' · ').toUpperCase();
+    const sumario = resumir(fm.dek || '');
+    await subir(ruta, await tarjeta({ titulo: fm.title, fecha: pie, lang, sumario, fuente: fm.source || '' }));
     hechas++; console.log(`  ${ruta}`);
   }
 }
@@ -87,7 +114,11 @@ for (const num of numeros) {
     const pie = mismoMes
       ? `${a.toLocaleDateString(loc, { day: 'numeric', timeZone: 'UTC' })}–${b.toLocaleDateString(loc, opt)}`
       : `${a.toLocaleDateString(loc, opt)} – ${b.toLocaleDateString(loc, opt)}`;
-    await subir(ruta, await tarjeta({ titulo: cuerpo.headline, fecha: pie, lang }));
+    // El sumario del número son los asuntos de sus piezas, tal cual y en su
+    // orden: ya vienen escritos en dos o tres palabras para el índice.
+    const temas = (cuerpo.pieces ?? []).map(x => x.subject).filter(Boolean);
+    const marca = lang === 'es' ? 'SEMANAL' : 'WEEKLY';
+    await subir(ruta, await tarjeta({ titulo: cuerpo.headline, fecha: `${marca} · ${pie.toUpperCase()}`, lang, temas }));
     hechas++; console.log(`  ${ruta}`);
   }
 }

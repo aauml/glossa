@@ -3,8 +3,12 @@
 //
 // Antes había UNA imagen fija para las noventa páginas —y los números de la
 // revista no tenían ninguna—, así que treinta enlaces distintos se veían
-// idénticos y ninguno decía de qué iba. La tarjeta lleva ahora el titular y la
-// fecha de lo que se comparte, que es lo que decide si el otro lo abre.
+// idénticos y ninguno decía de qué iba. La tarjeta lleva ahora lo que decide
+// si el otro lo abre: el titular, y debajo lo que hay dentro.
+//
+// Dos formas, y la franja de arriba las distingue de un vistazo:
+//   · el NÚMERO va en rojo, y bajo el titular su sumario numerado;
+//   · la PIEZA va en negro, y bajo el titular de qué va y de dónde sale.
 //
 // Se dibuja al PUBLICAR, no al pedirla: un número se reescribe rara vez, y
 // cuando se reescribe se vuelve a dibujar. Así el enlace no depende de que un
@@ -26,7 +30,10 @@ const FUENTES = [
 
 // Los mismos colores que el papel del sitio. Un enlace que se ve de un color en
 // la tarjeta y de otro al abrirlo parece de dos sitios distintos.
-const PAPEL = '#F4EDE4', TINTA = '#1A1614', OXBLOOD = '#7A2E2E', SUAVE = '#6B625B';
+const PAPEL = '#F4EDE4', TINTA = '#1A1614', OXBLOOD = '#7A2E2E', SUAVE = '#6B625B', LINEA = '#D9CFC2';
+// La franja del número es un rojo más hondo que el acento: en miniatura, un
+// bloque de 14 px del acento tira a ladrillo, y este se lee como vino.
+const VINO = '#5A1F1F';
 
 // Qué es Glossa, en quince palabras. La portada lo cuenta en tres párrafos;
 // aquí hay sitio para una línea y tiene que bastarse sola.
@@ -46,44 +53,68 @@ const el = (type, props = {}, ...children) => ({
   },
 });
 
+/** El titular manda: cuanto más largo, más pequeño, para que quepa sin recortar. */
+const tamañoTitular = (t, tope) => {
+  const n = String(t ?? '').length;
+  return n > 110 ? tope - 12 : n > 78 ? tope - 6 : n > 46 ? tope : tope + 8;
+};
+
 /**
- * @param titulo  el titular del número o del artículo
- * @param fecha   ya formateada («23–29 August 2026», «N° 43 · 25 ago 2026»)
+ * @param titulo  el titular del número o de la pieza
+ * @param fecha   ya formateada («WEEKLY · 16–22 AUG 2026», «N° 43 · 25 ago 2026»)
  * @param lang    'en' | 'es' — la tarjeta habla el idioma del enlace
+ * @param temas   el sumario del número: hasta cinco asuntos, en su orden
+ * @param sumario una línea de qué va la pieza
+ * @param fuente  de dónde sale la pieza
  */
-export async function tarjeta({ titulo, fecha = '', lang = 'en' }) {
-  // El titular manda: cuanto más largo, más pequeño, para que quepa siempre
-  // sin recortarlo. Un titular cortado a mitad de palabra en la vista previa
-  // es peor que uno pequeño.
-  const n = String(titulo ?? '').length;
-  const tam = n > 110 ? 46 : n > 78 ? 54 : n > 46 ? 64 : 74;
+export async function tarjeta({ titulo, fecha = '', lang = 'en', temas = [], sumario = '', fuente = '' }) {
+  const esNumero = temas.length > 0;
+  const vistos = temas.slice(0, 5);
+  const restantes = temas.length - vistos.length;
 
   const svg = await satori(
     el('div', {
       style: {
-        width: 1200, height: 630, display: 'flex', flexDirection: 'column',
-        backgroundColor: PAPEL, padding: '56px 72px 48px',
-        borderTop: `14px solid ${OXBLOOD}`, fontFamily: 'Spectral',
+        width: 1200, height: 630, flexDirection: 'column',
+        backgroundColor: PAPEL, padding: '52px 68px 44px',
+        borderTop: `14px solid ${esNumero ? VINO : TINTA}`,
+        fontFamily: 'Spectral',
       },
     },
-      el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' } },
-        el('div', { style: { fontFamily: 'Fraunces', fontSize: 40, color: TINTA, display: 'flex' } },
+      el('div', { style: { justifyContent: 'space-between', alignItems: 'baseline' } },
+        el('div', { style: { fontFamily: 'Fraunces', fontSize: 36, color: TINTA } },
           el('span', {}, 'Glossa'),
           el('span', { style: { color: OXBLOOD } }, '.')),
-        el('div', { style: { fontSize: 22, color: SUAVE, letterSpacing: '0.06em' } }, fecha)),
+        el('div', { style: { fontSize: 20, color: SUAVE, letterSpacing: '0.08em' } }, fecha)),
 
       el('div', {
         style: {
-          flexGrow: 1, display: 'flex', alignItems: 'center',
-          fontFamily: 'Fraunces', fontSize: tam, lineHeight: 1.14,
-          color: TINTA, letterSpacing: '-0.015em', marginTop: 28,
+          fontFamily: 'Fraunces', fontSize: tamañoTitular(titulo, esNumero ? 50 : 52),
+          lineHeight: 1.12, color: TINTA, letterSpacing: '-0.015em', marginTop: 22,
         },
       }, String(titulo ?? '')),
 
-      el('div', { style: { display: 'flex', flexDirection: 'column', gap: 10 } },
-        el('div', { style: { width: 120, height: 1, backgroundColor: '#CBBFB2', display: 'flex' } }),
-        el('div', { style: { fontSize: 24, color: SUAVE, lineHeight: 1.35 } }, QUE_ES[lang] ?? QUE_ES.en),
-        el('div', { style: { fontSize: 20, color: OXBLOOD, letterSpacing: '0.04em' } }, 'glossa.ademas.ai')),
+      // El número enseña su sumario; la pieza, de qué va.
+      esNumero
+        ? el('div', { style: { flexGrow: 1, flexDirection: 'column', gap: 5, marginTop: 22 } },
+            vistos.map((t, i) => el('div', { style: { alignItems: 'baseline', gap: 12 } },
+              el('div', { style: { fontFamily: 'Fraunces', fontSize: 17, color: OXBLOOD, width: 30 } },
+                String(i + 1).padStart(2, '0')),
+              el('div', { style: { fontSize: 23, color: TINTA } }, t))),
+            // Un sumario recortado en silencio se lee como el número entero.
+            restantes > 0
+              ? el('div', { style: { fontSize: 19, color: SUAVE, marginTop: 4, marginLeft: 42 } },
+                  lang === 'es' ? `y ${restantes} más` : `and ${restantes} more`)
+              : [])
+        : el('div', { style: { flexGrow: 1, fontSize: 23, color: SUAVE, lineHeight: 1.4, marginTop: 18 } },
+            String(sumario ?? '')),
+
+      el('div', { style: { flexDirection: 'column', gap: 8 } },
+        el('div', { style: { width: 110, height: 1, backgroundColor: LINEA } }),
+        // Al pie, la pieza dice de dónde sale —que es por qué creerle— y el
+        // número dice qué es esto, que es lo que no se sabe si es tu primera vez.
+        el('div', { style: { fontSize: 21, color: SUAVE } }, esNumero ? QUE_ES[lang] ?? QUE_ES.en : (fuente || QUE_ES[lang])),
+        el('div', { style: { fontSize: 18, color: OXBLOOD, letterSpacing: '0.04em' } }, 'glossa.ademas.ai')),
     ),
     { width: 1200, height: 630, fonts: FUENTES },
   );
