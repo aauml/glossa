@@ -86,13 +86,28 @@ a.inline-link:hover, .article a:not(.masthead-section):not(.masthead-brand):not(
 .cover-wordmark { margin: 0; font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif; font-weight: 500; font-size: clamp(52px, 9.5vw, 104px); line-height: 0.92; letter-spacing: -0.015em; color: var(--ink); }
 /* La cabecera: el nombre a la izquierda, las dos hebras a su derecha y sobre
    la misma línea base. En estrecho se apila, que es como debe leerse. */
-.cover-head { display: grid; grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr); gap: 30px 52px; align-items: end; }
-.cover-intro { padding-bottom: 6px; }
-.cover-why { font-family: 'Spectral', serif; font-weight: 300; font-size: calc(clamp(14px, 1.4vw, 16px) * var(--reader-scale)); line-height: 1.62; color: var(--ink-soft); max-width: 58ch; margin: 0 0 14px; }
-.cover-intro .cover-why:last-child { margin-bottom: 0; }
+/* Nombre a todo lo ancho, con la fecha del número en la misma línea base y un
+   filete grueso debajo: es la nameplate de un periódico y es lo que convierte
+   media portada vacía en cabecera. */
+.cover-nameplate {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+  padding-bottom: 10px; border-bottom: 2px solid var(--ink);
+}
+.cover-fecha {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+  white-space: nowrap;
+}
+/* Debajo, dos columnas: qué es esto y la única oferta. El párrafo manda; la
+   caja ocupa lo justo y deja de colgar del final de una columna larga. */
+.cover-head {
+  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  gap: 26px 52px; align-items: start; padding-top: 20px;
+}
+.cover-why { font-family: 'Spectral', serif; font-weight: 300; font-size: calc(clamp(15px, 1.55vw, 18px) * var(--reader-scale)); line-height: 1.6; color: var(--ink-soft); max-width: 54ch; margin: 0; }
 @media (max-width: 860px) {
-  .cover-head { grid-template-columns: 1fr; align-items: start; gap: 18px; }
-  .cover-intro { padding-bottom: 0; }
+  .cover-head { grid-template-columns: 1fr; gap: 20px; padding-top: 16px; }
 }
 .cover-credo { margin-top: 26px; font-family: 'IBM Plex Sans', sans-serif; font-weight: 400; font-size: calc(12.5px * var(--reader-scale)); line-height: 1.55; letter-spacing: 0.01em; color: var(--muted); max-width: 560px; margin-bottom: 18px; padding-left: 14px; border-left: 2px solid var(--accent); }
 .cover-credo strong { color: var(--accent); font-weight: 600; }
@@ -790,8 +805,13 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    por encima y nada de recuadros: quien la quiera la ve, y quien no, sigue
    leyendo. */
 .sub-caja {
-  margin-top: 22px; padding-top: 18px; border-top: 0.5px solid var(--rule-soft);
-  max-width: 46ch;
+  /* Es una columna de la cabecera, no una coleta al final del texto: su regla
+     va a la izquierda, como el raíl de un periódico. */
+  border-left: 2px solid var(--accent); padding-left: 16px; max-width: 46ch;
+}
+@media (max-width: 860px) {
+  .sub-caja { border-left: none; border-top: 0.5px solid var(--rule-soft);
+              padding-left: 0; padding-top: 16px; }
 }
 .sub-rail {
   display: block; font-family: 'IBM Plex Sans', sans-serif;

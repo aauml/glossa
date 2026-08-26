@@ -110,41 +110,35 @@ const [featured, ...rest] = articles;
 const keyOf = (a) => (a.data.topics || []).join('|');
 const href = (a) => `/articles/${a.slug}/${lang}/`;
 ---
-{/* La cabecera, en dos columnas: el nombre a la izquierda y las dos hebras a su
-    derecha, asentadas sobre la misma línea base. Antes todo caía en una columna
-    de 580 px dentro de un contenedor de 980, así que media portada quedaba en
-    blanco y el texto parecía un margen. Una cabecera de revista usa el ancho:
-    el nombre manda por tamaño, no por soledad. */}
+{/* La cabecera de un periódico: el nombre a todo lo ancho, entre filetes, con
+    la fecha del número a su derecha; y debajo, en dos columnas, qué es esto y
+    la única oferta que hay.
+
+    Antes el nombre vivía SOLO en una columna de media portada y el párrafo en
+    la otra, así que la mitad de arriba era papel en blanco alrededor de una
+    palabra. Un nombre manda por tamaño y por posición, no por soledad. */}
 <section class="cover">
-  <div class="cover-head">
+  <div class="cover-nameplate">
     <h1 class="cover-wordmark">Glossa<span class="wm-dot">.</span></h1>
-    <div class="cover-intro">
-      {/* Dos líneas porque son dos salidas distintas y se hacen distinto: el
-          número de la semana, cotejado contra la prensa de otros países; y la
-          pieza suelta, que nace de una fuente pegada o de un asunto y se
-          construye con la biblioteca. Una sola frase describía solo el semanal
-          y dejaba fuera la mitad de la colección. */}
-      {/* UN párrafo, no dos. Eran las dos mitades del mismo trabajo —la semana
-          y el asunto suelto— contadas como si fueran dos productos, y lo único
-          que de verdad distingue esto de cualquier boletín (que la marca dice
-          qué sostiene cada frase) no aparecía en ninguna. */}
-      <p class="cover-why">{t.news}</p>
+    {fechaNumero && <span class="cover-fecha">{fechaNumero}</span>}
+  </div>
 
-      {/* UNA sola oferta: tener la tuya. La suscripción al semanal queda para
-          otra etapa —el camino está montado y probado en la función, solo no se
-          expone—; ofrecer las dos a la vez obligaba al lector a elegir entre
-          dos cosas que suenan igual antes de haber leído nada. */}
-      <div class="sub-caja">
-        <span class="sub-rail">{t.subT}</span>
-        <p class="sub-nota">{t.subP}</p>
-        <form class="sub-form" id="sub-form" data-lang={lang}>
-          <input type="email" id="sub-email" required autocomplete="email"
-                 placeholder={t.subPlaceholder} aria-label={t.subT} />
-          <button type="submit" id="sub-btn">{t.subBoton}</button>
-        </form>
-        <p class="sub-msg" id="sub-msg" hidden></p>
-      </div>
+  <div class="cover-head">
+    <p class="cover-why">{t.news}</p>
 
+    {/* UNA sola oferta: tener la tuya. La suscripción al semanal queda para
+        otra etapa —el camino está montado y probado en la función, solo no se
+        expone—; ofrecer las dos a la vez obligaba al lector a elegir entre
+        dos cosas que suenan igual antes de haber leído nada. */}
+    <div class="sub-caja">
+      <span class="sub-rail">{t.subT}</span>
+      <p class="sub-nota">{t.subP}</p>
+      <form class="sub-form" id="sub-form" data-lang={lang}>
+        <input type="email" id="sub-email" required autocomplete="email"
+               placeholder={t.subPlaceholder} aria-label={t.subT} />
+        <button type="submit" id="sub-btn">{t.subBoton}</button>
+      </form>
+      <p class="sub-msg" id="sub-msg" hidden></p>
     </div>
   </div>
 </section>
