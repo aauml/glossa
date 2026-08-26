@@ -231,7 +231,12 @@ async function traducir(prompt) {
 }
 
 // ── 1 · El elemento ──────────────────────────────────────────────────────
-const [item] = await sb(`glossa_radar_items?select=*&id=eq.${ITEM}&limit=1`) ?? [];
+// Con la fuente que lo trajo: el nombre del canal o del columnista es un DATO
+// de procedencia, y sin él la pieza puede llamar «anónima» a una columna
+// firmada — pasó con el N° 39, que era de Riva Palacio en El Financiero.
+const [item] = await sb(
+  `glossa_radar_items?select=*,glossa_radar_sources(name,kind)&id=eq.${ITEM}&limit=1`) ?? [];
+if (item) item.fuente = item.glossa_radar_sources?.name ?? null;
 if (!item) { console.error(`No existe el elemento ${ITEM}`); process.exit(1); }
 console.log(`Pieza para: «${item.title}» (${item.origin}, ${item.state})`);
 

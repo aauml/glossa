@@ -1300,7 +1300,7 @@ Deno.serve(async (req) => {
         // texto y la petición no se repite.
         if (url) {
           const { data: yaEsta } = await db.from('glossa_radar_items')
-            .select('id,origin,state,title,body_text,progress')
+            .select('id,origin,state,title,body_text,author,source_id,progress')
             .eq('url', url).order('created_at', { ascending: false }).limit(1);
           const previo = (yaEsta ?? [])[0];
           if (previo && !solo) {
@@ -1313,10 +1313,14 @@ Deno.serve(async (req) => {
           }
           if (previo && solo) {
             const { data: copia, error: eCopia } = await db.from('glossa_radar_items').insert({
-              source_id: null, origin: 'pieza',
+              // La fuente y la firma viajan con la copia: son de dónde salió,
+              // no adorno. Sin la firma, quien escribe la pieza no tiene cómo
+              // saber quién la escribió y puede llamarla anónima.
+              source_id: previo.source_id ?? null, origin: 'pieza',
               external_id: 'pieza:' + url,
               url,
               title: previo.title,
+              author: previo.author ?? null,
               body_text: previo.body_text ?? cuerpo,
               published_at: new Date().toISOString(),
               state: 'pending',

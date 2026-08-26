@@ -21,9 +21,19 @@ export function promptDigestPieza(item, esTexto) {
   return [
     'You are preparing source material so an editor can write a guided reading of it.',
     '',
-    'UNVERIFIED METADATA (from the paste, may be wrong):',
+    'WHERE THIS CAME FROM. The URL and the outlet are FACTS — they are how the',
+    'material reached us, not something inferred from the text:',
     `  title: ${item.title}`,
-    item.author ? `  author/guest per the title: ${item.author}` : '',
+    item.url ? `  url: ${item.url}` : '',
+    item.author ? `  byline: ${item.author}` : '',
+    item.fuente ? `  followed source: ${item.fuente}` : '',
+    '',
+    'NEVER call this source anonymous, unsigned or unattributed when a byline, a',
+    'followed source or the URL identifies it. A column at',
+    'elfinanciero.com.mx/opinion/raymundo-riva-palacio/ is by Raymundo Riva Palacio',
+    'in El Financiero even if his name never appears in the body text. If the text',
+    'itself carries no byline AND nothing above identifies it, say that the text as',
+    'received carries no byline — not that the author is unknown to the world.',
     '',
     esTexto
       ? 'THE TEXT RULES. If it disagrees with the metadata, ignore the metadata.'

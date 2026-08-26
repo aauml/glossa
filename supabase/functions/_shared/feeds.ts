@@ -2,6 +2,12 @@
 // raspar nada ni usar claves. Es la vía limpia para saber qué hay nuevo.
 
 export type Entrada = { external_id: string; url: string; title: string; published_at: string;
+                        // Quién firma, según el feed. Se leía SOLO del título
+                        // —que sirve para el invitado de un podcast y para nada
+                        // más—, así que una columna de periódico llegaba sin
+                        // autor y se publicó una pieza llamándola «anónima»
+                        // cuando la firmaba un columnista conocido.
+                        autor?: string;
                         // Lo que el feed ya trae escrito. No es la transcripción, pero
                         // en muchos programas son dos o tres mil caracteres de notas, y
                         // es lo único que hay cuando la página del episodio se dibuja
@@ -51,10 +57,12 @@ export function parsearFeed(xml: string, kind: string): Entrada[] {
       if (!link) continue;
       const id = limpiar(tag(e, 'id')) || link;
       const fecha = tag(e, 'published') || tag(e, 'updated');
+      const autorAtom = limpiar(tag(e, 'name'));
       out.push({
         external_id: id, url: link,
         title: limpiar(tag(e, 'title')),
         published_at: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
+        ...(autorAtom ? { autor: autorAtom } : {}),
       });
     }
     return out;
@@ -87,11 +95,16 @@ export function parsearFeed(xml: string, kind: string): Entrada[] {
     const texto = limpiar(tag(it, 'content:encoded')) ||
                   limpiar(tag(it, 'description')) ||
                   limpiar(tag(it, 'itunes:summary'));
+    // `dc:creator` es donde la prensa pone la firma; `author` es el campo del
+    // RSS de siempre, que suele traer un correo delante.
+    const autor = (limpiar(tag(it, 'dc:creator')) || limpiar(tag(it, 'author')))
+      .replace(/^[^\s@]+@[^\s@]+\s*\(?/, '').replace(/\)$/, '').slice(0, 120);
     out.push({
       external_id: guid,
       url,
       title: limpiar(tag(it, 'title')),
       published_at: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
+      ...(autor ? { autor } : {}),
       ...(texto && texto.length >= 400 ? { texto } : {}),
     });
   }

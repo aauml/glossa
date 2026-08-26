@@ -13,6 +13,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { CORS, requireToken } from '../_shared/auth.ts';
 import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube, textoDePagina, buscarEnYouTube } from '../_shared/feeds.ts';
+import type { Filtrado } from '../_shared/feeds.ts';
 import { gemini, geminiJson, geminiTokens, MODELO_DIGEST, VIDEO_FPS } from '../_shared/gemini.ts';
 import { promptDigest, promptTemas } from '../_shared/prompts.ts';
 import { ajustes, uso, apuntar, cabe } from '../_shared/presupuesto.ts';
@@ -84,7 +85,7 @@ Deno.serve(async (req) => {
         // YouTube va por su API oficial desde que el RSS dejó de responder;
         // podcasts y prensa siguen por RSS, que en su caso sí funciona.
         let entradas;
-        let filtradas: { external_id: string; url: string; title: string; published_at: string; motivo: string }[] = [];
+        let filtradas: Filtrado[] = [];
         if (src.kind === 'youtube' && sinYoutube) continue;
         if (src.kind === 'youtube') {
           const canal = idDeCanal(src.feed_url);
@@ -101,7 +102,7 @@ Deno.serve(async (req) => {
           .filter(e => new Date(e.published_at) >= corte)
           .map(e => ({
             source_id: src.id, origin: 'feed', external_id: e.external_id, url: e.url,
-            title: e.title, author: partirInvitado(e.title), published_at: e.published_at,
+            title: e.title, author: e.autor ?? partirInvitado(e.title), published_at: e.published_at,
             // Lo que el feed ya traía escrito. Al digerir, si la página del
             // episodio da algo mejor (una transcripción), lo pisa; si no da
             // nada —Megaphone y sus páginas de JavaScript—, esto evita que el
@@ -125,7 +126,7 @@ Deno.serve(async (req) => {
           .filter(e => new Date(e.published_at) >= corte)
           .map(e => ({
             source_id: src.id, origin: 'feed', external_id: e.external_id, url: e.url,
-            title: e.title, author: partirInvitado(e.title), published_at: e.published_at,
+            title: e.title, author: e.autor ?? partirInvitado(e.title), published_at: e.published_at,
             state: 'skipped', error: e.motivo, digested_at: new Date().toISOString(),
           }));
         if (paraSaltar.length) {
