@@ -33,7 +33,7 @@ const readLabel = lang === 'es' ? 'min de lectura' : 'min read';
 const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${code}/` }));
 ---
 <BaseLayout title={`${data.title} · Glossa`} description={data.dek} lang={lang} alternates={alternates}>
-  <ArticleMasthead lang={lang} slug={slug} langs={langs} />
+  <ArticleMasthead lang={lang} slug={slug} langs={langs} titulo={data.title} />
   <section class="hero">
     <h1 class="hero-headline" set:html={data.titleHTML} />
     <p class="hero-dek" set:html={data.dekHTML || data.dek} />

@@ -167,7 +167,7 @@ export function promptPieza(digest, reportes, piezas, issueNo) {
     '{',
     '  "slug": "speaker-or-topic-kebab-case, 3-5 words, unique vs the collection above",',
     '  "track": "general|thesis|ai-policy|finance|geopolitics",',
-    '  "title": "plain text headline",',
+    '  "title": "plain text headline — it is what people see when the link is shared, so it has to earn the click without overselling: the surprise, not the topic. No colon-and-subtitle, no question mark",',
     '  "titleHTML": "same headline with exactly one <em>…</em> phrase",',
     '  "dek": "one sentence, 25-40 words, plain",',
     '  "dekHTML": "same with one <em> word",',

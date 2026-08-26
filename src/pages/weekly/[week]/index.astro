@@ -67,7 +67,8 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
   <PrefsHead />
 </head>
 <body>
-  <WeeklyMasthead lang="en" otro={`/es/weekly/${week}/`} />
+  <WeeklyMasthead lang="en" otro={`/es/weekly/${week}/`} titulo={titulo}
+                  comparte={{ en: `/weekly/${week}/`, es: `/es/weekly/${week}/` }} />
 
   <!-- La marca de edición. Es lo único que separa la revista de un artículo:
        misma tipografía, mismo fondo, mismos tamaños — pero con el filete y la

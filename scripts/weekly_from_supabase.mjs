@@ -571,11 +571,11 @@ ${cotejos?.length ? `  ${cotejos.length} claims were checked this week.` : '  (n
 
 Write a magazine issue. Return ONLY JSON:
 {
- "headline": "a thesis, not a label. Under 12 words.",
+ "headline": "a thesis, not a label. Under 12 words. It is what people see when the link gets shared, so it has to earn the click WITHOUT overselling: one concrete image, or a verb that does real work. No colon-and-subtitle, no question mark, and none of these words: weekly, roundup, analysis, update.",
  "standfirst": "60-90 words. What made this week different. Not a list of what follows.",
  "pieces": [
    {${departamentos?.length ? '"department":"EXACTLY one of the department names below, copied verbatim",\n    ' : ''}"subject":"what this piece is ABOUT, 2-4 words, as a reader would name it",
-    "title":"short, specific",
+    "title":"short, specific, and worth clicking. State the surprise, not the topic («The sanctions came back before the talks did», never «Iran sanctions update»). No colon-and-subtitle, no question mark",
     "dek":"one line for the index, under 18 words",
     "body":"400-550 words of CONTINUOUS PROSE. Markdown paragraphs only.",
     "sources_note":"one or two sentences on where this STANDS: what is settled and what rests on a single account. Not a roll-call of channels — the links below already are that",

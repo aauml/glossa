@@ -825,3 +825,33 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 /* La otra oferta, justo debajo y sin caja: la forma las distingue antes que
    las palabras. */
 .cover-acceso { margin-top: 16px; }
+
+/* ── Compartir ───────────────────────────────────────────────────────────
+   Un botón del tamaño de los demás mandos de la cabecera, y un menú de dos
+   líneas: el enlace en inglés y el enlace en español. No es un icono de red
+   social: aquí se manda un enlace, no se publica en ninguna parte. */
+.share { position: relative; display: inline-block; }
+.share-btn {
+  font: inherit; font-size: 11px; letter-spacing: 0.06em;
+  color: var(--muted); background: none; border: none; padding: 0;
+  cursor: pointer; text-transform: lowercase;
+}
+.share-btn:hover { color: var(--accent); }
+.share-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 30;
+  display: grid; gap: 2px; min-width: 168px;
+  background: var(--paper); border: 0.5px solid var(--rule-soft);
+  padding: 6px; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.07);
+}
+.share-menu[hidden] { display: none; }
+.share-menu button {
+  font: inherit; font-size: 12px; text-align: left;
+  color: var(--ink); background: none; border: none;
+  padding: 6px 8px; cursor: pointer; white-space: nowrap;
+}
+.share-menu button:hover { color: var(--accent); background: var(--rule-soft); }
+.share-ok {
+  font-size: 11px; color: var(--muted); padding: 4px 8px;
+  overflow-wrap: anywhere;
+}
+.share-ok[hidden] { display: none; }

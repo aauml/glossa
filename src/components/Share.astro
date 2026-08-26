@@ -1,0 +1,70 @@
+---
+/**
+ * Compartir: el enlace, en el idioma que el otro vaya a leer.
+ *
+ * Copiar de la barra del navegador da SIEMPRE la página que tú tienes abierta,
+ * y la mitad de la gente a la que Arturo manda esto lee en español. Elegir el
+ * idioma al compartir es la diferencia entre mandar una lectura y mandar una
+ * traducción pendiente.
+ *
+ * En el teléfono se abre la hoja de compartir del sistema si existe —que es
+ * como se manda algo por WhatsApp—; donde no existe, se copia al portapapeles.
+ */
+const { en, es, lang = 'en', titulo = '', separator = false } = Astro.props;
+const T = lang === 'es'
+  ? { boton: 'compartir', en: 'Enlace en inglés', es: 'Enlace en español', ok: 'copiado' }
+  : { boton: 'share',     en: 'English link',     es: 'Spanish link',     ok: 'copied' };
+---
+{separator && <span class="masthead-meta-sep">·</span>}
+<span class="share" data-share data-titulo={titulo}>
+  <button class="share-btn" type="button" aria-expanded="false">{T.boton}</button>
+  <span class="share-menu" hidden>
+    {en && <button type="button" data-url={en}>{T.en}</button>}
+    {es && <button type="button" data-url={es}>{T.es}</button>}
+    <span class="share-ok" hidden>{T.ok}</span>
+  </span>
+</span>
+
+<script>
+  for (const caja of document.querySelectorAll('[data-share]')) {
+    const btn = caja.querySelector('.share-btn');
+    const menu = caja.querySelector('.share-menu');
+    const ok = caja.querySelector('.share-ok');
+
+    btn.addEventListener('click', () => {
+      const abierto = !menu.hidden;
+      menu.hidden = abierto;
+      btn.setAttribute('aria-expanded', String(!abierto));
+      ok.hidden = true;
+    });
+
+    // Fuera del menú se cierra. Un menú que se queda abierto en una página de
+    // lectura es un elemento de interfaz encima del texto.
+    document.addEventListener('click', (e) => {
+      if (!caja.contains(e.target)) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+    });
+
+    for (const b of menu.querySelectorAll('[data-url]')) {
+      b.addEventListener('click', async () => {
+        const url = new URL(b.dataset.url, location.origin).toString();
+        const title = caja.dataset.titulo || document.title;
+        // La hoja del sistema es lo que la gente usa en el móvil. Si el usuario
+        // la cancela, NO se copia nada ni se dice que sí: cancelar es cancelar.
+        if (navigator.share) {
+          try { await navigator.share({ title, url }); menu.hidden = true; return; }
+          catch (err) { if (err && err.name === 'AbortError') return; }
+        }
+        try {
+          await navigator.clipboard.writeText(url);
+          ok.hidden = false;
+          setTimeout(() => { menu.hidden = true; ok.hidden = true;
+                             btn.setAttribute('aria-expanded', 'false'); }, 1200);
+        } catch {
+          // Sin permiso de portapapeles queda el enlace a la vista, que es
+          // peor pero no es nada: se puede copiar a mano.
+          ok.hidden = false; ok.textContent = url;
+        }
+      });
+    }
+  }
+</script>

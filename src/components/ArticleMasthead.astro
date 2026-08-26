@@ -1,9 +1,10 @@
 ---
 import SizeSwitch from './SizeSwitch.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
+import Share from './Share.astro';
 // `langs` son los idiomas que existen para esta pieza. Un idioma ausente se
 // pinta apagado en vez de enlazar a una página que no se genera.
-const { lang, slug, langs = ['en', 'es'] } = Astro.props;
+const { lang, slug, langs = ['en', 'es'], titulo = '' } = Astro.props;
 const LABEL = { en: 'EN', es: 'ES' };
 const ORDER = ['en', 'es'];
 ---
@@ -18,6 +19,9 @@ const ORDER = ['en', 'es'];
           ? <a href={`/articles/${slug}/${code}/`} class="lang-link" hreflang={code}>{LABEL[code]}</a>
           : <span class="lang-absent" title={code === 'es' ? 'Sin versión en español' : 'No English version'}>{LABEL[code]}</span>
       ))}
+      <Share separator lang={lang} titulo={titulo}
+             en={langs.includes('en') ? `/articles/${slug}/en/` : null}
+             es={langs.includes('es') ? `/articles/${slug}/es/` : null} />
       <SizeSwitch separator />
       <ThemeSwitch separator />
     </span>

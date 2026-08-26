@@ -2,6 +2,7 @@
 import SizeSwitch from './SizeSwitch.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
 import PanelLink from './PanelLink.astro';
+import Share from './Share.astro';
 
 // La revista traía una cabecera hecha a mano: solo la marca y una fecha. Sin
 // claro/oscuro, sin tamaño de texto, sin idioma y sin panel — todo lo que el
@@ -10,7 +11,7 @@ import PanelLink from './PanelLink.astro';
 //
 // `otro` es el enlace a la otra lengua de ESTA misma página: en un número, su
 // traducción; en el archivo, el archivo del otro idioma.
-const { lang = 'en', otro = null, meta = null } = Astro.props;
+const { lang = 'en', otro = null, meta = null, comparte = null, titulo = '' } = Astro.props;
 const T = lang === 'es'
   ? { archivo: 'Todos los números', panel: 'panel', otra: 'EN' }
   : { archivo: 'Every issue',       panel: 'panel', otra: 'ES' };
@@ -25,6 +26,7 @@ const archivo = lang === 'es' ? '/es/weekly/archive/' : '/weekly/archive/';
       <a class="masthead-panel" href={archivo}>{T.archivo}</a>
       {otro && <span class="masthead-meta-sep">·</span>}
       {otro && <a class="lang-link" href={otro}>{T.otra}</a>}
+      {comparte && <Share separator lang={lang} titulo={titulo} en={comparte.en} es={comparte.es} />}
       <SizeSwitch separator />
       <ThemeSwitch separator />
       <PanelLink separator />
