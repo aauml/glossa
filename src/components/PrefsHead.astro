@@ -14,6 +14,18 @@
 <script is:inline>
 (function(){
   try {
+    // El idioma elegido se recuerda. Se guarda en cuanto alguien pulsa EN/ES en
+    // cualquier página; quién obedece esa memoria es otra cosa y vive en la
+    // portada: un enlace compartido en un idioma tiene que abrirse en ESE
+    // idioma, o compartir deja de significar nada.
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest && e.target.closest('a.lang-link, a.weekly-marca-idioma');
+      if (!a) return;
+      var href = a.getAttribute('href') || '';
+      localStorage.setItem('glossa-lang', /^\/es(\/|$)/.test(href) ? 'es' : 'en');
+    }, true);
+  } catch (e) {}
+  try {
     // Clave renombrada tras el rebrand; migramos la antigua una sola vez para
     // no perder la preferencia de quien ya venía leyendo.
     var s = localStorage.getItem('glossa-text-size');

@@ -1,0 +1,24 @@
+---
+/**
+ * La portada obedece el idioma que elegiste la última vez.
+ *
+ * Va SOLO en las dos portadas, a propósito. Un enlace compartido en un idioma
+ * tiene que abrirse en ESE idioma —si no, compartir deja de significar nada—,
+ * así que la memoria manda únicamente cuando alguien entra por la puerta
+ * principal, que es donde no ha pedido ningún idioma en concreto.
+ *
+ * La elección se guarda en `PrefsHead`, que corre en todas las páginas.
+ */
+const { lang } = Astro.props;
+---
+<script is:inline define:vars={{ lang }}>
+(function () {
+  try {
+    var q = localStorage.getItem('glossa-lang');
+    if (!q || q === lang) return;
+    // `replace`, no `assign`: volver atrás debe llevar al sitio de donde
+    // vienes, no a la portada que acaba de redirigir.
+    location.replace(q === 'es' ? '/es/' : '/');
+  } catch (e) {}
+})();
+</script>
