@@ -431,6 +431,25 @@ const glosasES = Array.isArray(es.sources_gloss) && es.sources_gloss.length === 
   ? es.sources_gloss : glosasEN.map(() => null);
 es.slug = en.slug; es.track = en.track;   // por si el modelo los «tradujo»
 
+// La edición española NO se validaba: el contrato solo miraba la inglesa. Una
+// traducción hereda la voz del original, pero puede introducirla de nuevo por
+// su cuenta —«según el relato», «la columna sostiene»— y ahí nadie miraba.
+// Solo la voz: el resto del contrato (slug, secciones) ya lo garantiza el
+// original, del que esta edición es una copia estructural.
+{
+  const fallosES = validar(es, 'es').filter(f => !/slug|falta |<em>|secciones|bloque/.test(f));
+  if (fallosES.length) {
+    console.log(`  la edición española rompió la voz (${fallosES.join('; ')}) — un reintento`);
+    const otra = await traducir(promptPiezaES(en, glosasEN) +
+      `\n\nYOUR PREVIOUS ATTEMPT BROKE THE VOICE RULE: ${fallosES.join('; ')}. ` +
+      'State the claim; the mark carries the caution. Fix exactly that.');
+    otra.slug = en.slug; otra.track = en.track;
+    const aun = validar(otra, 'es').filter(f => !/slug|falta |<em>|secciones|bloque/.test(f));
+    if (aun.length) await morir(`La edición española sigue rompiendo la voz: ${aun.join('; ')}`);
+    Object.assign(es, otra);
+  }
+}
+
 // ── 6 · Armar los MDX (el modelo nunca emite markup) ─────────────────────
 // Las llaves se escapan: en MDX un `{` abre una expresión y una llave suelta
 // en la prosa rompe el build entero.
