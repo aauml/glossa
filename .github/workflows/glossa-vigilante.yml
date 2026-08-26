@@ -47,7 +47,3 @@ jobs:
           node-version: '24'
       - run: node scripts/vigilante_from_supabase.mjs
 
-      # Los temas que el radar creó entre pasada y pasada se agrupan por sector.
-      # Cuesta cero cuando no hay ninguno: mira los que están sin sector y, si la
-      # lista viene vacía, sale sin llamar a nadie.
-      - run: node scripts/sectores_from_supabase.mjs

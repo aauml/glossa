@@ -1,0 +1,32 @@
+# Cada tema, en su sector.
+#
+# Vivía como un paso del vigilante, que corre cada cuatro horas. El radar crea
+# temas a todas horas, así que uno recién nacido pasaba hasta cuatro horas sin
+# sector — y el panel lo enseñaba en «Other», que se lee como «mal clasificado»
+# y no como «todavía no clasificado». Seis temas de México aparecieron ahí.
+#
+# Aquí cuesta nada tenerlo cada hora: mira si hay alguno sin sector y, si no lo
+# hay, sale sin llamar a nadie. El repositorio es público, así que los minutos
+# de Actions no se pagan.
+name: Glossa sectores (cada tema en su sector)
+
+on:
+  schedule:
+    - cron: '7 * * * *'
+  workflow_dispatch:
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+jobs:
+  sectores:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/sectores_from_supabase.mjs

@@ -591,7 +591,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     // decisión.
     const elegidos = d.temas.filter(t => t.fijo);
     $('tm-cuenta').textContent = elegidos.length
-      ? `${elegidos.length} in the weekly · ${new Set(elegidos.map(t => t.sector || 'Other')).size} sections`
+      ? `${elegidos.length} in the weekly · ${new Set(elegidos.map(t => t.sector || 'Not sorted yet')).size} sections`
       : 'nothing picked yet';
 
     // Tres estados y un solo orden: elegido (azul), nuevo sin leer (negrita) y
@@ -604,9 +604,14 @@ ${t.canales} channels · ${t.elementos} items · last ${esc(String(t.ultimo || '
 
     const ORDEN = ['Geopolitics & war', 'Economy & markets', 'Energy & resources',
                    'U.S. politics', 'Latin America', 'AI & technology',
-                   'Media & information', 'Justice & crime', 'Society & culture', 'Other'];
+                   'Media & information', 'Justice & crime', 'Society & culture', 'Other',
+                   // Un tema recién nacido no está en «Other»: está sin clasificar
+                   // todavía. Meterlo ahí hacía pensar que el clasificador se
+                   // equivocaba —seis temas de México en «Other»— cuando lo que
+                   // pasaba es que aún no había pasado por él.
+                   'Not sorted yet'];
     const porSector = {};
-    for (const t of d.temas) (porSector[t.sector || 'Other'] ||= []).push(t);
+    for (const t of d.temas) (porSector[t.sector || 'Not sorted yet'] ||= []).push(t);
 
     // Dentro de cada sector: primero lo elegido, y el resto de lo más reciente a
     // lo más antiguo. Lo que se mira es lo que acaba de moverse.
