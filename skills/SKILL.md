@@ -417,6 +417,7 @@ Default decision: produce ES if the piece is on a track that benefits from it (t
 
 The most common Spanish pitfalls:
 
+- **The Spanish edition is an EDITION, not a translation.** Same editor, writing the piece again in Spanish: recast sentences, change images, reorder, gloss what a Mexican reader needs. Total freedom in form; none in fact — same claims, same marks on the same claims, no quotation added, no figure changed. A sentence that only works because it kept the English shape is wrong even when every word is right.
 - **`billion` is a false friend.** English "billion" = Spanish "mil millones" (10⁹). Spanish "billón" = English "trillion" (10¹²). $5 trillion → "5 billones." $160 billion → "160.000 millones." Get this wrong and the article is misinformation. And in the Spanish edition the English figure goes **in parentheses the first time**: "5 billones de dólares (5 trillion)", "130 mil millones de dólares (130 billion)" — the reader who heard the number in English has to recognise it. Only the first time, and only when the scale word changes: "900 millones" needs nothing.
 - **Beijing → Pekín** in Spanish convention.
 - **Operation names** stay in English, italicized: "*Operation Epic Fury*" — don't translate.
