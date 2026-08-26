@@ -213,3 +213,29 @@ details.grupo > summary:hover,
 
 /* El «+N more» de cada sector: la misma ficha, en tono de nota. */
 .tema.mas { color: var(--accent); opacity: .8; }
+
+/* La vista previa de la caja: lo que se encontró, antes de pulsar «Add». */
+.admin-vista {
+  font-size: .78rem;
+  color: var(--muted);
+  margin: .15rem 0 0 1rem;
+  line-height: 1.45;
+}
+
+/* Las puertas: varias formas de seguir lo mismo, para marcar las que valgan. */
+.admin-puertas { margin: .4rem 0 .1rem 1rem; }
+.admin-puerta {
+  display: block;
+  font-size: .82rem;
+  margin: .18rem 0;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.admin-puerta input { margin-right: .4rem; }
+.admin-puerta em {
+  display: block;
+  margin-left: 1.4rem;
+  font-size: .75rem;
+  font-style: normal;
+  color: var(--muted);
+}

@@ -207,9 +207,12 @@ async function feedResponde(url: string) {
   try {
     const r = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(12_000) });
     if (!r.ok) return { ok: false as const, error: `the feed responded ${r.status}` };
-    // Hasta 120 KB: la cabecera basta para el título, pero las fechas de los
-    // episodios están más abajo y con 2 KB no se llegaba a ninguna.
-    const txt = (await r.text()).slice(0, 120_000);
+    // Hasta 400 KB. Con 120 KB un feed de texto completo no llegaba ni al final
+    // de su PRIMERA entrada —The Cognitive Revolution publica el transcript
+    // entero—, así que el cierre `</item>` quedaba fuera del trozo, no se
+    // reconocía ninguna entrada y el feed pasaba por vacío: ni fechas, ni aviso
+    // de silencio, ni muestra que enseñar.
+    const txt = (await r.text()).slice(0, 400_000);
     if (!/<(rss|feed)\b/i.test(txt)) {
       return { ok: false as const, error: 'that URL responds but is not an RSS/Atom feed' };
     }
@@ -224,17 +227,40 @@ async function feedResponde(url: string) {
     // episodio nuevo: mirados, `diasDesdeUltimo` daba 0 siempre y el aviso de
     // silencio —que existe para el podcast quincenal recién añadido— no saltaba
     // nunca. Justo la regresión que esta función se escribió para impedir.
+    // Se corta por el COMIENZO de cada entrada, no por el par abrir/cerrar: una
+    // entrada más larga que el trozo descargado no tiene cierre, y buscarlo
+    // dejaba el feed entero por no leído.
+    const trozos = txt.split(/<(?:item|entry)[\s>]/i).slice(1)
+      .map(x => x.split(/<\/(?:item|entry)>/i)[0]);
     const fechas: number[] = [];
-    for (const bloque of txt.matchAll(/<(?:item|entry)[\s>]([\s\S]*?)<\/(?:item|entry)>/gi)) {
-      const m = /<(?:pubDate|published|updated)[^>]*>([^<]{6,60})</i.exec(bloque[1]);
+    for (const bloque of trozos) {
+      const m = /<(?:pubDate|published|updated)[^>]*>([^<]{6,60})</i.exec(bloque);
       if (!m) continue;
       const t = Date.parse(m[1].trim());
       if (!Number.isNaN(t)) fechas.push(t);
     }
     const ultimo = fechas.length ? Math.max(...fechas) : undefined;
 
+    // Una muestra de lo que ese feed trae de verdad: el titular de las últimas
+    // entradas y cuánto texto lleva cada una. Es lo que se enseña antes de
+    // pulsar «Add», porque un feed que responde no es un feed que sirva —
+    // `<ruta>/rss` de El Financiero contesta y devuelve el diario entero.
+    const muestras: { titulo: string; caracteres: number }[] = [];
+    for (const it of trozos) {
+      if (muestras.length >= 3) break;
+      const tt = (it.match(/<title[^>]*>\s*<!\[CDATA\[([\s\S]{1,200}?)\]\]>/i) ||
+                  it.match(/<title[^>]*>([^<]{1,200})</i) || [])[1];
+      const cuerpo = (it.match(/<content:encoded[^>]*>([\s\S]*?)<\/content:encoded>/i) ||
+                      it.match(/<description[^>]*>([\s\S]*?)<\/description>/i) || [])[1] ?? '';
+      if (tt) muestras.push({
+        titulo: tt.replace(/\s+/g, ' ').trim(),
+        caracteres: cuerpo.replace(/<[^>]+>/g, '').trim().length,
+      });
+    }
+
     return {
       ok: true as const,
+      muestras,
       nombre: nombre ? nombre.trim() : undefined,
       esPodcast: /<itunes:|<enclosure[^>]+type=["']audio/i.test(txt),
       ultimo,
@@ -311,10 +337,50 @@ type Resuelto = {
   feed_url?: string;
   url?: string;
   body_text?: string;
-  alternativas?: { as: string; kind?: string; label: string }[];
+  alternativas?: { as: string; kind?: string; label: string; feed_url?: string; name?: string }[];
   aviso?: string;
   saludable?: boolean;
+  /**
+   * Qué se encontró y qué se va a sacar de ahí, en dos o tres renglones, ANTES
+   * de pulsar «Add». El rótulo dice la categoría («a feed», «one article»); esto
+   * dice lo concreto —los últimos titulares, cuánto texto hay— que es lo único
+   * que distingue el feed del columnista del feed del diario entero.
+   */
+  vista?: string[];
+  /**
+   * Varias puertas para lo mismo, para elegir. Se llenan cuando pegar algo
+   * encuentra más de una superficie —web, podcast, YouTube, Substack—; con una
+   * sola no aparece nada y el flujo es el de siempre.
+   */
+  opciones?: Opcion[];
 };
+
+type Opcion = {
+  as: 'fuente' | 'elemento';
+  kind?: string;
+  label: string;
+  /** La evidencia: últimos titulares, cuánto texto, cuánto cuesta. */
+  detalle?: string;
+  feed_url?: string;
+  name?: string;
+  solo?: string;
+};
+
+/** «6,483 characters» / «no text» — cómo se dice cuánto hay para leer. */
+const cuanto = (n: number) => n >= 400
+  ? `${n.toLocaleString()} characters of text`
+  : n > 0 ? `only ${n.toLocaleString()} characters — headline and little else`
+          : 'no text in the feed; the page gets fetched';
+
+/** Los últimos titulares de un feed, para enseñar de quién es lo que trae. */
+function vistaDeMuestras(muestras?: { titulo: string; caracteres: number }[]) {
+  if (!muestras?.length) return [];
+  const medio = Math.round(muestras.reduce((a, m) => a + m.caracteres, 0) / muestras.length);
+  return [
+    `Latest: ${muestras.slice(0, 2).map(m => '“' + m.titulo.slice(0, 64) + '”').join(', ')}`,
+    `Each entry carries ${cuanto(medio)}`,
+  ];
+}
 
 const ES_URL = /^https?:\/\/\S+$/i;
 const primeraUrl = (t: string) => (t.match(/https?:\/\/\S+/) || [])[0];
@@ -341,6 +407,208 @@ async function nombreDeSitio(url: string) {
 }
 
 /** ¿Este dominio publica un feed? Devuelve la URL del feed si lo encuentra. */
+/**
+ * El feed de UNA SECCIÓN o de un columnista, no el del diario entero.
+ *
+ * Pegar `elfinanciero.com.mx/opinion/raymundo-riva-palacio/` debería seguir a
+ * ESE columnista. Existe el feed y responde — pero con una trampa que solo se ve
+ * mirando lo que devuelve: `<ruta>/rss` contesta 200 con RSS válido y trae el
+ * DIARIO ENTERO, cien entradas de MasterChef y decomisos. Habría dado de alta
+ * «Riva Palacio» para recibir el periódico completo.
+ *
+ * Por eso no basta con que un feed responda: hay que comprobar que lo que trae
+ * es de esa sección. Se exige que la mayoría de las entradas lleven la firma o
+ * el tramo de la ruta, y si no, no vale.
+ */
+async function feedDeSeccion(u: URL) {
+  const ruta = u.pathname.replace(/\/+$/, '');
+  if (!ruta || ruta.split('/').filter(Boolean).length > 3) return null;
+  const ultimo = ruta.split('/').filter(Boolean).pop() ?? '';
+  // Palabras del último tramo: sirven para comprobar que el feed es de esto.
+  const señas = ultimo.split('-').filter(w => w.length >= 4).map(w => w.toLowerCase());
+  if (!señas.length) return null;
+
+  const candidatos = [
+    // El patrón de Arc (El Financiero, Reforma, El Universal y medio mundo).
+    `${u.origin}/arc/outboundfeeds/rss/category${ruta}/?outputType=xml`,
+    `${u.origin}${ruta}/rss`, `${u.origin}${ruta}/feed`, `${u.origin}${ruta}/rss.xml`,
+  ];
+  for (const url of candidatos) {
+    try {
+      const r = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(9000) });
+      if (!r.ok) continue;
+      const xml = (await r.text()).slice(0, 200_000);
+      if (!/<(rss|feed)[\s>]/i.test(xml)) continue;
+      const items = xml.split(/<item[\s>]/i).slice(1, 9);
+      if (items.length < 1) continue;
+      // ¿Es de ESTA sección? La firma o la ruta tienen que aparecer en la
+      // mayoría de las entradas. Sin esto se cuela el feed del diario entero.
+      const suyas = items.filter(it => {
+        const t = it.toLowerCase();
+        return señas.every(w => t.includes(w)) || t.includes(ruta.toLowerCase());
+      }).length;
+      if (suyas < Math.ceil(items.length * 0.6)) continue;
+      const nombre = (xml.match(/<dc:creator>\s*(?:<!\[CDATA\[)?([^<\]]{3,60})/i) || [])[1];
+      const muestras = items.slice(0, 3).map(it => ({
+        titulo: ((it.match(/<title[^>]*>\s*(?:<!\[CDATA\[)?([^<\]]{1,200})/i) || [])[1] ?? '')
+          .replace(/\s+/g, ' ').trim(),
+        caracteres: ((it.match(/<content:encoded[^>]*>([\s\S]*?)<\/content:encoded>/i) ||
+                      it.match(/<description[^>]*>([\s\S]*?)<\/description>/i) || [])[1] ?? '')
+          .replace(/<[^>]+>/g, '').trim().length,
+      })).filter(m => m.titulo);
+      return { feed_url: url, nombre: nombre?.trim(), entradas: items.length, muestras };
+    } catch { /* siguiente candidato */ }
+  }
+  return null;
+}
+
+/**
+ * TODAS las puertas por las que se puede seguir a alguien, no la primera.
+ *
+ * Una persona o un programa no vive en un sitio: The Cognitive Revolution tiene
+ * web con transcripts, feed de audio, canal de YouTube y Substack, y cada uno da
+ * una cosa distinta —el transcript se lee entero y gratis, el audio hay que
+ * escucharlo, el canal trae el vídeo—. Elegir por él una y callar las demás era
+ * decidir a ciegas lo que más cambia el resultado.
+ *
+ * Se buscan a la vez y se devuelven las que CONTESTAN, cada una diciendo qué
+ * trae. Ninguna se da de alta sin que él la marque.
+ */
+async function superficiesDe(entrada: { origen?: string; html?: string; nombre?: string })
+    : Promise<Opcion[]> {
+  const { origen, nombre } = entrada;
+  let html = entrada.html;
+  if (!html && origen) {
+    try {
+      const r = await fetch(origen, {
+        redirect: 'follow', signal: AbortSignal.timeout(10_000),
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; glossa-radar/1.0)' },
+      });
+      if (r.ok) html = (await r.text()).slice(0, 300_000);
+    } catch { /* sin página: quedan las búsquedas por nombre */ }
+  }
+
+  const tareas: Promise<Opcion[]>[] = [];
+
+  // 1) Los feeds que la propia página declara — pueden ser varios: el blog, el
+  //    podcast y los comentarios se declaran igual y no son lo mismo.
+  if (html && origen) {
+    const declarados: string[] = [];
+    for (const tag of html.match(/<link[^>]+type=["']application\/(?:rss|atom)\+xml["'][^>]*>/gi) ?? []) {
+      const href = /href=["']([^"']+)["']/i.exec(tag)?.[1];
+      if (href) { try { declarados.push(new URL(href, origen).toString()); } catch { /* href roto */ } }
+    }
+    for (const url of [...new Set(declarados)].slice(0, 4)) {
+      tareas.push(feedResponde(url).then(c => c.ok ? [{
+        as: 'fuente' as const, kind: c.esPodcast ? 'podcast' : 'rss', feed_url: url,
+        name: nombreCorto(c.nombre),
+        label: `${c.esPodcast ? 'Podcast feed' : 'Feed'} · ${c.nombre ?? url}`,
+        detalle: vistaDeMuestras(c.muestras).join(' · '),
+      }] : []));
+    }
+  }
+
+  // 2) Substack: el enlace suele estar en la página; el feed siempre es /feed.
+  if (html) {
+    const sub = /https?:\/\/([a-z0-9-]+)\.substack\.com/i.exec(html)?.[1];
+    if (sub) {
+      const url = `https://${sub}.substack.com/feed`;
+      tareas.push(feedResponde(url).then(c => c.ok ? [{
+        as: 'fuente' as const, kind: 'rss', feed_url: url, name: nombreCorto(c.nombre),
+        label: `Substack · ${c.nombre ?? sub}`,
+        detalle: vistaDeMuestras(c.muestras).join(' · '),
+      }] : []));
+    }
+  }
+
+  // 3) El podcast, buscado por nombre en el directorio de Apple. Sale aunque la
+  //    página no lo enlace, que es el caso corriente.
+  if (nombre) {
+    tareas.push((async (): Promise<Opcion[]> => {
+      try {
+        const r = await fetch(
+          `https://itunes.apple.com/search?media=podcast&entity=podcast&limit=2&term=${encodeURIComponent(nombre)}`,
+          { signal: AbortSignal.timeout(9000) });
+        if (!r.ok) return [];
+        const d = await r.json() as { results?: { feedUrl?: string; collectionName?: string; trackCount?: number }[] };
+        const out: Opcion[] = [];
+        for (const res of (d.results ?? []).slice(0, 2)) {
+          if (!res.feedUrl || !parecido(nombre, res.collectionName ?? '')) continue;
+          const c = await feedResponde(res.feedUrl);
+          if (!c.ok) continue;
+          out.push({
+            as: 'fuente', kind: 'podcast', feed_url: res.feedUrl, name: nombreCorto(res.collectionName),
+            label: `Podcast · ${res.collectionName}`,
+            detalle: [res.trackCount ? `${res.trackCount.toLocaleString()} episodes` : '',
+                      ...vistaDeMuestras(c.muestras)].filter(Boolean).join(' · '),
+          });
+        }
+        return out;
+      } catch { return []; }
+    })());
+  }
+
+  // 4) El canal de YouTube, por nombre. Trae el vídeo, que es lo único que se
+  //    puede escuchar cuando no hay transcript en ninguna parte.
+  if (nombre) tareas.push(buscarCanalYouTube(nombre));
+
+  // 5) X: no hay feed que seguir, y decir lo contrario sería mentir. Lo que sí
+  //    se puede es un monitor por nombre, que es buscar lo que dice y lo que se
+  //    dice de él — y eso gasta crédito de búsqueda, así que se avisa.
+  if (html) {
+    const x = /https?:\/\/(?:x|twitter)\.com\/([A-Za-z0-9_]{2,15})(?![A-Za-z0-9_])/i.exec(html)?.[1];
+    if (x && !/^(share|intent|home|i|search)$/i.test(x)) {
+      tareas.push(Promise.resolve([{
+        as: 'fuente' as const, kind: 'persona', name: nombre ?? `@${x}`,
+        label: `X · @${x}`,
+        detalle: 'No feed exists: it gets followed by searching for what they say. Costs search credit',
+      }]));
+    }
+  }
+
+  const halladas = (await Promise.all(tareas)).flat();
+  // Dos puertas al mismo feed —la declarada y la de Apple— son una sola opción.
+  const vistas = new Set<string>();
+  return halladas.filter(o => {
+    const k = (o.feed_url ?? `${o.kind}:${o.name ?? o.label}`).replace(/\/+$/, '').toLowerCase();
+    if (vistas.has(k)) return false;
+    vistas.add(k); return true;
+  }).slice(0, 6);
+}
+
+/** ¿El resultado de una búsqueda es de verdad lo que se pidió? Dos palabras en común. */
+function parecido(a: string, b: string) {
+  const pal = (x: string) => new Set(x.toLowerCase().replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/).filter(w => w.length >= 4));
+  const A = pal(a), B = pal(b);
+  if (!A.size) return false;
+  const comunes = [...A].filter(w => B.has(w)).length;
+  return comunes >= Math.min(2, A.size);
+}
+
+/** El canal de YouTube de alguien, buscado por nombre con la clave que ya hay. */
+async function buscarCanalYouTube(nombre: string): Promise<Opcion[]> {
+  const key = Deno.env.get('GLOSSA_YOUTUBE_KEY');
+  if (!key) return [];
+  try {
+    const r = await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=2' +
+      `&q=${encodeURIComponent(nombre)}&key=${key}`, { signal: AbortSignal.timeout(9000) });
+    if (!r.ok) return [];
+    const d = await r.json() as { items?: { id?: { channelId?: string }; snippet?: { title?: string } }[] };
+    const out: Opcion[] = [];
+    for (const it of d.items ?? []) {
+      const id = it.id?.channelId, titulo = it.snippet?.title ?? '';
+      if (!id || !parecido(nombre, titulo)) continue;
+      out.push({
+        as: 'fuente', kind: 'youtube', feed_url: `https://www.youtube.com/channel/${id}`,
+        name: nombreCorto(titulo), label: `YouTube · ${titulo}`,
+        detalle: 'Each new video is listened to; the only surface when no transcript exists anywhere',
+      });
+    }
+    return out;
+  } catch { return []; }
+}
+
 async function buscarFeed(origen: string) {
   // Probadas contra sitios reales, no inventadas: seis rutas dejaban fuera al
   // FT (/rss/home), a The Economist (/latest/rss.xml) y a El País
@@ -433,6 +701,56 @@ async function extraerArticulo(url: string) {
   }
 }
 
+/**
+ * Qué se sacaría de una página concreta: su titular y cuánto texto legible hay.
+ *
+ * Se mira ANTES de encolar porque el fallo caro es silencioso: una página de
+ * pago o dibujada con JavaScript se da de alta igual, y el vacío no aparece
+ * hasta que el semanal se escribe sin ella. Dicho aquí, se decide en el momento
+ * si vale la pena pegar el texto a mano.
+ */
+/** Qué vídeo es. oEmbed da título y canal sin gastar cuota de la API. */
+async function vistaDeYouTube(url: string): Promise<string[]> {
+  try {
+    const r = await fetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(url)}`,
+                          { signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return ['Listens to the video and writes it up from the audio'];
+    const d = await r.json() as { title?: string; author_name?: string };
+    return [`“${String(d.title ?? '').slice(0, 90)}”${d.author_name ? ` · ${d.author_name}` : ''}`,
+            'Listens to the audio and writes it up; nothing is taken from the page'];
+  } catch { return ['Listens to the video and writes it up from the audio']; }
+}
+
+async function vistaDePagina(url: string): Promise<string[]> {
+  try {
+    const r = await fetch(url, {
+      redirect: 'follow', signal: AbortSignal.timeout(11_000),
+      headers: { 'user-agent': 'Mozilla/5.0 (compatible; glossa-radar/1.0)' },
+    });
+    if (!r.ok) return [`The page answers ${r.status}: nothing can be read from it yet`];
+    const html = (await r.text()).slice(0, 900_000);
+    const titulo = (html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']{3,200})/i) ||
+                    html.match(/<title[^>]*>([^<]{3,200})</i) || [])[1];
+    // El bloque de texto MÁS largo, no el primero: el primer <article> de una
+    // portada suele ser un adorno de 73 caracteres (ver LESSONS).
+    let mejor = '';
+    for (const m of html.matchAll(/<(article|main)[\s>][\s\S]*?<\/\1>/gi)) {
+      const limpio = m[0].replace(/<(script|style)[\s\S]*?<\/\1>/gi, '')
+                         .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      if (limpio.length > mejor.length) mejor = limpio;
+    }
+    const lineas: string[] = [];
+    if (titulo) lineas.push(`“${titulo.replace(/\s+/g, ' ').trim().slice(0, 90)}”`);
+    lineas.push(mejor.length >= 400
+      ? `Reads ${mejor.length.toLocaleString()} characters from the page`
+      : `No readable text on the page — likely paywalled or drawn with JavaScript. ` +
+        `Paste the text itself and it goes in whole`);
+    return lineas;
+  } catch (e) {
+    return [`The page did not answer in time (${String(e).slice(0, 60)})`];
+  }
+}
+
 async function clasificar(texto: string): Promise<Resuelto> {
   const t = String(texto ?? '').trim();
   if (!t) return { as: 'elemento', label: 'nothing to add' };
@@ -450,6 +768,9 @@ async function clasificar(texto: string): Promise<Resuelto> {
     return {
       as: 'elemento', url, body_text: lineas.slice(1).join('\n'),
       label: 'an article, with its text · goes into the weekly',
+      vista: [`“${(titular ?? lineas[1]).slice(0, 90)}”`,
+              `Takes the ${lineas.slice(1).join(' ').split(/\s+/).length.toLocaleString()} words you pasted, ` +
+              `with ${new URL(url).hostname.replace(/^www\./, '')} as the source`],
       name: (titular ?? lineas[1]).slice(0, 200),
       alternativas: [SOLO_PIEZA],
     };
@@ -464,6 +785,9 @@ async function clasificar(texto: string): Promise<Resuelto> {
     return {
       as: 'elemento', body_text: t,
       label: 'pasted text · goes into the weekly',
+      vista: [`“${lineas[0].slice(0, 90)}”`,
+              `Takes the ${t.split(/\s+/).length.toLocaleString()} words as they are — no source URL, ` +
+              `so nothing gets fetched`],
       name: lineas[0].slice(0, 120),
       alternativas: [SOLO_PIEZA],
     };
@@ -481,8 +805,9 @@ async function clasificar(texto: string): Promise<Resuelto> {
     // Un vídeo suelto de YouTube — no el canal.
     if (/(^|\.)youtu\.be$/.test(host) ||
         (/(^|\.)youtube\.com$/.test(host) && (/^\/watch/.test(ruta) || /^\/shorts\//.test(ruta)))) {
+      const v = await vistaDeYouTube(t);
       return { as: 'elemento', url: t, label: 'one YouTube episode · goes into the weekly',
-               alternativas: [SOLO_PIEZA] };
+               vista: v, alternativas: [SOLO_PIEZA] };
     }
 
     // Un canal.
@@ -497,6 +822,10 @@ async function clasificar(texto: string): Promise<Resuelto> {
           ? `a YouTube channel · ${chk.nombre}${chk.videos ? ` · ${Number(chk.videos).toLocaleString()} videos` : ''}`
           : `a YouTube channel — but it did not answer: ${chk.error}`,
         aviso: chk.ok ? undefined : chk.error,
+        vista: chk.ok
+          ? ['New videos get picked up as they appear',
+             'Each one is listened to and summarised; anything under five minutes is skipped']
+          : undefined,
         alternativas: [{ as: 'elemento', label: 'one episode' }],
       };
     }
@@ -520,6 +849,10 @@ async function clasificar(texto: string): Promise<Resuelto> {
           aviso: hayTexto
             ? 'Only the episode notes are available, not a transcript: the piece will be thinner than one built from the audio.'
             : undefined,
+          vista: [`“${uno.titulo.slice(0, 90)}”`,
+                  hayTexto
+                    ? `Reads ${uno.texto.length.toLocaleString()} characters of episode notes — not a transcript`
+                    : 'Apple publishes no text for this episode; the transcript has to be pasted in'],
           alternativas: [SOLO_PIEZA, { as: 'fuente', kind: 'podcast', label: `follow ${uno.programa}` }],
         };
       }
@@ -537,6 +870,8 @@ async function clasificar(texto: string): Promise<Resuelto> {
           label: `a podcast · ${nombre ?? 'untitled'} — Apple only distributes the audio, so this ` +
                  `follows its own site (${mejorAp.sitio}), where the full text is: ` +
                  `${Math.round(mejorAp.caracteres / 1000)}k characters per episode`,
+          vista: ['Every new episode gets read from the show\u2019s own site, not from Apple',
+                  `About ${Math.round(mejorAp.caracteres / 1000)}k characters of transcript each`],
         };
       }
       const callado = chk.ok ? avisoDeSilencio(chk.diasDesdeUltimo) : undefined;
@@ -549,6 +884,7 @@ async function clasificar(texto: string): Promise<Resuelto> {
             (callado ? ` · nothing yet: ${callado}` : '')
           : `Apple points to ${new URL(ap.feed_url).hostname}, but it did not answer: ${chk.error}`,
         aviso: chk.ok ? callado : chk.error,
+        vista: chk.ok ? vistaDeMuestras(chk.muestras) : undefined,
       };
     }
 
@@ -578,7 +914,12 @@ async function clasificar(texto: string): Promise<Resuelto> {
           name: chk.ok ? nombreCorto(chk.nombre) : undefined, saludable: true,
           label: `a podcast · ${(chk.ok ? chk.nombre : undefined) ?? 'untitled'} — using its own site (${mejor.sitio}), ` +
                  `which publishes the full text: ${Math.round(mejor.caracteres / 1000)}k characters per episode`,
-          alternativas: [{ as: 'fuente', kind, label: 'use the audio feed instead' }],
+          vista: ['Every new episode gets read from the show\u2019s own site, where the transcript is',
+                  `About ${Math.round(mejor.caracteres / 1000)}k characters each`],
+          // La alternativa lleva su URL. Sin ella, «use the audio feed instead»
+          // volvía a clasificar el mismo texto y daba de alta otra vez el feed
+          // del sitio: el botón decía una cosa y hacía la contraria.
+          alternativas: [{ as: 'fuente', kind, feed_url: t, label: 'use the audio feed instead' }],
         };
       }
       return {
@@ -589,26 +930,80 @@ async function clasificar(texto: string): Promise<Resuelto> {
             (callado ? ` · nothing yet: ${callado}` : '')
           : `it looks like a feed but did not answer: ${chk.error}`,
         aviso: chk.ok ? callado : chk.error,
+        vista: chk.ok ? vistaDeMuestras(chk.muestras) : undefined,
       };
     }
 
     // Solo el dominio: probablemente quiere seguir el medio entero.
     if (ruta === '/' || ruta === '') {
+      const titulo = await nombreDeSitio(u.origin) ?? host;
+      // Antes de quedarse con el primer feed que conteste: ¿cuántas puertas hay?
+      // Un programa suele tener web, audio, YouTube y Substack, y no dan lo mismo.
+      const puertas = await superficiesDe({ origen: u.origin, nombre: titulo });
+      if (puertas.length > 1) {
+        return {
+          as: 'fuente', kind: puertas[0].kind, feed_url: puertas[0].feed_url,
+          name: puertas[0].name ?? titulo,
+          label: `${titulo} · found ${puertas.length} ways to follow it — pick the ones you want`,
+          opciones: puertas,
+        };
+      }
       const hallado = await buscarFeed(u.origin);
       if (hallado) {
         return {
           as: 'fuente', kind: 'rss', feed_url: hallado.feed_url,
-          name: hallado.nombre ?? await nombreDeSitio(u.origin) ?? host,
+          name: hallado.nombre ?? titulo,
           label: `the outlet ${hallado.nombre ?? host} · found its feed`,
+          vista: vistaDeMuestras((await feedResponde(hallado.feed_url) as { muestras?: { titulo: string; caracteres: number }[] }).muestras),
           alternativas: [{ as: 'fuente', kind: 'tema', label: 'a topic limited to this site' }],
         };
       }
-      const nombre = await nombreDeSitio(u.origin) ?? host;
+      const nombre = titulo;
       return {
         as: 'fuente', kind: 'tema', name: nombre,
         label: `no feed found for ${nombre} — it would be followed by searching the site instead. ` +
                `If you know its feed URL, paste that and it gets followed properly`,
+        vista: [`Searches ${host} by name each round instead of reading a feed`,
+                'That spends search credit and finds less: a feed URL is always better'],
         alternativas: [{ as: 'elemento', label: 'just this page, once' }],
+      };
+    }
+
+    // ¿Es la página de un columnista o una sección? Se comprueba antes de
+    // tratarla como artículo suelto: seguir a un columnista es lo que se quería.
+    const seccion = await feedDeSeccion(u);
+    if (seccion) {
+      return {
+        as: 'fuente', kind: 'rss', feed_url: seccion.feed_url,
+        name: seccion.nombre || u.pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' '),
+        saludable: true,
+        label: `just this section of ${host}` +
+               (seccion.nombre ? ` · ${seccion.nombre}` : '') +
+               ` — not the whole paper`,
+        vista: vistaDeMuestras(seccion.muestras),
+        // Las dos lecturas de la misma URL, dichas las dos: seguir al columnista
+        // o seguir al diario. La pregunta era literalmente esa.
+        opciones: await (async (): Promise<Opcion[]> => {
+          const opts: Opcion[] = [{
+            as: 'fuente', kind: 'rss', feed_url: seccion.feed_url,
+            name: seccion.nombre || u.pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' '),
+            label: `Just ${seccion.nombre ?? 'this section'}`,
+            detalle: vistaDeMuestras(seccion.muestras).join(' · '),
+          }];
+          const todo = await buscarFeed(u.origin);
+          if (todo) {
+            const c = await feedResponde(todo.feed_url);
+            opts.push({
+              as: 'fuente', kind: 'rss', feed_url: todo.feed_url,
+              name: todo.nombre ?? host,
+              label: `The whole of ${host}`,
+              detalle: c.ok ? vistaDeMuestras(c.muestras).join(' · ') : undefined,
+            });
+          }
+          opts.push({ as: 'elemento', label: 'Only this page, once' });
+          return opts;
+        })(),
+        alternativas: [{ as: 'elemento', label: 'only this page, once' }, SOLO_PIEZA],
       };
     }
 
@@ -616,6 +1011,7 @@ async function clasificar(texto: string): Promise<Resuelto> {
     return {
       as: 'elemento', url: t,
       label: `one article from ${host} · goes into the weekly`,
+      vista: await vistaDePagina(t),
       alternativas: [{ as: 'fuente', kind: 'rss', label: `follow ${host} from now on` },
                      SOLO_PIEZA],
     };
@@ -632,6 +1028,22 @@ async function clasificar(texto: string): Promise<Resuelto> {
     return {
       as: 'fuente', kind: esNombre ? 'persona' : 'tema', name: t,
       label: esNombre ? `a person to follow · ${t}` : `a topic to search · ${t}`,
+      // Un nombre puede tener podcast y canal propios. Buscarlos cuesta dos
+      // peticiones y ahorra seguir por búsqueda —que se paga— algo que publica
+      // un feed gratis.
+      opciones: await (async (): Promise<Opcion[]> => {
+        const puertas = await superficiesDe({ nombre: t });
+        if (!puertas.length) return [];
+        return [...puertas, {
+          as: 'fuente' as const, kind: esNombre ? 'persona' : 'tema', name: t,
+          label: esNombre ? `Search for ${t}` : `Search the web for “${t}”`,
+          detalle: 'No feed: every round spends search credit',
+        }];
+      })(),
+      vista: [esNombre
+        ? `Searches for what ${t} says and what gets said about them, in every language`
+        : `Searches the web for “${t}” each round, in every language`,
+        'Costs search credit each round; sources with a feed cost nothing'],
       alternativas: [
         { as: 'fuente', kind: esNombre ? 'tema' : 'persona',
           label: esNombre ? 'treat it as a topic' : 'treat it as a person' },
@@ -683,6 +1095,24 @@ Deno.serve(async (req) => {
           const kind = kindForzado || r.kind || 'rss';
           if (!KINDS.has(kind)) return bad(`unknown source kind «${kind}»`);
           const buscada = kind === 'tema' || kind === 'persona';
+
+          // La puerta elegida en el panel manda sobre la que el clasificador
+          // habría escogido solo: pegar la web de un programa ofrece su feed de
+          // texto, su audio y su canal, y el que vale lo decide él.
+          //
+          // No se acepta a ciegas: tiene que contestar como feed AHORA. Así lo
+          // que entra está comprobado, venga de donde venga.
+          const elegido = typeof b.feed_url === 'string' ? b.feed_url.trim() : '';
+          if (elegido && !buscada) {
+            const c = await feedResponde(elegido);
+            if (!c.ok) return bad(`not added — ${c.error}`);
+            r.feed_url = elegido;
+            r.saludable = true;
+            if (typeof b.name === 'string' && b.name.trim()) r.name = b.name.trim();
+            else r.name = nombreCorto(c.nombre) ?? r.name;
+          } else if (buscada && typeof b.name === 'string' && b.name.trim()) {
+            r.name = b.name.trim();
+          }
 
           if (!buscada && !r.feed_url) return bad('could not work out what to follow there');
           // Una fuente cuyo chequeo FALLÓ no se guarda. Antes el fallo iba en el

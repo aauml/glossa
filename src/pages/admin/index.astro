@@ -129,20 +129,35 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
          style="text-decoration:none;color:var(--muted)">↗</a>` : '';
 
   // ── La caja ─────────────────────────────────────────────────────────────
-  let forzado = null, ultimoPeek = '';
+  let forzado = null, ultimoPeek = '', puertas = null;
 
   async function mirar() {
     const t = $('in-caja').value.trim();
     if (t === ultimoPeek) return;
-    ultimoPeek = t; forzado = null; alt.innerHTML = '';
+    ultimoPeek = t; forzado = null; puertas = null; alt.innerHTML = '';
     if (!t) { resuelto.textContent = ''; return; }
     resuelto.textContent = 'working out what that is…';
     const r = await api('intake.peek', { texto: t });
     if (r.error) { resuelto.textContent = ''; msg(cajaMsg, r.error, false); return; }
-    resuelto.innerHTML = `→ ${esc(r.label)}`;
+    // El rótulo dice la categoría; la vista dice lo concreto —qué titulares,
+    // cuánto texto— que es lo que permite confirmar con «Add» sabiendo qué se
+    // añade. Sin esto, «one article from elfinanciero.com.mx» y «just this
+    // section» se leían igual de ciegas.
+    resuelto.innerHTML = `→ ${esc(r.label)}` + (r.vista || []).map(v =>
+      `<div class="admin-vista">${esc(v)}</div>`).join('') +
+      // Varias puertas para lo mismo —web, audio, YouTube, Substack— se marcan
+      // y se añaden juntas. Antes se elegía una por él y las demás ni se decían.
+      ((r.opciones || []).length > 1
+        ? `<div class="admin-puertas">` + r.opciones.map((o, i) =>
+            `<label class="admin-puerta"><input type="checkbox" data-puerta="${i}"
+               ${i === 0 ? 'checked' : ''}> <span>${esc(o.label)}</span>` +
+            (o.detalle ? `<em>${esc(o.detalle)}</em>` : '') + `</label>`).join('') +
+          `</div>` : '');
+    puertas = (r.opciones || []).length > 1 ? r.opciones : null;
     alt.innerHTML = (r.alternativas || []).map((a, i) =>
       `<button class="admin-btn sec" type="button" data-alt="${i}"
          data-as="${esc(a.as)}" data-kind="${esc(a.kind || '')}" data-solo="${esc(a.solo || '')}"
+         data-feed="${esc(a.feed_url || '')}" data-name="${esc(a.name || '')}"
          data-reemplazar="${esc(a.reemplazar || '')}">${esc(a.label)}</button>`).join(' ');
   }
   $('in-caja').addEventListener('blur', mirar);
@@ -155,6 +170,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   delegar(alt, '[data-alt]', (b) => {
     forzado = { as: b.dataset.as, kind: b.dataset.kind || undefined,
                 solo: b.dataset.solo || undefined,
+                feed_url: b.dataset.feed || undefined,
+                name: b.dataset.name || undefined,
                 reemplazar: b.dataset.reemplazar === '1' || undefined };
     enviar();
   });
@@ -162,6 +179,34 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   async function enviar() {
     const t = $('in-caja').value.trim();
     if (!t) return;
+
+    // Con puertas marcadas, «Add» da de alta CADA una. Se hacen de una en una
+    // porque cada alta comprueba el feed y detecta duplicados contra las que ya
+    // hay, incluida la que acaba de entrar en esta misma tanda.
+    const marcadas = puertas
+      ? [...resuelto.querySelectorAll('[data-puerta]:checked')].map(c => puertas[+c.dataset.puerta])
+      : [];
+    if (marcadas.length && !forzado) {
+      $('in-add').disabled = true;
+      const hechas = [], fallos = [];
+      for (const o of marcadas) {
+        msg(cajaMsg, `adding ${o.label}…`, true);
+        const r = await api('intake.add', { texto: t, as: o.as, kind: o.kind,
+                                            feed_url: o.feed_url, name: o.name, solo: o.solo });
+        if (r.error) fallos.push(`${o.label}: ${r.error}`);
+        else hechas.push(r.source ? r.source.name : (r.item ? r.item.title.slice(0, 50) : o.label));
+      }
+      $('in-add').disabled = false;
+      msg(cajaMsg, (hechas.length ? `Now following: ${hechas.join(', ')}` : 'nothing added') +
+                   (fallos.length ? ` — ${fallos.join('; ')}` : ''), !!hechas.length);
+      if (hechas.length) {
+        $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
+        forzado = null; puertas = null; ultimoPeek = '';
+        pintarCifras(); pintarCola(); pintarFuentes(); vigilarPiezas();
+      }
+      return;
+    }
+
     $('in-add').disabled = true;
     alt.innerHTML = '';
     // Qué se está haciendo, no un genérico: bajar un artículo o resolver un
@@ -185,7 +230,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     else msg(cajaMsg, r.as === 'fuente' ? `Now following: ${r.source.name}`
                                    : `Queued: ${r.item.title.slice(0, 70)}`, true);
     $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
-    forzado = null; ultimoPeek = '';
+    forzado = null; puertas = null; ultimoPeek = '';
     pintarCifras(); pintarCola(); pintarFuentes(); vigilarPiezas();
   }
   $('in-form').onsubmit = (e) => { e.preventDefault(); enviar(); };
