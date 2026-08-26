@@ -131,13 +131,24 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   // ── La caja ─────────────────────────────────────────────────────────────
   let forzado = null, ultimoPeek = '', puertas = null;
 
+  /** Deja la caja como recién abierta: sin sugerencia, sin puertas, sin recado. */
+  function limpiar() {
+    ultimoPeek = ''; forzado = null; puertas = null;
+    resuelto.textContent = ''; alt.innerHTML = ''; cajaMsg.textContent = '';
+  }
+
   async function mirar() {
     const t = $('in-caja').value.trim();
     if (t === ultimoPeek) return;
     ultimoPeek = t; forzado = null; puertas = null; alt.innerHTML = '';
-    if (!t) { resuelto.textContent = ''; return; }
+    if (!t) { limpiar(); return; }
     resuelto.textContent = 'working out what that is…';
     const r = await api('intake.peek', { texto: t });
+    // Mirar una web con cuatro puertas tarda sus segundos. Si en ese rato la
+    // caja cambió, esta respuesta ya no describe lo que hay dentro: se tira.
+    // Pintarla sería el mismo fallo de nuevo, con la sugerencia hablando de
+    // otra cosa.
+    if ($('in-caja').value.trim() !== t) return;
     if (r.error) { resuelto.textContent = ''; msg(cajaMsg, r.error, false); return; }
     // El rótulo dice la categoría; la vista dice lo concreto —qué titulares,
     // cuánto texto— que es lo que permite confirmar con «Add» sabiendo qué se
@@ -162,6 +173,24 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   }
   $('in-caja').addEventListener('blur', mirar);
   $('in-caja').addEventListener('paste', () => setTimeout(mirar, 60));
+
+  // Escribir o borrar tiene que mover lo de abajo. La sugerencia se rehacía
+  // solo al SALIR de la caja: se borraba el texto y ahí seguía, describiendo
+  // algo que ya no estaba, y encadenar dos altas seguidas obligaba a pinchar
+  // fuera entre una y otra. Al vaciarse se limpia entero; al cambiar, la
+  // sugerencia vieja se retira en el acto —ya no corresponde a lo que hay— y
+  // la nueva se pide sola tras una pausa de tecleo.
+  let tecla = null;
+  $('in-caja').addEventListener('input', () => {
+    clearTimeout(tecla);
+    const t = $('in-caja').value.trim();
+    if (!t) { limpiar(); return; }
+    if (t !== ultimoPeek) {
+      resuelto.textContent = ''; alt.innerHTML = '';
+      puertas = null; forzado = null; cajaMsg.textContent = '';
+    }
+    tecla = setTimeout(mirar, 800);
+  });
 
   // Pulsar una alternativa ENVÍA. Antes solo marcaba la elección y había que
   // pulsar «Add» después: dos botones, uno que parecía una acción y no lo era.
@@ -200,8 +229,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       msg(cajaMsg, (hechas.length ? `Now following: ${hechas.join(', ')}` : 'nothing added') +
                    (fallos.length ? ` — ${fallos.join('; ')}` : ''), !!hechas.length);
       if (hechas.length) {
+        // El recado del alta se queda; lo demás se va y el cursor vuelve a la
+        // caja, que es lo que hace falta para poner otro detrás.
         $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
         forzado = null; puertas = null; ultimoPeek = '';
+        $('in-caja').focus();
         pintarCifras(); pintarCola(); pintarFuentes(); vigilarPiezas();
       }
       return;
@@ -231,6 +263,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
                                    : `Queued: ${r.item.title.slice(0, 70)}`, true);
     $('in-caja').value = ''; resuelto.textContent = ''; alt.innerHTML = '';
     forzado = null; puertas = null; ultimoPeek = '';
+    $('in-caja').focus();
     pintarCifras(); pintarCola(); pintarFuentes(); vigilarPiezas();
   }
   $('in-form').onsubmit = (e) => { e.preventDefault(); enviar(); };
