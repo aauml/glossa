@@ -148,10 +148,13 @@ a.inline-link:hover, .article a:not(.masthead-section):not(.masthead-brand):not(
 /* ---- Topic filter (text, no buttons) ---- */
 /* Los filtros comparten la retícula de la página: recuento en el raíl, temas
    en la columna ancha, todo en una línea. */
-.cover-filter { display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr); gap: 8px 44px; align-items: baseline; font-family: 'IBM Plex Sans', sans-serif; font-size: calc(11.5px * var(--reader-scale)); letter-spacing: 0.02em; padding: 0 0 14px; margin-bottom: 20px; border-bottom: 0.5px solid var(--rule-soft); }
+/* Más callado: es un mando, no contenido. Baja de 11,5 a 10,5 y los temas van
+   en versalitas espaciadas, como los rótulos del resto del sitio. */
+.cover-filter { display: grid; grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr); gap: 8px 44px; align-items: baseline; font-family: 'IBM Plex Sans', sans-serif; font-size: calc(10.5px * var(--reader-scale)); letter-spacing: 0.08em; text-transform: uppercase; padding: 0 0 12px; margin-bottom: 18px; border-bottom: 0.5px solid var(--rule-soft); }
 .filter-topics { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; }
 .cover-count { color: var(--muted); letter-spacing: 0.08em; white-space: nowrap; }
-.cover-filter .f { cursor: pointer; color: var(--muted); background: none; border: none; border-bottom: 1px solid transparent; padding: 0 0 2px; font: inherit; letter-spacing: inherit; transition: color 0.12s ease, border-color 0.12s ease; }
+.cover-filter .f { cursor: pointer; text-transform: inherit; color: var(--rule); opacity: .72; background: none; border: none; border-bottom: 1px solid transparent; padding: 0 0 2px; font: inherit; letter-spacing: inherit; transition: color 0.12s ease, opacity 0.12s ease, border-color 0.12s ease; }
+.cover-filter .f:hover { opacity: 1; }
 .cover-filter .f:hover { color: var(--ink); }
 .cover-filter .f.on { color: var(--accent); border-bottom-color: var(--accent); }
 
