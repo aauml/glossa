@@ -70,7 +70,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         department carries one to three pieces, or says it was quiet.</p>
       <p class="admin-nota" id="tm-nota" style="color:var(--accent)"></p>
       <div id="sec-lista" style="margin-top:14px"><span class="admin-vacio">loading…</span></div>
-      <details style="margin-top:20px">
+      <details style="margin-top:20px" data-visto="temas-lista">
         <summary class="admin-nota" style="cursor:pointer">What the classifier found, by department</summary>
         <div id="tm-lista" style="margin-top:10px"><span class="admin-vacio">loading…</span></div>
       </details>
@@ -545,7 +545,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   // siempre. Y un mes sería demasiado — nacen unos diez temas al día, así que
   // en un mes todo estaría marcado y la marca no diría nada.
   const recien = (fecha) => !!fecha &&
-    (Date.now() - new Date(fecha).getTime()) < 7 * 864e5;
+    (Date.now() - new Date(fecha).getTime()) < 7 * 864e5 &&
+    esNuevo('temas-lista', fecha);
 
   // Qué sectores están desplegados. Vive fuera de la función porque el panel se
   // repinta solo y, si no, cada refresco volvería a cerrarlos en las narices.
@@ -590,6 +591,11 @@ ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.l
                    'Media & information', 'Justice & crime', 'Society & culture', 'Other'];
     const porSector = {};
     for (const t of libres) (porSector[t.sector || 'Other'] ||= []).push(t);
+    // Los nuevos, delante: es lo que se viene a mirar, y con doce visibles por
+    // sector un tema recién nacido podría quedar fuera del corte sin esto.
+    for (const k of Object.keys(porSector)) {
+      porSector[k].sort((a, b) => (recien(b.creado) ? 1 : 0) - (recien(a.creado) ? 1 : 0));
+    }
     // Doce por sector, y si hay más se dice cuántos y se pueden abrir. Doce es
     // lo que cabe en dos líneas sin que la sección se vuelva un muro.
     const POR_SECTOR = 12;

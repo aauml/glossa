@@ -15,6 +15,10 @@
      en el borrador caía a currentColor: gris aquí, oxblood en vivo — y la página
      promete que el borrador se pinta EXACTAMENTE como saldrá. */
   --accent-soft: #a14848; --gold: #B8860B;
+  /* Azul para lo NUEVO, y por eso existe: el oxblood ya significa «fijado» y
+     «acento», así que marcar también lo nuevo con él hacía que el color no
+     dijera nada. Es un azul apagado, no de aviso: la paleta es papel y tinta. */
+  --nuevo: #2F5D8C;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 a { color: inherit; text-decoration: none; }
@@ -191,14 +195,19 @@ details.grupo > summary:hover,
 /* ── Lo nuevo desde la última vez ────────────────────────────────────────
    Negrita y un punto de acento. No un color de fondo ni una etiqueta «NEW»:
    la lista tiene que seguir siendo una lista, no un tablero de avisos. */
-.admin-nuevo { color: var(--accent); font-family: 'IBM Plex Sans', sans-serif;
+.admin-nuevo { color: var(--nuevo); font-family: 'IBM Plex Sans', sans-serif;
   font-size: 10px; font-weight: 600; letter-spacing: 0.08em; }
-.fila-nueva > td:first-child { font-weight: 600; color: var(--ink); }
-.fila-nueva > td:first-child::before { content: '·'; color: var(--accent); margin-right: 6px; }
-/* Un tema aparecido esta semana: color de acento, sin negrita ni adornos. El
-   color lo distingue de un vistazo y no rompe la fila; la negrita, sí. */
-.tema.nuevo { color: var(--accent); }
-.tema.nuevo::before { content: '+ '; opacity: .7; }
+.fila-nueva > td:first-child { color: var(--nuevo); }
+.fila-nueva > td:first-child::before { content: '·'; color: var(--nuevo); margin-right: 6px; }
+/* Un tema recién aparecido: AZUL, no oxblood. El oxblood ya dice «fijado», y un
+   color que significa dos cosas no significa ninguna. Los nuevos van además los
+   primeros de su sector, que es donde se miran. */
+.tema.nuevo { color: var(--nuevo); }
+.tema.nuevo:hover { color: var(--nuevo); border-bottom-color: var(--nuevo); }
+.tema.nuevo::before { content: '+ '; opacity: .65; }
+/* Fijado gana a nuevo: si ya lo elegiste, lo que importa es que está dentro. */
+.tema.on.nuevo { color: var(--accent); }
+.tema.on.nuevo::before { content: '· '; }
 
 /* El «+N more» de cada sector: la misma ficha, en tono de nota. */
 .tema.mas { color: var(--accent); opacity: .8; }
