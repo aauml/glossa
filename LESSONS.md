@@ -1017,3 +1017,45 @@ del propio programa publica la transcripción. Medido en el mismo episodio: 3.61
 caracteres contra 262.149. Cuando algo se puede seguir por varias superficies,
 la que hay que seguir es la que más TEXTO da, y merece la pena resolverla
 automáticamente al dar de alta.
+
+## Que una fuente conteste no es que sirva
+
+`https://www.elfinanciero.com.mx/opinion/raymundo-riva-palacio/rss` devuelve
+200, con RSS bien formado y cien entradas. No es el feed del columnista: es el
+del diario entero. Un descubridor que se conforme con «responde y es RSS» da de
+alta «Riva Palacio» y entrega el periódico completo, y nada lo delata salvo leer
+lo que llega.
+
+La comprobación que falta es de CONTENIDO, no de forma: se exige que la mayoría
+de las entradas lleven la firma o el tramo de ruta que se pidió. Con eso, el que
+sirve resulta ser otro —`/arc/outboundfeeds/rss/category/<ruta>/`, el patrón de
+Arc, que usan El Financiero y media prensa hispana.
+
+_Applies to:_ cualquier proyecto que descubra feeds, endpoints o superficies por
+tanteo de rutas. La respuesta 200 responde «existe», nunca «es lo que buscabas».
+
+## Un trozo de 120 KB no alcanza a leer una sola entrada
+
+El chequeo de feeds descargaba 120 KB y buscaba pares `<item>…</item>`. The
+Cognitive Revolution publica el transcript entero: un episodio pasa de 120 KB,
+el `</item>` quedaba fuera del trozo y el feed se leía como VACÍO — sin fechas,
+sin aviso de silencio, sin muestra que enseñar. El feed más rico del catálogo
+era justo el que parecía muerto.
+
+Se corta por el COMIENZO de cada entrada, que no depende de que el cierre entre
+en el trozo descargado.
+
+_Applies to:_ todo parseo por límite de bytes. El caso que rompe no es el
+documento raro, es el más completo.
+
+## Elegir por el usuario la superficie es decidir el resultado
+
+Un programa vive en cuatro sitios a la vez —web con transcripts, feed de audio,
+canal de YouTube, Substack— y no dan lo mismo: el transcript se lee entero y
+gratis, el audio hay que escucharlo y se paga. Quedarse con la primera puerta
+que conteste y callar las otras tomaba en silencio la decisión más cara del
+alta. Se enseñan todas, con la evidencia de cada una, y se marcan las que valgan.
+
+_Applies to:_ cualquier alta que resuelva un identificador a un recurso cuando
+hay más de un camino. Enseñar las opciones cuesta unas peticiones; equivocarse
+de camino cuesta el contenido.
