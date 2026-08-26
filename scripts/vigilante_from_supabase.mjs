@@ -192,6 +192,61 @@ for (const s of rotas ?? []) {
   });
 }
 
+// ── 3b. Las pausadas: arreglarlas o jubilarlas, pero no dejarlas esperando ──
+//
+// Una fuente pausada «hasta que alguien la mire» es una decisión aplazada para
+// siempre: se queda ahí semanas, ocupando un aviso que nadie va a atender. El
+// sistema tiene con qué decidir solo, así que decide.
+//
+// Tres desenlaces, todos escritos en `notes` para que se sepa qué pasó:
+//   · el fallo era pasajero y ahora responde  → vuelve a activarse
+//   · cambió de sitio y se encuentra el nuevo → se corrige y vuelve
+//   · no hay nada que arreglar (canal vacío, feed muerto) → se jubila
+const pausadas = await sb('glossa_radar_sources?select=id,name,kind,feed_url,notes&active=is.false&consecutive_failures=gte.1');
+for (const f of pausadas ?? []) {
+  let veredicto = null;
+
+  if (f.kind === 'youtube' && process.env.GLOSSA_YOUTUBE_KEY) {
+    const canal = /channel\/(UC[\w-]+)/.exec(f.feed_url ?? '')?.[1];
+    if (canal) {
+      try {
+        const r = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${canal}` +
+                              `&key=${process.env.GLOSSA_YOUTUBE_KEY}`);
+        const d = await r.json();
+        const it = (d.items ?? [])[0];
+        if (!it) veredicto = { jubilar: true, porque: 'el canal ya no existe con ese id' };
+        else if (Number(it.statistics?.videoCount ?? 0) === 0) {
+          veredicto = { jubilar: true, porque: 'el canal existe pero no ha publicado ni un vídeo' };
+        } else veredicto = { revivir: true, porque: `responde y tiene ${it.statistics.videoCount} vídeos` };
+      } catch (e) { veredicto = null; }
+    }
+  } else if (f.feed_url) {
+    try {
+      const r = await fetch(f.feed_url, { signal: AbortSignal.timeout(12_000) });
+      const txt = r.ok ? (await r.text()).slice(0, 4000) : '';
+      if (r.ok && /<(rss|feed)[\s>]/i.test(txt)) veredicto = { revivir: true, porque: 'el feed volvió a responder' };
+      else veredicto = { jubilar: true, porque: `el feed responde ${r.status} y no es un feed` };
+    } catch { veredicto = { jubilar: true, porque: 'el feed no responde' }; }
+  }
+
+  if (!veredicto) continue;
+  await sb(`glossa_radar_sources?id=eq.${f.id}`, {
+    method: 'PATCH', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify(veredicto.revivir
+      ? { active: true, consecutive_failures: 0,
+          notes: `reactivada por el vigilante: ${veredicto.porque}` }
+      : { active: false, notes: `jubilada por el vigilante: ${veredicto.porque}` }),
+  });
+  console.log(`  ${veredicto.revivir ? 'reactivada' : 'jubilada'}: ${f.name} — ${veredicto.porque}`);
+
+  // La incidencia se cierra: ya no hay nada pendiente que mirar.
+  await sb(`glossa_radar_incidencias?sujeto=eq.${encodeURIComponent(f.name)}&abierta=is.true`, {
+    method: 'PATCH', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({ abierta: false, cerrada_at: new Date().toISOString(),
+                           accion: veredicto.revivir ? 'reactivada sola' : `jubilada: ${veredicto.porque}` }),
+  }).catch(() => {});
+}
+
 // ── 4. Trabajos que están fallando ─────────────────────────────────────────
 // Lo que de verdad hacía falta hoy: el número falló dos domingos seguidos y no
 // lo dijo nadie.

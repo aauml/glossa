@@ -32,6 +32,8 @@ env:
   SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
   SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  # Para comprobar si un canal pausado sigue vivo antes de jubilarlo.
+  GLOSSA_YOUTUBE_KEY: ${{ secrets.GLOSSA_YOUTUBE_KEY }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
