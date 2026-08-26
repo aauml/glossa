@@ -395,9 +395,25 @@ function prosaDe(j) {
 const ATRIBUCION_EN_VITRINA =
   /\b[A-ZÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ'’-]+(?: [A-ZÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ'’-]+){0,3} (argues|says|claims|contends|writes|maintains|sostiene|afirma|asegura|escribe|plantea)\b|\b(the|el|la) (columnist|author|columnista|autor|autora)\b/;
 
+/** Los rótulos de las cajas de contexto de una pieza, en orden. */
+const rotulos = (j) => (j.sections ?? []).flatMap(s =>
+  (s.blocks ?? []).filter(b => b.type === 'context').map(b => b.label ?? ''));
+
 function validar(j, lado) {
   const fallos = [];
   const prosa = prosaDe(j);
+
+  // El rótulo de una caja es el título que LEE el lector, no un campo de
+  // máquina. La edición española los devolvió en inglés —«What is Pemex?»— y
+  // repitió la pregunta traducida dentro del cuadro, así que la caja
+  // preguntaba dos veces y ninguna en el idioma de la página.
+  if (lado === 'es') {
+    for (const l of rotulos(j)) {
+      if (/^(what|who|how|why|when|where|which)\b/i.test(l)) {
+        fallos.push(`la caja «${l.slice(0, 40)}» conserva su rótulo en inglés`);
+      }
+    }
+  }
   for (const campo of ['title', 'dek', 'dekHTML', 'coverDek']) {
     if (j[campo] && ATRIBUCION_EN_VITRINA.test(j[campo])) {
       fallos.push(`${campo} cita a quien lo dice en vez de decir la cosa`);
