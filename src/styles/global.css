@@ -873,7 +873,10 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    izquierda del artículo, como un elemento de otra página. */
 .legend-articulo {
   /* 656 = 720 menos los 32 de sangría a cada lado: así los filetes empiezan y
-     terminan donde empieza y termina el texto, en vez de asomar por fuera. */
+     terminan donde empieza y termina el texto, en vez de asomar por fuera.
+     En el teléfono ese 656 es más ancho que la pantalla y, sin sangría propia,
+     la leyenda salía pegada a los dos bordes mientras el texto empezaba a 22.
+     Ahí manda el ancho de la pantalla y la sangría se pone a mano. */
   max-width: 656px; margin: 0 auto 34px; padding: 12px 0;
   border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft);
   display: flex; flex-wrap: wrap; gap: 6px 22px;
@@ -894,4 +897,8 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    y al ampliar mueve la página de sitio. */
 @media (max-width: 640px) {
   input, textarea, select { font-size: max(16px, 1em); }
+}
+
+@media (max-width: 720px) {
+  .legend-articulo { max-width: 100%; padding-left: 22px; padding-right: 22px; }
 }
