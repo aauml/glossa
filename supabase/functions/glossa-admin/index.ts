@@ -490,6 +490,23 @@ async function superficiesDe(entrada: { origen?: string; html?: string; nombre?:
 
   const tareas: Promise<Opcion[]>[] = [];
 
+  // El feed del sitio, buscado por las rutas de siempre. Va aparte de los
+  // feeds declarados porque la mayoría de los periódicos NO declaran el suyo:
+  // El Financiero salía con dos canales de YouTube y sin su propio feed, que
+  // existe y es justo lo que se quería seguir.
+  if (origen) {
+    tareas.push(buscarFeed(origen).then(async (h) => {
+      if (!h) return [];
+      const c = await feedResponde(h.feed_url);
+      return [{
+        as: 'fuente' as const, kind: c.ok && c.esPodcast ? 'podcast' : 'rss',
+        feed_url: h.feed_url, name: nombreCorto(h.nombre ?? (c.ok ? c.nombre : undefined)) ?? nombre,
+        label: `Their own site · ${h.nombre ?? nombre ?? origen}`,
+        detalle: c.ok ? vistaDeMuestras(c.muestras).join(' · ') : undefined,
+      }];
+    }));
+  }
+
   // 1) Los feeds que la propia página declara — pueden ser varios: el blog, el
   //    podcast y los comentarios se declaran igual y no son lo mismo.
   if (html && origen) {
@@ -567,6 +584,11 @@ async function superficiesDe(entrada: { origen?: string; html?: string; nombre?:
   }
 
   const halladas = (await Promise.all(tareas)).flat();
+  // El orden es el del valor de lo que dan: el texto de su sitio se lee entero
+  // y gratis; el audio hay que escucharlo; buscar por nombre se paga. La
+  // primera viene marcada, así que este orden es la decisión por defecto.
+  const PESO: Record<string, number> = { rss: 0, podcast: 1, youtube: 2, persona: 3, tema: 3 };
+  halladas.sort((a, b2) => (PESO[a.kind ?? ''] ?? 9) - (PESO[b2.kind ?? ''] ?? 9));
   // Dos puertas al mismo feed —la declarada y la de Apple— son una sola opción.
   const vistas = new Set<string>();
   return halladas.filter(o => {
@@ -620,7 +642,8 @@ async function buscarFeed(origen: string) {
   for (const ruta of ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/index.xml',
                       '/rss/home', '/latest/rss.xml', '/latest/rss/', '/feed/rss',
                       '/rss/index.xml', '/feeds/all.atom.xml', '/blog/rss.xml',
-                      '/rss/elpais/portada.xml', '/?feed=rss2']) {
+                      '/rss/elpais/portada.xml', '/?feed=rss2',
+                      '/arc/outboundfeeds/rss/?outputType=xml']) {
     const u = origen.replace(/\/+$/, '') + ruta;
     const r = await feedResponde(u);
     if (r.ok) return { feed_url: u, nombre: r.nombre };
@@ -1105,12 +1128,25 @@ Deno.serve(async (req) => {
           // que entra está comprobado, venga de donde venga.
           const elegido = typeof b.feed_url === 'string' ? b.feed_url.trim() : '';
           if (elegido && !buscada) {
-            const c = await feedResponde(elegido);
-            if (!c.ok) return bad(`not added — ${c.error}`);
-            r.feed_url = elegido;
-            r.saludable = true;
-            if (typeof b.name === 'string' && b.name.trim()) r.name = b.name.trim();
-            else r.name = nombreCorto(c.nombre) ?? r.name;
+            // Cada clase se comprueba con lo suyo. Un canal de YouTube se
+            // guarda por su URL de canal y NO es un RSS: pasarlo por el
+            // chequeo de feeds lo rechazaba con «that URL responds but is not
+            // an RSS/Atom feed», que es verdad y no viene al caso.
+            if (kind === 'youtube') {
+              const chk = await canalResponde(elegido);
+              if (!chk.ok) return bad(`not added — ${chk.error}`);
+              r.feed_url = await resolverYouTube(elegido);
+              r.saludable = true;
+              r.name = (typeof b.name === 'string' && b.name.trim())
+                ? b.name.trim() : (nombreCorto(chk.nombre) ?? r.name);
+            } else {
+              const c = await feedResponde(elegido);
+              if (!c.ok) return bad(`not added — ${c.error}`);
+              r.feed_url = elegido;
+              r.saludable = true;
+              if (typeof b.name === 'string' && b.name.trim()) r.name = b.name.trim();
+              else r.name = nombreCorto(c.nombre) ?? r.name;
+            }
           } else if (buscada && typeof b.name === 'string' && b.name.trim()) {
             r.name = b.name.trim();
           }
