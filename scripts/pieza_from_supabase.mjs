@@ -382,9 +382,27 @@ function prosaDe(j) {
   return trozos.join('\n');
 }
 
+/**
+ * El titular, el dek y el resumen de portada dicen la COSA, no quién la dice.
+ *
+ * Es lo único que se ve fuera del artículo —en la portada, en la tarjeta de
+ * compartir, en el buscador— y el N° 39 salió con «Raymundo Riva Palacio argues
+ * that…»: el cuerpo ya afirmaba, y el escaparate seguía citando.
+ *
+ * Se comprueba SOLO ahí. Dentro del cuerpo, «Sheinbaum dijo que…» es periodismo
+ * normal y prohibirlo sería absurdo.
+ */
+const ATRIBUCION_EN_VITRINA =
+  /\b[A-ZÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ'’-]+(?: [A-ZÁÉÍÓÚÑ][\wÁÉÍÓÚÑáéíóúñ'’-]+){0,3} (argues|says|claims|contends|writes|maintains|sostiene|afirma|asegura|escribe|plantea)\b|\b(the|el|la) (columnist|author|columnista|autor|autora)\b/;
+
 function validar(j, lado) {
   const fallos = [];
   const prosa = prosaDe(j);
+  for (const campo of ['title', 'dek', 'dekHTML', 'coverDek']) {
+    if (j[campo] && ATRIBUCION_EN_VITRINA.test(j[campo])) {
+      fallos.push(`${campo} cita a quien lo dice en vez de decir la cosa`);
+    }
+  }
   for (const [re, queja, donde] of VOZ_PROHIBIDA) {
     if (donde === 'label') {
       // El nombre de la fuente en el rótulo de una caja: la caja explica el
