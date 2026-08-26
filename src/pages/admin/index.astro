@@ -545,7 +545,7 @@ ${t.canales} channels · ${t.elementos} items · last ${esc(String(t.ultimo || '
       const nuevos = lista.filter(t => !t.fijo && recien(t.creado)).length;
       return `<p class="admin-sector">${esc(k)}
           <span class="admin-tenue">${lista.length}</span>${
-            dentro ? ` <span class="admin-dentro">${dentro} in the weekly</span>` : ''}${
+            dentro ? ` <span class="admin-dentro">[${dentro}]</span>` : ''}${
             nuevos ? ` <span class="admin-tenue">${nuevos} new</span>` : ''}</p>
         <div class="temas">${cabe.map(chip).join('')}${
           resto > 0 ? `<button class="tema mas" data-mas="${esc(k)}">+${resto} more</button>` : ''}</div>`;
