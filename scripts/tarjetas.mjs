@@ -57,6 +57,13 @@ function resumir(dek, tope = 165) {
   // esperando el sustantivo que no llega.
   const VACIAS = /\s+(the|a|an|and|or|of|to|in|for|that|with|from|by|on|el|la|los|las|un|una|y|o|de|del|que|con|para|por|en)$/i;
   while (VACIAS.test(corte)) corte = corte.replace(VACIAS, '');
+  // Un paréntesis abierto y sin cerrar deja al lector esperando: la tarjeta
+  // acabó en «los 130 mil millones de dólares (130…». Si el corte parte uno, se
+  // retrocede hasta antes de abrirlo.
+  if ((corte.match(/\(/g) || []).length > (corte.match(/\)/g) || []).length) {
+    corte = corte.slice(0, corte.lastIndexOf('(')).trimEnd();
+    while (VACIAS.test(corte)) corte = corte.replace(VACIAS, '');
+  }
   return corte.replace(/[,;:]$/, '') + '…';
 }
 
