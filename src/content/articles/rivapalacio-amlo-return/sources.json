@@ -1,0 +1,61 @@
+{
+  "slug": "rivapalacio-amlo-return",
+  "issue": "N° 39",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "El regreso de López Obrador",
+      "url": "https://www.elfinanciero.com.mx/opinion/raymundo-riva-palacio/2026/08/25/el-regreso-de-lopez-obrador/",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "article",
+      "claim_en": "Raymundo Riva Palacio argues that former Mexican president Andrés Manuel López Obrador has returned to Mexico City to manage the legal and political fallout of U.S. investigations targeting his son, Andrés López Beltrán.",
+      "claim_es": "Raymundo Riva Palacio sostiene que el expresidente mexicano Andrés Manuel López Obrador ha regresado a la Ciudad de México para gestionar las consecuencias legales y políticas de las investigaciones de EE. UU. que involucran a su hijo, Andrés López Beltrán.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "news247plus.com — Retired General Gerardo Mérida Sánchez, the former Secretary of Public Security of Sinaloa, was rele",
+      "url": "https://www.news247plus.com/news/religion/gerardo-mrida-snchez-leaves-prison-in-new-york-is-he-cooperating-with-prosecutors-57409",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Retired General Gerardo Mérida Sánchez, the former Secretary of Public Security of Sinaloa, was released from the Brooklyn Metropolitan Detention Center on August 11, 2026. He remains under indictment for alleged links to the Los Chapitos faction of the Sinaloa Cartel, with his legal team reportedly negotiating potential cooperation with US prosecutors.",
+      "claim_es": "El general retirado Gerardo Mérida Sánchez, exsecretario de Seguridad Pública de Sinaloa, fue liberado del Centro Metropolitano de Detención de Brooklyn el 11 de agosto de 2026. Sigue bajo proceso por presuntos vínculos con la facción de Los Chapitos del Cártel de Sinaloa, y se reporta que su defensa negocia una posible cooperación con la fiscalía estadounidense.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "apnews.com — The son of former Mexican President Andrés Manuel López Obrador has reported that his U.S. visa has ",
+      "url": "https://apnews.com/article/amlo-son-us-visa-trump-sheinbaum-c29f87e86301b7974c038965521438c7",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The son of former Mexican President Andrés Manuel López Obrador has reported that his U.S. visa has been revoked. The report notes this in the context of broader U.S. policy changes regarding visa status, though it does not provide specific details on the circumstances surrounding this individual case.",
+      "claim_es": "El hijo del expresidente mexicano Andrés Manuel López Obrador informó que su visa estadounidense fue revocada. El reporte sitúa este hecho en el contexto de cambios generales en la política de visas de EE. UU., sin ofrecer detalles específicos sobre las circunstancias de este caso individual.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "abcnews.com — Andrés Manuel López Beltrán, son of former Mexican President Andrés Manuel López Obrador, announced ",
+      "url": "https://abcnews.com/International/wireStory/son-former-mexican-president-lpez-obrador-us-revoked-135650248",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Andrés Manuel López Beltrán, son of former Mexican President Andrés Manuel López Obrador, announced that his U.S. visa was revoked. He issued a public appeal to U.S. President Donald Trump, while Mexican President Claudia Sheinbaum stated the move was political and requested evidence for any allegations.",
+      "claim_es": "Andrés Manuel López Beltrán, hijo del expresidente Andrés Manuel López Obrador, anunció la revocación de su visa estadounidense. Emitió un llamado público al presidente de EE. UU., Donald Trump, mientras que la presidenta mexicana Claudia Sheinbaum calificó la medida como política y exigió pruebas sobre cualquier acusación.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "nytimes.com — Andrés Manuel López Beltrán, the son of former Mexican President Andrés Manuel López Obrador, announ",
+      "url": "https://www.nytimes.com/2026/08/14/world/americas/mexico-visas-lopez-beltran.html",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Andrés Manuel López Beltrán, the son of former Mexican President Andrés Manuel López Obrador, announced that the U.S. government has revoked his visa. In response, he released a letter directed at President Trump criticizing the decision and the current U.S. administration. The U.S. State Department confirmed it is making visa decisions based on national security but did not comment on this specif",
+      "claim_es": "Andrés Manuel López Beltrán, hijo del expresidente Andrés Manuel López Obrador, anunció que el gobierno de EE. UU. revocó su visa. En respuesta, publicó una carta dirigida al presidente Trump criticando la decisión y a la administración estadounidense actual. El Departamento de Estado confirmó que toma decisiones sobre visas por razones de seguridad nacional, pero no comentó sobre este caso específico.",
+      "verificada": "si"
+    }
+  ]
+}
