@@ -9,8 +9,7 @@ const { lang } = Astro.props;
 
 const COPY = {
   en: {
-    news: 'Glossa is my editor. I give it the sites, videos, podcasts and writers I follow. Every Sunday it reads them and writes back what happened that week, checked against other outlets. No ads, no side taken.',
-    unaPieza: 'I can also paste in one article, or just name a topic. Then it looks up what other sources say, searches my own library of papers and documents, and writes a single piece on it.',
+    news: 'Glossa is my editor. I give it the sites, videos, podcasts and writers I follow. It reads them all week and writes back on Sunday: what happened, checked against other outlets, with a line under anything only one source says. Paste one article or name a subject and it does the same for that. No ads, no side taken.',
     subT: 'Own your own',
     subP: 'Your own sources and subjects, read and written the same way. Leave your email and I will write back when there is a place.',
     subPlaceholder: 'your@email',
@@ -31,8 +30,7 @@ const COPY = {
     other: { code: 'es', label: 'ES', href: '/es/' },
   },
   es: {
-    news: 'Glossa es mi editor. Le doy los sitios, vídeos, pódcast y autores que sigo. Cada domingo los lee y me escribe qué pasó esa semana, contrastado con otros medios. Sin anuncios y sin tomar partido.',
-    unaPieza: 'También puedo pegarle un artículo, o solo decirle un tema. Entonces busca qué dicen otras fuentes, consulta mi biblioteca de papers y documentos, y escribe una sola pieza sobre eso.',
+    news: 'Glossa es mi editor. Le doy los sitios, videos, pódcast y autores que sigo. Los lee toda la semana y el domingo me escribe qué pasó, contrastado con otros medios y con una raya debajo de lo que dice una sola fuente. Pégale un artículo o dile un tema y hace lo mismo con eso. Sin anuncios y sin tomar partido.',
     subT: 'Ten la tuya',
     subP: 'Tus fuentes y tus asuntos, leídos y escritos igual. Deja tu correo y te escribo en cuanto haya sitio.',
     subPlaceholder: 'tu@correo',
@@ -126,8 +124,11 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
           pieza suelta, que nace de una fuente pegada o de un asunto y se
           construye con la biblioteca. Una sola frase describía solo el semanal
           y dejaba fuera la mitad de la colección. */}
+      {/* UN párrafo, no dos. Eran las dos mitades del mismo trabajo —la semana
+          y el asunto suelto— contadas como si fueran dos productos, y lo único
+          que de verdad distingue esto de cualquier boletín (que la marca dice
+          qué sostiene cada frase) no aparecía en ninguna. */}
       <p class="cover-why">{t.news}</p>
-      <p class="cover-why">{t.unaPieza}</p>
 
       {/* UNA sola oferta: tener la tuya. La suscripción al semanal queda para
           otra etapa —el camino está montado y probado en la función, solo no se
