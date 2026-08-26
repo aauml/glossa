@@ -1,0 +1,61 @@
+{
+  "slug": "pemex-mexico-credit-rating",
+  "issue": "N° 40",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "Mexico Bonds Trade Like Junk After $130 Billion Bailout of Pemex",
+      "url": "https://www.bloomberg.com/news/articles/2026-08-25/mexico-bonds-trade-like-junk-after-130-billion-bailout-of-pemex",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "article",
+      "claim_en": "Bloomberg argues that Mexico's financial standing has significantly deteriorated, moving from an A-rated borrower to the brink of junk status due to a massive $130 billion bailout of the state oil company, Pemex.",
+      "claim_es": "Bloomberg argumenta que la posición financiera de México se ha deteriorado significativamente, pasando de ser un emisor grado A a estar al borde del grado basura debido al rescate masivo de 130 mil millones de dólares a la petrolera estatal Pemex.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "sec.gov — Petróleos Mexicanos (PEMEX) published its condensed consolidated interim financial statements for th",
+      "url": "https://www.sec.gov/Archives/edgar/data/932782/000093278224000014/pemex_6kxq124.htm",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Petróleos Mexicanos (PEMEX) published its condensed consolidated interim financial statements for the three-month period ended March 31, 2024. The document reports a net income of 4,682 million pesos for the quarter and details financial position data, including total debt and equity deficits. It also provides operational highlights regarding production and export volumes for crude oil and petrole",
+      "claim_es": "Petróleos Mexicanos (PEMEX) publicó sus estados financieros consolidados condensados para el periodo de tres meses terminado el 31 de marzo de 2024. El documento reporta una utilidad neta de 4,682 millones de pesos para el trimestre y detalla datos de posición financiera, incluyendo la deuda total y los déficits de capital. También ofrece aspectos operativos sobre volúmenes de producción y exportación de crudo y petrolíferos.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "fitchratings.com — The Mexican government submitted its 2024 budget proposal to Congress, which projects a fiscal defic",
+      "url": "https://www.fitchratings.com/research/sovereigns/mexico-2024-budget-to-lead-to-moderate-debt-increase-confirms-pemex-support-14-09-2023",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The Mexican government submitted its 2024 budget proposal to Congress, which projects a fiscal deficit of 4.9% of GDP. The proposal includes specific federal support for the state-owned oil company, Pemex, through a reduction in profit-sharing duties and direct financial transfers.",
+      "claim_es": "El gobierno mexicano envió su propuesta de presupuesto 2024 al Congreso, la cual proyecta un déficit fiscal del 4.9% del PIB. La propuesta incluye apoyo federal específico a la petrolera estatal, Pemex, mediante una reducción en el derecho de utilidad compartida y transferencias financieras directas.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "tradingeconomics.com — The yield on Mexico's 10-year government bond decreased to 9.22% as of August 24, 2026. This marks a",
+      "url": "https://tradingeconomics.com/mexico/government-bond-yield",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The yield on Mexico's 10-year government bond decreased to 9.22% as of August 24, 2026. This marks a 0.01 percentage point decline from the previous session and a 0.05 point drop over the past month. The yield remains 0.36 points higher than it was one year ago.",
+      "claim_es": "El rendimiento del bono gubernamental mexicano a 10 años disminuyó a 9.22% al 24 de agosto de 2026. Esto marca un descenso de 0.01 puntos porcentuales respecto a la sesión anterior y una caída de 0.05 puntos en el último mes. El rendimiento se mantiene 0.36 puntos por encima de su nivel de hace un año.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "countryeconomy.com — The 10-year government bond yield for Mexico fluctuated throughout late June and July 2026. Data sho",
+      "url": "https://countryeconomy.com/bonds/mexico",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The 10-year government bond yield for Mexico fluctuated throughout late June and July 2026. Data shows an increase from 8.92% on June 16 to 9.27% on July 27, 2026.",
+      "claim_es": "El rendimiento del bono gubernamental a 10 años de México fluctuó durante finales de junio y julio de 2026. Los datos muestran un incremento de 8.92% el 16 de junio a 9.27% el 27 de julio de 2026.",
+      "verificada": "si"
+    }
+  ]
+}
