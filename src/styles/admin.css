@@ -267,3 +267,12 @@ details.grupo > summary:hover,
   letter-spacing: 0;
   color: var(--muted);
 }
+
+/* En el teléfono la casilla se toca con el dedo, no con el ratón: crece y la
+   fila entera se vuelve el blanco (el <label> ya marca al pulsarlo, así que
+   basta con darle sitio). */
+@media (max-width: 640px) {
+  .admin-puerta { margin: .5rem 0; gap: .6rem; }
+  .admin-form .admin-puerta input[type="checkbox"],
+  .admin-puerta input[type="checkbox"] { width: 17px; height: 17px; margin-top: .12rem; }
+}
