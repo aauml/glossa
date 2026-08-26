@@ -348,8 +348,54 @@ console.log(`Le toca ${issueNo} (la colección tiene ${piezas.length} piezas).`)
 await avance(42, `writing the piece (${MODELO_KIMI}) — the long stage`, { issue: issueNo });
 
 // ── 5 · Kimi escribe, contra contrato ────────────────────────────────────
+/**
+ * La voz, comprobada por código y no por confianza.
+ *
+ * La regla —el artículo es de Glossa, se afirma, y lo que matiza es la marca—
+ * vive en el prompt, y un prompt es una petición, no una garantía. Esto es la
+ * garantía: si el texto vuelve hablando DEL texto («the column says», una caja
+ * titulada «Who is X?», «take this as one journalist's account»), el contrato
+ * está incumplido y se reintenta con el fallo dicho, igual que con un slug malo.
+ *
+ * Se mira solo la PROSA, no los datos de procedencia: la línea bajo el titular
+ * sí debe decir de dónde salió.
+ */
+const VOZ_PROHIBIDA = [
+  [/\b(the|this) (column|article|piece|account|essay|text) (says|argues|claims|describes|treats|gives|assumes|names|sets|drops|offers)\b/i,
+   'habla del texto en vez del mundo («the column says…»)'],
+  [/\b(la|el) (columna|art[íi]culo|texto|relato|pieza) (dice|sostiene|describe|trata|afirma|asume|ofrece)\b/i,
+   'habla del texto en vez del mundo («la columna dice…»)'],
+  [/\b(the author|the columnist|the writer|el autor|el columnista|la autora) (says|argues|describes|writes|dice|sostiene|describe|escribe)\b/i,
+   'devuelve la frase a su autor en vez de afirmarla'],
+  [/guided reading|lectura guiada|read (it|this|the following) the way|tome lo siguiente como|take (this|the following) as/i,
+   'le explica al lector cómo leer la fuente'],
+  [/^\s*(who is|qui[ée]n es|qui[ée]nes son)\b/i, 'caja de contexto sobre QUIÉN es la fuente', 'label'],
+];
+
+/** El texto que el lector va a leer, sin la procedencia ni los rótulos. */
+function prosaDe(j) {
+  const trozos = [j.lede ?? '', j.dek ?? '', j.coverDek ?? ''];
+  for (const s of j.sections ?? []) {
+    trozos.push(s.standfirst ?? '');
+    for (const b of s.blocks ?? []) trozos.push(b.md ?? b.text ?? '');
+  }
+  return trozos.join('\n');
+}
+
 function validar(j, lado) {
   const fallos = [];
+  const prosa = prosaDe(j);
+  for (const [re, queja, donde] of VOZ_PROHIBIDA) {
+    if (donde === 'label') {
+      // El nombre de la fuente en el rótulo de una caja: la caja explica el
+      // asunto, nunca la firma.
+      const cajas = (j.sections ?? []).flatMap(s => (s.blocks ?? [])
+        .filter(b => b.type === 'context').map(b => b.label ?? ''));
+      if (cajas.some(l => re.test(l) && !/what is|qu[ée] es|qu[ée] son/i.test(l))) fallos.push(queja);
+    } else if (re.test(prosa)) {
+      fallos.push(queja);
+    }
+  }
   if (lado === 'en' && !/^[a-z0-9][a-z0-9-]{1,79}$/.test(j.slug ?? '')) fallos.push('slug inválido');
   if (lado === 'en' && piezas.some(p => p.slug === j.slug)) fallos.push('slug repetido');
   for (const campo of ['title', 'titleHTML', 'dek', 'coverDek', 'lede']) {
