@@ -30,7 +30,17 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   <!-- El dinero: una tabla por mes, con el total al lado. Discreta pero no
        ambigua — la línea de contadores que hubo aquí hizo leer los créditos
        GASTADOS de Tavily como los que quedaban. -->
-  <div id="st-costo" style="margin:0 0 34px;opacity:.75"></div>
+  <div id="st-costo" style="margin:0 0 14px;opacity:.75"></div>
+
+  <!-- La cuenta completa de la semana: qué se leyó y qué se descartó, con el
+       motivo de cada descarte. Está aquí porque «¿cómo sé que no se están
+       omitiendo cosas?» no se contesta con «confía», y porque un descarte que
+       nadie ve es indistinguible de un fallo. Cada elemento cae en UNA fila:
+       si la suma no cuadra, se ve. -->
+  <details class="grupo" style="margin-bottom:32px">
+    <summary class="admin-nota" style="cursor:pointer">What happened to everything this week</summary>
+    <div id="st-cobertura" style="margin-top:10px"></div>
+  </details>
 
   <!-- ── Lo que va mal ──────────────────────────────────────────────────
        Sólo si hay algo, y solo lo que resistió arreglarse solo: el vigilante
@@ -739,6 +749,21 @@ ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.l
     </tr>`).join('')}</table>`;
   }
 
-  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); pintarSecciones(); pintarTemas(); pintarConsejo(); pintarAccesos(); vigilarPiezas();
+  // ── Qué pasó con todo lo que llegó ──────────────────────────────────────
+  async function pintarCobertura() {
+    const el = $('st-cobertura');
+    if (!el) return;
+    const d = await api('cobertura');
+    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
+    const total = d.cobertura.reduce((n, r) => n + Number(r.veces), 0);
+    el.innerHTML = `<table class="admin-tabla">${d.cobertura.map(r => `<tr>
+      <td class="admin-num" style="width:60px">${r.veces}</td>
+      <td${r.que_paso === 'read' ? ' style="color:var(--ink)"' : ' class="admin-tenue"'}>${esc(r.que_paso)}</td>
+      </tr>`).join('')}
+      <tr><td class="admin-num"><strong>${total}</strong></td>
+          <td class="admin-tenue">everything the sources published in 7 days</td></tr></table>`;
+  }
+
+  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCobertura(); pintarCola(); pintarFuentes(); pintarSecciones(); pintarTemas(); pintarConsejo(); pintarAccesos(); vigilarPiezas();
 </script>
 </AdminLayout>

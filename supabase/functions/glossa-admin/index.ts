@@ -964,6 +964,15 @@ Deno.serve(async (req) => {
         return ok({ fijo });
       }
 
+      // Qué pasó con TODO lo que llegó esta semana. Existe porque «¿cómo sé que
+      // no estás omitiendo cosas?» es una pregunta legítima, y la respuesta no
+      // puede ser «confía»: es la cuenta completa, a la vista y sin pedirla.
+      case 'cobertura': {
+        const { data, error } = await db.rpc('glossa_radar_cobertura');
+        if (error) throw error;
+        return ok({ cobertura: data ?? [] });
+      }
+
       // ── El panel ─────────────────────────────────────────────────────────
       case 'sources.panel': {
         // Una sola consulta con los pendientes ya contados. Pedirlos por fuente
