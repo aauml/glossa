@@ -826,32 +826,21 @@ h2.section-title em { font-style: italic; font-weight: 500; }
    las palabras. */
 .cover-acceso { margin-top: 16px; }
 
-/* ── Compartir ───────────────────────────────────────────────────────────
-   Un botón del tamaño de los demás mandos de la cabecera, y un menú de dos
-   líneas: el enlace en inglés y el enlace en español. No es un icono de red
-   social: aquí se manda un enlace, no se publica en ninguna parte. */
-.share { position: relative; display: inline-block; }
-.share-btn {
-  font: inherit; font-size: 11px; letter-spacing: 0.06em;
-  color: var(--muted); background: none; border: none; padding: 0;
-  cursor: pointer; text-transform: lowercase;
+/* ── Copiar el enlace ────────────────────────────────────────────────────
+   Un icono del peso de los otros mandos, dentro de la pieza. Al pulsarlo
+   aparece «link copied» al lado y se va solo: un aviso que hay que cerrar es
+   más trabajo que el que ahorra. */
+.copiar { display: inline-flex; align-items: center; gap: 6px; }
+.copiar button {
+  display: inline-flex; align-items: center;
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--muted); line-height: 0;
+  transition: color 0.15s ease;
 }
-.share-btn:hover { color: var(--accent); }
-.share-menu {
-  position: absolute; right: 0; top: calc(100% + 8px); z-index: 30;
-  display: grid; gap: 2px; min-width: 168px;
-  background: var(--paper); border: 0.5px solid var(--rule-soft);
-  padding: 6px; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.07);
+.copiar button:hover { color: var(--accent); }
+.copiar-ok {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px; letter-spacing: 0.06em; color: var(--muted);
+  white-space: nowrap;
 }
-.share-menu[hidden] { display: none; }
-.share-menu button {
-  font: inherit; font-size: 12px; text-align: left;
-  color: var(--ink); background: none; border: none;
-  padding: 6px 8px; cursor: pointer; white-space: nowrap;
-}
-.share-menu button:hover { color: var(--accent); background: var(--rule-soft); }
-.share-ok {
-  font-size: 11px; color: var(--muted); padding: 4px 8px;
-  overflow-wrap: anywhere;
-}
-.share-ok[hidden] { display: none; }
+.copiar-ok[hidden] { display: none; }

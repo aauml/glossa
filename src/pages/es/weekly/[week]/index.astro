@@ -6,6 +6,7 @@ import PrefsHead from '../../../../components/PrefsHead.astro';
 import PrefsBody from '../../../../components/PrefsBody.astro';
 import '../../../../styles/global.css';
 import '../../../../styles/weekly.css';
+import Share from '../../../../components/Share.astro';
 import { tarjetaSemanal } from '../../../../lib/og.js';
 import { renderIssue, fecha } from '../../../../lib/weekly.js';
 
@@ -86,8 +87,7 @@ const desde = fecha(issue.week_start, 'es'), hasta = fecha(issue.week_end, 'es')
   <PrefsHead />
 </head>
 <body>
-  <WeeklyMasthead lang="es" otro={`/weekly/${week}/`} titulo={titulo}
-                  comparte={{ en: `/weekly/${week}/`, es: `/es/weekly/${week}/` }} />
+  <WeeklyMasthead lang="es" otro={`/weekly/${week}/`} />
 
   <!-- La marca de edición. Es lo único que separa la revista de un artículo:
        misma tipografía, mismo fondo, mismos tamaños — pero con el filete y la
@@ -98,6 +98,7 @@ const desde = fecha(issue.week_start, 'es'), hasta = fecha(issue.week_end, 'es')
       <span class="weekly-marca-tag">Semanal</span>
       <span class="weekly-marca-fechas">{desde} – {hasta}
         <a class="weekly-marca-idioma" href={`/weekly/${week}/`}>English</a></span>
+      <Share lang="es" />
     </div>
   </div>
 

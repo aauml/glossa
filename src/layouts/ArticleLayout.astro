@@ -4,6 +4,7 @@ import ArticleMasthead from '../components/ArticleMasthead.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
 import Sources from '../components/Sources.astro';
 import { tarjetaArticulo } from '../lib/og.js';
+import Share from '../components/Share.astro';
 const { entry, slug, lang, langs = ['en', 'es'] } = Astro.props;
 const { data } = entry;
 
@@ -35,7 +36,7 @@ const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${c
 ---
 <BaseLayout title={`${data.title} · Glossa`} description={data.dek} lang={lang} alternates={alternates}
             ogImage={tarjetaArticulo(slug, lang)}>
-  <ArticleMasthead lang={lang} slug={slug} langs={langs} titulo={data.title} />
+  <ArticleMasthead lang={lang} slug={slug} langs={langs} />
   <section class="hero">
     <h1 class="hero-headline" set:html={data.titleHTML} />
     <p class="hero-dek" set:html={data.dekHTML || data.dek} />
@@ -44,6 +45,8 @@ const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${c
       <span class="hero-meta-bar"></span>
       <span>{data.date}</span>
       {data.source && <><span class="hero-meta-bar"></span><span>{data.source}</span></>}
+      <span class="hero-meta-bar"></span>
+      <Share lang={lang} />
     </div>
     {wordCount > 0 && (
       <div class="hero-reading-meta">
