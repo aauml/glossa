@@ -32,16 +32,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
        GASTADOS de Tavily como los que quedaban. -->
   <div id="st-costo" style="margin:0 0 14px;opacity:.75"></div>
 
-  <!-- La cuenta completa de la semana: qué se leyó y qué se descartó, con el
-       motivo de cada descarte. Está aquí porque «¿cómo sé que no se están
-       omitiendo cosas?» no se contesta con «confía», y porque un descarte que
-       nadie ve es indistinguible de un fallo. Cada elemento cae en UNA fila:
-       si la suma no cuadra, se ve. -->
-  <details class="grupo" style="margin-bottom:32px">
-    <summary class="admin-nota" style="cursor:pointer">What happened to everything this week</summary>
-    <div id="st-cobertura" style="margin-top:10px"></div>
-  </details>
-
   <!-- ── Lo que va mal ──────────────────────────────────────────────────
        Sólo si hay algo, y solo lo que resistió arreglarse solo: el vigilante
        recupera lo pasajero y archiva lo irrecuperable por su cuenta. -->
@@ -64,16 +54,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   <section class="admin-sec">
     <details class="grupo" open data-visto="temas">
       <summary>Sections <span id="tm-cuenta" class="admin-kind"></span><span id="tm-nuevos" class="admin-nuevo"></span></summary>
-      <p class="admin-nota" style="margin-top:8px">The departments of the weekly, like a
-        magazine's. Switch on the ones you want and write, in one line, what interests you
-        there: that line decides what gets in when there is more material than fits. Each
-        department carries one to three pieces, or says it was quiet.</p>
+      <p class="admin-nota" style="margin-top:8px">Everything the reading keeps turning
+        up, by department. Pick a topic and it goes blue and jumps to the top: that is what
+        the weekly will cover. A department with nothing picked does not appear in the issue.</p>
       <p class="admin-nota" id="tm-nota" style="color:var(--accent)"></p>
-      <div id="sec-lista" style="margin-top:14px"><span class="admin-vacio">loading…</span></div>
-      <details style="margin-top:20px" data-visto="temas-lista">
-        <summary class="admin-nota" style="cursor:pointer">What the classifier found, by department</summary>
-        <div id="tm-lista" style="margin-top:10px"><span class="admin-vacio">loading…</span></div>
-      </details>
+      <div id="tm-lista" style="margin-top:12px"><span class="admin-vacio">loading…</span></div>
     </details>
   </section>
 
@@ -496,45 +481,6 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     pintarConsejo();
   });
 
-  // ── Los departamentos ───────────────────────────────────────────────────
-  // Sustituyen a fijar temas uno a uno: un sector no cambia solo y la lista de
-  // temas sí. La línea de interés no es decorativa — va al prompt y es lo que
-  // decide qué entra cuando sobra material.
-  async function pintarSecciones() {
-    const el = $('sec-lista');
-    if (!el) return;
-    // Envuelto y con el error a la vista: la versión anterior se rendía en
-    // silencio y dejaba «loading…» para siempre, que desde fuera es
-    // indistinguible de una consulta lenta. Un fallo tiene que decirse.
-    let d;
-    try { d = await api('secciones.list'); }
-    catch (e) { el.innerHTML = `<span class="admin-vacio">${esc(String(e))}</span>`; return; }
-    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    const activas = d.secciones.filter(s => s.activo).length;
-    $('tm-cuenta').textContent = activas ? `${activas} on` : 'none on';
-    el.innerHTML = `<table class="admin-tabla">${d.secciones.map(s => `<tr>
-      <td style="white-space:nowrap"><label style="display:flex;gap:8px;align-items:baseline;cursor:pointer">
-        <input type="checkbox" data-sec="${esc(s.sector)}"${s.activo ? ' checked' : ''}>
-        <span${s.activo ? ' style="color:var(--ink)"' : ''}>${esc(s.sector)}</span></label></td>
-      <td style="width:100%"><input class="sec-interes" data-int="${esc(s.sector)}"
-        placeholder="what interests you here" value="${esc(s.interes || '')}"></td>
-      <td class="admin-tenue" style="white-space:nowrap">${s.temas}</td></tr>`).join('')}</table>`;
-  }
-  delegar($('sec-lista'), '[data-sec]', async (b) => {
-    const r = await api('secciones.set', { sector: b.dataset.sec, activo: b.checked });
-    if (r.error) { b.checked = !b.checked; return; }
-    pintarSecciones();
-  });
-  // El interés se guarda al salir del campo, no a cada tecla.
-  document.addEventListener('change', async (e) => {
-    const i = e.target.closest?.('.sec-interes');
-    if (!i) return;
-    const r = await api('secciones.set', { sector: i.dataset.int, interes: i.value });
-    const n = $('tm-nota');
-    n.textContent = r.error ? `No se pudo guardar: ${r.error}` : 'Saved.';
-    setTimeout(() => { n.textContent = ''; }, 3000);
-  });
-
   // ── Los temas ───────────────────────────────────────────────────────────
   // Sustituye a dos bloques que se quitaron: el vivero de fuentes y las
   // tripas. Aquí sí se decide algo — qué asuntos tienen sección propia — y se
@@ -556,64 +502,54 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const el = $('tm-lista');
     if (!el) return;
     if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    const fijos = d.temas.filter(t => t.fijo);
-    // SIN corte global. Antes se pintaban los 60 primeros de 193, ordenados por
-    // canales, así que el recorte se comía las colas de los sectores pequeños:
-    // de «AI & technology» se veían 2 de 26 y de «Latin America» 4 de 8. Un
-    // recorte que se lleva sectores enteros no es una lista, es una muestra.
-    // Se recorta POR SECTOR más abajo, donde el usuario puede ver que hay más.
-    const libres = d.temas.filter(t => !t.fijo);
-    // Cuántos temas nuevos hay, para decirlo en la cabecera de la sección.
-    const nuevosT = d.temas.filter(t => recien(t.creado)).length;
-    const nt = $('tm-nuevos');
-    if (nt) nt.textContent = nuevosT ? ` ${nuevosT} new` : '';
-    // El aviso vive donde se toma la decisión. Pasado el tope, el número deja
-    // fuera los que menos material trajeron, y eso hay que saberlo AQUÍ.
-    const TOPE = 8;
-    $('tm-cuenta').textContent = fijos.length
-      ? `${fijos.length} pinned${fijos.length > TOPE ? ` · only ${TOPE} fit in an issue` : ''}` : '';
 
-    // Sin cifras a la vista. «14 channels · 45 items» es la evidencia con la
-    // que el sistema ORDENA la lista, no algo que ayude a decidir: el tema se
-    // reconoce por el nombre. Los números viajan en el `title`, para quien
-    // quiera mirarlos, y el espacio que ocupaban se usa para ver más temas.
-    const chip = (t, esFijo) => `<button class="tema${esFijo ? ' on' : ''}${
-      recien(t.creado) ? ' nuevo' : ''}"
-      data-tema="${esc(t.topic_id)}" data-fijo="${esFijo ? '0' : '1'}"
+    // Los elegidos son los que entran en el número, y su sector es el
+    // departamento. No hay lista aparte de departamentos: un sector existe en el
+    // número si tiene algo elegido, y no existe si no. Una sola lista, una sola
+    // decisión.
+    const elegidos = d.temas.filter(t => t.fijo);
+    $('tm-cuenta').textContent = elegidos.length
+      ? `${elegidos.length} in the weekly · ${new Set(elegidos.map(t => t.sector || 'Other')).size} sections`
+      : 'nothing picked yet';
+
+    // Tres estados y un solo orden: elegido (azul), nuevo sin leer (negrita) y
+    // el resto. Cada uno se ve distinto y cada uno cae en su sitio de la lista.
+    const chip = (t) => `<button class="tema${t.fijo ? ' on' : ''}${
+      !t.fijo && recien(t.creado) ? ' nuevo' : ''}"
+      data-tema="${esc(t.topic_id)}" data-fijo="${t.fijo ? '0' : '1'}"
       title="${esc(t.label)}${t.description ? ' — ' + esc(t.description) : ''}
-${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.label)}</button>`;
+${t.canales} channels · ${t.elementos} items · last ${esc(String(t.ultimo || '').slice(0, 10))}">${esc(t.label)}</button>`;
 
-    // Agrupados por sector, en un orden fijo: 196 temas en una sola fila
-    // mezclan la guerra de Ucrania con la liga de fútbol. Agrupados, el ruido
-    // colapsa bajo un encabezado que se ignora de un vistazo.
     const ORDEN = ['Geopolitics & war', 'Economy & markets', 'Energy & resources',
                    'U.S. politics', 'Latin America', 'AI & technology',
                    'Media & information', 'Justice & crime', 'Society & culture', 'Other'];
     const porSector = {};
-    for (const t of libres) (porSector[t.sector || 'Other'] ||= []).push(t);
-    // Los nuevos, delante: es lo que se viene a mirar, y con doce visibles por
-    // sector un tema recién nacido podría quedar fuera del corte sin esto.
-    for (const k of Object.keys(porSector)) {
-      porSector[k].sort((a, b) => (recien(b.creado) ? 1 : 0) - (recien(a.creado) ? 1 : 0));
-    }
-    // Doce por sector, y si hay más se dice cuántos y se pueden abrir. Doce es
-    // lo que cabe en dos líneas sin que la sección se vuelva un muro.
-    const POR_SECTOR = 12;
-    const grupos = ORDEN.filter(s => porSector[s]?.length).map(s => {
-      const lista = porSector[s];
-      const cabe = abiertos.has(s) ? lista : lista.slice(0, POR_SECTOR);
-      const resto = lista.length - cabe.length;
-      return `<p class="admin-sector">${esc(s)} <span class="admin-tenue">${lista.length}</span></p>
-        <div class="temas">${cabe.map(t => chip(t, false)).join('')}${
-          resto > 0 ? `<button class="tema mas" data-mas="${esc(s)}">+${resto} more</button>` : ''}</div>`;
-    }).join('');
+    for (const t of d.temas) (porSector[t.sector || 'Other'] ||= []).push(t);
 
-    el.innerHTML =
-      (fijos.length
-        ? `<p class="admin-nota">In the weekly</p>
-           <div class="temas">${fijos.map(t => chip(t, true)).join('')}</div>`
-        : '') +
-      `<div style="margin-top:${fijos.length ? '20px' : '0'}">${grupos}</div>`;
+    // Dentro de cada sector: primero lo elegido, y el resto de lo más reciente a
+    // lo más antiguo. Lo que se mira es lo que acaba de moverse.
+    for (const k of Object.keys(porSector)) {
+      porSector[k].sort((a, b) =>
+        // 1º lo elegido, 2º lo nuevo sin leer, 3º lo demás por fecha.
+        (b.fijo ? 1 : 0) - (a.fijo ? 1 : 0) ||
+        (recien(b.creado) ? 1 : 0) - (recien(a.creado) ? 1 : 0) ||
+        String(b.ultimo || '').localeCompare(String(a.ultimo || '')));
+    }
+
+    const POR_SECTOR = 12;
+    el.innerHTML = ORDEN.filter(k => porSector[k]?.length).map(k => {
+      const lista = porSector[k];
+      const dentro = lista.filter(t => t.fijo).length;
+      const cabe = abiertos.has(k) ? lista : lista.slice(0, POR_SECTOR);
+      const resto = lista.length - cabe.length;
+      const nuevos = lista.filter(t => !t.fijo && recien(t.creado)).length;
+      return `<p class="admin-sector">${esc(k)}
+          <span class="admin-tenue">${lista.length}</span>${
+            dentro ? ` <span class="admin-dentro">${dentro} in the weekly</span>` : ''}${
+            nuevos ? ` <span class="admin-tenue">${nuevos} new</span>` : ''}</p>
+        <div class="temas">${cabe.map(chip).join('')}${
+          resto > 0 ? `<button class="tema mas" data-mas="${esc(k)}">+${resto} more</button>` : ''}</div>`;
+    }).join('');
   }
   delegar($('tm-lista'), '[data-mas]', (b) => { abiertos.add(b.dataset.mas); pintarTemas(); });
   delegar($('tm-lista'), '[data-tema]', async (b) => {
@@ -755,21 +691,6 @@ ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.l
     </tr>`).join('')}</table>`;
   }
 
-  // ── Qué pasó con todo lo que llegó ──────────────────────────────────────
-  async function pintarCobertura() {
-    const el = $('st-cobertura');
-    if (!el) return;
-    const d = await api('cobertura');
-    if (d.error) { el.innerHTML = `<span class="admin-vacio">${esc(d.error)}</span>`; return; }
-    const total = d.cobertura.reduce((n, r) => n + Number(r.veces), 0);
-    el.innerHTML = `<table class="admin-tabla">${d.cobertura.map(r => `<tr>
-      <td class="admin-num" style="width:60px">${r.veces}</td>
-      <td${r.que_paso === 'read' ? ' style="color:var(--ink)"' : ' class="admin-tenue"'}>${esc(r.que_paso)}</td>
-      </tr>`).join('')}
-      <tr><td class="admin-num"><strong>${total}</strong></td>
-          <td class="admin-tenue">everything the sources published in 7 days</td></tr></table>`;
-  }
-
-  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCobertura(); pintarCola(); pintarFuentes(); pintarSecciones(); pintarTemas(); pintarConsejo(); pintarAccesos(); vigilarPiezas();
+  pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); pintarTemas(); pintarConsejo(); pintarAccesos(); vigilarPiezas();
 </script>
 </AdminLayout>

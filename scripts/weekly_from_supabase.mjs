@@ -322,22 +322,22 @@ const racimos = elegidos.map(t => {
 // Los temas FIJOS: los que Arturo eligió de la lista de propuestas. Tienen
 // sección aunque esta semana no traigan nada, y entonces la sección lo dice —
 // que ninguna de tus fuentes tocara un asunto es información, no un hueco.
-// ── Los departamentos ───────────────────────────────────────────────────
-// Las secciones del número son SECTORES, no temas sueltos: un sector no cambia
-// solo y la lista de temas sí. Dentro de cada uno caben una a tres piezas, cada
-// una sobre un asunto con su tesis — una sección tan ancha como «Geopolitics &
-// war» escrita de una pieza sería un repaso, que es el aplanamiento que esta
-// publicación existe para no cometer.
-const departamentos = await sb('glossa_radar_secciones?select=sector,interes,orden&activo=is.true&order=orden');
+// ── Los departamentos, que salen de los temas elegidos ──────────────────
+//
+// No hay lista aparte de secciones: Arturo elige TEMAS en el panel y el sector
+// de cada uno es su departamento. Un departamento existe en el número si tiene
+// algún tema elegido, y no existe si no. Una sola lista, una sola decisión, y
+// nada que pueda quedar desincronizado entre dos sitios.
+const fijados = await sb('glossa_radar_topics?select=id,slug,label,description,sector&fijo=is.true');
+const ORDEN_SECTOR = ['Geopolitics & war', 'Economy & markets', 'Energy & resources',
+                      'U.S. politics', 'Latin America', 'AI & technology',
+                      'Media & information', 'Justice & crime', 'Society & culture', 'Other'];
 const porSector = {};
-if (departamentos?.length) {
-  const mat = await sb('rpc/glossa_radar_material_por_sector', {
-    method: 'POST',
-    body: JSON.stringify({ desde: desde.toISOString(), hasta: finDia.toISOString() }),
-  });
-  for (const m of mat ?? []) (porSector[m.sector] ||= []).push(m);
-  console.log(`  ${departamentos.length} departamento(s): ` + departamentos.map(x =>
-    `${x.sector} (${(porSector[x.sector] ?? []).length} asuntos)`).join(' · '));
+for (const t of fijados ?? []) (porSector[t.sector || 'Other'] ||= []).push(t);
+const departamentos = ORDEN_SECTOR.filter(x => porSector[x]?.length).map(x => ({ sector: x, temas: porSector[x] }));
+if (departamentos.length) {
+  console.log(`  ${departamentos.length} departamento(s): ` +
+    departamentos.map(d => `${d.sector} (${d.temas.length} temas)`).join(' · '));
 }
 
 if (temas?.length) {
@@ -621,17 +621,21 @@ RULES — the first two are the ones that matter:
   most two of these per piece. A piece that assumes the vocabulary is writing
   for people who already know, which is the one audience that does not need it.
 
-${departamentos?.length ? `- THE ISSUE HAS THESE DEPARTMENTS, IN THIS ORDER, EVERY WEEK. They are the
-  standing shape of the magazine, and what follows each one is what its editor
-  cares about — that line decides what gets in when more material arrived than fits:
-${departamentos.map(x => `    · ${x.sector}${x.interes ? ` — ${x.interes}` : ''}
-      subjects this week: ${(porSector[x.sector] ?? []).slice(0, 8).map(m => `${m.label} (${m.n_items})`).join(', ') || 'none'}`).join('\n')}
+${departamentos?.length ? `- THE ISSUE HAS THESE DEPARTMENTS, IN THIS ORDER. Each one exists because its
+  subjects were picked deliberately; the subjects under it are what its editor
+  wants covered, and they are what decides what gets in when more material
+  arrived than fits:
+${departamentos.map(d => `    · ${d.sector}
+${d.temas.map(t => `        – ${t.label}${(() => {
+        const m = (temas ?? []).find(x => x.topic_id === t.id);
+        return m ? ` (${m.n_items} items this week)` : ' (nothing this week)';
+      })()}`).join('\n')}`).join('\n')}
 
   Inside each department write ONE TO THREE pieces, each about a single subject
   with its own thesis — never one piece that surveys the department. A department
-  that got no material still gets its heading and one sentence saying the week was
-  quiet there: a reader following that department needs to know it was quiet, and
-  a missing heading cannot say that.
+  whose subjects got NOTHING this week still gets its heading and one sentence
+  saying so: a reader following it needs to know the week was quiet, and a
+  missing heading cannot say that.
   Across the whole issue, 8 pieces at most: it has to be readable on a Sunday.
 ` : ''}${departamentos?.length ? '' : `- Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
   given a section.`} Those clusters are what the classification produced, not a

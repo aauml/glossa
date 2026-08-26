@@ -195,19 +195,21 @@ details.grupo > summary:hover,
 /* ── Lo nuevo desde la última vez ────────────────────────────────────────
    Negrita y un punto de acento. No un color de fondo ni una etiqueta «NEW»:
    la lista tiene que seguir siendo una lista, no un tablero de avisos. */
-.admin-nuevo { color: var(--nuevo); font-family: 'IBM Plex Sans', sans-serif;
+.admin-nuevo, .admin-dentro { font-family: 'IBM Plex Sans', sans-serif;
   font-size: 10px; font-weight: 600; letter-spacing: 0.08em; }
+.admin-dentro { color: var(--nuevo); }
+.admin-nuevo { color: var(--nuevo); }
+/* Nuevo sin leer: NEGRITA, no color. El azul ya está tomado por «entra en el
+   número», y dos cosas del mismo color son dos cosas que se confunden. */
+.tema.nuevo { font-weight: 700; color: var(--ink); }
 .fila-nueva > td:first-child { color: var(--nuevo); }
 .fila-nueva > td:first-child::before { content: '·'; color: var(--nuevo); margin-right: 6px; }
-/* Un tema recién aparecido: AZUL, no oxblood. El oxblood ya dice «fijado», y un
-   color que significa dos cosas no significa ninguna. Los nuevos van además los
-   primeros de su sector, que es donde se miran. */
-.tema.nuevo { color: var(--nuevo); }
-.tema.nuevo:hover { color: var(--nuevo); border-bottom-color: var(--nuevo); }
-.tema.nuevo::before { content: '+ '; opacity: .65; }
-/* Fijado gana a nuevo: si ya lo elegiste, lo que importa es que está dentro. */
-.tema.on.nuevo { color: var(--accent); }
-.tema.on.nuevo::before { content: '· '; }
+/* Elegido = entra en el número: AZUL y con un punto delante. Van los primeros
+   de su sector, así que el color y la posición dicen lo mismo dos veces, que es
+   lo que hace que se lea sin pensar. */
+.tema.on { color: var(--nuevo); }
+.tema.on:hover { color: var(--nuevo); border-bottom-color: var(--nuevo); }
+.tema.on::before { content: '· '; }
 
 /* El «+N more» de cada sector: la misma ficha, en tono de nota. */
 .tema.mas { color: var(--accent); opacity: .8; }
