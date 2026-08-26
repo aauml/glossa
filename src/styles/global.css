@@ -884,3 +884,14 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--ink); margin-bottom: 2px;
 }
+
+/* Sin ampliar al tocar dos veces en los mandos: el doble toque desplaza la
+   página entera y deja al lector en otro sitio. El pellizco sigue funcionando. */
+.masthead a, .masthead button, .copiar button, .theme-switch, .size-switch button,
+.sources-toggle, details summary { touch-action: manipulation; }
+
+/* Y en el teléfono, ningún campo por debajo de 16 px: iOS amplía al enfocarlo
+   y al ampliar mueve la página de sitio. */
+@media (max-width: 640px) {
+  input, textarea, select { font-size: max(16px, 1em); }
+}

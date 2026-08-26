@@ -290,7 +290,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const nQ = d.items.filter(i => esNuevo('cola', i.created_at)).length;
     $('q-nuevos').textContent = nQ ? ` ${nQ} new` : '';
     if (!d.items.length) { listaQ.innerHTML = '<span class="admin-vacio">Nothing here.</span>'; return; }
-    listaQ.innerHTML = `<table class="admin-tabla">
+    listaQ.innerHTML = `<div class="admin-tabla-scroll"><table class="admin-tabla">
       ${d.items.map(i => `<tr${esNuevo('cola', i.created_at) ? ' class="fila-nueva"' : ''}>
         <td>${esc(i.title)}${flecha(i.url, i.title)}
           ${i.error ? `<div class="admin-nota" style="color:var(--accent)">${esc(i.error)}</div>` : ''}</td>
@@ -298,7 +298,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <td><span class="admin-kind">${esc(ESTADO[i.state] || i.state)}</span></td>
         <td style="color:var(--muted);white-space:nowrap">${esc(hace(i.published_at))}</td>
         <td>${i.origin !== 'feed' ? `<button class="admin-btn sec" data-del="${i.id}">remove</button>` : ''}</td>
-      </tr>`).join('')}</table>`;
+      </tr>`).join('')}</table></div>`;
   }
 
   delegar(listaQ, '[data-del]', async (b) => {
@@ -332,7 +332,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       return `<details class="grupo">
         <summary>${etiqueta} <span class="admin-kind">${filas.length}${
           enCola ? ` · ${enCola} in queue` : ''}</span></summary>
-        <table class="admin-tabla" style="margin-top:6px">
+        <div class="admin-tabla-scroll"><table class="admin-tabla" style="margin-top:6px">
         ${filas.map(s => `<tr class="${s.active ? '' : 'off'}">
           <td>${esc(s.name)}${flecha(s.feed_url, s.name)}</td>
           <td style="text-align:right;font-variant-numeric:tabular-nums">${
@@ -344,7 +344,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
             <button class="admin-btn sec" data-t="${s.id}" data-a="${s.active ? '0' : '1'}"
               >${s.active ? 'pause' : 'activate'}</button>
             &nbsp;<button class="admin-btn sec" data-d="${s.id}" data-n="${esc(s.name)}" data-c="${s.leidos_total || 0}">remove</button>
-          </td></tr>`).join('')}</table></details>`;
+          </td></tr>`).join('')}</table></div></details>`;
     }).join('');
   }
 
@@ -504,11 +504,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <td class="admin-num">${dol(suma('otros'))}</td>
         <td class="admin-num"><strong>$${total.toFixed(2)}</strong></td></tr>`;
     }).join('');
-    el.innerHTML = `<table class="admin-tabla" style="font-size:12.5px">
+    el.innerHTML = `<div class="admin-tabla-scroll"><table class="admin-tabla" style="font-size:12.5px">
       <tr style="color:var(--muted)"><td>month</td><td class="admin-num">listening</td>
         <td class="admin-num">writing</td><td class="admin-num">translating</td>
         <td class="admin-num">searching</td>
-        <td class="admin-num">other models</td><td class="admin-num">total</td></tr>${filas}</table>` +
+        <td class="admin-num">other models</td><td class="admin-num">total</td></tr>${filas}</table></div>` +
       (g.tavily ? `<p class="admin-nota" style="margin-top:4px">Tavily renews in ${
         esc(String(g.tavily.dias_para_renovar))} d · ${esc(String(g.tavily.restantes))} credits left this cycle</p>` : '');
   }
@@ -770,12 +770,12 @@ ${t.canales} channels · ${t.elementos} items · last ${esc(String(t.ultimo || '
     const nA = d.accesos.filter(a => esNuevo('accesos', a.created_at)).length;
     $('ac-nuevos').textContent = nA ? ` ${nA} new` : '';
     if (!d.accesos.length) { el.innerHTML = '<span class="admin-vacio">None yet.</span>'; return; }
-    el.innerHTML = `<table class="admin-tabla">${d.accesos.map(a => `<tr${
+    el.innerHTML = `<div class="admin-tabla-scroll"><table class="admin-tabla">${d.accesos.map(a => `<tr${
       esNuevo('accesos', a.created_at) ? ' class="fila-nueva"' : ''}>
       <td><a href="mailto:${esc(a.email)}">${esc(a.email)}</a></td>
       <td class="admin-tenue">${esc(a.lang)}</td>
       <td class="admin-tenue" style="white-space:nowrap">${esc(String(a.created_at).slice(0, 10))}</td>
-    </tr>`).join('')}</table>`;
+    </tr>`).join('')}</table></div>`;
   }
 
   pintarIncidencias(); pintarCifras(); pintarCosto(); pintarCola(); pintarFuentes(); pintarTemas(); pintarConsejo(); pintarAccesos(); vigilarPiezas();

@@ -276,3 +276,29 @@ details.grupo > summary:hover,
   .admin-form .admin-puerta input[type="checkbox"],
   .admin-puerta input[type="checkbox"] { width: 17px; height: 17px; margin-top: .12rem; }
 }
+
+/* ── El panel en el teléfono ─────────────────────────────────────────────
+   Dos cosas que solo se ven ahí:
+
+   · Al tocar un campo, iOS AMPLÍA la página si su letra mide menos de 16 px, y
+     al ampliar la desplaza: se toca la caja y la pantalla se va de sitio. La
+     caja de pegar tenía 12 px monoespaciados. En el teléfono suben a 16.
+   · Las tablas de gasto y las listas largas empujaban a lo ancho. Cada tabla
+     rueda dentro de su propia caja, y las palabras interminables —una URL, un
+     id— parten en vez de estirar la página. */
+@media (max-width: 640px) {
+  .admin-form input, .admin-form textarea, .admin-form select { font-size: 16px; }
+
+  .admin-tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.admin-tabla { min-width: 0; }
+  .admin-sec .admin-tabla td, .admin-sec .admin-tabla th { padding-right: 8px; }
+
+  .admin-main, .admin-sec, .admin-nota, .admin-vista, .admin-puerta { overflow-wrap: anywhere; }
+  .admin-item, .admin-fila, .admin-cifras { overflow-wrap: anywhere; }
+}
+
+/* Y nada de ampliar al tocar dos veces: en una pantalla de mandos pequeños, el
+   doble toque para ampliar convierte cada segundo clic en un salto de página.
+   El pellizco para ampliar sigue funcionando, que es lo que hace falta. */
+.admin-btn, .admin-puerta, .admin-sec summary, .admin-main button, .admin-main a,
+.admin-main label, .admin-main input, .admin-main summary { touch-action: manipulation; }
