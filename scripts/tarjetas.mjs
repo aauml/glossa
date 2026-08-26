@@ -28,7 +28,7 @@ async function existe(ruta) {
 async function subir(ruta, png) {
   const r = await fetch(`${URL_SB}/storage/v1/object/og/${ruta}`, {
     method: 'POST',
-    headers: { ...H, 'content-type': 'image/png', 'x-upsert': 'true', 'cache-control': '31536000' },
+    headers: { ...H, 'content-type': 'image/png', 'x-upsert': 'true', 'cache-control': 'max-age=604800' },
     body: png,
   });
   if (!r.ok) throw new Error(`subiendo ${ruta}: ${r.status} ${(await r.text()).slice(0, 160)}`);
