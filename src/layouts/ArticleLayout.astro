@@ -3,6 +3,7 @@ import BaseLayout from './BaseLayout.astro';
 import ArticleMasthead from '../components/ArticleMasthead.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
 import Sources from '../components/Sources.astro';
+import { tarjetaArticulo } from '../lib/og.js';
 const { entry, slug, lang, langs = ['en', 'es'] } = Astro.props;
 const { data } = entry;
 
@@ -32,7 +33,8 @@ const readLabel = lang === 'es' ? 'min de lectura' : 'min read';
 // hreflang recíproco: solo los idiomas que existen para esta pieza.
 const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${code}/` }));
 ---
-<BaseLayout title={`${data.title} · Glossa`} description={data.dek} lang={lang} alternates={alternates}>
+<BaseLayout title={`${data.title} · Glossa`} description={data.dek} lang={lang} alternates={alternates}
+            ogImage={tarjetaArticulo(slug, lang)}>
   <ArticleMasthead lang={lang} slug={slug} langs={langs} titulo={data.title} />
   <section class="hero">
     <h1 class="hero-headline" set:html={data.titleHTML} />

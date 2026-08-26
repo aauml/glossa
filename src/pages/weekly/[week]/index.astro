@@ -6,6 +6,7 @@ import PrefsHead from '../../../components/PrefsHead.astro';
 import PrefsBody from '../../../components/PrefsBody.astro';
 import '../../../styles/global.css';
 import '../../../styles/weekly.css';
+import { tarjetaSemanal } from '../../../lib/og.js';
 import { renderIssue, fecha } from '../../../lib/weekly.js';
 
 const { week } = Astro.params;
@@ -62,6 +63,13 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
   <link rel="alternate" hreflang="es" href={`https://glossa.ademas.ai/es/weekly/${issue.week_start}/`} />
   <link rel="alternate" hreflang="x-default" href={`https://glossa.ademas.ai/weekly/${issue.week_start}/`} />
   <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Glossa" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content={`https://glossa.ademas.ai/weekly/${issue.week_start}/`} />
+  <meta property="og:image" content={tarjetaSemanal(issue.week_start, 'en')} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={titulo} />
+  <meta name="twitter:image" content={tarjetaSemanal(issue.week_start, 'en')} />
   <meta property="og:title" content={titulo} />
   <meta property="og:description" content={b.standfirst?.slice(0, 180) ?? ''} />
   <PrefsHead />

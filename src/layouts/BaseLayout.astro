@@ -16,7 +16,9 @@ const {
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL('/og.png', Astro.site).href;
+// La tarjeta propia de la página, si la tiene. Quien no la pase se queda con
+// la fija, que es lo que hacían todas hasta ahora.
+const ogImage = Astro.props.ogImage || new URL('/og.png', Astro.site).href;
 const OG_LOCALE = { en: 'en_US', es: 'es_ES' };
 ---
 <!DOCTYPE html>

@@ -69,3 +69,13 @@ jobs:
           WEEK_END: ${{ github.event.inputs.week_end }}
           WEEKLY_MODEL: ${{ github.event.inputs.model }}
         run: node scripts/weekly_from_supabase.mjs
+      # La tarjeta de compartir del número: se dibuja aquí, con el titular ya
+      # escrito. Si fallara, el número NO se cae por eso — un enlace sin imagen
+      # es peor que uno con imagen, pero mucho mejor que un número sin publicar.
+      - name: Draw the share cards
+        if: success()
+        continue-on-error: true
+        run: |
+          npm ci --no-audit --no-fund
+          node scripts/tarjetas.mjs
+

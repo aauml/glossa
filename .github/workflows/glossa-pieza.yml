@@ -61,3 +61,14 @@ jobs:
           PIEZA_MODEL: ${{ github.event.inputs.model }}
           PIEZA_DRY: ${{ github.event.inputs.seco }}
         run: node scripts/pieza_from_supabase.mjs
+
+      # La tarjeta de compartir, con el titular ya escrito. Si falla no tumba
+      # nada: un enlace sin imagen es peor que uno con imagen, y muchísimo mejor
+      # que perder lo que se acaba de escribir.
+      - name: Draw the share cards
+        if: success()
+        continue-on-error: true
+        run: |
+          npm ci --no-audit --no-fund
+          node scripts/tarjetas.mjs
+

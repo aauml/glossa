@@ -92,6 +92,14 @@ jobs:
           fi
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+      # La tarjeta de compartir de la pieza recién commiteada. Va DESPUÉS del
+      # push: lee el frontmatter del fichero que acaba de quedar en el repo, así
+      # que el titular de la tarjeta es exactamente el que se publicó.
+      - name: Draw the share card
+        if: success()
+        continue-on-error: true
+        run: node scripts/tarjetas.mjs
+
       - name: Finalize (write urls/status back)
         if: success()
         env:

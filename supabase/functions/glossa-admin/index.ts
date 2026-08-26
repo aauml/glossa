@@ -680,6 +680,25 @@ async function buscarFeed(origen: string) {
  * guarda lo que sea público y se ve en el panel que salió corto. Para lo de pago
  * está pegar el texto, que es lo que un suscriptor ya tiene delante.
  */
+/**
+ * El bloque de contenido de una página: el <article> o <main> MÁS LARGO, y la
+ * página entera si ninguno gana.
+ *
+ * El primero NO sirve. The Cognitive Revolution abre con un <article>
+ * decorativo de 73 caracteres y publica la transcripción —200.000— en otro
+ * bloque más abajo. Quedarse con el primero daba «nothing readable at that
+ * link» sobre una página que tiene la transcripción entera.
+ */
+function mejorBloque(html: string): string {
+  let mejor = '';
+  for (const m of html.matchAll(/<(article|main)[\s>][\s\S]*?<\/\1>/gi)) {
+    if (m[0].length > mejor.length) mejor = m[0];
+  }
+  // Un bloque más pobre que la página entera es un bloque equivocado: más vale
+  // menú de más que artículo de menos.
+  return mejor.length > html.length / 3 ? mejor : (mejor.length > 2000 ? mejor : html);
+}
+
 async function extraerArticulo(url: string) {
   try {
     const r = await fetch(url, {
@@ -704,8 +723,7 @@ async function extraerArticulo(url: string) {
       .replace(/<(nav|header|footer|aside)\b[\s\S]*?<\/\1>/gi, ' ')
       .replace(/<!--[\s\S]*?-->/g, ' ');
 
-    // Si hay <article>, es lo que buscamos; si no, el cuerpo entero.
-    const art = /<article\b[^>]*>([\s\S]*?)<\/article>/i.exec(html)?.[1] ?? html;
+    const art = mejorBloque(html);
     const texto = art
       .replace(/<br\s*\/?>|<\/p>|<\/div>|<\/h[1-6]>/gi, '\n')
       .replace(/<[^>]+>/g, ' ')
@@ -754,14 +772,12 @@ async function vistaDePagina(url: string): Promise<string[]> {
     const html = (await r.text()).slice(0, 900_000);
     const titulo = (html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']{3,200})/i) ||
                     html.match(/<title[^>]*>([^<]{3,200})</i) || [])[1];
-    // El bloque de texto MÁS largo, no el primero: el primer <article> de una
-    // portada suele ser un adorno de 73 caracteres (ver LESSONS).
-    let mejor = '';
-    for (const m of html.matchAll(/<(article|main)[\s>][\s\S]*?<\/\1>/gi)) {
-      const limpio = m[0].replace(/<(script|style)[\s\S]*?<\/\1>/gi, '')
-                         .replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-      if (limpio.length > mejor.length) mejor = limpio;
-    }
+    // El MISMO criterio que usa el alta. Que la previa y el alta midan distinto
+    // es peor que medir mal: promete lo que luego no entrega.
+    const mejor = mejorBloque(
+      html.replace(/<(script|style|noscript|svg|iframe|form)\b[\s\S]*?<\/\1>/gi, ' ')
+          .replace(/<(nav|header|footer|aside)\b[\s\S]*?<\/\1>/gi, ' ')
+    ).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     const lineas: string[] = [];
     if (titulo) lineas.push(`“${titulo.replace(/\s+/g, ' ').trim().slice(0, 90)}”`);
     lineas.push(mejor.length >= 400
