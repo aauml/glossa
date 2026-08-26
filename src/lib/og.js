@@ -24,8 +24,23 @@ export const V = 2;
 
 export const FIJA = 'https://glossa.ademas.ai/og.png';
 
-export const tarjetaArticulo = (slug, lang) =>
-  BASE ? `${BASE}/storage/v1/object/public/og/articles/${slug}-${lang}.png?v=${V}` : FIJA;
+/**
+ * Un sello del CONTENIDO, no solo del diseño.
+ *
+ * Subir `V` sirve cuando cambia la tarjeta de todos; no sirve cuando cambia UNA
+ * —se corrigió el titular español de una pieza, la imagen se redibujó y los
+ * servicios siguieron enseñando la vieja, porque la dirección era la misma—.
+ * Con el titular dentro del sello, corregir el titular estrena URL sin que
+ * nadie tenga que acordarse de nada.
+ */
+const sello = (txt) => {
+  let h = 0;
+  for (const c of String(txt ?? '')) h = (Math.imul(h, 31) + c.codePointAt(0)) | 0;
+  return (h >>> 0).toString(36);
+};
 
-export const tarjetaSemanal = (week, lang) =>
-  BASE ? `${BASE}/storage/v1/object/public/og/weekly/${week}-${lang}.png?v=${V}` : FIJA;
+export const tarjetaArticulo = (slug, lang, titulo = '') =>
+  BASE ? `${BASE}/storage/v1/object/public/og/articles/${slug}-${lang}.png?v=${V}${titulo ? '-' + sello(titulo) : ''}` : FIJA;
+
+export const tarjetaSemanal = (week, lang, titulo = '') =>
+  BASE ? `${BASE}/storage/v1/object/public/og/weekly/${week}-${lang}.png?v=${V}${titulo ? '-' + sello(titulo) : ''}` : FIJA;

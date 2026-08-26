@@ -67,10 +67,10 @@ const desde = fecha(issue.week_start), hasta = fecha(issue.week_end);
   <meta property="og:site_name" content="Glossa" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:url" content={`https://glossa.ademas.ai/weekly/${issue.week_start}/`} />
-  <meta property="og:image" content={tarjetaSemanal(issue.week_start, 'en')} />
+  <meta property="og:image" content={tarjetaSemanal(issue.week_start, 'en', titulo)} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={titulo} />
-  <meta name="twitter:image" content={tarjetaSemanal(issue.week_start, 'en')} />
+  <meta name="twitter:image" content={tarjetaSemanal(issue.week_start, 'en', titulo)} />
   <meta property="og:title" content={titulo} />
   <meta property="og:description" content={b.standfirst?.slice(0, 180) ?? ''} />
   <PrefsHead />
