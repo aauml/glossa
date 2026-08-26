@@ -1,0 +1,61 @@
+{
+  "slug": "mirhoseini-inference-monkeys",
+  "issue": "N° 41",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=-Ggc37xLj_Y",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "Azalia Mirhoseini argues that \"inference-time scaling\"—using repeated sampling, and using architectures that mix different inference-time techniques—can make smaller, inferior models perform significantly better than larger, proprietary ones.",
+      "claim_es": "Azalia Mirhoseini sostiene que el «escalamiento en tiempo de inferencia» —usar muestreo repetido y arquitecturas que mezclan diversas técnicas de inferencia— permite que modelos pequeños y en teoría inferiores superen a modelos grandes y propietarios.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "arxiv.org — Researchers evaluated the effectiveness of repeated sampling as a method for scaling LLM inference c",
+      "url": "https://arxiv.org/html/2407.21787v1",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers evaluated the effectiveness of repeated sampling as a method for scaling LLM inference compute. By increasing the number of attempts per problem, they observed that coverage—the fraction of problems solved—scales across orders of magnitude. The study demonstrates that this approach allows smaller, cheaper models to outperform larger frontier models on tasks like coding and formal verif",
+      "claim_es": "Los investigadores evaluaron la eficacia del muestreo repetido para escalar el cómputo en la inferencia de LLM. Al aumentar el número de intentos por problema, observaron que la cobertura —la fracción de problemas resueltos— escala por órdenes de magnitud, permitiendo que modelos más pequeños y baratos superen a los modelos de vanguardia en tareas como programación y verificación formal.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "alphaxiv.org — Researchers from Google DeepMind, Oxford, and Stanford investigated the impact of inference-time com",
+      "url": "https://www.alphaxiv.org/abs/2407.21787",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers from Google DeepMind, Oxford, and Stanford investigated the impact of inference-time compute on Large Language Model performance using repeated sampling. They discovered that coverage, defined as the fraction of problems solved, scales with the number of samples according to an exponentiated power law. The study showed that smaller models using repeated sampling can outperform larger, ",
+      "claim_es": "Investigadores de Google DeepMind, Oxford y Stanford indagaron el impacto del cómputo en inferencia sobre el rendimiento de los modelos mediante muestreo repetido. Descubrieron que la cobertura, definida como la fracción de problemas resueltos, escala con el número de muestras según una ley de potencias exponencial, permitiendo que modelos pequeños superen a los gigantes.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "modal.com — The authors conducted an experiment to replicate findings that inference-time search can improve the",
+      "url": "https://modal.com/blog/llama-human-eval",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The authors conducted an experiment to replicate findings that inference-time search can improve the performance of smaller language models. By running LLaMA 3.1 8B Instruct through repeated sampling and evaluating outputs against the HumanEval Python dataset, they achieved performance metrics comparable to GPT-4o.",
+      "claim_es": "Los autores replicaron hallazgos sobre cómo la búsqueda en tiempo de inferencia mejora modelos pequeños. Al procesar LLaMA 3.1 8B Instruct mediante muestreo repetido y evaluar los resultados contra el conjunto de datos HumanEval, lograron métricas de rendimiento comparables a GPT-4o.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "github.com — The repository provides code supporting the research paper 'Large Language Monkeys: Scaling Inferenc",
+      "url": "https://github.com/ScalingIntelligence/large_language_monkeys",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The repository provides code supporting the research paper 'Large Language Monkeys: Scaling Inference Compute with Repeated Sampling'. It includes tools for generating model samples across datasets such as GSM8K, MATH, CodeContests, and MiniF2F-MATH, along with scripts to evaluate the correctness of those samples.",
+      "claim_es": "El repositorio contiene el código del estudio «Grandes monos de lenguaje: escalando el cómputo de inferencia con muestreo repetido». Incluye herramientas para generar muestras en conjuntos de datos como GSM8K, MATH, CodeContests y MiniF2F-MATH, además de scripts para evaluar la corrección de dichas muestras.",
+      "verificada": "si"
+    }
+  ]
+}

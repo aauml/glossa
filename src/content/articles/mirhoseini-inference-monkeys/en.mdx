@@ -1,0 +1,139 @@
+---
+issue: "N° 41"
+date: "26 August 2026"
+sortDate: "2026-08-26T11:11:48"
+language: en
+track: thesis
+title: "The small models already know the answers"
+titleHTML: "The small models <em>already</em> know the answers"
+dek: "Small open models can beat frontier proprietary ones when they get hundreds of tries per problem and a way to check the answers, the evidence Azalia Mirhoseini assembled in a Stanford lecture."
+dekHTML: "Small open models can beat frontier proprietary ones when they get hundreds of tries per problem and a way to <em>check</em> the answers, the evidence Azalia Mirhoseini assembled in a Stanford lecture."
+coverDek: "The case that inference, not training, is the cheapest way to make a language model smarter: sampled hundreds of times and graded automatically, small open models beat frontier systems on math and on real software bugs. The catch is the grader. It comes free with code and mathematics, and almost nowhere else — which is where the fight over the industry's next compute budget begins."
+source: "Based on a lecture by Azalia Mirhoseini · Stanford University"
+sourceLabel: "N° 41 · a lecture by Azalia Mirhoseini · Stanford University"
+topics:
+  - "Inference-Time Scaling"
+  - "Large Language Models"
+  - "Repeated Sampling"
+  - "SWE-Bench"
+  - "AI Compute"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Hand a frontier chatbot and a free, downloadable model the same competition math problem, and the chatbot wins nearly every time. Now let the small model answer two hundred and fifty times, keep only the work it can prove, and the ranking flips. That reversal is what Azalia Mirhoseini, a Stanford researcher and co-author of the work, spent a lecture unpacking. Her claim: inference — the single moment when a trained model actually produces an answer — is the cheapest untapped budget in artificial intelligence. The evidence is a string of results in which small open models, sampled relentlessly and graded automatically, beat proprietary systems many times their size on mathematics, competitive programming, and real software bugs. The first scaling laws were written for training in 2020, and they told the industry to build bigger. The work presented here asks what happens when you stop building and simply buy more guesses.
+</Lede>
+
+<Section number="01" title="Three budgets, one <em>neglected</em>">
+
+<Standfirst>A language model has three life stages: training, tuning, and answering. The scaling laws were written for the first.</Standfirst>
+
+Pre-training is the long, ruinously expensive first pass, in which a model chews through much of the public internet and learns to predict text. Fine-tuning is the cheaper apprenticeship that follows, teaching instructions, manners, refusals. Inference is everything after that: the finished model, being asked something. Every chatbot reply you have ever read is one inference call, computed on the spot.
+
+The industry's strategy was set by the first stage. The point of departure here is the 2020 scaling-laws paper by Kaplan and colleagues, which showed that a language model's training performance follows predictable curves as scale increases. Predictability turned model-building into a capital-expenditure plan, and the capital flowed accordingly. Inference, by contrast, was treated as a fixed cost of doing business: you asked the model once and took what you got.
+
+Mirhoseini's question concerns the neglected third stage. Training a model again is slow and expensive; asking it again takes seconds. If a second ask — or a ten-thousandth — buys real capability, the economics of the industry tilt. Her answer begins with a thought experiment about monkeys.
+
+</Section>
+
+<Section number="02" title="The <em>monkeys</em> sit for the exam">
+
+<Standfirst>The first result is an experiment simple enough to sound like a joke: keep asking, and count what comes back.</Standfirst>
+
+The paper, from a team spanning Google DeepMind, Oxford, and Stanford, is called Large Language Monkeys, and its method fits in one sentence. Take a problem, sample the model's answer many times instead of once, then count the problems solved by any attempt. The authors call that fraction coverage.
+
+The counting is done by a verifier: an automatic grader that can say with certainty whether an answer is right. For math, the verifier is the answer key or a formal proof checker. For code, it is the test suite the program must pass. Without one, there is no way to know which sample to keep.
+
+<ContextBox label="What is the infinite monkey theorem?">
+The theorem says that a monkey hitting typewriter keys at random, given unlimited time, will eventually type the complete works of Shakespeare, or any other text, purely by accident. It is a staple of probability classes, less a claim about monkeys than about what vast numbers of attempts can do. The paper's title is the joke made serious: a language model is a better monkey, sampling plausible text rather than random letters. But the theorem has a quiet prerequisite. Someone still has to recognize Shakespeare when he appears.
+</ContextBox>
+
+The results, reported across five benchmarks, are stark. On CodeContests, a competitive-programming set, <span class="doc">Gemma-2B solved 0.02 percent of problems with a single sample and 7.1 percent with ten thousand</span>: a several-hundred-fold rise from a model that would otherwise look hopeless. On MATH, a benchmark of competition problems, <span class="doc">Pythia-160M, a 160-million-parameter research model, went from 0.27 percent coverage with one try to 57 percent with ten thousand</span>. And <span class="doc">with enough samples, Llama-3-8B outperformed GPT-4o</span> on the same benchmark: an open model overtaking one of the strongest proprietary systems on sale.
+
+<QABlock speaker="Mirhoseini">
+The reason we like that is that by doing this repeated sampling, we can make models that are inferior significantly improve their performance, and make them better than these larger and proprietary ones.
+</QABlock>
+
+Nor does the result rest on the authors' word. Two engineers at the computing platform Modal reran the experiment on their own, with <span class="doc">Llama 3.1 8B on HumanEval, a benchmark of Python problems</span>. <span class="doc">A single attempt solved 66.4 percent; a thousand attempts solved 95.1 percent</span>, clearing <span class="doc">GPT-4o's 90.2 percent single-attempt score</span>. Frontier capabilities, their write-up concludes, once seemed to require 'one horse-sized duck' and can now be had from 'one hundred duck-sized horses.'
+
+The obvious question is whether the rise ever flattens. It has a precise answer.
+
+</Section>
+
+<Section number="03" title="A power law of its <em>own</em>">
+
+<Standfirst>Sampling more only matters if the gains keep coming. The claim is that they follow the same mathematical shape that made training predictable.</Standfirst>
+
+This is where the lecture moves from stunt to law. <span class="doc">Across tasks and models, coverage scales with the number of samples, over orders of magnitude</span>, and the relationship <span class="doc">follows an exponentiated power law</span> — the same family of curves that governs training. The practical translation: each doubling of the sample budget buys a predictable step up in solved problems. A curve you can extrapolate is a purchasing plan.
+
+<ContextBox label="What is a power law?">
+A power law is a relationship in which one quantity grows as a fixed power of another: double the input, and the output multiplies by a constant factor. On logarithmic axes such a relationship straightens into a line, and a straight line can be extended, which is what makes scaling laws commercially interesting. The training-era laws had this shape, and they let labs predict a large model's performance before paying to build it. The inference claim is that coverage has this shape too: the paper describes the relationship as log-linear, modeled by an exponentiated power law.
+</ContextBox>
+
+Two conditions attach. The first concerns the data: <span class="said">the power law appears only when the benchmark contains a long tail of extremely hard problems</span>; easy sets saturate quickly and the curve bends flat. The second concerns what sampling is actually doing. No weights change when a model answers again, so nothing new is learned. <span class="attr">The capability, on this reading, was inside the model all along</span>:
+
+<QABlock speaker="Mirhoseini">
+It just seems like the models, and smaller models, already know the answers to these hard problems. We are kind of eliciting those and surfacing those answers.
+</QABlock>
+
+But both stunt and law smuggle in the same assumption: something must count the wins. Coverage is defined by an oracle, a grader that never sleeps and never errs. Where no oracle exists, the paper is blunt: <span class="doc">methods for guessing the best sample, from majority voting to trained reward models, plateau</span>. Which raises the practical question on which all of this depends: where does the world hand out free oracles?
+
+</Section>
+
+<Section number="04" title="Where the grading is <em>free</em>">
+
+<Standfirst>Software is the one domain where the oracle comes built in. The benchmark that proves it is made of real bugs.</Standfirst>
+
+<ContextBox label="What is SWE-bench?">
+SWE-bench is a benchmark assembled from real issues filed on open-source GitHub projects; the original paper's title asks whether language models can resolve real-world GitHub issues. The model is given the code repository and the issue, and must produce a patch. Grading is automatic: the project's own test suite either passes or it does not. That makes it an agentic benchmark, one where the model acts on a codebase rather than merely answering, with a verifier included at no extra cost. SWE-bench Lite is a smaller subset used for cheaper evaluation.
+</ContextBox>
+
+The headline number comes from DeepSeek-Coder-V2-Instruct, an open coding model. <span class="doc">Given one attempt per issue, it solved 15.9 percent of SWE-bench Lite; given two hundred and fifty attempts, it solved 56 percent</span>. <span class="doc">The best single-attempt result on the benchmark, from any system, stood at 43 percent</span>. The sampled open model does not close the gap to the frontier — it beats the best careful single attempt by thirteen points.
+
+<PullQuote>The bottleneck has moved: it is no longer getting the right answer, but knowing which answer is right.</PullQuote>
+
+The reason is the tests. A repository's test suite is an oracle that costs nothing to run and cannot be charmed — the patch passes or it fails — and mathematics has the same property through answer keys and formal proof checkers. Almost nowhere else does. The Modal engineers note that it is <span class="doc">not obvious how to extend the technique beyond math and programming, where evaluation is less precise</span>. And the paper reports that the two stand-in graders <span class="doc">plateau</span>: majority voting, where samples elect the most common answer, and reward models, second models trained to grade the first.
+
+So the scarce resource is not intelligence but grading, and that reframes the design problem. Given a limited sample budget and an imperfect grader, how should attempts be organized, and who should combine, critique, and rank them? The lecture's second paper exists to answer that.
+
+</Section>
+
+<Section number="05" title="Archon, the <em>assembler</em>">
+
+<Standfirst>The second framework treats inference itself as an engineering problem: given a bag of tricks, search for the best combination.</Standfirst>
+
+The framework is called Archon. Its premise is that inference-time techniques have multiplied beyond anyone's ability to combine them by hand. So Archon <span class="attr">treats pipeline design as a search problem</span>, much as researchers once automated the design of the networks themselves. The search runs over <span class="attr">four operations: generation, fusion, criticism, and ranking</span>.
+
+Generation produces candidate answers. Fusion merges several candidates into one. Criticism sets a model to find flaws in an answer. Ranking orders the candidates for a final pick.
+
+Searching that space needs a method, and the one named is Bayesian optimization, a technique for tuning systems when each experiment is expensive. Rather than test every combination, it keeps a running model of which designs look promising and probes there first. <span class="attr">Archon applies it to inference pipelines, searching over how many samples to draw, when to revise, and when to merge</span>. The output is a recipe: a fixed pipeline that can be run on every new problem.
+
+The deepest choice the search must make is between two directions of effort. Sequential revision asks one sample to improve itself in a loop, each pass critiquing the last: deep, but errors compound, and a loop cannot be sped up by adding machines. Parallel sampling asks the same question many times at once: shallow and redundant, but trivially distributed. <span class="attr">The framework's experiments weigh the two against each other rather than crowning either</span>.
+
+Notice what the search cannot supply: judgment. Criticism and ranking are done by models, not oracles, which makes Archon in part a machine for coping with the absence of free graders. How much coping is possible decides what all of this is worth.
+
+</Section>
+
+<Section number="06" title="What the shift leaves <em>open</em>">
+
+<Standfirst>The lecture ends with an argument about where the next unit of compute should go. Its limits are the interesting part.</Standfirst>
+
+The recommendation follows from the curves. If small models catch up when given more attempts, part of the budget now spent training ever-larger models would buy more capability spent on inference instead. The evidence offered is a comparison holding total compute fixed — FLOPs, the field's accounting unit for arithmetic. In that comparison, <span class="said">inference-time spending often beat further pre-training on easy and medium problems</span> — the hard ones still belong to scale.
+
+<QABlock speaker="Mirhoseini">
+This motivates a shift in compute allocations, especially for domains with automated verifiers.
+</QABlock>
+
+The qualifier does the work. Automated verifiers exist where answers can be checked mechanically: code with test suites, formal proofs with mechanical checkers, math with answer keys. They do not yet exist for most of what people actually ask chatbots. On the current evidence, the technique's reach is exactly the reach of its graders; <span class="doc">where the grader is a vote or a proxy model, the gains level off</span>.
+
+There is an older way to say all this. Richard Sutton's essay The Bitter Lesson holds that <span class="doc">search and learning are the two methods that reliably scale with computation</span>. The deep-learning decade belonged to learning. The monkeys result reads like search demanding its share: not smarter models, but more attempts, spent wisely.
+
+What to watch, then, is not the models but the graders. The open problems are stated plainly: extend the technique past math and code, and break the plateau in picking the right sample when no oracle exists. A cheap, trustworthy grader for any new domain would unlock every result in this lecture for that domain. The monkeys have shown what unlimited attempts can buy; what the field lacks is someone who can reliably recognize Shakespeare.
+
+</Section>

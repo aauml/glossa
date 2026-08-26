@@ -1,0 +1,139 @@
+---
+issue: "N.º 41"
+date: "26 ago 2026"
+sortDate: "2026-08-26T11:11:48"
+language: es
+track: thesis
+title: "Los modelos pequeños ya tienen las respuestas"
+titleHTML: "Los modelos pequeños <em>ya</em> tienen las respuestas"
+dek: "Los modelos abiertos de menor tamaño superan a los gigantes privados cuando se les permite intentar cada problema cientos de veces con un verificador, según los hallazgos de Azalia Mirhoseini en Stanford."
+dekHTML: "Los modelos abiertos de menor tamaño superan a los gigantes privados cuando se les permite intentar cada problema cientos de veces con un <em>verificador</em>, según los hallazgos de Azalia Mirhoseini en Stanford."
+coverDek: "La tesis es que la inferencia —y no el entrenamiento— es la vía más barata para dotar de inteligencia a un modelo: mediante cientos de muestreos evaluados automáticamente, los modelos abiertos pequeños vencen a los sistemas propietarios en matemáticas y programación real. El obstáculo es el juez. Este viene integrado en el código y las matemáticas, pero en casi ningún otro lugar; ahí es donde empieza la disputa por el próximo presupuesto de cómputo."
+source: "Basado en una conferencia de Azalia Mirhoseini · Universidad de Stanford"
+sourceLabel: "N° 41 · una conferencia de Azalia Mirhoseini · Universidad de Stanford"
+topics:
+  - "Escalamiento en tiempo de inferencia"
+  - "Modelos de lenguaje extensos"
+  - "Muestreo repetido"
+  - "SWE-Bench"
+  - "Cómputo en IA"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Si enfrentas a un chatbot de vanguardia y a un modelo abierto descargable ante el mismo problema matemático de concurso, el chatbot gana casi siempre. Pero si permites que el modelo pequeño responda doscientas cincuenta veces y seleccionas solo lo que puede probar, el resultado se invierte. Ese giro fue lo que Azalia Mirhoseini, investigadora de Stanford y coautora del estudio, desmenuzó en su ponencia. Su afirmación: la inferencia —ese instante único en que un modelo entrenado genera una respuesta— es el presupuesto desaprovechado más barato de la inteligencia artificial. Las pruebas son una serie de resultados donde modelos abiertos pequeños, al ser sometidos a muestreos incesantes y evaluaciones automáticas, superan a sistemas propietarios mucho más grandes en matemáticas, programación competitiva y corrección de errores de software. Las primeras leyes de escala, redactadas en 2020, dictaron que el camino era construir modelos más grandes. El trabajo aquí expuesto plantea qué sucede cuando, en lugar de construir más, simplemente compras más intentos.
+</Lede>
+
+<Section number="01" title="Tres presupuestos y uno <em>olvidado</em>">
+
+<Standfirst>Un modelo de lenguaje tiene tres etapas de vida: entrenamiento, ajuste y respuesta. Las leyes de escala se escribieron para la primera.</Standfirst>
+
+El pre-entrenamiento es la primera etapa, larga y ruinosamente cara, donde el modelo procesa gran parte de internet para aprender a predecir texto. El ajuste fino es el aprendizaje que sigue, más barato, para enseñar instrucciones, modales y negativas. La inferencia es todo lo que ocurre después: cuando el modelo terminado responde a una consulta. Cada respuesta que has leído de un chatbot es una llamada de inferencia calculada al momento.
+
+La estrategia de la industria se definió en la primera etapa. El punto de partida fue el artículo de leyes de escala de 2020 de Kaplan y sus colegas, que mostró que el desempeño del modelo sigue curvas predecibles conforme aumenta su tamaño. Esa predictibilidad convirtió la creación de modelos en un plan de gastos de capital, y el dinero fluyó hacia allá. La inferencia, en cambio, se consideró un costo fijo de operación: consultabas al modelo una vez y aceptabas lo que recibías.
+
+La interrogante de Mirhoseini apunta a esa tercera etapa relegada. Reentrenar un modelo es lento y costoso; volver a preguntar toma segundos. Si un segundo intento —o el diezmilésimo— compra una capacidad real, la economía del sector se transforma. Su respuesta comienza con un experimento mental sobre monos.
+
+</Section>
+
+<Section number="02" title="Los <em>monos</em> se presentan al examen">
+
+<Standfirst>El primer resultado es un experimento tan sencillo que parece un chiste: pregunta sin parar y cuenta qué es lo que vuelve.</Standfirst>
+
+El artículo, elaborado por investigadores de Google DeepMind, Oxford y Stanford, se titula «Grandes monos de lenguaje» y su método cabe en una frase. Toma un problema, pide al modelo muchas respuestas en vez de una y cuenta cuántos problemas se resuelven con cualquier intento. Los autores llaman a esa fracción «cobertura».
+
+El conteo lo realiza un verificador: un evaluador automático que determina con certeza si una respuesta es correcta. En matemáticas, el verificador es la clave de respuestas o un comprobador formal. En código, es la suite de pruebas que el programa debe superar. Sin esto, es imposible saber qué muestra conservar.
+
+<ContextBox label="¿Qué es el teorema de los monos infinitos?">
+El teorema postula que un mono que golpea teclas al azar, con tiempo infinito, terminará escribiendo las obras completas de Shakespeare por puro accidente. Es un pilar de la probabilidad, más que una teoría sobre monos, es una sobre lo que pueden lograr grandes cantidades de intentos. El título del estudio vuelve serio el chiste: un modelo de lenguaje es un mejor mono, pues muestrea texto plausible en vez de letras al azar. Pero el teorema tiene un requisito silencioso: alguien debe saber reconocer a Shakespeare cuando aparece.
+</ContextBox>
+
+Los resultados en cinco puntos de referencia son contundentes. En CodeContests, de programación competitiva, <span class="doc">Gemma-2B resolvió el 0.02 por ciento de los problemas con un solo intento y el 7.1 por ciento con diez mil</span>: un salto de cientos de veces para un modelo que parecía inútil. En MATH, un banco de problemas de concurso, <span class="doc">Pythia-160M, un modelo de investigación de 160 millones de parámetros, pasó de 0.27 por ciento de cobertura con una prueba a 57 por ciento con diez mil</span>. Y <span class="doc">con suficientes muestras, Llama-3-8B superó a GPT-4o</span> en el mismo banco: un modelo abierto rebasando a uno de los sistemas propietarios más potentes.
+
+<QABlock speaker="Mirhoseini">
+Lo interesante es que, al realizar este muestreo repetido, podemos hacer que modelos inferiores mejoren significativamente su desempeño y superen a estos otros, más grandes y propietarios.
+</QABlock>
+
+El resultado no depende solo de los autores. Dos ingenieros de la plataforma Modal repitieron el experimento con <span class="doc">Llama 3.1 8B en HumanEval, un banco de problemas de Python</span>. <span class="doc">Un intento único resolvió el 66.4 por ciento; mil intentos resolvieron el 95.1 por ciento</span>, superando el <span class="doc">90.2 por ciento de GPT-4o en un intento único</span>. Las capacidades de vanguardia, concluyen, que antes parecían requerir «un pato del tamaño de un caballo», ahora se obtienen con «cien caballos del tamaño de un pato».
+
+La duda natural es si el crecimiento se detiene. La respuesta es precisa.
+
+</Section>
+
+<Section number="03" title="Su propia ley de <em>potencias</em>">
+
+<Standfirst>Muestrear más solo importa si las ganancias no cesan. Se señala que siguen la misma forma matemática que hizo predecible al entrenamiento.</Standfirst>
+
+Aquí la lección pasa de la curiosidad a la ley. <span class="doc">En tareas y modelos, la cobertura escala con el número de muestras por órdenes de magnitud</span>, y la relación <span class="doc">sigue una ley de potencias exponencial</span>: la misma familia de curvas que gobierna el entrenamiento. En la práctica: cada vez que duplicas el presupuesto de muestras, obtienes una mejora predecible en problemas resueltos. Una curva que puedes extrapolar es un plan de inversión.
+
+<ContextBox label="¿Qué es una ley de potencias?">
+Es una relación donde una cantidad crece en función de una potencia fija de otra: duplicas la entrada y la salida se multiplica por un factor constante. En ejes logarítmicos, la relación es una línea recta, y las rectas se pueden extender; eso es lo que las hace interesantes comercialmente. Las leyes de la era del entrenamiento tenían esta forma y permitían predecir el desempeño de un modelo antes de pagar por construirlo. La tesis aquí es que la cobertura sigue la misma forma: el artículo la describe como log-lineal, modelada por una ley de potencias exponencial.
+</ContextBox>
+
+Hay dos condiciones. La primera sobre los datos: <span class="said">la ley de potencias solo aparece cuando el banco de pruebas contiene una larga cola de problemas extremadamente difíciles</span>; los conjuntos fáciles se saturan pronto y la curva se aplana. La segunda, sobre qué hace el muestreo. Al preguntar de nuevo, no cambian los pesos del modelo, así que no se aprende nada nuevo. <span class="attr">La capacidad, bajo esta lectura, siempre estuvo dentro del modelo</span>:
+
+<QABlock speaker="Mirhoseini">
+Parece que los modelos, incluso los pequeños, ya conocen las respuestas a estos problemas difíciles. Solo estamos extrayendo y sacando a la superficie esas respuestas.
+</QABlock>
+
+Pero tanto el truco como la ley esconden la misma premisa: algo debe contar los aciertos. La cobertura la define un oráculo, un juez que nunca duerme y nunca falla. Donde no existe un oráculo, el artículo es directo: <span class="doc">los métodos para adivinar la mejor muestra, desde el voto mayoritario hasta modelos de recompensa entrenados, se estancan</span>. Esto plantea la cuestión práctica de la que depende todo: ¿dónde regala el mundo oráculos gratuitos?
+
+</Section>
+
+<Section number="04" title="Donde la evaluación es <em>gratuita</em>">
+
+<Standfirst>El software es el único dominio donde el oráculo viene integrado. El banco de pruebas que lo demuestra está hecho de errores reales.</Standfirst>
+
+<ContextBox label="¿Qué es SWE-bench?">
+Es un banco de pruebas compuesto por problemas reales reportados en proyectos de código abierto en GitHub. El título del artículo original pregunta si los modelos de lenguaje pueden resolver problemas del mundo real. Al modelo se le entrega el repositorio y el problema, y debe generar un parche. La evaluación es automática: la suite de pruebas del proyecto pasa o no pasa. Es un banco de pruebas «agéntico», donde el modelo actúa sobre el código en lugar de solo responder, incluyendo un verificador sin costo extra. SWE-bench Lite es un subconjunto más pequeño para una evaluación más barata.
+</ContextBox>
+
+El dato principal proviene de DeepSeek-Coder-V2-Instruct, un modelo de código abierto. <span class="doc">Con un intento por problema, resolvió el 15.9 por ciento de SWE-bench Lite; con doscientos cincuenta intentos, resolvió el 56 por ciento</span>. <span class="doc">El mejor resultado de un solo intento en este banco, de cualquier sistema, era del 43 por ciento</span>. El modelo abierto no solo cierra la brecha, sino que supera al mejor intento único por trece puntos.
+
+<PullQuote>El cuello de botella cambió: ya no es encontrar la respuesta correcta, sino saber cuál es la correcta.</PullQuote>
+
+La razón son las pruebas. La suite de pruebas de un repositorio es un oráculo que no cuesta nada ejecutar y no se puede engañar —el parche pasa o falla—; las matemáticas tienen la misma propiedad mediante claves de respuestas y comprobadores formales. Casi nada más la tiene. Los ingenieros de Modal señalan que <span class="doc">no es evidente cómo extender la técnica fuera de las matemáticas y la programación, donde la evaluación es menos precisa</span>. Y el estudio reporta que los evaluadores sustitutos <span class="doc">se estancan</span>: tanto el voto mayoritario, donde las muestras eligen la respuesta más común, como los modelos de recompensa, que son segundos modelos entrenados para evaluar a los primeros.
+
+Por tanto, el recurso escaso no es la inteligencia, sino la evaluación; eso redefine el problema de diseño. Ante un presupuesto de muestras limitado y un juez imperfecto, ¿cómo organizar los intentos y quién debe combinar, criticar y clasificar? El segundo artículo de la lección responde a esto.
+
+</Section>
+
+<Section number="05" title="Archon, el <em>ensamblador</em>">
+
+<Standfirst>El segundo marco trata a la inferencia como un problema de ingeniería: ante una bolsa de trucos, buscar la mejor combinación.</Standfirst>
+
+El marco se llama Archon. Su premisa es que las técnicas de inferencia se han multiplicado más allá de lo que un humano puede combinar manualmente. Por tanto, Archon <span class="attr">trata el diseño de la tubería de procesos como un problema de búsqueda</span>, similar a cómo los investigadores automatizaron el diseño de las redes neuronales. La búsqueda abarca <span class="attr">cuatro operaciones: generación, fusión, crítica y clasificación</span>.
+
+La generación produce candidatos. La fusión une varios en uno solo. La crítica ordena a un modelo hallar fallos. La clasificación ordena los candidatos para la elección final.
+
+Buscar en ese espacio requiere un método: la optimización bayesiana, una técnica para ajustar sistemas cuando cada experimento es costoso. En lugar de probar cada combinación, mantiene un modelo dinámico de qué diseños parecen prometedores y explora esos primero. <span class="attr">Archon lo aplica a las tuberías de inferencia, decidiendo cuántas muestras tomar, cuándo revisar y cuándo fusionar</span>. El resultado es una receta: un proceso fijo aplicable a cada nuevo problema.
+
+La elección más profunda es entre dos direcciones. La revisión secuencial pide a una muestra mejorarse en un bucle, criticando cada paso: es profundo, pero los errores se acumulan y no se acelera añadiendo máquinas. El muestreo paralelo pide lo mismo muchas veces a la vez: es superficial y redundante, pero fácilmente distribuible. <span class="attr">Los experimentos del marco comparan ambos sin coronar a ninguno</span>.
+
+Note lo que la búsqueda no puede suministrar: juicio. La crítica y la clasificación las hacen modelos, no oráculos; esto convierte a Archon en una máquina para lidiar con la ausencia de evaluadores gratuitos. La viabilidad de este proceso decidirá su valor real.
+
+</Section>
+
+<Section number="06" title="Lo que deja abierto el <em>cambio</em>">
+
+<Standfirst>La lección cierra con un argumento sobre adónde debe ir la próxima unidad de cómputo. Sus límites son la parte interesante.</Standfirst>
+
+La recomendación sigue la lógica de las curvas. Si los modelos pequeños alcanzan a los grandes con más intentos, parte del presupuesto destinado a entrenar modelos cada vez mayores debería comprar capacidad de inferencia. La prueba ofrecida es una comparación manteniendo el cómputo total fijo —los FLOP, la unidad contable de la aritmética—. En esa comparación, <span class="said">el gasto en inferencia superó a menudo al pre-entrenamiento adicional en problemas fáciles y medios</span>; los difíciles siguen perteneciendo a la escala.
+
+<QABlock speaker="Mirhoseini">
+Esto motiva un cambio en la asignación de cómputo, especialmente para dominios con verificadores automáticos.
+</QABlock>
+
+El matiz es clave. Los verificadores existen donde las respuestas se comprueban mecánicamente: código con suites de pruebas, demostraciones formales, matemáticas con claves. Aún no existen para la mayoría de las consultas que la gente hace a los chatbots. Según las pruebas actuales, el alcance de la técnica es exactamente el alcance de sus evaluadores; <span class="doc">donde el juez es un voto o un modelo sustituto, las ganancias se estabilizan</span>.
+
+Hay una forma antigua de decir esto. El ensayo «La amarga lección» de Richard Sutton sostiene que <span class="doc">la búsqueda y el aprendizaje son los dos métodos que escalan fiablemente con el cómputo</span>. La década del aprendizaje profundo perteneció al aprendizaje. El resultado de los monos suena a la búsqueda exigiendo su parte: no modelos más listos, sino más intentos, gastados con astucia.
+
+Lo importante no son los modelos, sino los evaluadores. Los retos son claros: extender la técnica más allá del código y las matemáticas, y romper el estancamiento al elegir la mejor muestra cuando no hay oráculo. Un evaluador barato y confiable para cualquier dominio desbloquearía todos estos resultados. Los monos han demostrado lo que compran los intentos ilimitados; lo que falta es alguien que sepa reconocer a Shakespeare.
+
+</Section>
