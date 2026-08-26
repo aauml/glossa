@@ -529,6 +529,14 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   // Sustituye a dos bloques que se quitaron: el vivero de fuentes y las
   // tripas. Aquí sí se decide algo — qué asuntos tienen sección propia — y se
   // decide eligiendo de lo que el clasificador ya produjo, nunca tecleando.
+  // «Nuevo» para un tema es una VENTANA FIJA de siete días, no «desde que
+  // miraste»: el bloque de temas está abierto por defecto, así que la marca de
+  // visto no llegaba a dispararse nunca y se habrían quedado nuevos para
+  // siempre. Y un mes sería demasiado — nacen unos diez temas al día, así que
+  // en un mes todo estaría marcado y la marca no diría nada.
+  const recien = (fecha) => !!fecha &&
+    (Date.now() - new Date(fecha).getTime()) < 7 * 864e5;
+
   // Qué sectores están desplegados. Vive fuera de la función porque el panel se
   // repinta solo y, si no, cada refresco volvería a cerrarlos en las narices.
   const abiertos = new Set();
@@ -545,7 +553,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     // Se recorta POR SECTOR más abajo, donde el usuario puede ver que hay más.
     const libres = d.temas.filter(t => !t.fijo);
     // Cuántos temas nuevos hay, para decirlo en la cabecera de la sección.
-    const nuevosT = d.temas.filter(t => esNuevo('temas', t.creado)).length;
+    const nuevosT = d.temas.filter(t => recien(t.creado)).length;
     const nt = $('tm-nuevos');
     if (nt) nt.textContent = nuevosT ? ` ${nuevosT} new` : '';
     // El aviso vive donde se toma la decisión. Pasado el tope, el número deja
@@ -559,7 +567,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     // reconoce por el nombre. Los números viajan en el `title`, para quien
     // quiera mirarlos, y el espacio que ocupaban se usa para ver más temas.
     const chip = (t, esFijo) => `<button class="tema${esFijo ? ' on' : ''}${
-      esNuevo('temas', t.creado) ? ' nuevo' : ''}"
+      recien(t.creado) ? ' nuevo' : ''}"
       data-tema="${esc(t.topic_id)}" data-fijo="${esFijo ? '0' : '1'}"
       title="${esc(t.label)}${t.description ? ' — ' + esc(t.description) : ''}
 ${t.canales} channels · ${t.elementos} items · ${t.semanas} week(s)">${esc(t.label)}</button>`;

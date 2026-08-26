@@ -178,7 +178,13 @@ export const listaDeSubidas = (canal: string) => 'UU' + canal.slice(2);
 // despliegue del 2026-08-22 desde el repo lo pisó sin que nada lo dijera. Se
 // notó por un «LIVE:» en error y 18 cortos digeridos de más. Una función
 // desplegada a mano es código que el siguiente despliegue borra.
-const MIN_SEG = 600;      // por debajo: Short o clip
+// Cinco minutos, no diez, y la diferencia la decidió una medición: con el suelo
+// en 600 s se descartaban 210 vídeos por semana de entre 4 y 10 minutos que NO
+// son clips — los noticieros mexicanos (Aristegui, Latinus, Azucena) publican
+// sus piezas en segmentos de 5 a 8 minutos, y eran justo las fuentes que menos
+// aparecían en el número. Por debajo de 2 minutos siguen cayendo 295 Shorts a
+// la semana, que es lo que el filtro existe para parar.
+const MIN_SEG = 300;
 const MAX_SEG = 10_800;   // por encima: retransmisión cruda
 
 /** «PT1H2M30S» → segundos. */
@@ -260,7 +266,7 @@ export async function episodiosYouTube(canalId: string, apiKey: string):
     if (det.envivo) {
       filtrados.push({ ...e, motivo: 'filtrado: directo en emisión — sin archivo que analizar' });
     } else if (det.seg > 0 && det.seg < MIN_SEG) {
-      filtrados.push({ ...e, motivo: `filtrado: dura ${min}m${String(seg).padStart(2, '0')}s — Short o clip, por debajo de 10 min` });
+      filtrados.push({ ...e, motivo: `filtrado: dura ${min}m${String(seg).padStart(2, '0')}s — Short o clip, por debajo de ${MIN_SEG / 60} min` });
     } else if (det.seg > MAX_SEG) {
       filtrados.push({ ...e, motivo: `filtrado: dura ${Math.floor(det.seg / 3600)}h${Math.floor((det.seg % 3600) / 60)}m — retransmisión cruda sin edición` });
     } else {

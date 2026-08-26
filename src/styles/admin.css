@@ -195,8 +195,10 @@ details.grupo > summary:hover,
   font-size: 10px; font-weight: 600; letter-spacing: 0.08em; }
 .fila-nueva > td:first-child { font-weight: 600; color: var(--ink); }
 .fila-nueva > td:first-child::before { content: '·'; color: var(--accent); margin-right: 6px; }
-.tema.nuevo { font-weight: 600; color: var(--ink); }
-.tema.nuevo::after { content: '·'; color: var(--accent); margin-left: 4px; }
+/* Un tema aparecido esta semana: color de acento, sin negrita ni adornos. El
+   color lo distingue de un vistazo y no rompe la fila; la negrita, sí. */
+.tema.nuevo { color: var(--accent); }
+.tema.nuevo::before { content: '+ '; opacity: .7; }
 
 /* El «+N more» de cada sector: la misma ficha, en tono de nota. */
 .tema.mas { color: var(--accent); opacity: .8; }
