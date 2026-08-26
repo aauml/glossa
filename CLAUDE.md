@@ -120,7 +120,7 @@ resources:
   components:
     provider: Astro
     capability: component library
-    notes: aparato de lectura anotada — Callback, ContextBox, PullQuote, Footnote, Exhibit, ReadingProgress, SizeSwitch
+    notes: aparato de lectura anotada — ContextBox, PullQuote, Footnote, Exhibit, ReadingProgress, SizeSwitch
     implemented_in: src/components/
 ```
 

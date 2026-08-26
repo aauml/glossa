@@ -574,14 +574,17 @@ Write a magazine issue. Return ONLY JSON:
  "headline": "a thesis, not a label. Under 12 words.",
  "standfirst": "60-90 words. What made this week different. Not a list of what follows.",
  "pieces": [
-   {"subject":"what this piece is ABOUT, 2-4 words, as a reader would name it",
+   {${departamentos?.length ? '"department":"EXACTLY one of the department names below, copied verbatim",\n    ' : ''}"subject":"what this piece is ABOUT, 2-4 words, as a reader would name it",
     "title":"short, specific",
     "dek":"one line for the index, under 18 words",
     "body":"400-550 words of CONTINUOUS PROSE. Markdown paragraphs only.",
     "sources_note":"one or two sentences on where this STANDS: what is settled and what rests on a single account. Not a roll-call of channels — the links below already are that",
     "sources":["the ids this piece drew on — episodes as e3, e12 and outside reports as r1, r4. Ids only, from above"]}
  ],
- "closing": ["4-6 items. Each: what NOBODY in the material said, and why it matters."]
+ "closing": ["4-6 items. Each: what NOBODY in the material said, and why it matters."]${departamentos?.length ? `,
+ "departments": [${departamentos.map(d => `{"name":"${d.sector}"}`).join(', ')}]
+   — copied back VERBATIM and in that order, adding "note":"one sentence" to any
+   department that got nothing this week` : ''}
 }
 
 RULES — the first two are the ones that matter:
@@ -631,11 +634,16 @@ ${d.temas.map(t => `        – ${t.label}${(() => {
         return m ? ` (${m.n_items} items this week)` : ' (nothing this week)';
       })()}`).join('\n')}`).join('\n')}
 
+  Every piece carries a "department" field with one of those names, copied
+  exactly: the page groups the issue by it, and a piece whose department matches
+  none of them lands at the end, outside every heading.
+
   Inside each department write ONE TO THREE pieces, each about a single subject
   with its own thesis — never one piece that surveys the department. A department
-  whose subjects got NOTHING this week still gets its heading and one sentence
-  saying so: a reader following it needs to know the week was quiet, and a
-  missing heading cannot say that.
+  whose subjects got NOTHING this week gets NO piece: its one sentence goes in
+  that department's "note", and the page prints the heading with the sentence
+  under it. A reader following it needs to know the week was quiet, and an empty
+  heading cannot say that by itself.
   Across the whole issue, 8 pieces at most: it has to be readable on a Sunday.
 ` : ''}${departamentos?.length ? '' : `- Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
   given a section.`} Those clusters are what the classification produced, not a

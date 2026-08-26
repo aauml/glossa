@@ -401,7 +401,6 @@ function armarMdx(j, lang) {
   const numero = lang === 'es' ? issueNo.replace('N° ', 'N.º ') : issueNo;
 
   const usados = new Set(['Lede', 'Section', 'Standfirst']);
-  if (j.callback) usados.add('Callback');
   for (const s of j.sections) for (const b of s.blocks) {
     if (b.type === 'context') usados.add('ContextBox');
     if (b.type === 'qa') usados.add('QABlock');
@@ -427,15 +426,12 @@ function armarMdx(j, lang) {
     '---',
   ].filter(Boolean).join('\n');
 
-  const imports = [...usados].map(c => c === 'ContextBox' || c === 'QABlock' || c === 'PullQuote' || c === 'Callback' ||
+  const imports = [...usados].map(c => c === 'ContextBox' || c === 'QABlock' || c === 'PullQuote' ||
     c === 'Lede' || c === 'Section' || c === 'Standfirst'
     ? `import ${c} from '../../../components/${c}.astro';` : null).filter(Boolean).join('\n');
 
   const cuerpo = [];
   cuerpo.push(`<Lede>\n${mdxSafe(j.lede)}\n</Lede>`);
-  if (j.callback?.slug) {
-    cuerpo.push(`<Callback issue="${j.callback.issue}" slug="${j.callback.slug}" lang="${lang}">${mdxSafe(j.callback.text)}</Callback>`);
-  }
   for (const s of j.sections) {
     const bloques = s.blocks.map(b => {
       if (b.type === 'context') return `<ContextBox label="${mdxSafe(b.label).replace(/"/g, '&quot;')}">\n${mdxSafe(b.md)}\n</ContextBox>`;

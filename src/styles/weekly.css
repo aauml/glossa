@@ -271,3 +271,41 @@ html { scroll-behavior: smooth; }
 .weekly-marca-idioma:hover { border-color: var(--accent); }
 @media (max-width: 720px) { .weekly-marca-inner { padding-inline: 24px; } }
 @media (max-width: 640px) { .weekly-marca-inner { padding-inline: 20px; } }
+
+/* ── Departamentos ───────────────────────────────────────────────────────
+   Cuando el número tiene secciones elegidas, deja de ser una lista de piezas y
+   pasa a ser una revista con departamentos. El encabezado tiene que pesar más
+   que un titular de pieza sin gritar: filete arriba, versalitas anchas, y el
+   aire de un cambio de sección. En el índice se ve igual, para que el lector
+   sepa antes de bajar si lo suyo trajo algo. */
+.weekly h2.dep {
+  font-family: var(--w-display); font-weight: 600;
+  font-size: .74rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--accent);
+  margin: var(--w6) 0 var(--w3);
+  padding-top: var(--w2);
+  border-top: 2px solid var(--ink);
+  scroll-margin-top: var(--w3);
+}
+.weekly h2.dep:first-of-type { margin-top: var(--w4); }
+/* La primera pieza de un departamento ya tiene el filete del encabezado
+   encima; el suyo propio dejaría dos rayas seguidas. */
+.weekly h2.dep + .piece { border-top: none; padding-top: 0; }
+.weekly .dep-vacio {
+  font-size: .95rem; color: var(--muted); font-style: italic;
+  margin: 0 0 var(--w4);
+}
+.weekly .toc .toc-dep {
+  border-bottom: none;
+  padding: var(--w3) 0 .35rem;
+}
+.weekly .toc .toc-dep:first-child { padding-top: 0; }
+.weekly .toc .toc-dep span {
+  font-family: var(--w-display); font-weight: 600;
+  font-size: .63rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent);
+}
+.weekly .toc .toc-vacio {
+  padding: var(--w2) 0 var(--w2) 2.9rem;
+  font-size: .86rem; color: var(--muted); font-style: italic;
+}

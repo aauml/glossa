@@ -28,7 +28,6 @@ src/
     InlineNote.astro
     QABlock.astro
     PullQuote.astro
-    Callback.astro
     Footnote.astro
     Footnotes.astro
     Exhibit.astro             # bespoke wrapper (use last)
@@ -96,7 +95,7 @@ hidden: false     # set true to hide from cover (drafts, archived)
 
 ## Body conventions
 
-Import components at the top, then use them inline. Order is `<Lede>` → optional `<Callback>` → `<Section>` blocks → optional `<Footnotes>` (thesis track only).
+Import components at the top, then use them inline. Order is `<Lede>` → `<Section>` blocks → optional `<Footnotes>` (thesis track only).
 
 ```mdx
 ---
@@ -110,7 +109,6 @@ import ContextBox from '../../../components/ContextBox.astro';
 import InlineNote from '../../../components/InlineNote.astro';
 import QABlock from '../../../components/QABlock.astro';
 import PullQuote from '../../../components/PullQuote.astro';
-import Callback from '../../../components/Callback.astro';
 import Timeline from '../../../components/exhibits/Timeline.astro';
 import Bars from '../../../components/exhibits/Bars.astro';
 import Scorecard from '../../../components/exhibits/Scorecard.astro';

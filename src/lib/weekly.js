@@ -104,10 +104,10 @@ export const LEYENDA_ES = `
 // una semana a otra.
 const PALABRAS = {
   en: { de: 'of', indice: 'In this issue', cierre: 'What nobody said',
-        volver: '↑ Contents',
+        volver: '↑ Contents', callado: 'Nothing this week.',
         fuentes: (n) => `${n} source${n === 1 ? '' : 's'}` },
   es: { de: 'de', indice: 'En este número', cierre: 'Lo que no dijo nadie',
-        volver: '↑ Índice',
+        volver: '↑ Índice', callado: 'Esta semana, nada.',
         fuentes: (n) => `${n} fuente${n === 1 ? '' : 's'}` },
 };
 
@@ -127,14 +127,62 @@ export function renderIssue(body = {}, lang = 'en') {
       current one.</p>`;
   }
 
-  const indice = piezas.map((p, i) => `
+  // ── Los departamentos ────────────────────────────────────────────────
+  // Un número con departamentos no es una lista de piezas: es una revista con
+  // secciones, y la sección tiene que verse antes de leer para saber si esta
+  // semana trajo algo de lo que sigues. La numeración sigue siendo del NÚMERO
+  // entero (01 de 7), no de cada departamento: es el orden de lectura, y
+  // reiniciarla en cada sección haría creer que hay tres piezas cuando hay una.
+  //
+  // Sin departamentos —números viejos, o ninguna sección elegida— esto no pinta
+  // nada y el número sale como siempre: una sola lista. La forma la decide lo
+  // que traiga el número, no una plantilla.
+  const orden = Array.isArray(body.departments) ? body.departments : [];
+  const conDepto = orden.length && piezas.some(p => p.department);
+  const grupos = conDepto
+    ? orden.map(d => ({
+        nombre: typeof d === 'string' ? d : d.name,
+        nota: typeof d === 'string' ? null : d.note,
+        piezas: piezas.filter(p => p.department === (typeof d === 'string' ? d : d.name)),
+      })).concat(
+        // Una pieza cuyo departamento no está en la lista NO se pierde: se pinta
+        // al final. Perderla en silencio sería lo único peor que un orden raro.
+        (() => {
+          const conocidos = new Set(orden.map(d => typeof d === 'string' ? d : d.name));
+          const sueltas = piezas.filter(p => !conocidos.has(p.department));
+          return sueltas.length ? [{ nombre: null, nota: null, piezas: sueltas }] : [];
+        })())
+    : [{ nombre: null, nota: null, piezas }];
+
+  const num = new Map(piezas.map((p, i) => [p, i]));
+
+  const indice = conDepto
+    ? grupos.map(g => `
+      ${g.nombre ? `<li class="toc-dep"><span>${esc(g.nombre)}</span></li>` : ''}
+      ${g.piezas.length
+        ? g.piezas.map(p => tocItem(p, num.get(p))).join('')
+        : `<li class="toc-vacio">${esc(g.nota || T.callado)}</li>`}`).join('')
+    : piezas.map((p, i) => tocItem(p, i)).join('');
+
+  function tocItem(p, i) { return `
     <li><a href="#${slug(p.title)}">
       <span class="n">${String(i + 1).padStart(2, '0')}</span>
       <span>${p.subject ? `<span class="subj">${esc(p.subject)}</span>` : ''}
       <span class="t">${esc(p.title)}</span>
-      <span class="d">${esc(p.dek || '')}</span></span></a></li>`).join('');
+      <span class="d">${esc(p.dek || '')}</span></span></a></li>`; }
 
-  const cuerpo = piezas.map((p, i) => `
+  const cuerpo = conDepto
+    ? grupos.map(g => (g.nombre
+        ? `<h2 class="dep" id="${slug('dep-' + g.nombre)}">${esc(g.nombre)}</h2>` : '') +
+        (g.piezas.length
+          ? g.piezas.map(p => pieza(p, num.get(p))).join('')
+          // Un departamento sin nada esta semana conserva su encabezado y lo
+          // dice. Quitarlo dejaría al lector que lo sigue sin saber si hubo
+          // silencio o si se le olvidó a alguien.
+          : `<p class="dep-vacio">${esc(g.nota || T.callado)}</p>`)).join('')
+    : piezas.map((p, i) => pieza(p, i)).join('');
+
+  function pieza(p, i) { return `
     <article class="piece" id="${slug(p.title)}">
       <p class="kicker">${String(i + 1).padStart(2, '0')} · ${T.de} ${piezas.length}${
         p.subject ? ` · <span class="subj">${esc(p.subject)}</span>` : ''}</p>
@@ -184,7 +232,7 @@ export function renderIssue(body = {}, lang = 'en') {
                  `<span class="fuentes-lista">${[...canales, ...reportes].map(pinta).join('')}</span></details>`;
         })()}` : ''}
       <a class="up" href="#contents">${T.volver}</a>
-    </article>`).join('');
+    </article>`; }
 
   const cierre = (body.closing || []).map(c =>
     `<li>${prosa(c).replace(/^<p>|<\/p>$/g, '')}</li>`).join('');

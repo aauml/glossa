@@ -23,15 +23,12 @@ import Section from '../../../components/Section.astro';
 import Standfirst from '../../../components/Standfirst.astro';
 import ContextBox from '../../../components/ContextBox.astro';
 import PullQuote from '../../../components/PullQuote.astro';
-import Callback from '../../../components/Callback.astro';
 import Timeline from '../../../components/exhibits/Timeline.astro';
 import Comparison from '../../../components/exhibits/Comparison.astro';
 import Footnote from '../../../components/Footnote.astro';
 import Footnotes from '../../../components/Footnotes.astro';
 
 <Lede>Una ontología, en el sentido que importa aquí, no es un tratado filosófico sobre la naturaleza del ser. Es un artefacto de ingeniería: un modelo formal, legible por máquina, que fija qué conceptos existen en un dominio, qué propiedades tienen y cómo se relacionan. Si se construye una para un reglamento, se le pueden hacer preguntas, comprobar que no se contradice y alinearla con otro reglamento para ver dónde coinciden ambos. Ese último movimiento —la alineación— es la razón misma por la que una tesis sobre el Reglamento de IA de la UE y el marco estadounidense del NIST construiría una ontología. Pero antes de modelar un solo concepto hay que tomar una decisión previa, y es la que más a menudo se toma mal o por inercia: ¿qué *método* se sigue para construir el artefacto? Hay alrededor de veinte metodologías con nombre disponibles, repartidas en treinta años y varios países, y no son intercambiables. Elegir bien marca la diferencia entre un capítulo que se defiende solo y otro que gasta su defensa disculpándose por una complejidad que nunca necesitó.</Lede>
-
-<Callback issue="N.º 30" slug="guizzardi-guarino-ontological-unpacking" lang="es">Guizzardi y Guarino sostienen que la diferencia entre dos sistemas de datos es a menudo una diferencia de ontología: de qué asume cada uno que existe. Esta lectura es su secuela práctica: una vez que se acepta que las ontologías deben hacerse explícitas, la pregunta siguiente es cómo se construye una.</Callback>
 
 <Section number="01" title="Método, lenguaje y herramienta son <em>tres</em> cosas">
 
@@ -178,8 +175,6 @@ El movimiento crucial es hacer del mínimo una decisión *declarada* y no una om
 Es tentador tratar la elección entre metodologías ontológicas como un detalle técnico, zanjado por el nombre que más aparezca en los artículos recientes. Se entiende mejor como una postura. Toda metodología codifica un supuesto sobre lo que hace quien construye, y los supuestos no son iguales. Los métodos basados en experiencia suponen que se documenta un oficio. METHONTOLOGY supone que se ingenieriza un artefacto a partir de conocimiento de dominio en bruto. DILIGENT supone que se negocia un acuerdo entre una comunidad. NeOn y LOT suponen que se reutiliza y se conecta lo que ya existe.
 
 Ese último supuesto es el verdadero para esta tesis, y reconocerlo es lo que hace encajar todo lo demás. El trabajo no es inventar un modelo de la regulación de la IA; es hacer que dos marcos existentes se vuelvan legibles entre sí. Un método pensado para inventar impondría una ceremonia que el trabajo no necesita y engañaría al lector sobre cuál es la contribución. Un método pensado para reutilizar y alinear nombra el trabajo correctamente, y la función más importante de un método, antes de estructurar una sola clase o relación, es decir la verdad sobre qué clase de trabajo es.
-
-<Callback issue="N.º 17" slug="hildebrandt-law-computer-scientists" lang="es">La distinción de Hildebrandt entre lo legal-por-diseño y la protección-jurídica-por-diseño es la compañera sustantiva de esta distinción metodológica: decidir cómo modelar los deberes del Reglamento de IA depende de decidir primero para qué sirven esos deberes. La ontología formaliza la estructura; su marco mantiene honesta la formalización sobre lo que protege.</Callback>
 
 </Section>
 

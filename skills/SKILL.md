@@ -57,7 +57,7 @@ The audit pattern for the measurable rules (run from `/tmp` after writing the MD
 import re
 text = open('PATH_TO_MDX').read()
 body = re.sub(r'^---\n.*?\n---\n', '', text, count=1, flags=re.DOTALL)
-body_clean = re.sub(r'<(ContextBox|Scorecard|Timeline|PullQuote|Callback|Lede)[^>]*>.*?</\1>',
+body_clean = re.sub(r'<(ContextBox|Scorecard|Timeline|PullQuote|Lede)[^>]*>.*?</\1>',
                     '', body, flags=re.DOTALL)
 body_clean = re.sub(r'<[^>]+/?>', '', body_clean)
 body_clean = re.sub(r'\{[^}]*\}', '', body_clean)
@@ -200,7 +200,7 @@ Split only when all three hold:
 
 Keep one piece when the argument has internal dependencies — when cutting one section breaks another. Papers building a thesis step by step, long-form interviews developing one position, regulatory analysis where the conclusion depends on earlier definitions. Length alone is not a criterion: a 300-page book with one thesis is one piece; a 20-page paper with three independent contributions is three.
 
-**Mechanics.** Ship one piece per trigger. Even when a series is warranted, produce Part I, surface the rest in the one-sentence judgment-call flag at the end of the chat reply (e.g. *"This is Part I on GPAI obligations. The high-risk and sanctions blocks would each stand as their own Part if you want to extend."*), and wait for Arturo to trigger the next part as a new conversation. No series infrastructure exists beyond `<Callback>` for linking parts — don't pre-build it.
+**Mechanics.** Ship one piece per trigger. Even when a series is warranted, produce Part I, surface the rest in the one-sentence judgment-call flag at the end of the chat reply (e.g. *"This is Part I on GPAI obligations. The high-risk and sanctions blocks would each stand as their own Part if you want to extend."*), and wait for Arturo to trigger the next part as a new conversation. No series infrastructure exists for linking parts, and none should be built: each piece stands alone.
 
 The variable is the writing-to-source ratio. Match the source.
 
@@ -224,7 +224,6 @@ Read `references/editorial-conventions.md` before writing. The short version:
 - **Pedagogical hinges on organizing concepts.** Every piece has passages where a single distinction or concept organizes everything that follows — *as many as the source warrants*, not a fixed count. On those passages, expand: concrete anchor first, name after, sub-terms glossed inline, abstract opposition recast as two concrete questions, close with a reflection prompt. A narrative interview may have one hinge; a dense paper may have five. Don't apply this to every paragraph — that converts the piece into a textbook. See `§ Pedagogical hinges`. If Arturo asks for a piece that is "más accesible" or "para seminario," lean toward more hinges; if he asks for strict academic-magazine register, reduce to zero.
 - **One italicized phrase per headline** (in `<em>` tags) — the visual signature.
 - **Partisan sources need a context box on the speaker.** When the source has a clear ideological frame, introduce who they are upfront so the rest can use their voice as theirs without endorsing it. Use "X argues" / "in X's view" framing throughout.
-- **Cross-issue callbacks.** When themes recur, link to the earlier piece with the `<Callback>` component.
 
 ## Tracks
 
@@ -321,7 +320,6 @@ In `src/components/`:
 - `<InlineNote>` — top-and-bottom rule, sans-serif, smaller; for one-line clarifications
 - `<QABlock speaker="Name">` — speaker label + cleaned quote
 - `<PullQuote attribution="— X">` — the line that earns being magnified
-- `<Callback issue="N° 03" slug="..." lang="en">` — link to another piece
 - `<Footnote n={1}/>` and `<Footnotes lang="en" notes={[...]}/>` — for thesis track. **Pass `lang`**: without it the block is labelled "Notas" in English pieces too.
 
 ## Authoring a new issue
@@ -376,7 +374,6 @@ import Standfirst from '../../../components/Standfirst.astro';
 import ContextBox from '../../../components/ContextBox.astro';
 import QABlock from '../../../components/QABlock.astro';
 import PullQuote from '../../../components/PullQuote.astro';
-import Callback from '../../../components/Callback.astro';
 import Timeline from '../../../components/exhibits/Timeline.astro';
 import Bars from '../../../components/exhibits/Bars.astro';
 
@@ -387,8 +384,6 @@ import Bars from '../../../components/exhibits/Bars.astro';
 </Orientation>
 
 <Lede>First paragraph that introduces the piece.</Lede>
-
-<Callback issue="N° 03" slug="ai-act-trilogue-stalled">Related context.</Callback>
 
 <Section number="01" title="Section title with <em>emphasis</em>">
 
