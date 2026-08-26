@@ -5,6 +5,7 @@ import ReadingProgress from '../components/ReadingProgress.astro';
 import Sources from '../components/Sources.astro';
 import { tarjetaArticulo } from '../lib/og.js';
 import CopiarScript from '../components/CopiarScript.astro';
+import Leyenda from '../components/Leyenda.astro';
 import { botonCopiar } from '../lib/copiar.js';
 const { entry, slug, lang, langs = ['en', 'es'] } = Astro.props;
 const { data } = entry;
@@ -56,6 +57,7 @@ const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${c
       </div>
     )}
   </section>
+  <Leyenda lang={lang} />
   <article class="article">
     <slot />
   </article>

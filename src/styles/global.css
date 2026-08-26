@@ -856,3 +856,23 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 .hero-headline .copiar button { color: var(--muted); opacity: .55; }
 .hero-headline .copiar button:hover { opacity: 1; }
 .hero-headline .copiar button:hover { color: var(--accent); }
+
+/* ── El aparato, también en las piezas ───────────────────────────────────
+   Vivía solo en la revista. Desde que la pieza afirma en vez de repartir
+   atribuciones en cada frase, la marca es lo único que dice cuánto sostiene
+   cada cosa: tiene que verse igual en los dos sitios. */
+.article .doc  { border-bottom: 2px solid var(--gold); padding-bottom: .5px; }
+.article .attr { border-bottom: 1px dotted var(--accent); padding-bottom: .5px; }
+.article .said { border-bottom: 1px solid var(--rule-soft); padding-bottom: .5px; }
+
+.legend-articulo {
+  max-width: var(--medida); margin: 0 auto 34px; padding: 12px 32px;
+  border-top: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft);
+  display: flex; flex-wrap: wrap; gap: 6px 22px;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--muted);
+}
+.legend-articulo b {
+  display: block; width: 100%; font-weight: 500;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink); margin-bottom: 2px;
+}

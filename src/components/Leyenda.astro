@@ -1,0 +1,26 @@
+---
+/**
+ * Qué significan las marcas del texto, en una pieza.
+ *
+ * Existía solo en la revista. Cuando la voz de las piezas dejó de repartir
+ * atribuciones en cada frase —«el autor describe», «el columnista sostiene»— y
+ * pasó a afirmar, la marca se volvió lo único que dice cuánto sostiene cada
+ * afirmación. Sin esta leyenda, un subrayado dorado es un subrayado dorado.
+ */
+const { lang = 'en' } = Astro.props;
+const T = lang === 'es'
+  ? { titulo: 'Sin marca quiere decir que lo comprobamos. Con marca, cuidado.',
+      doc: 'lo dice un documento', attr: 'lo dice una sola fuente',
+      said: 'alguien lo dijo y nada lo respalda',
+      n: { doc: 'dorado', attr: 'punteado', said: 'liso' } }
+  : { titulo: 'No mark means we checked it. A mark means be careful.',
+      doc: 'a document says so', attr: 'only one source says so',
+      said: 'someone said it, nothing backs it',
+      n: { doc: 'gold', attr: 'dotted', said: 'plain' } };
+---
+<div class="legend legend-articulo">
+  <b>{T.titulo}</b>
+  <span><span class="doc">{T.n.doc}</span> {T.doc}</span>
+  <span><span class="attr">{T.n.attr}</span> {T.attr}</span>
+  <span><span class="said">{T.n.said}</span> {T.said}</span>
+</div>
