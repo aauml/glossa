@@ -1234,6 +1234,55 @@ Deno.serve(async (req) => {
 
         if (!url && !cuerpo) return bad('a link or the text is required');
 
+        // `solo` viene del botón «standalone piece»: mismo camino de lectura,
+        // pero el número de la semana no lo toca (origin='pieza', 0045).
+        const solo = b.solo === '1' || b.solo === true;
+
+        // ¿Ya está esa URL? Pasa a diario desde que se siguen columnistas: el
+        // feed trae la columna por la mañana y por la tarde se pega para hacer
+        // una pieza propia. Son DOS cosas distintas —material del número y
+        // artículo suelto— y rechazarlo por «ya está en la cola» confundía la
+        // URL con la intención.
+        //
+        // Se mira ANTES de bajar la página: si ya se leyó, se reaprovecha ese
+        // texto y la petición no se repite.
+        if (url) {
+          const { data: yaEsta } = await db.from('glossa_radar_items')
+            .select('id,origin,state,title,body_text,progress')
+            .eq('url', url).order('created_at', { ascending: false }).limit(1);
+          const previo = (yaEsta ?? [])[0];
+          if (previo && !solo) {
+            return bad(previo.origin === 'pieza'
+              ? 'that link already has a standalone piece being written'
+              : `that is already in the queue (read ${previo.state === 'digested' ? 'and digested' : previo.state})`);
+          }
+          if (previo?.origin === 'pieza') {
+            return bad('that link already has a standalone piece — see the bar below');
+          }
+          if (previo && solo) {
+            const { data: copia, error: eCopia } = await db.from('glossa_radar_items').insert({
+              source_id: null, origin: 'pieza',
+              external_id: 'pieza:' + url,
+              url,
+              title: previo.title,
+              body_text: previo.body_text ?? cuerpo,
+              published_at: new Date().toISOString(),
+              state: 'pending',
+              progress: { pct: 5, fase: 'launched — waiting for the runner', updated_at: new Date().toISOString() },
+            }).select('id,title').single();
+            if (eCopia) {
+              if ((eCopia as { code?: string }).code === '23505') return bad('that link already has a standalone piece');
+              throw eCopia;
+            }
+            const { error: eD } = await db.rpc('glossa_pieza_dispatch', { item: copia.id });
+            if (eD) return ok({ as: 'elemento', item: copia, label: r.label,
+              aviso: `saved, but the piece run could not be launched: ${eD.message}` });
+            return ok({ as: 'elemento', item: copia,
+              label: 'standalone piece — using the text already read; being written now' });
+          }
+        }
+
+
         // Un enlace SIN texto hay que bajarlo aquí. Gemini solo sabe abrir URLs
         // de YouTube; cualquier otra le llega como `fileUri` y devuelve un
         // «400 INVALID_ARGUMENT» que no dice por qué. Y de paso salen el título
@@ -1264,12 +1313,9 @@ Deno.serve(async (req) => {
           try { titulo = new URL(url).hostname.replace(/^www\./, ''); } catch { /* nada */ }
         }
 
-        // `solo` viene del botón «standalone piece»: mismo camino de lectura,
-        // pero el número de la semana no lo toca (origin='pieza', 0045).
-        const solo = b.solo === '1' || b.solo === true;
         const { data, error } = await db.from('glossa_radar_items').insert({
           source_id: null, origin: solo ? 'pieza' : 'pegado',
-          external_id: url ?? ('pegado:' + await huella(cuerpo!)),
+          external_id: (solo ? 'pieza:' : '') + (url ?? ('pegado:' + await huella(cuerpo!))),
           url: url ?? 'about:blank',
           title: (titulo || cuerpo || '').slice(0, 300) || '(sin título)',
           author: autor,
