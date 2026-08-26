@@ -474,7 +474,7 @@ async function feedDeSeccion(u: URL) {
  * Se buscan a la vez y se devuelven las que CONTESTAN, cada una diciendo qué
  * trae. Ninguna se da de alta sin que él la marque.
  */
-async function superficiesDe(entrada: { origen?: string; html?: string; nombre?: string })
+async function superficiesDe(entrada: { origen?: string; html?: string; nombre?: string; handle?: string })
     : Promise<Opcion[]> {
   const { origen, nombre } = entrada;
   let html = entrada.html;
@@ -536,6 +536,18 @@ async function superficiesDe(entrada: { origen?: string; html?: string; nombre?:
         detalle: vistaDeMuestras(c.muestras).join(' · '),
       }] : []));
     }
+  }
+
+  // 2b) Substack por HANDLE. Quien escribe en X casi siempre publica lo largo
+  //     en Substack, y su dirección suele ser el mismo handle. Probarlo cuesta
+  //     una petición y es la diferencia entre seguir a alguien y no seguirlo.
+  if (entrada.handle) {
+    const url = `https://${entrada.handle}.substack.com/feed`;
+    tareas.push(feedResponde(url).then(c => c.ok ? [{
+      as: 'fuente' as const, kind: 'rss', feed_url: url, name: nombreCorto(c.nombre),
+      label: `Substack · ${c.nombre ?? entrada.handle}`,
+      detalle: vistaDeMuestras(c.muestras).join(' · '),
+    }] : []));
   }
 
   // 3) El podcast, buscado por nombre en el directorio de Apple. Sale aunque la
@@ -1006,6 +1018,46 @@ async function clasificar(texto: string): Promise<Resuelto> {
                 'That spends search credit and finds less: a feed URL is always better'],
         alternativas: [{ as: 'elemento', label: 'just this page, once' }],
       };
+    }
+
+    // ── X ──────────────────────────────────────────────────────────────
+    // Un perfil de X no se puede seguir sin su API de pago (unos 200 USD al
+    // mes, cincuenta veces lo que cuesta todo lo demás junto). Decirlo es más
+    // útil que dar de alta algo que no va a traer nada.
+    //
+    // Lo que SÍ se puede: buscar dónde publica esa misma persona lo que aquí
+    // se puede leer entero y gratis —su Substack, su canal, su pódcast—, y
+    // ofrecerlo. El handle vale como pista de búsqueda, y el nombre de verdad
+    // sale del propio hallazgo.
+    if (/(^|\.)(x|twitter)\.com$/.test(host)) {
+      const partes = u.pathname.split('/').filter(Boolean);
+      const handle = partes[0];
+      const RESERVADAS = /^(i|home|search|explore|notifications|messages|settings|intent|share)$/i;
+
+      if (partes[1] === 'status') {
+        return {
+          as: 'elemento', url: t,
+          label: 'a single post on X — its text cannot be read without the paid API',
+          vista: ['Paste the text of the post and it goes in whole, with this link as its source'],
+          alternativas: [SOLO_PIEZA],
+        };
+      }
+      if (handle && !RESERVADAS.test(handle)) {
+        const puertas = await superficiesDe({ nombre: handle, handle });
+        const nombre = puertas.find(o => o.name)?.name ?? handle;
+        return {
+          as: 'fuente', kind: 'persona', name: nombre,
+          label: `${nombre} on X — X itself needs a paid API, but here is where they publish`,
+          vista: puertas.length
+            ? ['Their own surfaces read in full and cost nothing; X would cost about $200 a month']
+            : ['Nothing else found under that handle — following them means searching, which spends credit'],
+          opciones: [...puertas, {
+            as: 'fuente' as const, kind: 'persona', name: nombre,
+            label: `Follow ${nombre} by searching`,
+            detalle: 'What they said and what is said about them, in every language. Spends search credit each round',
+          }],
+        };
+      }
     }
 
     // ¿Es la página de un columnista o una sección? Se comprueba antes de
