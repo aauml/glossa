@@ -50,6 +50,52 @@ async function sb(path, init = {}) {
   return t ? JSON.parse(t) : null;
 }
 
+// ── Una pieza a la vez ───────────────────────────────────────────────────
+//
+// Cada pegado dispara su propia corrida, así que pegar cinco vídeos seguidos
+// lanzaba cinco a la vez. Cinco digestiones de vídeo simultáneas agotan el cupo
+// por minuto de Gemini —429 y muertas— y, peor, las cinco calculan su número
+// como «el mayor que hay más uno», así que todas reclaman el mismo.
+//
+// El turno se pide aquí. Quien no lo consigue NO se pierde: se queda en la cola
+// (`state='pending'`) y la corrida que está trabajando la arranca al terminar.
+const LEASE = 'pieza_lease';
+const YO = process.env.GITHUB_RUN_ID || `local-${process.pid}`;
+const MINUTOS = 45;
+
+async function turno() {
+  const [fila] = await sb(`glossa_radar_settings?key=eq.${LEASE}&select=value`) ?? [];
+  const v = fila?.value ?? null;
+  if (v?.at && Date.now() - Date.parse(v.at) < MINUTOS * 60_000 && v.run !== YO) return false;
+  await sb('glossa_radar_settings', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify([{ key: LEASE, value: { run: YO, at: new Date().toISOString() } }]),
+  });
+  // Releer: si dos corridas escribieron a la vez, solo una se ve a sí misma.
+  const [otra] = await sb(`glossa_radar_settings?key=eq.${LEASE}&select=value`) ?? [];
+  return otra?.value?.run === YO;
+}
+
+async function soltarTurno() {
+  const [fila] = await sb(`glossa_radar_settings?key=eq.${LEASE}&select=value`) ?? [];
+  if (fila?.value?.run !== YO) return;
+  await sb(`glossa_radar_settings?key=eq.${LEASE}`, {
+    method: 'PATCH', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({ value: { run: null, at: null } }) });
+}
+
+/** La siguiente de la cola, si la hay, y se dispara su corrida. */
+async function siguienteDeLaCola(salvo) {
+  const pend = await sb('glossa_radar_items?select=id,title&origin=eq.pieza&state=eq.pending' +
+                        '&order=created_at.asc&limit=2') ?? [];
+  const otra = pend.find(x => x.id !== salvo);
+  if (!otra) return null;
+  await sb('rpc/glossa_pieza_dispatch', { method: 'POST', body: JSON.stringify({ item: otra.id }) });
+  console.log(`\nSiguiente de la cola lanzada: «${String(otra.title).slice(0, 60)}»`);
+  return otra;
+}
+
 // ── Presupuesto ──────────────────────────────────────────────────────────
 const ajus  = await ajustes(URL_SB, KEY);
 const gasto = await gastoActual(URL_SB, KEY);
@@ -97,8 +143,14 @@ async function gemini(parts, maxTokens = 4096) {
         generationConfig: { responseMimeType: 'application/json', maxOutputTokens: maxTokens } }),
     });
     if (!r.ok) {
-      if ((r.status === 503 || r.status === 429) && intento < 2) {
-        await new Promise(x => setTimeout(x, 5000)); continue;
+      // El 429 de Gemini suele ser el cupo POR MINUTO del tramo gratuito, no el
+      // del día: pegar cinco vídeos seguidos lo dispara y esperar lo resuelve.
+      // Con dos intentos de cinco segundos moría igual; ahora sube hasta el
+      // minuto, que es la ventana que hay que dejar pasar.
+      const espera = [5000, 20000, 60000, 60000];
+      if ((r.status === 503 || r.status === 429) && intento < espera.length) {
+        console.log(`  gemini ${r.status} — reintento en ${espera[intento] / 1000} s`);
+        await new Promise(x => setTimeout(x, espera[intento])); continue;
       }
       throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
     }
@@ -240,6 +292,18 @@ if (item) item.fuente = item.glossa_radar_sources?.name ?? null;
 if (!item) { console.error(`No existe el elemento ${ITEM}`); process.exit(1); }
 console.log(`Pieza para: «${item.title}» (${item.origin}, ${item.state})`);
 
+// El turno, antes de gastar un solo token. Sin turno, la pieza se queda en la
+// cola tal cual está —`pending`— y la corrida que trabaja la arrancará cuando
+// acabe; no se pierde ni se marca como fallada, que sería mentir.
+if (!SECO && !(await turno())) {
+  await sb(`glossa_radar_items?id=eq.${item.id}`, {
+    method: 'PATCH', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify({ progress: { pct: 3, fase: 'in queue — another piece is being written',
+                                       updated_at: new Date().toISOString() } }) });
+  console.log('Otra corrida está escribiendo una pieza. Esta queda en la cola y se lanzará sola.');
+  process.exit(0);
+}
+
 // El avance se escribe en la fila para que el panel lo pinte como barra: diez
 // minutos de caja negra fue exactamente la queja. Nunca falla la corrida por
 // no poder anotarse — la barra es cosmética, la pieza no.
@@ -265,7 +329,14 @@ process.on('unhandledRejection', async (e) => {
   await avance(0, 'failed', { error: String(e).slice(0, 300) });
   console.error(String(e)); process.exit(1);
 });
-async function morir(msg) { await avance(0, 'failed', { error: msg }); console.error(msg); process.exit(1); }
+async function morir(msg) {
+  await avance(0, 'failed', { error: msg });
+  // Se suelta el turno y se lanza la siguiente: una pieza que falla no puede
+  // dejar la cola parada detrás de ella.
+  try { await soltarTurno(); await siguienteDeLaCola(item.id); } catch (e) { console.error('  (cola)', e.message); }
+  console.error(msg);
+  process.exit(1);
+}
 
 // ── 2 · Digerir, si el radar no llegó antes ──────────────────────────────
 let digest = item.digest;
@@ -631,6 +702,9 @@ await sb(`glossa_radar_items?id=eq.${item.id}`, {
 // El 100 no lo pone este guion: lo deduce el panel cuando la cola de
 // publicación marca `done` para este slug, que es cuando de verdad está en vivo.
 await avance(90, 'publishing — build & deploy', { issue: issueNo, slug: en.slug });
+
+await soltarTurno();
+await siguienteDeLaCola(item.id);
 
 console.log(`\n${issueNo} encolado para publicar: ${en.slug}`);
 console.log('El worker de publicación commitea los MDX y Vercel despliega — en vivo en unos minutos.');

@@ -857,7 +857,12 @@ async function clasificar(texto: string): Promise<Resuelto> {
     if (/(^|\.)youtu\.be$/.test(host) ||
         (/(^|\.)youtube\.com$/.test(host) && (/^\/watch/.test(ruta) || /^\/shorts\//.test(ruta)))) {
       const v = await vistaDeYouTube(t);
+      // El título del vídeo, como NOMBRE del elemento. Sin esto la cola
+      // enseñaba siete filas llamadas «youtube.com» y no había forma de saber
+      // cuál era cuál — ni en el panel ni en el aviso de fallo.
+      const titulo = (v[0] ?? '').replace(/^[“"]|[”"].*$/g, '').trim();
       return { as: 'elemento', url: t, label: 'one YouTube episode · goes into the weekly',
+               name: titulo && titulo.length > 3 ? titulo.slice(0, 200) : undefined,
                vista: v, alternativas: [SOLO_PIEZA] };
     }
 
@@ -1411,7 +1416,10 @@ Deno.serve(async (req) => {
           .select('id,title,progress,created_at')
           .eq('origin', 'pieza').not('progress', 'is', null)
           .gte('created_at', new Date(Date.now() - 24 * 3600_000).toISOString())
-          .order('created_at', { ascending: false }).limit(5);
+          // Doce, no cinco: pegar seis vídeos seguidos es una tarde normal, y
+          // con el tope en cinco la mitad de la cola no aparecía en ninguna
+          // parte — ni como esperando, ni como fallada.
+          .order('created_at', { ascending: false }).limit(12);
         if (error) throw error;
         const piezas = [];
         for (const it of data ?? []) {
