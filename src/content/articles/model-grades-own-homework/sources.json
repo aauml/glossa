@@ -1,0 +1,17 @@
+{
+  "slug": "model-grades-own-homework",
+  "issue": "N° 46",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=yVnmHSAy3ck",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "The lecturer argues that scaling train-time compute and utilizing reinforcement learning on reasoning chains can effectively boost model performance, even in smaller language models.",
+      "claim_es": "El profesor argumenta que escalar el cómputo durante el entrenamiento y utilizar aprendizaje por refuerzo en cadenas de razonamiento puede mejorar eficazmente el desempeño de los modelos, incluso en los más pequeños.",
+      "verificada": "si"
+    }
+  ]
+}

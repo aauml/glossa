@@ -1,0 +1,123 @@
+---
+issue: "N.º 46"
+date: "27 ago 2026"
+sortDate: "2026-08-27T13:37:35"
+language: es
+track: general
+title: "El modelo que se calificó su propia tarea"
+titleHTML: "El modelo que se calificó <em>su propia</em> tarea"
+dek: "En el examen que reprueba a GPT-3.5, los modelos pequeños ya superan el cincuenta por ciento, pues tres artículos les enseñaron a entrenarse con su propio razonamiento filtrado."
+dekHTML: "En el examen que reprueba a GPT-3.5, los modelos pequeños ya superan el cincuenta por ciento, pues tres artículos les enseñaron a entrenarse con su <em>propio</em> razonamiento filtrado."
+coverDek: "Los modelos más pequeños del mercado están superando a GPT-3.5 en uno de los exámenes de matemáticas más difíciles de Estados Unidos. El secreto no es el tamaño, sino la práctica: los modelos generan sus propias deducciones, conservan lo que sobrevive a la hoja de respuestas y se entrenan con eso. Tres artículos construyeron ese bucle, y son los detalles los que deciden si funciona."
+source: "Basado en una cátedra sobre razonamiento en grandes modelos de lenguaje · Universidad de Stanford"
+sourceLabel: "N° 46 · una cátedra sobre razonamiento en grandes modelos de lenguaje · Universidad de S"
+topics:
+  - "Modelos de Lenguaje"
+  - "Aprendizaje por Refuerzo"
+  - "Razonamiento Matemático"
+  - "Escalamiento en Entrenamiento"
+  - "Cadena de Pensamiento"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+El Examen Americano de Matemáticas (AIME) no es una prueba para adivinar. Es el lugar donde los mejores estudiantes de preparatoria del país van a ser puestos a prueba. Lo mismo le ocurre a las máquinas. En los problemas de 2024, GPT-3.5 acertó <span class="doc">alrededor del 5 por ciento</span>. Luego, el marcador dejó de tener sentido. DeepSeekMath-RL, un modelo de siete mil millones (seven billion) de parámetros, pequeño para los estándares actuales, alcanzó el <span class="doc">51.7 por ciento</span> en el mismo examen. Un método llamado DAPO, aplicado a un modelo llamado Qwen-32B, llegó al cincuenta. Ninguno de los ganadores es más grande que a quienes derrota. Todos fueron instruidos igual: practicar, contrastar con las respuestas correctas y aprender de lo que sobrevive. Un profesor de Stanford, en una clase sobre cómo se construyen estos modelos de razonamiento, desglosa los tres artículos detrás de ese bucle. La afirmación es más ambiciosa que las cifras: el cómputo invertido en enseñar a un modelo a partir de sus propios resultados puede sustituir al modelo mismo.
+</Lede>
+
+<Section number="01" title="El marcador que <em>dejó de tener sentido</em>">
+
+<Standfirst>Tres artículos, un parámetro de evaluación implacable y unos resultados que solo cobran sentido si algo ha cambiado en el entrenamiento.</Standfirst>
+
+La bibliografía se resume en tres artículos. STaR, publicado en 2022 por Zelikman y sus colegas, es el más antiguo y sencillo: un método para que el modelo redacte sus propios datos de entrenamiento. DeepSeekMath es un modelo de siete mil millones de parámetros del equipo DeepSeek, lanzado con un reporte técnico que detalla el aprendizaje por refuerzo detrás del sistema. DAPO es el más reciente, un conjunto de técnicas que lleva esas ideas al extremo y produjo la marca del cincuenta por ciento. Leídos en orden, los tres artículos son un argumento en tres actos.
+
+El argumento es que el tamaño dejó de ser la única historia. Los parámetros, esos diales internos que se ajustan durante el entrenamiento, han sido durante mucho tiempo la medida de poder en el sector. DeepSeekMath-RL, con sus siete mil millones, pertenece a la categoría de peso ligero. Sin embargo, en la edición 2024 del examen, el modelo pequeño no solo compite con GPT-3.5: le gana por amplio margen.
+
+<ContextBox label="¿Qué es el AIME?">
+El Examen Americano de Matemáticas es una competencia selectiva para estudiantes de preparatoria en Estados Unidos. Se accede por invitación, obtenida tras rondas previas de concursos matemáticos. Sus problemas exigen razonar en varios pasos, no solo memorizar fórmulas. Cada respuesta es un número entero exacto, por lo que la calificación es mecánica: o es correcta o no. Esa claridad binaria es la razón por la que los laboratorios de IA adoptaron el examen como vara de medir.
+</ContextBox>
+
+Una característica del examen es crucial para lo que sigue: las respuestas se pueden verificar al instante. Esto convierte al AIME no solo en una prueba difícil, sino en una evaluable; una máquina puede calificar mil intentos tan fácilmente como uno. Para entender por qué esto transforma una evaluación en un campo de entrenamiento, ayuda mapear cómo estos modelos adquieren inteligencia.
+
+</Section>
+
+<Section number="02" title="Tres formas de volverse <em>más listo</em>, y una cuarta">
+
+<Standfirst>Pre-entrenamiento, ajuste fino y razonamiento prolongado: el mapa establecido de cómo mejoran los modelos, más el territorio donde excavan estos tres artículos.</Standfirst>
+
+Comencemos con el pre-entrenamiento, la etapa que crea un gran modelo de lenguaje, el tipo de sistema detrás de los chatbots. El modelo aprende a completar texto mediante el estudio de una porción inmensa de internet y libros. Aquí es donde se acumulan los parámetros y donde reside el primer instinto del campo: más datos, más diales, mejor modelo.
+
+Después viene el ajuste fino, que es pura imitación. Los humanos redactan o seleccionan ejemplos de buen desempeño —una respuesta aquí, un proceso resuelto allá— y el modelo se ajusta hasta que produce algo similar. Esta etapa es la razón por la que un completador de texto se vuelve un asistente. Pero es un cuello de botella: alguien debe escribir los ejemplos.
+
+La tercera vía es el escalamiento durante la ejecución: invertir más cómputo al usar el modelo, no al construirlo. Sistemas al estilo de o1 o el pensamiento de Gemini Flash no responden al instante. Analizan el problema, lo descomponen, revisan sus pasos y se corrigen antes de responder. Cuatro hábitos: análisis del problema, desglose, autoevaluación y autocorrección.
+
+<ContextBox label="¿Qué es el razonamiento encadenado?">
+La cadena de pensamiento es el borrador entre la pregunta y la respuesta: los pasos intermedios, redactados en lenguaje llano, que conectan ambos puntos. Pedirle a un modelo que muestre esos pasos mejora su precisión en problemas de razonamiento. La demostración se remonta a un artículo de 2022 de Wei y sus colegas. Los pasos expuestos también permiten ver dónde se equivocó el modelo. Lo difícil siempre ha sido conseguir suficientes cadenas de calidad para entrenar.
+</ContextBox>
+
+El mapa tiene un cuarto territorio, donde excavan los tres artículos. Si un modelo puede producir razonamiento y ese razonamiento puede verificarse, entonces el razonamiento verificado se convierte en un dato de entrenamiento. El cómputo se dedica a generar y filtrar los resultados del propio modelo, en lugar de a aumentar los parámetros o el número de escritores humanos.
+
+<QABlock speaker="El profesor">
+La cantidad de cómputo que inviertes en entrenar al modelo con sus propios resultados puede sustituir a los parámetros del modelo.
+</QABlock>
+
+Esto plantea el problema obvio: el razonamiento debe salir de alguna parte antes de ser filtrado. En 2022, el primero de los tres artículos respondió con un bucle tan sencillo que parece trampa.
+
+</Section>
+
+<Section number="03" title="El <em>arranque</em> y la pista">
+
+<Standfirst>El truco de STaR es hacer crecer los datos de entrenamiento en vez de escribirlos, y aprovechar con astucia los fallos.</Standfirst>
+
+Antes de STaR, las justificaciones tenían dos fuentes, ambas deficientes. Rajani y sus colegas demostraron en 2019 que los humanos podían escribirlas, lo cual es preciso pero costoso y difícil de escalar. Nye y sus colegas intentaron en 2021 generarlas mediante plantillas, lo cual es barato pero rígido. El paso de STaR fue dejar de buscar justificaciones y empezar a cultivarlas.
+
+El bucle funciona así: dale al modelo <span class="said">unos diez mil problemas</span> y déjalo intentar cada uno, cadena de pensamiento incluida. <span class="said">Quédate solo con los intentos que lleguen a la respuesta correcta, ajusta el modelo con ellos y repite.</span> El filtro no necesita un juez: los conjuntos de datos tienen clave de respuestas, así que la verificación es mecánica. En cada ronda, un modelo ligeramente superior genera mejores datos.
+
+Lo más ingenioso es qué sucede con los fracasos. Cuando el modelo no alcanza la respuesta, STaR le muestra el resultado correcto y le pide el razonamiento que habría llegado ahí. El artículo lo llama racionalización. El modelo trabaja a la inversa desde el final del libro de texto, y la cadena resultante, producida con una pista pero bien formada, se suma a los datos de entrenamiento. Un fallo, que antes no servía de nada, se vuelve un ejemplo más.
+
+El método se probó en <span class="doc">GSM8K, un conjunto de problemas matemáticos escolares; CommonsenseQA, una prueba de razonamiento cotidiano; y ejercicios de aritmética</span>. Nada de esto requiere que un humano redacte razonamientos. Pero la clave de respuestas es una señal tenue, un bit por intento: correcto o incorrecto. Extraer más aprendizaje de señales tenues es precisamente la función del aprendizaje por refuerzo.
+
+</Section>
+
+<Section number="04" title="Aprendizaje por refuerzo sin el <em>crítico</em>">
+
+<Standfirst>DeepSeekMath conserva la señal de recompensa y despide al modelo más caro de la sala.</Standfirst>
+
+El aprendizaje por refuerzo es un ensayo y error automatizado: el modelo toma muestras de respuestas, recibe una recompensa cuando acierta y se encamina hacia lo que funciona. Necesita recompensas que una computadora pueda otorgar, lo que el sector llama recompensas verificables. Las matemáticas las tienen, ya que el número coincide o no. El código las tiene, porque el programa pasa sus pruebas o falla.
+
+El motor estándar ha sido PPO, una optimización de política proximal que es pesada. Junto al modelo en entrenamiento, PPO mantiene un crítico, una segunda red que estima qué tan bien lo está haciendo el primero, además de la maquinaria de RLHF, el aprendizaje por refuerzo con retroalimentación humana. El costo no es abstracto: <span class="attr">el desglose de Sebastian Raschka sobre el consumo de memoria de RLHF con PPO</span> cuenta las redes separadas que el método debe cargar en memoria simultáneamente.
+
+<ContextBox label="¿Qué es PPO?">
+La optimización de política proximal, o PPO, es el algoritmo que hizo práctico el aprendizaje por refuerzo para modelos de lenguaje. Actualiza el modelo en pasos pequeños y controlados para que el entrenamiento no se desvíe. Calificar cada paso recae en un crítico, una segunda red neuronal entrenada para estimar el desempeño de la primera. El crítico es un modelo completo que debe cargarse y entrenarse a la par. Ese costo es lo que las nuevas recetas buscan evitar.
+</ContextBox>
+
+La receta de DeepSeekMath, llamada GRPO, <span class="doc">desecha al crítico</span>. Para cada problema, el modelo genera un grupo de respuestas candidatas. Cada una se califica contra la clave de respuestas y se compara con el promedio del grupo en lugar de una estimación aprendida. <span class="doc">El promedio del propio grupo se vuelve la base</span>, así que no hay nada extra que entrenar, cargar o pagar.
+
+<PullQuote>Los ajustes pequeños importan enormemente a gran escala.</PullQuote>
+
+Ese es el patrón que hay que recordar. Las ganancias aquí no vienen de una gran arquitectura nueva. Vienen de alguien que cuestiona si un componente costoso es realmente necesario, y el tercer artículo es básicamente una lista de tales interrogantes.
+
+</Section>
+
+<Section number="05" title="Donde los <em>detalles</em> se vuelven método">
+
+<Standfirst>DAPO lleva la receta a un modelo de treinta y dos mil millones de parámetros y demuestra que, a esta escala, la diferencia entre aprender y el ruido es un puñado de pequeñas decisiones.</Standfirst>
+
+DAPO, el tercer artículo y el responsable del <span class="doc">50 por ciento</span> en AIME 2024, aplica este estilo de entrenamiento a un modelo llamado Qwen-32B. La cifra importa menos que el proceso. DAPO se lee como un manual de taller: una serie de ajustes a GRPO, cada uno enfocado en algo que se rompe cuando el razonamiento se vuelve extenso.
+
+Un ajuste es la pérdida a nivel de token. La señal de entrenamiento usualmente se promedia por respuesta. A esta escala, donde las cadenas son largas, el intento más cuidadoso no cuenta más que uno breve. La pérdida por token cuenta la contribución de cada fragmento directamente, así que el esfuerzo extenso ya no sale perjudicado.
+
+Otro es el muestreo dinámico. Si todas las respuestas candidatas a un problema son correctas, no hay nada que aprender; lo mismo ocurre si todas son incorrectas. Ambos casos generan una señal de entrenamiento nula. El muestreo dinámico reemplaza esos problemas durante el entrenamiento, para que cada lote contenga problemas de los que el modelo aún pueda aprender.
+
+<QABlock speaker="El profesor">
+Los modelos pueden aprender de sus propios resultados (si filtras con astucia). El cómputo de entrenamiento puede sustituir a los parámetros del modelo. Los ajustes pequeños importan enormemente a gran escala.
+</QABlock>
+
+Dos cosas merecen atención. Primero, qué tan lejos llega esta sustitución: cada resultado aquí vive en dominios con una clave de respuestas, y nadie ha demostrado aún que el bucle funcione donde la verdad no pueda ser verificada por máquina. La segunda es el oficio mismo. Las calificaciones dependen de ajustes del tamaño del muestreo dinámico; esto significa que la frontera actual es un conjunto de detalles de implementación. Si estos se estandarizan, la brecha entre los modelos pequeños y los buques insignia se vuelve una decisión de ingeniería, no una ley natural.
+
+</Section>

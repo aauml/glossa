@@ -1,0 +1,123 @@
+---
+issue: "N° 46"
+date: "27 August 2026"
+sortDate: "2026-08-27T13:37:35"
+language: en
+track: general
+title: "The model that graded its own homework"
+titleHTML: "The model that graded <em>its own</em> homework"
+dek: "On the exam that flunks GPT-3.5, small language models now score above fifty percent, because three papers taught them to train on their own filtered reasoning."
+dekHTML: "On the exam that flunks GPT-3.5, small language models now score above fifty percent, because three papers taught them to train on their <em>own</em> filtered reasoning."
+coverDek: "The smallest models in the room are beating GPT-3.5 on one of America's hardest math exams. The trick is not size but practice: the models generate their own reasoning, keep whatever survives the answer key, and train on it. Three papers built that loop, and the details decide whether it works."
+source: "Based on a lecture on reasoning in large language models · Stanford University"
+sourceLabel: "N° 46 · a lecture on reasoning in large language models · Stanford University"
+topics:
+  - "Language Models"
+  - "Reinforcement Learning"
+  - "Mathematical Reasoning"
+  - "Train-Time Scaling"
+  - "Chain-of-Thought"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+The American Invitational Mathematics Examination is not a test you guess on. It is where the strongest high-school mathematicians in the country go to be humbled. It does the same to machines. GPT-3.5, on the exam's 2024 problems, got <span class="doc">about 5 percent</span> of them right. Then the scoreboard stopped making sense. DeepSeekMath-RL, a model with seven billion parameters, small by the standards of the field, reached <span class="doc">51.7 percent</span> on the same exam. A method called DAPO, applied to a model called Qwen-32B, reached fifty. None of the winners is bigger than the models it beats. All of them were taught the same way: practice, check the work against the right answers, train on what survives. A professor at Stanford University, lecturing on how reasoning models are made, walks through the three papers behind that loop. The claim is larger than the scores: compute spent teaching a model from its own output can substitute for the model itself.
+</Lede>
+
+<Section number="01" title="The scoreboard that <em>stopped making sense</em>">
+
+<Standfirst>Three papers, one brutal benchmark, and a set of scores that only makes sense if something about training has changed.</Standfirst>
+
+The reading list is three papers. STaR, published in 2022 by Zelikman and colleagues, is the oldest and the simplest: a method for letting a model write its own training data. DeepSeekMath is a seven-billion-parameter model from the DeepSeek team, released with a technical report detailing the reinforcement learning behind it. DAPO is the most recent, a set of training techniques that pushes the same ideas further and produced the fifty-percent score. Read in order, the three papers are one argument in three acts.
+
+The argument is that size has stopped being the whole story. A model's parameters, the internal dials set during training, have long been the field's measure of power. DeepSeekMath-RL, at seven billion, belongs to the smaller weight class. Yet on the 2024 edition of the exam, the small model is not merely competitive with GPT-3.5. It wins by a wide margin.
+
+<ContextBox label="What is the AIME?">
+The American Invitational Mathematics Examination is a selective competition for high-school students in the United States. Entry is by invitation, earned through earlier rounds of the country's math contests. Its problems demand multi-step reasoning rather than formula recall. Every answer is an exact integer, so grading is mechanical: a response is right or it is wrong. That binary clarity is why AI laboratories adopted the exam as a benchmark for reasoning.
+</ContextBox>
+
+One property of the exam will matter for everything that follows: its answers can be checked in an instant. That makes the AIME not just a hard test but a gradeable one, and a machine can score a thousand attempts as easily as one. To see why that turns a benchmark into a training ground, it helps to have the map of how these models get smart in the first place.
+
+</Section>
+
+<Section number="02" title="Three ways to get <em>smarter</em>, and a fourth">
+
+<Standfirst>Pre-training, fine-tuning, and thinking longer: the established map of how models improve, plus the square where all three papers dig.</Standfirst>
+
+Start with pre-training, the stage that makes a large language model, the kind of system behind chatbots, in the first place. The model learns to continue text, trained on a sweeping slice of the internet and books. This is where parameters accumulate, and where the field's first instinct lives: more data, more dials, better model.
+
+Then comes fine-tuning, which is imitation. Humans write or curate examples of good behavior, an answer here, a worked solution there, and the model is adjusted until it produces more of the same. This stage is why a raw text-continuer becomes an assistant. It is also a bottleneck: somebody has to write the examples.
+
+The third way is test-time scaling: spend more compute when the model is used, not when it is built. Systems in the style of o1 or Gemini Flash thinking do not answer at once. They analyze the problem, break it into parts, check their own steps, and correct themselves before committing. Four habits: problem analysis, decomposition, self-evaluation, self-correction.
+
+<ContextBox label="What is chain-of-thought prompting?">
+A chain of thought is the scratch work between question and answer: the intermediate steps, written in plain language, that lead from one to the other. Asking a large language model to show those steps, rather than answer directly, reliably improves its accuracy on reasoning problems. The demonstration traces to a 2022 paper by Wei and colleagues. The exposed steps also let a reader see where the model went wrong. The hard part has always been getting enough good chains to train on.
+</ContextBox>
+
+The map has a fourth square, and it is where all three papers dig. If a model can produce reasoning, and the reasoning can be checked, then the checked reasoning is itself training data. Compute goes into generating and filtering the model's own output rather than into more parameters or more human writers.
+
+<QABlock speaker="The lecturer">
+The amount of compute you invest in training the model on its own outputs can substitute for the model parameters.
+</QABlock>
+
+Which raises the obvious problem: the reasoning has to come from somewhere before it can be filtered. In 2022, the first of the three papers answered with a loop simple enough to sound like cheating.
+
+</Section>
+
+<Section number="03" title="The <em>bootstrap</em> and the hint">
+
+<Standfirst>STaR's trick is to grow training data instead of writing it, and to make one clever use of the failures.</Standfirst>
+
+Before STaR, rationales had two sources, both bad. Rajani and colleagues showed in 2019 that humans could write them by hand, which is accurate, expensive, and impossible to scale. Nye and colleagues, in 2021, tried generating them from templates, which is cheap and brittle. The move in STaR was to stop looking for rationales and start growing them.
+
+The loop works like this. Give the model <span class="said">some ten thousand problems</span> and let it attempt each one, chain of thought and all. <span class="said">Keep only the attempts that land on the known right answer, fine-tune the model on those, and repeat.</span> The filter needs no judge: the datasets have answer keys, so checking is mechanical. Each round, a slightly better model writes slightly better data.
+
+The cleverest piece is what happens to the failures. When the model cannot reach a known answer, STaR shows it the answer and asks for the reasoning that would have gotten there. The paper calls this rationalization. The model works backward from the back of the textbook, and the resulting chain, produced with a hint but well-formed, joins the training data anyway. A failure, which used to be nothing, becomes one more example.
+
+The method was tested on <span class="doc">GSM8K, a dataset of grade-school math word problems; CommonsenseQA, a multiple-choice test of everyday reasoning; and a set of arithmetic drills</span>. None of it needs a human writing rationales. But the answer key is a thin signal, one bit per attempt, right or wrong. Squeezing more learning out of thin signals is exactly what reinforcement learning is for.
+
+</Section>
+
+<Section number="04" title="Reinforcement learning without the <em>critic</em>">
+
+<Standfirst>DeepSeekMath keeps the reward signal and fires the most expensive model in the room.</Standfirst>
+
+Reinforcement learning is trial and error, automated: the model samples answers, is rewarded when an answer checks out, and is nudged toward whatever worked. It needs rewards a computer can hand out, what the field calls verifiable rewards. Mathematics has them, since the integer matches or it does not. Code has them, since the program passes its tests or fails.
+
+The standard engine for this has been PPO, proximal policy optimization, and it is heavy. Alongside the model being trained, PPO keeps a critic, a second network that estimates how well the first is doing, plus the machinery of RLHF, reinforcement learning from human feedback. The cost is not abstract: <span class="attr">Sebastian Raschka's breakdown of the memory footprint of RLHF with PPO</span> counts the separate networks the method must hold in memory at once.
+
+<ContextBox label="What is PPO?">
+Proximal policy optimization, or PPO, is the algorithm that made reinforcement learning practical for language models. It updates the model in small, clipped steps so that training does not lurch off course. Judging each step falls to a critic, a second neural network trained to estimate how well the first is doing. The critic is a full model in its own right, and it must be loaded and trained alongside everything else. That overhead is the price newer recipes set out to avoid.
+</ContextBox>
+
+DeepSeekMath's recipe, called GRPO for group relative policy optimization, <span class="doc">throws the critic out</span>. For each problem, the model produces a whole group of candidate answers. Each is scored against the answer key, and each candidate is then judged against the group's average rather than against a learned estimate. <span class="doc">The group's own average becomes the baseline</span>, so there is nothing extra to train, load, or pay for.
+
+<PullQuote>Small fixes matter enormously at scale.</PullQuote>
+
+That is the pattern to hold onto. The gains in this story do not come from a grand new architecture. They come from someone asking whether an expensive component is actually needed, and the third paper is essentially a long list of such questions.
+
+</Section>
+
+<Section number="05" title="Where the <em>details</em> become the method">
+
+<Standfirst>DAPO takes the recipe to a thirty-two-billion-parameter model and shows that at this scale, the difference between learning and noise is a handful of small decisions.</Standfirst>
+
+DAPO, the third paper and the one behind the <span class="doc">50 percent</span> on AIME 2024, applies this style of training to a model called Qwen-32B. The number matters less than what produced it. DAPO reads like a workshop manual: a series of adjustments to GRPO, each aimed at something that breaks when the reasoning gets long.
+
+One adjustment is token-level loss. Training signal is usually averaged per answer. At this scale, where chains run long, that means the longest and most careful attempt counts no more than a short one. Token-level loss instead counts every token's contribution directly, so the long attempt is no longer shortchanged.
+
+Another is dynamic sampling. If every candidate answer to a problem is right, there is nothing to learn from it; the same is true if every candidate is wrong. Both cases produce a training signal of zero. Dynamic sampling swaps those problems out as training proceeds, so each batch stays stocked with problems the model can still learn from.
+
+<QABlock speaker="The lecturer">
+Models can learn from their own outputs (if you filter cleverly). Training compute can substitute for model parameters. Small fixes matter enormously at scale.
+</QABlock>
+
+Two things are worth watching. The first is how far the substitution goes: every result here lives in domains with an answer key, and nobody has yet shown the loop working where truth cannot be checked by machine. The second is the craft itself. The scores keep turning on adjustments the size of dynamic sampling, which means the frontier is currently a set of implementation details. If those stabilize into standard practice, the gap between small models and flagship ones becomes an engineering decision, not a law of nature.
+
+</Section>
