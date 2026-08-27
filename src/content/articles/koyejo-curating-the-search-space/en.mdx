@@ -1,0 +1,118 @@
+---
+issue: "N° 47"
+date: "27 August 2026"
+sortDate: "2026-08-27T14:02:07"
+language: en
+track: ai-policy
+title: "When the model says \"perhaps,\" it goes to look it up"
+titleHTML: "When the model says <em>perhaps</em>, it goes to look it up"
+dek: "On competitive programming, the winning trick was to generate a million candidate programs and distrust nearly all of them; for hard science questions, it is to notice the word perhaps and go look things up."
+dekHTML: "On competitive programming, the winning trick was to generate a million candidate programs and <em>distrust</em> nearly all of them; for hard science questions, it is to notice the word perhaps and go look things up."
+coverDek: "Getting the right answer out of a language model has become an engineering discipline of its own: generate a million candidates and filter ruthlessly, as AlphaCode did in programming contests, or let the model pause mid-thought and search when it hits the edge of what it knows. Both approaches now define the front line of AI capability. Some of their numbers are documented in public records, and a few remain the lecturer's alone."
+source: "Based on a lecture by Prof. Sanmi Koyejo · Stanford University"
+sourceLabel: "N° 47 · a lecture by Prof. Sanmi Koyejo · Stanford University"
+topics:
+  - "AlphaCode"
+  - "Competitive Programming"
+  - "Reasoning Models"
+  - "Retrieval-Augmented Generation"
+  - "GPQA"
+  - "AI Benchmarks"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import QABlock from '../../../components/QABlock.astro';
+
+<Lede>
+Inside a large language model, the answer to almost any programming problem already exists, somewhere in the space of things it might say. The engineering problem is getting the right one out. Sanmi Koyejo, a Stanford professor, built a lecture around two ways of doing it. The first is brute force with taste. AlphaCode, described by its authors in a 2022 paper, generated up to a million candidate programs per problem. It threw away <span class="said">roughly ninety-nine percent</span> of them, clustered the survivors, and submitted the best. That was enough to place it <span class="said">in the top 54 percent</span> of contestants across ten competitions. The second way is subtler: a reasoning model notices it is guessing (the word perhaps gives it away) and stops to look things up. Both stories make the same contestable claim. Machine intelligence, at least for now, is less about knowing than about searching well.
+</Lede>
+
+<Section number="01" title="The contestant with <em>a million drafts</em>">
+
+<Standfirst>Competitive programming became a test bed for machine reasoning because it cannot be bluffed. AlphaCode's answer was volume first, then ruthless subtraction.</Standfirst>
+
+A programming contest is a quiet room with a clock. Entrants read a problem statement, write a solution from nothing, and are graded on test cases they never see. The code runs or it does not; there is no partial credit for eloquence. Most coding benchmarks in AI research are gentler, asking a model to finish a function whose shape is already given. Contests demand the whole arc, from reading comprehension to edge cases. "When you have to solve problems end-to-end," Koyejo told the room, "that starts to be a much harder problem."
+
+<ContextBox label="What is competitive programming?">
+Organized online contests pit thousands of programmers against a handful of algorithmic puzzles under time pressure. Solutions are graded automatically, on correctness and efficiency, against hidden test cases. Rankings update after every round, which makes the results unusually clean public data. Problems are written fresh for each round, so memorized answers help less than fresh planning. That combination of novelty, planning, and automatic grading is why AI labs adopted the format as a reasoning benchmark.
+</ContextBox>
+
+AlphaCode treated the contest as a manufacturing problem. Its authors fine-tuned a large language model on enormous codebases using reinforcement learning, a training loop that rewards the model for outputs that work. From that model they sampled up to a million candidate programs per task. Every candidate ran against the example tests bundled with the problem statement, and <span class="said">about ninety-nine percent of the output died there</span>. The survivors were clustered so near-identical solutions counted once, and the strongest representatives became the submissions.
+
+<PullQuote>The solutions lie in the search space of the models.</PullQuote>
+
+The number that made the system famous came from ten live contests: a placement <span class="said">among the top 54 percent of participants</span>. Middling for a human, startling for a machine, and argued about ever since. The placement measures survival under human rules, not elegance or speed of thought. And its meaning depends entirely on who held the stopwatch.
+
+</Section>
+
+<Section number="02" title="Grading the machine on <em>the humans' turf</em>">
+
+<Standfirst>A model can shine on a frozen dataset and look ordinary in a live contest. The gap between those two gradings became a result in itself.</Standfirst>
+
+There are two ways to grade a coding model. The lab way is offline: freeze a set of past problems, generate solutions, score them in-house. The hard way is to enter live contests and let the platform's own judges, clocks, and hidden tests do the scoring. The first is cheap and repeatable. The second is slow, unforgiving, and very hard to fool.
+
+The distinction sounds procedural. It is not. Static datasets have a quiet failure mode: their problems seep into training data, and the line between studying and being tested blurs. Live contests resist that decay, because the problems did not exist when the model was trained and the grader belongs to someone else. AlphaCode's ranking rests on that separation. Strip it away and the same score would mean far less.
+
+So the arrival of a successor posed a sharper question than a higher score. The sampling, filtering, and choosing had been scaffolding around AlphaCode, machinery bolted on after training. If that machinery could be moved inside the models themselves, the system would stop being one model with an entourage. AlphaCode 2's answer was stranger: not one model with an entourage, but an entourage of models.
+
+</Section>
+
+<Section number="03" title="A family of models, and <em>a judge they trained</em>">
+
+<Standfirst>AlphaCode 2 kept the brute force and changed the crew. Several fine-tuned variants supplied the diversity; a learned model did the choosing.</Standfirst>
+
+The second generation was rebuilt on Gemini Pro, a stronger foundation model, and attacked the weakest point of the brute-force design: sameness. A million samples from one model are a million variations on a handful of ideas. So instead of one fine-tuned model, the system trained a family of them, each tuned a little differently, and pooled their candidates. The search spread wider before the filter cut it back down.
+
+The choosing changed too. Where the first system relied on tests and clustering alone, the second added a reward model, a separate network trained to score how promising a candidate solution looks. Ranking was no longer just a matter of which programs survived; it was learned. The loop had closed into something new under the hood: one model generating, another model judging.
+
+Underneath the design sat an empirical bet. As the sample budget grows, the solve rate keeps climbing, <span class="attr">log-linearly, each tenfold increase in samples buying a roughly constant gain</span>. Nothing in the curve says where it flattens. The consequence landed in one line.
+
+<QABlock speaker="Koyejo">
+Models have higher slopes in the scaling curve.
+</QABlock>
+
+Read plainly, better models extract more from each additional round of sampling, and nobody has found the ceiling. That relocates the bottleneck. If a winning program exists somewhere in the first million tries, the entire game is recognizing it. Generation had become the cheap part. Recognition was the expensive one, and it was about to resurface far from any contest, inside models sitting science exams.
+
+</Section>
+
+<Section number="04" title="The word that <em>gives the machine away</em>">
+
+<Standfirst>On graduate-level science questions, even strong reasoning models hesitate in a way that can be counted. That hesitation turned out to be usable.</Standfirst>
+
+Contests test planning; they do not test knowledge. The second half of the lecture moved to questions where knowing itself is the bottleneck: science items written to defeat search engines, gathered in a benchmark called GPQA. Its design is worth a pause, because the numbers that follow mean little without it.
+
+<ContextBox label="What is GPQA?">
+GPQA stands for Graduate-Level Google-Proof Q&A. It holds 448 multiple-choice questions in biology, physics, and chemistry, written by domain experts and published in 2023 by researchers at New York University, Cohere, and Anthropic. The questions are built so that open web access does not rescue a non-expert: skilled validators with the internet available averaged 34 percent, spending about 37 minutes per question. PhD-level experts in the relevant field reached 65 percent, and the strongest GPT-4-based baseline managed 39. The authors' stated goal is scalable oversight, the study of how humans verify answers from systems that may outknow them.
+</ContextBox>
+
+Large reasoning models, the kind that write out long chains of thought before committing to an answer, still run into gaps on GPQA. Chain-of-thought prompting, letting the model reason in writing step by step, helps only when the steps have somewhere to stand. The lecture's exhibit was OpenAI's o1: across its reasoning on the dataset, the word <span class="said">"perhaps" appears more than thirty times</span>. Read statistically, that is a flinch, the model reasoning past the edge of what it knows and narrating its own uncertainty.
+
+Search-o1, the framework proposed in response, lets the model act on the flinch. Rather than reasoning straight through a gap, the model pauses mid-chain, writes a search query, retrieves documents, and resumes with the findings folded in. If the gap persists, it searches again. This is retrieval-augmented generation, the standard practice of pairing a language model with a search index, rebuilt as something the model initiates itself.
+
+<QABlock speaker="Koyejo">
+The model autonomously generates search queries when encountering knowledge gaps and triggers multiple iterations within a single reasoning session.
+</QABlock>
+
+The difference sounds procedural. It is closer to a change of government. The search is no longer a service bolted on by an engineer; it is an act the reasoner performs when it judges its own knowledge insufficient. Whether that judgment can be trusted is a question of receipts, and the receipts have a wrinkle.
+
+</Section>
+
+<Section number="05" title="The <em>receipts</em>, and the seat left empty">
+
+<Standfirst>Retrieval with refinement posts gains on paper. The public record around these benchmarks is specific about who earned which number.</Standfirst>
+
+Retrieved text is noisy, and a chain of thought chokes on clutter as readily as on ignorance. Search-o1's countermeasure is a step called reason-in-documents: before any retrieved passage touches the main chain, the model <span class="said">analyzes it independently and distills what matters</span>. The intent is to keep redundancy and noise out of the reasoning itself. Picture a careful student who takes notes in the margin before writing the proof.
+
+The evaluation ran on multi-hop question answering, questions whose answers must be assembled from facts in several documents, and on a base model, Qwen2.5-7B, with seven billion parameters, modest by frontier standards. The framework posted <span class="attr">clear gains over direct reasoning without retrieval</span>, and its closing comparisons were drawn against human experts.
+
+One number in this territory deserves plain handling. The lecture associated AlphaCode 2's generation of systems with GPQA results <span class="attr">above human experts in physics and biology</span>. The public record attaches that milestone to different machines. The benchmark's own 2023 paper measured experts at 65 percent and the best GPT-4 baseline at 39. The first documented crossing of the expert line on GPQA's hardest 198-question slice is OpenAI's o1, at 77 percent in September 2024; leaderboards now show frontier models above 94. No code-generation system appears in that record, and the lecture's version stands alone. There is also an irony worth noting: the same o1 whose hedging supplied the "perhaps" exhibit is, on the documented numbers, past the expert line.
+
+The closing agenda was practical. Models should price task complexity, spending more search on harder problems rather than a fixed budget on all. Refinement should become iterative, so that solutions are improved instead of merely selected. And the broad direction is agentic: systems that decide what to do next, not only what to say next.
+
+That leaves the question GPQA was built to ask. When generation is cheap, filtering is learned, and retrieval is autonomous, the human share of the work narrows to a single act: deciding whether the answer is right. The benchmark's own numbers show how narrow that ledge is, 65 percent for experts, 34 for skilled amateurs with the whole web open. The machines are climbing past both marks. Who grades the climb, and with what instruments, is the seat the lecture left empty.
+
+</Section>

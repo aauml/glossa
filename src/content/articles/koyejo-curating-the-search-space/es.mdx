@@ -1,0 +1,118 @@
+---
+issue: "N.º 47"
+date: "27 ago 2026"
+sortDate: "2026-08-27T14:02:07"
+language: es
+track: ai-policy
+title: "Cuando el modelo dice \"quizá\", se pone a investigar"
+titleHTML: "Cuando el modelo dice <em>quizá</em>, se pone a investigar"
+dek: "En la programación competitiva, el truco ganador fue generar un millón de programas candidatos y desconfiar de casi todos; ante preguntas científicas complejas, el secreto es detectar la palabra quizá y buscar respuestas."
+dekHTML: "En la programación competitiva, el truco ganador fue generar un millón de programas candidatos y <em>desconfiar</em> de casi todos; ante preguntas científicas complejas, el secreto es detectar la palabra quizá y buscar respuestas."
+coverDek: "Lograr que un modelo de lenguaje dé la respuesta correcta se ha convertido en una disciplina de ingeniería: generar un millón de borradores y filtrar sin piedad, como hizo AlphaCode en los concursos de programación, o dejar que el modelo se detenga a mitad del razonamiento para investigar lo que ignora. Ambos enfoques definen hoy la frontera de la inteligencia artificial. Algunas de sus cifras aparecen en registros públicos, y otras son solo del conferencista."
+source: "Basado en una conferencia del profesor Sanmi Koyejo · Universidad de Stanford"
+sourceLabel: "N° 47 · una conferencia del profesor Sanmi Koyejo · Universidad de Stanford"
+topics:
+  - "AlphaCode"
+  - "Programación competitiva"
+  - "Modelos de razonamiento"
+  - "Generación aumentada por recuperación"
+  - "GPQA"
+  - "Benchmarks de IA"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+import QABlock from '../../../components/QABlock.astro';
+
+<Lede>
+Dentro de un gran modelo de lenguaje, la respuesta a casi cualquier problema de programación ya existe, oculta en el vasto espectro de lo que podría llegar a decir. El reto de ingeniería es extraer la correcta. Sanmi Koyejo, profesor en Stanford, estructuró su ponencia en torno a dos formas de lograrlo. La primera es la fuerza bruta con criterio. AlphaCode, descrito por sus autores en un artículo de 2022, generaba hasta un millón de programas candidatos por ejercicio. Desechaba <span class="said">aproximadamente el noventa y nueve por ciento</span>, agrupaba los supervivientes y enviaba el mejor. Eso bastó para colocarlo <span class="said">entre el 54 por ciento superior</span> de los participantes en diez competencias. La segunda vía es más sutil: el modelo advierte que está adivinando (la palabra quizá lo delata) y se detiene a verificar. Ambas historias sostienen la misma premisa discutible: la inteligencia de las máquinas, al menos hoy, trata menos de saber y más de saber buscar.
+</Lede>
+
+<Section number="01" title="El concursante con <em>un millón de borradores</em>">
+
+<Standfirst>La programación competitiva se volvió un campo de pruebas para el razonamiento automático porque no permite el engaño. La respuesta de AlphaCode fue primero volumen, luego una criba implacable.</Standfirst>
+
+Un concurso de programación es una sala silenciosa con un reloj de arena. Los participantes leen el enunciado, redactan una solución desde cero y son calificados con pruebas ocultas. El código funciona o no; no hay puntos por estilo. La mayoría de los benchmarks de IA son más condescendientes y piden al modelo completar una función con forma predefinida. Las competencias exigen el arco completo, desde la comprensión lectora hasta los casos límite. "Cuando tienes que resolver problemas de principio a fin", explicó Koyejo ante el auditorio, "te enfrentas a un reto mucho mayor".
+
+<ContextBox label="¿Qué es la programación competitiva?">
+Concursos digitales donde miles de programadores enfrentan acertijos algorítmicos bajo presión. Las soluciones se califican automáticamente según su corrección y eficiencia contra bancos de pruebas ocultos. Las clasificaciones se actualizan tras cada ronda, lo que genera datos públicos inusualmente limpios. Como los problemas se escriben para cada encuentro, memorizar sirve menos que planear. Esa mezcla de novedad, estrategia y calificación automática explica por qué los laboratorios de IA adoptaron este formato como métrica de razonamiento.
+</ContextBox>
+
+AlphaCode trató el concurso como un problema de manufactura. Sus autores ajustaron un modelo de lenguaje sobre enormes bases de código usando aprendizaje por refuerzo, un ciclo que premia al modelo por resultados funcionales. De ahí extrajeron hasta un millón de programas por tarea. Cada uno se ejecutó contra las pruebas de ejemplo, y <span class="said">cerca del noventa y nueve por ciento pereció en el intento</span>. Los supervivientes se agruparon para no contar duplicados, y los representantes más robustos se enviaron como soluciones.
+
+<PullQuote>Las soluciones residen en el espacio de búsqueda de los modelos.</PullQuote>
+
+La cifra que dio fama al sistema surgió de diez concursos en vivo: un lugar <span class="said">entre el 54 por ciento superior de los participantes</span>. Un resultado mediocre para un humano, asombroso para una máquina, y debatido desde entonces. Ese puesto mide la supervivencia bajo reglas humanas, no la elegancia o la velocidad mental. Y su significado depende enteramente de quién sostenía el cronómetro.
+
+</Section>
+
+<Section number="02" title="Calificar a la máquina en <em>terreno ajeno</em>">
+
+<Standfirst>Un modelo puede brillar en un banco de datos estático y lucir común en una competencia real. La brecha entre ambas mediciones se convirtió en un resultado en sí mismo.</Standfirst>
+
+Existen dos formas de calificar un modelo de código. La de laboratorio es fría: congelar problemas pasados, generar soluciones y calificarlas internamente. La difícil es ingresar a concursos en vivo y dejar que los jueces, relojes y pruebas ocultas de la plataforma dicten sentencia. La primera es barata y repetible; la segunda es lenta, implacable y muy difícil de engañar.
+
+La distinción suena a trámite, pero no lo es. Los conjuntos de datos estáticos tienen un fallo silencioso: los problemas se filtran en el entrenamiento y la frontera entre estudiar y ser examinado se desdibuja. Los concursos en vivo resisten esa degradación, porque los problemas no existían cuando el modelo se entrenó y el evaluador es ajeno. El prestigio de AlphaCode descansa en esa separación. Sin ella, la misma puntuación valdría mucho menos.
+
+La llegada de un sucesor planteó una interrogante más incisiva que una nota superior. El muestreo, el filtrado y la elección habían sido andamiajes externos para AlphaCode. Si esa maquinaria se integraba al interior de los modelos, el sistema dejaría de ser un modelo con séquito. La respuesta de AlphaCode 2 fue más extraña: no un modelo con séquito, sino un séquito de modelos.
+
+</Section>
+
+<Section number="03" title="Una familia de modelos y <em>un juez a su medida</em>">
+
+<Standfirst>AlphaCode 2 mantuvo la fuerza bruta y cambió al equipo. Variantes ajustadas aportaron diversidad; un modelo entrenado asumió la selección.</Standfirst>
+
+La segunda generación se reconstruyó sobre Gemini Pro, un modelo base más potente, y atacó el punto débil del diseño original: la uniformidad. Un millón de muestras de un solo modelo son un millón de variaciones sobre las mismas ideas. Así que, en lugar de uno, el sistema entrenó a una familia de modelos, cada uno ajustado de forma distinta, y agrupó sus candidatos. La búsqueda se expandió antes de que el filtro la redujera.
+
+El criterio de elección también evolucionó. Donde el primero confiaba en pruebas y agrupaciones, el segundo añadió un modelo de recompensa, una red entrenada para puntuar qué tan prometedora es una solución. Clasificar dejó de ser solo cuestión de qué programas sobrevivían; se aprendió. El ciclo se cerró en algo nuevo: un modelo que genera y otro que juzga.
+
+Bajo el diseño latía una apuesta empírica. A medida que aumenta el presupuesto de muestras, la tasa de éxito sube, <span class="attr">de forma logarítmica, donde cada aumento de diez veces en las muestras compra una mejora constante</span>. Nada en la curva indica dónde se estanca. La consecuencia aterrizó en una sola frase.
+
+<QABlock speaker="Koyejo">
+Los modelos tienen pendientes más pronunciadas en la curva de escalado.
+</QABlock>
+
+En lenguaje llano: mejores modelos extraen más provecho de cada ronda de muestreo y nadie ha encontrado el límite. Eso traslada el cuello de botella. Si una solución ganadora existe en el primer millón de intentos, el juego consiste en identificarla. La generación se volvió la parte barata. El reconocimiento era lo costoso, y estaba por aparecer lejos de cualquier concurso, dentro de modelos que presentan exámenes científicos.
+
+</Section>
+
+<Section number="04" title="La palabra que <em>delata a la máquina</em>">
+
+<Standfirst>Ante preguntas científicas de nivel posgrado, incluso los modelos de razonamiento sólido vacilan de forma contable. Esa vacilación resultó ser aprovechable.</Standfirst>
+
+Los concursos prueban estrategia, no conocimiento. La segunda mitad de la ponencia abordó preguntas donde saber es el verdadero obstáculo: reactivos científicos diseñados para derrotar a los buscadores, recopilados en un benchmark llamado GPQA. Su diseño merece una pausa, pues las cifras siguientes carecen de sentido sin él.
+
+<ContextBox label="¿Qué es GPQA?">
+Siglas de "Preguntas y Respuestas a Nivel Posgrado a Prueba de Google". Contiene 448 preguntas de opción múltiple en biología, física y química, redactadas por expertos y publicadas en 2023 por investigadores de la NYU, Cohere y Anthropic. Las preguntas están hechas para que el acceso a internet no rescate a un no experto: validadores hábiles con acceso a la red promediaron un 34 por ciento, dedicando unos 37 minutos por pregunta. Expertos con doctorado alcanzaron un 65 por ciento, mientras que el mejor GPT-4 logró un 39. El objetivo es estudiar la supervisión escalable: cómo verifican los humanos a sistemas que saben más que ellos.
+</ContextBox>
+
+Los grandes modelos de razonamiento, aquellos que despliegan largas cadenas de pensamiento antes de decidir, siguen tropezando con GPQA. El prompting de cadena de pensamiento —dejar que el modelo razone paso a paso— solo funciona cuando los peldaños son firmes. El ejemplo de la conferencia fue o1 de OpenAI: a lo largo de su razonamiento sobre el conjunto de datos, la palabra <span class="said">"quizá" aparece más de treinta veces</span>. Estadísticamente, es un sobresalto: el modelo razona más allá de su frontera de conocimiento y narra su propia incertidumbre.
+
+Search-o1, el marco propuesto como respuesta, permite al modelo actuar ante ese sobresalto. En lugar de razonar a ciegas, el modelo se detiene a mitad de la cadena, redacta una consulta, recupera documentos y retoma el hilo con la información nueva. Si la brecha persiste, vuelve a buscar. Es la generación aumentada por recuperación —la práctica estándar de emparejar un modelo con un buscador—, reinventada como un acto autónomo.
+
+<QABlock speaker="Koyejo">
+El modelo genera consultas de búsqueda de forma autónoma al encontrar vacíos de conocimiento y dispara iteraciones múltiples dentro de una misma sesión de razonamiento.
+</QABlock>
+
+La diferencia parece técnica, pero se parece más a un cambio de gobierno. La búsqueda ya no es un servicio añadido por un ingeniero; es una acción que el razonador ejecuta cuando juzga insuficiente su propio saber. Si ese juicio es confiable es una cuestión de pruebas, y las pruebas tienen su matiz.
+
+</Section>
+
+<Section number="05" title="Las pruebas y <em>el asiento vacío</em>">
+
+<Standfirst>La recuperación con refinamiento arroja ganancias sobre papel. El registro público de estos benchmarks es preciso sobre quién obtuvo qué cifra.</Standfirst>
+
+El texto recuperado suele tener ruido, y una cadena de pensamiento se asfixia tanto con el desorden como con la ignorancia. La contramedida de Search-o1 es el razonamiento sobre documentos: antes de que cualquier pasaje toque la cadena principal, el modelo <span class="said">lo analiza de forma independiente y destila lo importante</span>. La intención es evitar el ruido en el razonamiento mismo. Imaginen a un estudiante cuidadoso que toma notas al margen antes de escribir su demostración.
+
+La evaluación se ejecutó sobre preguntas de múltiples saltos, aquellas cuyas respuestas deben ensamblarse con hechos de varios documentos, y sobre un modelo base, Qwen2.5-7B, con siete mil millones de parámetros, modesto para los estándares actuales. El marco registró <span class="attr">ganancias claras frente al razonamiento directo sin recuperación</span>, y sus comparaciones finales se trazaron contra expertos humanos.
+
+Un dato en este terreno merece un manejo cuidadoso. La conferencia asoció la generación de sistemas de AlphaCode 2 con resultados en GPQA <span class="attr">por encima de expertos humanos en física y biología</span>. El registro público atribuye ese hito a máquinas distintas. El estudio del benchmark en 2023 marcó a los expertos en un 65 por ciento y al mejor GPT-4 en un 39. El primer cruce documentado de la línea de expertos en el subconjunto más difícil (198 preguntas) es OpenAI o1, con 77 por ciento en septiembre de 2024; los marcadores actuales muestran modelos de frontera por encima del 94. Ningún sistema de generación de código aparece en ese registro, y la versión de la conferencia permanece aislada. Hay además una ironía: el mismo o1 cuya vacilación aportó el ejemplo de "quizá" está, según las cifras documentadas, más allá de la línea de expertos.
+
+La agenda de cierre fue práctica. Los modelos deben ponderar la complejidad de la tarea, dedicando más búsqueda a problemas difíciles en lugar de un presupuesto fijo. El refinamiento debe volverse iterativo para mejorar las soluciones en lugar de solo seleccionarlas. La dirección general es hacia agentes: sistemas que deciden qué hacer a continuación, no solo qué decir.
+
+Eso deja pendiente la pregunta que originó GPQA. Cuando generar es barato, filtrar es aprendido y buscar es autónomo, la parte humana del trabajo se reduce a un solo acto: decidir si la respuesta es correcta. Las cifras del propio benchmark muestran lo estrecho que es ese filo: 65 por ciento para expertos, 34 para amateurs hábiles con la red abierta. Las máquinas están superando ambas marcas. Quién califica la escalada, y con qué instrumentos, es el asiento que la conferencia dejó vacío.
+
+</Section>

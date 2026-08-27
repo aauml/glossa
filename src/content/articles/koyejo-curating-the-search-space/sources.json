@@ -1,0 +1,61 @@
+{
+  "slug": "koyejo-curating-the-search-space",
+  "issue": "N° 47",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=Uni9dqyuuDM",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "Prof. Koyejo argues that large language models can be improved for competitive programming by fine-tuning with reinforcement learning on large codebases, followed by extensive sampling, filtering, and clustering to select and rank high-quality solutions, and that reasoning performance is significantly improved by incorporating dynamic information retrieval into the reasoning chain.",
+      "claim_es": "El profesor Koyejo sostiene que los grandes modelos de lenguaje pueden mejorar en programación competitiva mediante ajustes por aprendizaje por refuerzo, seguidos de muestreo intensivo, filtrado y agrupación para seleccionar soluciones de alta calidad, y que el rendimiento en razonamiento mejora notablemente al incorporar recuperación dinámica de información en la cadena de pensamiento.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "intuitionlabs.ai — The GPQA-Diamond benchmark has become a primary metric for assessing AI models in scientific reasoni",
+      "url": "https://intuitionlabs.ai/articles/gpqa-diamond-ai-benchmark",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The GPQA-Diamond benchmark has become a primary metric for assessing AI models in scientific reasoning. New models, including those from Google, OpenAI, and Autopoiesis Sciences, have achieved performance levels that meet or exceed those of human PhD-level experts. The benchmark was designed to test scalable oversight as AI capabilities advance.",
+      "claim_es": "El benchmark GPQA-Diamond se ha convertido en una métrica principal para evaluar modelos de IA en razonamiento científico. Nuevos modelos, incluyendo los de Google, OpenAI y Autopoiesis Sciences, han alcanzado niveles que igualan o superan a los de expertos humanos con doctorado. El benchmark fue diseñado para evaluar la supervisión escalable ante el avance de las capacidades de la IA.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "arxiv.org — Researchers from New York University, Cohere, and Anthropic have introduced GPQA, a dataset of 448 h",
+      "url": "https://arxiv.org/pdf/2311.12022",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers from New York University, Cohere, and Anthropic have introduced GPQA, a dataset of 448 high-quality, graduate-level multiple-choice questions in biology, physics, and chemistry. The dataset is designed to be difficult for both skilled non-experts and existing frontier AI systems. The authors aim to provide a benchmark for studying scalable oversight of future, more capable AI models.",
+      "claim_es": "Investigadores de NYU, Cohere y Anthropic presentaron GPQA, un conjunto de 448 preguntas de opción múltiple de nivel posgrado en biología, física y química. El conjunto está diseñado para ser difícil tanto para no expertos calificados como para los modelos de frontera actuales, con el fin de proporcionar un estándar para estudiar la supervisión escalable de futuras IAs más capaces.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "ar5iv.labs.arxiv.org — Researchers have released GPQA, a dataset of 448 graduate-level multiple-choice questions in biology",
+      "url": "https://ar5iv.labs.arxiv.org/html/2311.12022",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers have released GPQA, a dataset of 448 graduate-level multiple-choice questions in biology, physics, and chemistry designed to be 'Google-proof.' The questions are intended to serve as a benchmark for evaluating AI models on tasks that are extremely difficult even for highly skilled human non-experts with internet access.",
+      "claim_es": "Investigadores han publicado GPQA, un conjunto de 448 preguntas de nivel posgrado diseñadas para ser 'a prueba de Google'. Las preguntas buscan servir como referencia para evaluar modelos de IA en tareas extremadamente difíciles incluso para humanos altamente capacitados con acceso a internet.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "artificialanalysis.ai — Artificial Analysis published leaderboard data for the GPQA Diamond benchmark. The benchmark consist",
+      "url": "https://artificialanalysis.ai/evaluations/gpqa-diamond",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Artificial Analysis published leaderboard data for the GPQA Diamond benchmark. The benchmark consists of 198 challenging, Google-proof scientific questions requiring expert knowledge. Models are measured on their ability to solve these graduate-level physics, biology, and chemistry questions.",
+      "claim_es": "Artificial Analysis publicó datos de clasificación para el benchmark GPQA Diamond. El benchmark consiste en 198 preguntas científicas desafiantes y a prueba de Google que requieren conocimiento experto. Se mide la capacidad de los modelos para resolver estos problemas de física, biología y química de nivel posgrado.",
+      "verificada": "si"
+    }
+  ]
+}
