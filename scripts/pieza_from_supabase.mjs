@@ -479,8 +479,24 @@ for (const slug of await readdir('src/content/articles')) {
   if (issue) maxNo = Math.max(maxNo, Number(issue[2]));
   if (issue && title) piezas.push({ issue: issue[1], slug, title: JSON.parse(`"${title[1]}"`) });
 }
+// Y los números YA PEDIDOS que todavía no están en el repo.
+//
+// La colección se lee del checkout, y una pieza recién escrita tarda unos
+// minutos en llegar ahí: primero se encola su publicación, luego el worker
+// commitea. En esa ventana el número no existe en los ficheros, así que la
+// siguiente pieza lo volvía a pedir — dos N° 42 escribiéndose a la vez, que es
+// justo lo que el turno no puede evitar porque las dos corridas son legítimas
+// y consecutivas.
+//
+// La cola de publicación sí los conoce: se mira también ahí.
+const pedidos = await sb('glossa_publish_requests?select=issue_no&order=requested_at.desc&limit=200') ?? [];
+for (const r of pedidos) {
+  const m = String(r.issue_no ?? '').match(/(\d+)/);
+  if (m) maxNo = Math.max(maxNo, Number(m[1]));
+}
+
 const issueNo = `N° ${maxNo + 1}`;
-console.log(`Le toca ${issueNo} (la colección tiene ${piezas.length} piezas).`);
+console.log(`Le toca ${issueNo} (la colección tiene ${piezas.length} piezas, y ${pedidos.length} números pedidos).`);
 await avance(42, `writing the piece (${MODELO_KIMI}) — the long stage`, { issue: issueNo });
 
 // ── 5 · Kimi escribe, contra contrato ────────────────────────────────────

@@ -1,6 +1,7 @@
 ---
 import SizeSwitch from './SizeSwitch.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
+import PanelLink from './PanelLink.astro';
 // `langs` son los idiomas que existen para esta pieza. Un idioma ausente se
 // pinta apagado en vez de enlazar a una página que no se genera.
 const { lang, slug, langs = ['en', 'es'] } = Astro.props;
@@ -20,6 +21,10 @@ const ORDER = ['en', 'es'];
       ))}
       <SizeSwitch separator />
       <ThemeSwitch separator />
+      {/* El panel se alcanza desde CUALQUIER página. Estaba en la portada y en
+          la revista, y faltaba justo donde más se lee: dentro de un artículo,
+          que es de donde se sale a arreglar algo que acabas de ver mal. */}
+      <PanelLink separator />
     </span>
   </div>
 </header>

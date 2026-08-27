@@ -21,6 +21,9 @@
   --accent: #7A1F1F;
   --accent-soft: #A14848;
   --gold: #B8860B;
+  /* Verde de «ya está»: solo lo usa la barra de una pieza publicada. Sobrio,
+     de tinta verde, no de semáforo — el panel no es un tablero de mandos. */
+  --vivo: #2F6B4F;
   --highlight: #FAF4E8;
   --shadow: rgba(26, 26, 26, 0.06);
   --reader-scale: 1;
@@ -42,6 +45,7 @@
   --accent: #D98A7A;
   --accent-soft: #C77463;
   --gold: #D2A64A;
+  --vivo: #6FBF95;
   --highlight: #1F1B16;
   --shadow: rgba(0, 0, 0, 0.45);
 }

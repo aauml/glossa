@@ -657,12 +657,15 @@ ${t.canales} channels · ${t.elementos} items · last ${esc(String(t.ultimo || '
   // Barra por pieza: fase + porcentaje. Mientras haya alguna viva se refresca
   // cada 12 s; en cuanto no queda ninguna activa, el reloj se apaga solo.
   // Una barra, un formato: la usan las piezas y el corte del número.
-  function barra(nombre, etiqueta, pct, tono) {
+  // `color` distingue de un vistazo lo que hay que mirar de lo que ya está:
+  // oxblood mientras trabaja, VERDE cuando la pieza está en vivo. Sin eso, una
+  // barra llena al 100 % y una a medias se leían igual de lejos.
+  function barra(nombre, etiqueta, pct, tono, color = 'var(--accent)') {
     return `<div style="margin-top:14px">
       <p class="admin-nota" style="margin-bottom:4px">${nombre}
         <span class="admin-tenue"> — ${etiqueta}</span></p>
       <div style="height:4px;background:var(--rule-soft);border-radius:2px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;border-radius:2px;background:var(--accent);
+        <div style="height:100%;width:${pct}%;border-radius:2px;background:${color};
                     opacity:${tono};transition:width .6s ease"></div>
       </div></div>`;
   }
@@ -731,7 +734,8 @@ ${t.canales} channels · ${t.elementos} items · last ${esc(String(t.ultimo || '
                : `${pct}% · ${fase}`;
       const nombre = pr.issue ? `${pr.issue} · ` : '';
       return barra(`${nombre}${(p.title || '').slice(0, 70)}`, etiqueta,
-                   fallo ? 100 : pct, fallo ? .45 : vivo ? 1 : .85);
+                   fallo ? 100 : pct, fallo ? .45 : vivo ? 1 : .85,
+                   vivo ? 'var(--vivo)' : 'var(--accent)');
     }).join('');
 
     el.innerHTML = html;
