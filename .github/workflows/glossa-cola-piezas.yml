@@ -5,13 +5,13 @@
 # Nadie debería tener que darle a «retry» a mano, así que esto mira cada veinte
 # minutos y lanza la más antigua si el turno está libre.
 #
-# Cuesta nada cuando no hay nada: mira dos filas y sale. El repositorio es
-# público, así que los minutos de Actions no se pagan.
+# Cuesta nada cuando no hay nada: mira dos filas y sale.
 name: Glossa cola de piezas (reintento automático)
 
+# Sin `schedule`: el reloj de verdad es pg_cron (`glossa_piezas_empujar`, cada
+# quince minutos), porque el cron de Actions se saltó CUATRO HORAS seguidas de
+# esta misma cola. Esto queda como palanca manual para empujar sin esperar.
 on:
-  schedule:
-    - cron: '*/20 * * * *'
   workflow_dispatch:
 
 env:
