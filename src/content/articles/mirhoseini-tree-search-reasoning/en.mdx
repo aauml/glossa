@@ -1,0 +1,135 @@
+---
+issue: "N° 45"
+date: "27 August 2026"
+sortDate: "2026-08-27T12:34:09"
+language: en
+track: ai-policy
+title: "A tree of plans for the model's one-track mind"
+titleHTML: "A tree of plans for the model's <em>one-track mind</em>"
+dek: "To fix the one-track mind of language models, researchers are growing trees of candidate plans, running independent steps in parallel, and training models on practice problems no human ever wrote."
+dekHTML: "To fix the one-track mind of language models, researchers are growing <em>trees</em> of candidate plans, running independent steps in parallel, and training models on practice problems no human ever wrote."
+coverDek: "The best language models still commit to the first plan they write, then follow it past the point where it stops making sense. Three frameworks now on the table — tree search over candidate plans, parallel execution of independent steps, practice data the model writes for itself — are the field's way of buying second thoughts, and every one of them is paid for in computation."
+source: "Based on a lecture by Azalia Mirhoseini · Stanford University"
+sourceLabel: "N° 45 · a lecture by Azalia Mirhoseini · Stanford University"
+topics:
+  - "Large Language Models"
+  - "Reasoning Models"
+  - "Monte Carlo Tree Search"
+  - "Reinforcement Learning"
+  - "AI Benchmarks"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Ask a large language model to plan a multi-step task and it does something recognizably human: it commits to the first plan that comes to mind, then executes with confidence as the plan goes wrong. <span class="said">The model rarely backs up, branches out, or wonders whether a different path would have worked better.</span> That one-track quality, Azalia Mirhoseini told her audience, is the bottleneck between today's models and real reasoning. Mirhoseini, a professor at Stanford, laid out three frameworks that attack the problem from different directions. One teaches a model to search a tree of possible plans instead of following a single chain of thought. One runs the independent steps of a task in parallel rather than in line. One trains the model on practice problems it writes for itself. The first already carries peer-reviewed numbers. The other two share a weakness that the first does not hide either: every one of these second thoughts is paid for in computation.
+</Lede>
+
+<Section number="01" title="The first plan is the <em>only</em> plan">
+
+<Standfirst>The standard trick for making models reason is also the thing that locks them into their first idea.</Standfirst>
+
+Chain-of-thought prompting, the standard trick of the last few years, asks the model to write out its reasoning step by step before answering. It works well enough that it became the default way to coax arithmetic, logic, and planning out of a large language model. But the chain runs in one direction. <span class="said">Once the model commits to an early step, every later step inherits the mistake, and the model has no occasion to notice.</span>
+
+<ContextBox label="What is chain-of-thought prompting?">
+A large language model generates text one piece at a time, each piece chosen from everything that came before. Chain-of-thought prompting exploits that habit: instead of asking for a bare answer, you ask the model to show its working first, and the working often improves the answer. The technique spread because it is cheap, needs no retraining, and lifts scores on multi-step problems. Its shape is also its limit. The chain is a single line of reasoning, written left to right, with no branches and no going back.
+</ContextBox>
+
+The one-direction shape is not an accident; it is how the machine talks. A language model produces its answer in order, each new word conditioned on the words already on the page. A wrong turn taken early does not get flagged; it gets built upon. By the time the contradiction shows, the answer is finished and the moment to reconsider has passed.
+
+<QABlock speaker="Mirhoseini">
+The problem: typically LMs generate some plan, then execute on that plan. Not much diversity, exploration capabilities to different solution paths.
+</QABlock>
+
+So the field's question has shifted from writing a better chain to escaping the chain altogether. The first escape route on the board was not invented for language at all. It was invented for games.
+
+</Section>
+
+<Section number="02" title="A <em>tree</em> instead of a line">
+
+<Standfirst>The escape route was perfected for board games: grow many futures, sample them cheaply, and spend real effort only on the ones that keep winning.</Standfirst>
+
+The framework is called LATS, short for Language Agent Tree Search. An agent, here, is a model that takes actions rather than merely chatting, and the premise is blunt: if one path through a problem is unreliable, explore many.
+
+The model still thinks in steps, but at each step it proposes several possible moves, walks down the promising ones, and keeps the rest in reserve. The result is not a chain but a thicket of candidate lines, pruned as evidence arrives. <span class="doc">The approach was published by Andy Zhou and colleagues in the 2024 Proceedings of Machine Learning Research, after circulating as arXiv:2310.04406.</span>
+
+<ContextBox label="What is Monte Carlo tree search?">
+Monte Carlo tree search is a method for choosing a move when the number of possible futures is too large to check them all. It builds a tree of candidate moves and their consequences, then estimates which branches look best by playing out many quick, partly random simulations to the end. Branches that keep winning get explored more deeply; losing branches are abandoned early. The method became famous in game-playing programs, where looking several moves ahead beats reacting to the position in front of you. LATS borrows the same skeleton and puts a language model inside it.
+</ContextBox>
+
+Inside the tree sits an earlier method called ReAct, which taught models to alternate thinking and doing: reason a step, act on it, read what comes back, repeat. ReAct still walks a single line, one think-act pair after another. LATS keeps the loop and multiplies it, running the same cycle down several branches at once.
+
+<QABlock speaker="Mirhoseini">
+LATS extends ReAct to incorporate planning into reasoning and action.
+</QABlock>
+
+Two more ingredients come from the paper itself. One is feedback from the environment: an error message, a failed purchase. The other is <span class="doc">self-reflection, the model writing a short note on why a branch failed for later attempts to read</span>.
+
+How does the search decide where to spend its effort? The answer is a six-beat cycle, and each beat has a name.
+
+</Section>
+
+<Section number="03" title="Six moves and a <em>scoreboard</em>">
+
+<Standfirst>The search runs on a cycle of named parts. The results are published, precise, and not entirely consistent with each other.</Standfirst>
+
+The search repeats a cycle of <span class="doc">six operations: selection, expansion, evaluation, simulation, backpropagation, and reflection</span>. Selection walks from the top of the tree downward, at each level choosing the branch most worth another visit. Expansion asks the model for a few new candidate next steps, and the tree grows fresh limbs. Evaluation has the model score each new branch on how promising it looks, a rough value judgment that selection consults on the next pass.
+
+Simulation rolls a branch out to an ending, sometimes a full answer, sometimes a cheap guess at one. Backpropagation then sends the result back up the tree, raising or lowering the score of every branch that led there; the word is borrowed from neural-network training but means something simpler here, news traveling upward. <span class="doc">Reflection, the sixth operation, appends the model's written post-mortem when a branch hits a dead end.</span> Then the loop repeats, and the tree remembers.
+
+<ContextBox label="What are HumanEval, WebShop and HotPotQA?">
+HumanEval is a set of short Python programming tasks; a model passes by writing code that runs and produces the right answer. WebShop is a simulated online store where an agent must search, compare, and 'buy' the product that fits a shopper's instructions, scored on how close the purchase lands. HotPotQA holds questions whose answers require combining facts from more than one Wikipedia article, a pattern called multi-hop because one hop of reading is not enough. GSM8k and MATH, which also appear in these evaluations, are collections of math word problems. None of these yardsticks proves a model reasons in general, but together they show whether a method moves the numbers.
+</ContextBox>
+
+The published numbers are strong on the yardsticks the paper emphasizes. On HumanEval, LATS with OpenAI's GPT-4 scored <span class="doc">92.7 percent pass@1</span> — the fraction of problems solved by the first program the model writes. On WebShop, with the weaker GPT-3.5 doing the driving, it posted an average score of <span class="doc">75.9</span>, <span class="doc">ahead of the earlier single-line methods the authors tested</span>.
+
+The public records do not quite agree with each other, though. The project page reports <span class="doc">94.4 percent</span> on HumanEval, and HotPotQA exact-match scores appear as <span class="doc">0.61 in one account and 0.71 in another</span>. Versions of a paper often drift apart; here the direction of the result survives even where the decimals do not. All of these gains also share a hidden multiplier: the model is called not once but dozens of times per answer. Two newer frameworks attack that multiplier from opposite ends.
+
+</Section>
+
+<Section number="04" title="Run the steps <em>side by side</em>">
+
+<Standfirst>Many steps in a task do not depend on each other. Running them at the same time is obvious; making a reasoning model actually do it is the contribution.</Standfirst>
+
+The first framework starts from an observation about chores. Many tasks contain steps that do not depend on one another: booking the flight and reserving the hotel, fetching two unrelated documents. A reasoning model still performs them in strict sequence, because sequence is its native habit. <span class="said">SPRINT, from a 2025 paper by Huang and colleagues, interleaves planning with execution and runs the independent steps in parallel</span>, so the plan updates as results arrive instead of waiting for a full itinerary.
+
+<QABlock speaker="Mirhoseini">
+This interleaved planning-execution strategy accelerates the reasoning process!
+</QABlock>
+
+The speed claim is intuitive: a kitchen does not start chopping the onions only after the sauce is done. But a claim it remains. The reported <span class="said">acceleration comes from the framework's own authors</span> — a promising direction, then, not a settled one. What SPRINT already establishes is a design principle the field now takes seriously: a plan is not scripture, and execution can begin before planning ends.
+
+Speed, though, is only half of the lecture's second act. The other half is about where practice comes from.
+
+</Section>
+
+<Section number="05" title="The model writes its own <em>homework</em>">
+
+<Standfirst>There are not enough human demonstrations of good tool use to train on. One answer is to stop waiting for humans.</Standfirst>
+
+Teaching a model to use tools — a search engine, a calculator, a code interpreter — sounds solved until you look at the training data. Good demonstrations of multi-step tool use are scarce; writing one means a human must search, read, decide, and search again, step by step. <span class="said">SWiRL, from a 2025 paper by Goldie and colleagues, manufactures the demonstrations instead</span>: the model generates its own multi-step problems and worked solutions. This is synthetic data, training material written by a model rather than collected from people.
+
+Then comes the teaching itself. <span class="said">SWiRL trains on this material with reinforcement learning</span>: the model attempts a full run of tool calls, the final outcome is scored, and the model shifts toward whatever earned the score. Because the reward lands at the end of a multi-step run, the model learns something imitation rarely teaches — which early moves made the later ones work. It belongs to the <span class="attr">wave of reasoning models associated with DeepSeek-R1</span>.
+
+Line the three frameworks up and a pattern shows: each buys better reasoning with more computation. What remains to discuss is the exchange rate.
+
+</Section>
+
+<Section number="06" title="Every branch sends a <em>bill</em>">
+
+<Standfirst>Better reasoning is for sale, and the price list is written in compute. Two of the three items on it are still fresh from the printer.</Standfirst>
+
+The accounting is not subtle. A tree that checks forty branches calls the model forty-odd times where a chain calls it once. Parallel execution widens the machine rather than lengthening it, and reinforcement learning on synthetic tasks runs up a training bill of its own. The standing trade-off across all three is <span class="said">computational cost</span>, and the qualifier matters: these are techniques for problems whose answers are worth paying for.
+
+There is also a quieter cost, paid in scrutiny. LATS arrives with a published paper, a project page, and numbers precise enough to disagree with each other. <span class="attr">SPRINT and SWiRL sit a year or more behind in that cycle</span>, known so far through their 2025 papers and the talks that present them. That is not an indictment, but it does mean the two newer frameworks should be read as wagers, not results.
+
+<PullQuote>Second thoughts are not free; they are billed by the branch.</PullQuote>
+
+What to watch is the exchange rate. If the price of a model call keeps falling, searching a tree of plans stops being a luxury and starts being the default, and the frameworks that spent compute freely will look prescient. If it does not, the future belongs to whichever method buys the most reasoning per call. The one-track mind is being cured either way; the only open question is the size of the bill.
+
+</Section>

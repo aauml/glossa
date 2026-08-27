@@ -1,0 +1,61 @@
+{
+  "slug": "mirhoseini-tree-search-reasoning",
+  "issue": "N° 45",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=Ml_fp9XkB8Y",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "Azalia Mirhoseini argues that current Large Language Models (LLMs) suffer from limitations in reasoning and planning, but that integrating techniques like Monte Carlo Tree Search (MCTS) and parallelized task execution can significantly improve their performance on complex, multi-step tasks.",
+      "claim_es": "Azalia Mirhoseini sostiene que los modelos de lenguaje actuales presentan limitaciones en razonamiento y planificación, pero que integrar técnicas como la Búsqueda en Árbol de Monte Carlo (MCTS) y la ejecución paralela puede mejorar significativamente su desempeño en tareas complejas.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "lapisrocks.github.io — Researchers introduced Language Agent Tree Search (LATS), a framework that integrates reasoning, act",
+      "url": "http://lapisrocks.github.io/LanguageAgentTreeSearch",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers introduced Language Agent Tree Search (LATS), a framework that integrates reasoning, acting, and planning within large language models. The method uses Monte Carlo tree search principles and external environment feedback to improve performance on decision-making tasks. Experimental results indicate that LATS achieves higher success rates in programming and web-browsing tasks compared t",
+      "claim_es": "Investigadores presentaron Language Agent Tree Search (LATS), un marco que integra razonamiento, acción y planificación. El método utiliza principios de búsqueda en árbol de Monte Carlo y retroalimentación del entorno para mejorar la toma de decisiones. Los resultados experimentales muestran tasas de éxito superiores en programación y navegación web.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "proceedings.mlr.press — The authors introduced Language Agent Tree Search (LATS), a framework that integrates Monte Carlo Tr",
+      "url": "https://proceedings.mlr.press/v235/zhou24r.html",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The authors introduced Language Agent Tree Search (LATS), a framework that integrates Monte Carlo Tree Search with language models to improve reasoning, acting, and planning. The system uses self-reflection and external environment feedback to enhance decision-making performance in tasks like programming and web navigation.",
+      "claim_es": "Los autores introdujeron Language Agent Tree Search (LATS), un marco que combina la búsqueda en árbol de Monte Carlo con modelos de lenguaje para mejorar la toma de decisiones. El sistema emplea autorreflexión y retroalimentación externa para optimizar el rendimiento en tareas como programación y navegación.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "experts.illinois.edu — Researchers introduced Language Agent Tree Search (LATS), a framework designed to improve the decisi",
+      "url": "https://experts.illinois.edu/en/publications/language-agent-tree-search-unifies-reasoning-acting-and-planning-",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers introduced Language Agent Tree Search (LATS), a framework designed to improve the decision-making of large language models. The method integrates Monte Carlo Tree Search with existing model capabilities to enable better planning and environment-based self-reflection. Experimental results were conducted across tasks including programming, math, and web navigation.",
+      "claim_es": "Investigadores diseñaron Language Agent Tree Search (LATS) para mejorar la toma de decisiones de los modelos de lenguaje mediante la integración de la búsqueda en árbol de Monte Carlo. El método permite una mejor planificación y autorreflexión basada en el entorno, evaluada en tareas de programación, matemáticas y navegación web.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "emergentmind.com — The article describes Language Agent Tree Search (LATS), a framework that integrates Large Language ",
+      "url": "https://www.emergentmind.com/topics/language-agent-tree-search-lats",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The article describes Language Agent Tree Search (LATS), a framework that integrates Large Language Models with Monte Carlo Tree Search to improve reasoning and planning. It details how the framework uses action generation, value estimation, and external feedback to evaluate multiple trajectories rather than relying on linear reasoning.",
+      "claim_es": "El artículo describe Language Agent Tree Search (LATS), un marco que integra modelos de lenguaje con la búsqueda en árbol de Monte Carlo para optimizar el razonamiento. Detalla el uso de generación de acciones, estimación de valor y retroalimentación externa para evaluar múltiples trayectorias en lugar de depender de razonamientos lineales.",
+      "verificada": "si"
+    }
+  ]
+}

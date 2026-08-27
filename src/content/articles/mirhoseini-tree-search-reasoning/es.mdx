@@ -1,0 +1,135 @@
+---
+issue: "N.º 45"
+date: "27 ago 2026"
+sortDate: "2026-08-27T12:34:09"
+language: es
+track: ai-policy
+title: "Un árbol de planes para la mente de vía única de los modelos"
+titleHTML: "Un árbol de planes para la mente de <em>vía única</em> de los modelos"
+dek: "Para corregir la estrechez de miras de los modelos de lenguaje, los investigadores cultivan árboles de posibles planes, ejecutan pasos independientes en paralelo y entrenan sistemas con problemas de práctica que ningún humano ha escrito."
+dekHTML: "Para corregir la estrechez de miras de los modelos de lenguaje, los investigadores cultivan <em>árboles</em> de posibles planes, ejecutan pasos independientes en paralelo y entrenan sistemas con problemas de práctica que ningún humano ha escrito."
+coverDek: "Los modelos de lenguaje más avanzados aún se casan con el primer plan que conciben, aferrándose a él incluso cuando deja de tener sentido. Tres propuestas —búsqueda en árboles de opciones, ejecución paralela de pasos y datos de entrenamiento autogenerados— son la forma en que el campo intenta comprar una segunda opinión, y cada una de ellas se paga con cómputo."
+source: "Basado en una conferencia de Azalia Mirhoseini · Universidad de Stanford"
+sourceLabel: "N° 45 · una conferencia de Azalia Mirhoseini · Universidad de Stanford"
+topics:
+  - "Modelos de Lenguaje de Gran Escala"
+  - "Modelos de razonamiento"
+  - "Búsqueda en árbol de Monte Carlo"
+  - "Aprendizaje por refuerzo"
+  - "Benchmarks de IA"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Si le pide a un modelo de lenguaje que planifique una tarea de varios pasos, hará algo reconociblemente humano: se compromete con el primer plan que le viene a la mente y lo ejecuta con confianza, incluso cuando el plan se desmorona. <span class="said">El modelo rara vez rectifica, explora alternativas o cuestiona si otro camino habría sido más eficaz.</span> Esa cualidad de vía única, señaló Azalia Mirhoseini a su audiencia, es el cuello de botella entre los modelos actuales y el razonamiento real. Mirhoseini, profesora en Stanford, expuso tres marcos que atacan el problema desde distintos ángulos. Uno enseña al modelo a explorar un árbol de posibles planes en lugar de seguir una única cadena de pensamiento. Otro ejecuta pasos independientes en paralelo. Un tercero entrena al modelo con problemas de práctica que él mismo crea. El primero ya cuenta con métricas revisadas por pares. Los otros dos comparten una debilidad que el primero tampoco oculta: todas estas reflexiones de segunda mano se pagan con ciclos de cómputo.
+</Lede>
+
+<Section number="01" title="El primer plan es el <em>único</em> plan">
+
+<Standfirst>El truco estándar para hacer que los modelos razonen es, paradójicamente, lo que los encadena a su primera idea.</Standfirst>
+
+El "Chain-of-thought prompting" (cadena de pensamiento), el truco por excelencia de los últimos años, solicita al modelo que desglose su razonamiento paso a paso antes de responder. Funciona lo suficientemente bien como para haberse convertido en el estándar para extraer aritmética, lógica y planificación de un modelo. Sin embargo, la cadena solo avanza en una dirección. <span class="said">Una vez que el modelo se compromete con un paso inicial, el error se arrastra en las etapas posteriores sin que el modelo tenga la oportunidad de notarlo.</span>
+
+<ContextBox label="¿Qué es el prompting por cadena de pensamiento?">
+Un modelo de lenguaje genera texto fragmento a fragmento, basándose siempre en lo anterior. Esta técnica explota esa naturaleza: en lugar de exigir una respuesta directa, se le pide que muestre el procedimiento. Esto suele mejorar el resultado. La técnica se popularizó por ser barata, no requerir reentrenamiento y elevar el desempeño en tareas complejas. Su diseño es también su límite: es una línea única de razonamiento, escrita de izquierda a derecha, sin ramificaciones ni posibilidad de retroceder.
+</ContextBox>
+
+Esta estructura lineal no es casual; así se comunica la máquina. El modelo produce su respuesta en orden; cada palabra nueva está condicionada por las anteriores. Un giro equivocado al principio no se corrige; se consolida. Cuando la contradicción se hace evidente, la respuesta ya está terminada y el momento de reconsiderar ha pasado.
+
+<QABlock speaker="Mirhoseini">
+El problema: los modelos suelen generar un plan y ejecutarlo. No hay mucha diversidad ni capacidad de explorar rutas de solución alternativas.
+</QABlock>
+
+Por ello, la inquietud del sector ha pasado de buscar cadenas más pulidas a escapar de la cadena por completo. La primera vía de escape no se inventó para el lenguaje, sino para los juegos.
+
+</Section>
+
+<Section number="02" title="Un <em>árbol</em> en lugar de una línea">
+
+<Standfirst>La ruta de escape se perfeccionó en los juegos de mesa: cultivar muchos futuros, evaluarlos de forma barata y reservar el esfuerzo solo para las opciones que resultan ganadoras.</Standfirst>
+
+El marco se llama LATS (Language Agent Tree Search). Aquí, el agente es un modelo que ejecuta acciones en lugar de solo chatear, y su premisa es contundente: si un camino es poco fiable, explora muchos.
+
+El modelo sigue pensando por pasos, pero en cada uno propone varios movimientos, sigue los prometedores y mantiene los demás en reserva. El resultado no es una cadena, sino un conjunto de líneas candidatas que se podan conforme llega más información. <span class="doc">El enfoque fue publicado por Andy Zhou y colaboradores en los Proceedings of Machine Learning Research de 2024, tras circular como arXiv:2310.04406.</span>
+
+<ContextBox label="¿Qué es la búsqueda en árbol de Monte Carlo?">
+Es un método para decidir un movimiento cuando el número de futuros posibles es demasiado grande para evaluarlos todos. Construye un árbol de jugadas y sus consecuencias, y estima qué ramas son mejores mediante simulaciones rápidas y parcialmente aleatorias. Las ramas ganadoras se exploran más a fondo; las perdedoras se abandonan. El método se hizo famoso en programas de juegos, donde mirar varias jugadas hacia adelante supera a cualquier reacción inmediata. LATS toma esta estructura e inserta un modelo de lenguaje en su interior.
+</ContextBox>
+
+Dentro del árbol habita un método anterior llamado ReAct, que enseñó a los modelos a alternar entre pensar y actuar: razonar un paso, ejecutarlo, leer el resultado y repetir. ReAct sigue una línea única, un par de pensamiento-acción tras otro. LATS mantiene el bucle, pero lo multiplica, ejecutando el ciclo por varias ramas simultáneamente.
+
+<QABlock speaker="Mirhoseini">
+LATS extiende ReAct para incorporar la planificación al proceso de razonamiento y acción.
+</QABlock>
+
+El artículo aporta dos ingredientes más. Uno es la retroalimentación del entorno: un mensaje de error o una compra fallida. El otro es la <span class="doc">autorreflexión: el modelo redacta una breve nota sobre por qué fracasó una rama para que futuros intentos lo tengan en cuenta.</span>
+
+Pero, ¿cómo decide la búsqueda dónde invertir su esfuerzo? La respuesta es un ciclo de seis tiempos, cada uno con nombre propio.
+
+</Section>
+
+<Section number="03" title="Seis movimientos y un <em>marcador</em>">
+
+<Standfirst>La búsqueda se ejecuta en un ciclo de partes nombradas. Sus resultados son públicos, precisos y no siempre consistentes entre sí.</Standfirst>
+
+La búsqueda repite un ciclo de <span class="doc">seis operaciones: selección, expansión, evaluación, simulación, retropropagación y reflexión</span>. La selección desciende por el árbol, eligiendo en cada nivel la rama que merece otra visita. La expansión pide al modelo nuevos pasos candidatos, y el árbol crece. La evaluación califica cada rama nueva según qué tan prometedora parece, un juicio de valor aproximado que la selección consultará en el siguiente pase.
+
+La simulación desarrolla una rama hasta un final, a veces una respuesta completa, a veces una conjetura barata. La retropropagación devuelve el resultado árbol arriba, ajustando la puntuación de todas las ramas que llevaron allí; el término proviene del entrenamiento de redes neuronales, pero aquí es más simple: es información que viaja hacia arriba. <span class="doc">La reflexión, la sexta operación, añade el post-mortem escrito por el modelo cuando una rama llega a un callejón sin salida.</span> Entonces el bucle se repite y el árbol recuerda.
+
+<ContextBox label="¿Qué son HumanEval, WebShop y HotPotQA?">
+HumanEval es un conjunto de tareas de programación en Python; el modelo aprueba escribiendo código ejecutable correcto. WebShop es una tienda en línea simulada donde el agente debe buscar, comparar y 'comprar' el producto adecuado, calificado por la precisión de la elección. HotPotQA contiene preguntas que requieren combinar hechos de varios artículos de Wikipedia, un patrón llamado multi-salto (multi-hop). GSM8k y MATH, también presentes, son colecciones de problemas matemáticos. Ninguno de estos estándares prueba que un modelo razone de forma general, pero sirven para verificar si un método mejora los números.
+</ContextBox>
+
+Las cifras publicadas son sólidas en los terrenos que el artículo enfatiza. En HumanEval, LATS con el GPT-4 de OpenAI obtuvo un <span class="doc">92.7 por ciento pass@1</span>, la fracción de problemas resueltos por el primer programa que el modelo escribe. En WebShop, con un GPT-3.5 menos potente, alcanzó un promedio de <span class="doc">75.9</span>, <span class="doc">superando a los métodos lineales anteriores evaluados por los autores</span>.
+
+Sin embargo, los registros públicos no coinciden del todo. La página del proyecto reporta un <span class="doc">94.4 por ciento</span> en HumanEval, y los resultados de HotPotQA varían entre <span class="doc">0.61 en un reporte y 0.71 en otro</span>. Las versiones de un artículo a menudo divergen; aquí, la dirección del resultado sobrevive incluso cuando los decimales no. Todas estas ganancias comparten un multiplicador oculto: el modelo es llamado no una, sino decenas de veces por respuesta. Dos marcos nuevos atacan este multiplicador desde frentes opuestos.
+
+</Section>
+
+<Section number="04" title="Ejecutar los pasos <em>lado a lado</em>">
+
+<Standfirst>Muchos pasos en una tarea no dependen entre sí. Ejecutarlos simultáneamente es evidente; hacer que un modelo de razonamiento realmente lo haga es la aportación.</Standfirst>
+
+El primer marco parte de una observación cotidiana: muchas tareas contienen pasos independientes. Reservar un vuelo y un hotel, o buscar dos documentos sin relación. Un modelo de razonamiento suele ejecutarlos en secuencia estricta porque es su hábito natural. <span class="said">SPRINT, presentado en un artículo de 2025 por Huang y colaboradores, entrelaza la planificación con la ejecución y corre los pasos independientes en paralelo</span>, de modo que el plan se actualiza conforme llegan los resultados en lugar de esperar a que el itinerario esté completo.
+
+<QABlock speaker="Mirhoseini">
+¡Esta estrategia de planificación y ejecución entrelazada acelera el proceso de razonamiento!
+</QABlock>
+
+La promesa de velocidad es intuitiva: en una cocina, no se espera a terminar la salsa para empezar a picar la cebolla. Pero sigue siendo una promesa. La <span class="said">aceleración reportada proviene de los propios autores del marco</span>; es una dirección prometedora, no una realidad consolidada. Lo que SPRINT ya establece es un principio de diseño que el sector empieza a tomarse en serio: un plan no es una escritura sagrada y la ejecución puede comenzar antes de que termine la planificación.
+
+La velocidad, no obstante, es solo la mitad del segundo acto de la conferencia. La otra mitad trata sobre el origen de la práctica.
+
+</Section>
+
+<Section number="05" title="El modelo hace su propia <em>tarea</em>">
+
+<Standfirst>No hay suficientes demostraciones humanas de buen uso de herramientas para el entrenamiento. Una respuesta es dejar de esperar a los humanos.</Standfirst>
+
+Enseñar a un modelo a usar herramientas —un motor de búsqueda, una calculadora, un intérprete de código— parece un tema resuelto hasta que uno revisa los datos de entrenamiento. Las buenas demostraciones de uso de herramientas en varios pasos son escasas; generarlas implica que un humano busque, lea, decida y vuelva a buscar. <span class="said">SWiRL, de un artículo de 2025 de Goldie y colaboradores, fabrica las demostraciones</span>: el modelo genera sus propios problemas de varios pasos y sus soluciones. Son datos sintéticos, material de entrenamiento escrito por el propio modelo en lugar de recolectado de personas.
+
+Luego llega el entrenamiento. <span class="said">SWiRL utiliza aprendizaje por refuerzo con este material</span>: el modelo intenta una serie de llamadas a herramientas, el resultado final se califica y el sistema se ajusta hacia aquello que obtuvo la recompensa. Debido a que el premio llega al final, el modelo aprende algo que la imitación rara vez enseña: qué movimientos iniciales hicieron que los posteriores funcionaran. Esto pertenece a la <span class="attr">ola de modelos de razonamiento asociados con DeepSeek-R1</span>.
+
+Al alinear los tres marcos surge un patrón: cada uno compra un mejor razonamiento a cambio de más cómputo. Lo que queda por discutir es la tasa de cambio.
+
+</Section>
+
+<Section number="06" title="Cada rama envía una <em>factura</em>">
+
+<Standfirst>El mejor razonamiento está a la venta, y la lista de precios está escrita en cómputo. Dos de los tres artículos están recién salidos de la imprenta.</Standfirst>
+
+La contabilidad es clara. Un árbol que revisa cuarenta ramas llama al modelo cuarenta veces, donde una cadena solo lo llamaría una. La ejecución paralela ensancha la máquina en lugar de alargarla, y el aprendizaje por refuerzo con tareas sintéticas infla su propia factura de entrenamiento. El compromiso constante en los tres es el <span class="said">costo computacional</span>, y el matiz es importante: son técnicas para problemas cuyas respuestas valen el precio a pagar.
+
+También hay un costo más silencioso: el del escrutinio. LATS llega con un artículo publicado, una página de proyecto y números lo suficientemente precisos como para discrepar entre sí. <span class="attr">SPRINT y SWiRL llevan un año o más de retraso en ese ciclo</span>, conocidos por ahora solo a través de sus artículos de 2025 y las presentaciones. No es un reproche, pero significa que los dos marcos nuevos deben leerse como apuestas, no como resultados definitivos.
+
+<PullQuote>Las segundas opiniones no son gratuitas; se cobran por rama.</PullQuote>
+
+Lo importante es observar la tasa de cambio. Si el precio de una llamada al modelo sigue cayendo, buscar en un árbol de planes dejará de ser un lujo y se convertirá en la norma; los marcos que gastaron cómputo sin miramientos parecerán proféticos. Si no cae, el futuro será del método que consiga el mayor razonamiento por llamada. La mente de vía única se está curando de cualquier forma; la única incógnita es el tamaño de la cuenta.
+
+</Section>
