@@ -1,0 +1,126 @@
+---
+issue: "N° 48"
+date: "27 August 2026"
+sortDate: "2026-08-27T14:15:29"
+language: en
+track: ai-policy
+title: "The seven-month doubling of what machines can finish"
+titleHTML: "The <em>seven-month</em> doubling of what machines can finish"
+dek: "The stopwatch of AI progress says models double every seven months the length of task they can finish, and the newest tests ask a blunter question: would anyone pay for the work, and could anyone check it?"
+dekHTML: "The stopwatch of AI progress says models double every seven months the length of task they can finish, and the newest tests ask a blunter question: would anyone <em>pay</em> for the work, and could anyone check it?"
+coverDek: "The people who grade artificial intelligence have quietly traded the quiz for the time sheet, the invoice, and the audit. Models now double every seven months the stretch of human work they can finish, yet they stay unreliable, sag when the briefing thins, and cannot clear a fifth of the marks when their research is checked. Three rulers now decide what counts as progress, and each one leaves something essential unmeasured."
+source: "Based on a lecture on agentic AI evaluation · Stanford Engineering"
+sourceLabel: "N° 48 · a lecture on agentic AI evaluation · Stanford Engineering"
+topics:
+  - "AI Benchmarks"
+  - "Agentic AI"
+  - "METR"
+  - "GDPVal"
+  - "DeepScholar-Bench"
+  - "AI Reliability"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Every measurement in this story hangs off one stubborn reference point: how long a person takes. A designer finishes a brief in forty minutes; an analyst needs a day to clean a dataset. Against that human clock, the machines are stretching fast. A Stanford engineering professor devoted a lecture to the problem of keeping score. The players are agents now: systems that plan and act for hours, not chatbots that answer in seconds. The scorekeeping runs on three rulers. The first measures stamina: the longest task a model can finish has doubled every seven months or so, for six years running. The second measures money, grading models on work the economy actually pays for. The third measures trust: the model must do research, then prove its citations say what it claims. On all three rulers, reliability is where the machines still fall down.
+</Lede>
+
+<Section number="01" title="Keeping score for systems that <em>act</em>">
+
+<Standfirst>The old scoreboards graded single answers. Agents have to be graded on what they finish, what it is worth, and whether anyone can check.</Standfirst>
+
+It helps to start with why the old exams stopped working. A multiple-choice test tells you what a model knows in a single exchange, and nothing about what it can actually do. An agent works for hours at a stretch: it browses, writes code, runs it, fixes what breaks, and only then reports back. Grading that with a right-or-wrong answer key is like grading a surgeon on a vocabulary quiz. The mismatch between what models now do and how the field measures them is where the lecture begins.
+
+<ContextBox label="What is an AI agent?">
+An AI agent is a model wired to tools and given a goal rather than a single question. It can search the web, run code, read files, and chain those actions toward an outcome. Where a chatbot's job ends at a reply, an agent's job ends at a finished task. That difference is what makes long tasks possible, and it is what makes them hard to grade: the grader must judge a process, not a sentence.
+</ContextBox>
+
+The lecture runs on three scoreboards, and each one owns a single axis of the problem. The first, METR, times what models can finish against the professionals who did the task before them. The second, GDPVal, built at OpenAI, prices model output against real paid work; the third, DeepScholar-Bench, built at Stanford, audits whether the research survives scrutiny. Time, money, and trust: the running point is that none of the three can stand in for the other two. The stopwatch comes first, because it is the oldest ruler in the room and the one with the steepest curve.
+
+</Section>
+
+<Section number="02" title="The stopwatch and the <em>success rate</em>">
+
+<Standfirst>METR's ruler is the human hour. On it, capability compounds quickly, and finishing is not the same as finishing reliably.</Standfirst>
+
+The design is disarmingly simple: take real tasks, from ten-minute fixes to multi-day projects, and record how long a professional needs for each. Every task in the suite carries <span class="said">a human professional completion time</span> as its anchor, the ruler's tick mark. Then hand the same tasks to the model and watch two numbers. The first is the time horizon: how far out on the human clock the model can reach. The second is the success rate, and the two are kept stubbornly separate.
+
+<ContextBox label="What is METR?">
+METR, glossed in the lecture as Measure for Evaluating Tasks in Research, is a benchmark built around tasks of known human duration. Each task is calibrated by the time a professional takes to finish it, from minutes to days. A model's result is expressed as the stretch of that scale it can handle at a given success rate. The appeal is intuitive: the score reads directly as the length of human work the machine can take over.
+</ContextBox>
+
+On that axis, the curve is steep enough to invite extrapolation. Across the last six years of models, the horizon has doubled roughly every <span class="said">seven months</span>, a compounding the lecture traces with task-duration research by Rein and Wijk and their colleagues. Follow the line forward and it leaves the workday behind, then starts eating the work week. Whether the line holds is the wager everyone in this field is already making.
+
+<QABlock speaker="Professor">
+The longer the task, the harder it is for models to stay on track and complete.
+</QABlock>
+
+Staying on track is precisely where the optimism gets taxed: a model that finishes a two-hour task half the time is a different hire from one that finishes it nineteen times in twenty. METR's second number, the success rate, separates those two hires, and on it the news is cooler: <span class="said">reliability stays low</span> even where the models sometimes finish. The machines reach further every few months; they do not yet reach dependably. Dependability, conveniently, is something money can price, which is where the second ruler comes in.
+
+</Section>
+
+<Section number="03" title="The <em>paycheck</em> test">
+
+<Standfirst>GDPVal, built at OpenAI, asks a blunter question than any exam: is the output good enough to bill for?</Standfirst>
+
+Where METR counts hours, the second ruler is denominated in dollars, and its unit of work is the deliverable. GDPVal assembles <span class="said">1,320 tasks</span> drawn from real occupations, the deliverables people are actually paid to produce, with <span class="said">220 of them released as an open gold subset</span> for anyone to inspect. A task here is not a puzzle; it is the memo, spreadsheet, or design a client would accept without editing. And the grading question, stated out loud, is substitution.
+
+<QABlock speaker="Professor">
+If you are to give this task to the model instead of a human, is the output good enough?
+</QABlock>
+
+Good enough is a judgment call, so the benchmark leans on human graders who compare model output against professional work. Their consistency carries its own unlovely statistic: inter-rater agreement, the degree to which two graders judging the same output reach the same verdict. High agreement means the grade measures the work; low agreement means it measures the graders, and the win rate becomes taste with a decimal point.
+
+<ContextBox label="What is O*NET?">
+The Occupational Information Network, known as O*NET, is a database of American occupations maintained for the US Department of Labor. It breaks each job into its component tasks, skills, and work activities. For benchmark builders it doubles as a map of the paid economy: sample the occupations and you sample the work. GDPVal draws its terrain from here rather than from academic test banks.
+</ContextBox>
+
+One number from this benchmark matters more than any win rate, and it is not a score but a slip: what happens to the score when the instructions get thin.
+
+</Section>
+
+<Section number="04" title="The cost of the <em>thin</em> brief">
+
+<Standfirst>Strip the context out of a task and the model's win rate sags. The drop is small on paper and large in meaning.</Standfirst>
+
+The experiment tucked inside GDPVal is elegant. Take the tasks with their full briefs, then strip out the surrounding context (the background a human colleague absorbs without being told) and run them again. The win rate slips from <span class="said">47.7 percent to 44.3 percent</span>: three points and change, not a collapse. But the tasks did not change, only the briefing did, and the cost of a thin brief now has a price in the same currency as the work itself.
+
+Humans acquire context for free: they sit in meetings, read the room, and absorb why the client hates the color blue. An agent knows only what it is told, and telling is labor: someone has to write the brief. Benchmarks hand models fuller instructions than life does, so the published scores flatter the deployed product, and whoever writes the brief is doing a slice of the agent's job, unpaid and unmeasured.
+
+A benchmark that ignores the briefing is measuring the wrong worker, and the third ruler changes the subject accordingly: not what the model produces, but whether anyone can check it.
+
+</Section>
+
+<Section number="05" title="Show your <em>sources</em>">
+
+<Standfirst>Stanford's own benchmark grades research agents the way advisors grade students: on the synthesis, and on whether the footnotes check out.</Standfirst>
+
+The third ruler belongs to the home team. DeepScholar-Bench, built at Stanford, tests research synthesis: give the agent a question that requires reading across many papers, then grade the report it writes. The grading has two teeth: one is quality, whether the synthesis is any good. The other is verifiability: do the citations point to real work, and do those sources actually say what the agent claims they say?
+
+<ContextBox label="What is DeepScholar-Bench?">
+DeepScholar-Bench is a benchmark from Stanford for evaluating AI research agents. It assigns open-ended research questions that require reading across many sources, then scores the reports that come back. Its distinctive check is verifiability: whether the citations are real, and whether the cited material actually supports the claims. The benchmark treats a research agent like a graduate student whose footnotes can be audited line by line.
+</ContextBox>
+
+Here the results arrive as the lecture's coldest shower: across every metric the benchmark tracks, <span class="said">most systems fail to exceed 19 percent</span>. The home team built this exam, and nearly everyone taking it is failing. The machines that double their stamina every seven months cannot, four times out of five, produce research that survives an audit. It is a useful corrective to stopwatch euphoria: long tasks are hard, but verifiable tasks are harder.
+
+Verifiability is what turns a language model from a raconteur into an instrument. A research agent that invents citations is worse than no agent at all, because it launders error into authority; the audit is the product. And it is here, on the metric closest to trust, that the scoreboard is least flattering.
+
+</Section>
+
+<Section number="06" title="What to watch on the <em>dashboard</em>">
+
+<Standfirst>Capability, value, trust: the field has traded one number for three. What matters now is which of the three moves next.</Standfirst>
+
+The wager underneath all three rulers is that the era of the single score is over. A model's standing now has three coordinates: how long it can work, what its work is worth, and whether its claims survive checking. The three move at different speeds: stamina compounds on a seven-month clock, economic value follows at a lag because pay depends on reliability, and verifiability trails them both. A dashboard, unlike a leaderboard, tells you where the bottleneck lives.
+
+<PullQuote>Even if the models are solving these tasks, the reliability is not high.</PullQuote>
+
+Three questions stay open. The first is whether the doubling holds as horizons stretch past the workday, because long curves have a way of bending. The second is whether reliability can be trained upward as fast as reach, or whether it is a different kind of problem entirely. The third is whether anyone builds the missing fourth ruler, one that prices the briefing itself, the context work humans still do for free. Until then, the honest reading of all three scoreboards is the same: the machines are gaining on the work faster than they are earning the trust.
+
+</Section>

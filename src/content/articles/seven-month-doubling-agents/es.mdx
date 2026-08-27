@@ -1,0 +1,126 @@
+---
+issue: "N.º 48"
+date: "27 ago 2026"
+sortDate: "2026-08-27T14:15:29"
+language: es
+track: ai-policy
+title: "La duplicación de la capacidad de las máquinas cada siete meses"
+titleHTML: "La duplicación <em>semestral y un poco más</em> de la capacidad de las máquinas"
+dek: "El cronómetro del avance en IA indica que los modelos duplican cada siete meses el alcance de las tareas que pueden completar. Las nuevas pruebas plantean una pregunta más directa: ¿alguien pagaría por ese trabajo y alguien sería capaz de supervisarlo?"
+dekHTML: "El cronómetro del avance en IA indica que los modelos duplican cada siete meses el alcance de las tareas que pueden completar. Las nuevas pruebas plantean una pregunta más directa: ¿alguien <em>pagaría</em> por ese trabajo y alguien sería capaz de supervisarlo?"
+coverDek: "Quienes evalúan la inteligencia artificial han cambiado silenciosamente el examen por la hoja de horas, la factura y la auditoría. Los modelos duplican cada siete meses la cantidad de trabajo humano que pueden realizar, pero siguen siendo poco fiables, flaquean cuando las instrucciones son escuetas y fallan en más del 80% de las pruebas cuando se verifica su investigación. Tres criterios definen ahora el progreso, y cada uno deja algo esencial fuera de foco."
+source: "Basado en una conferencia sobre evaluación de IA agente · Stanford Engineering"
+sourceLabel: "N° 48 · una conferencia sobre evaluación de IA agente · Stanford Engineering"
+topics:
+  - "Benchmarks de IA"
+  - "IA Agente"
+  - "METR"
+  - "GDPVal"
+  - "DeepScholar-Bench"
+  - "Fiabilidad de la IA"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import QABlock from '../../../components/QABlock.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Cada medición en este texto depende de un punto de referencia obstinado: cuánto tarda una persona. Un diseñador termina un encargo en cuarenta minutos; un analista necesita un día para limpiar una base de datos. Ante ese reloj humano, las máquinas avanzan a toda velocidad. Un profesor de ingeniería en Stanford dedicó una clase al problema de llevar la cuenta. Los protagonistas ahora son agentes: sistemas que planifican y actúan durante horas, no chatbots que responden en segundos. El marcador se rige por tres criterios. El primero mide la resistencia: la tarea más larga que un modelo puede terminar se ha duplicado cada siete meses, aproximadamente, durante seis años. El segundo mide el valor económico, calificando a los modelos por tareas por las que el mercado realmente paga. El tercero mide la confianza: el modelo debe investigar y luego demostrar que sus citas respaldan sus afirmaciones. En los tres, el punto débil sigue siendo la fiabilidad de las máquinas.
+</Lede>
+
+<Section number="01" title="Llevar la cuenta de sistemas que <em>actúan</em>">
+
+<Standfirst>Los antiguos tableros calificaban respuestas aisladas. A los agentes hay que evaluarlos por lo que terminan, lo que vale y si alguien puede verificarlo.</Standfirst>
+
+Vale la pena empezar por entender por qué los exámenes antiguos dejaron de funcionar. Un test de opción múltiple te dice lo que un modelo sabe en un intercambio, pero nada sobre lo que es capaz de hacer. Un agente trabaja durante horas: navega, escribe código, lo ejecuta, corrige fallos y solo entonces entrega resultados. Evaluar eso con una hoja de respuestas correctas es como calificar a un cirujano con un examen de vocabulario. Ahí comienza el problema que aborda la conferencia: la brecha entre lo que los modelos hacen y cómo los medimos.
+
+<ContextBox label="¿Qué es un agente de IA?">
+Es un modelo conectado a herramientas y con un objetivo, en lugar de una pregunta aislada. Puede buscar en la web, ejecutar código, leer archivos y encadenar acciones hacia un resultado. Mientras que el trabajo de un chatbot termina en una respuesta, el de un agente termina en una tarea completada. Esa diferencia es lo que permite abordar tareas largas y lo que complica su evaluación: hay que juzgar el proceso, no la frase.
+</ContextBox>
+
+La conferencia plantea tres marcadores, cada uno enfocado en una faceta. El primero, METR, compara lo que los modelos completan con el tiempo que le toma a un profesional. El segundo, GDPVal, desarrollado en OpenAI, valora el trabajo del modelo bajo estándares de mercado; el tercero, DeepScholar-Bench, de Stanford, audita si la investigación resiste un escrutinio. Tiempo, dinero y confianza: ninguno sustituye a los otros. El cronómetro es el primero porque es el criterio más antiguo y el que tiene la curva más pronunciada.
+
+</Section>
+
+<Section number="02" title="El cronómetro y la <em>tasa de éxito</em>">
+
+<Standfirst>El criterio de METR es la hora humana. Con él, la capacidad crece rápido, pero terminar no es lo mismo que terminar de forma fiable.</Standfirst>
+
+El diseño es sencillo: se toman tareas reales, desde ajustes de diez minutos hasta proyectos de varios días, y se registra cuánto le toma a un profesional hacer cada una. Cada tarea en el conjunto lleva <span class="said">un tiempo de ejecución profesional humano</span> como ancla. Luego se asignan las mismas tareas al modelo y se observan dos cifras. La primera es el horizonte temporal: cuánto puede abarcar el modelo en el reloj humano. La segunda es la tasa de éxito, y ambas se mantienen estrictamente separadas.
+
+<ContextBox label="¿Qué es METR?">
+Es un benchmark para evaluar tareas de investigación, calibrado por la duración humana del trabajo. Cada tarea se mide según lo que tarda un profesional, desde minutos hasta días. El resultado del modelo se expresa como el tramo de esa escala que puede cubrir con un nivel de éxito determinado. Su atractivo es intuitivo: la puntuación se lee directamente como la cantidad de trabajo humano que la máquina puede asumir.
+</ContextBox>
+
+En este eje, la curva es tan pronunciada que invita a la extrapolación. En los últimos seis años, el horizonte se ha duplicado cada <span class="said">siete meses</span>, un crecimiento compuesto que la clase rastrea con la investigación sobre duración de tareas de Rein, Wijk y colegas. Si la línea se mantiene, pronto dejará atrás la jornada laboral para empezar a devorar la semana de trabajo. Esa es la apuesta que todos en el sector están haciendo.
+
+<QABlock speaker="Profesor">
+Cuanto más larga es la tarea, más difícil le resulta a los modelos mantener el rumbo y completarla.
+</QABlock>
+
+Mantener el rumbo es donde el optimismo flaquea: no es lo mismo contratar a un modelo que termina una tarea de dos horas la mitad de las veces, que a uno que lo hace diecinueve de cada veinte. El segundo número de METR, la tasa de éxito, marca la diferencia, y ahí las noticias son más frías: <span class="said">la fiabilidad sigue siendo baja</span> incluso cuando los modelos terminan el trabajo. Las máquinas alcanzan horizontes más lejanos cada pocos meses, pero no lo hacen de forma consistente. La consistencia es algo que el dinero sabe medir, y ahí entra el segundo criterio.
+
+</Section>
+
+<Section number="03" title="La prueba del <em>sueldo</em>">
+
+<Standfirst>GDPVal, de OpenAI, hace una pregunta más directa que cualquier examen: ¿es el resultado lo suficientemente bueno como para cobrar por él?</Standfirst>
+
+Donde METR cuenta horas, el segundo criterio usa dólares, y su unidad de medida es el producto entregable. GDPVal agrupa <span class="said">1,320 tareas</span> de ocupaciones reales, resultados por los que la gente recibe un pago, con <span class="said">220 de ellas abiertas en un subconjunto de oro</span> para su inspección. Aquí no hay acertijos; se trata del memorando, la hoja de cálculo o el diseño que un cliente aceptaría sin editar. La pregunta es la sustitución.
+
+<QABlock speaker="Profesor">
+Si vas a entregar esta tarea al modelo en lugar de a un humano, ¿es el resultado lo suficientemente bueno?
+</QABlock>
+
+«Lo suficientemente bueno» es una cuestión de criterio, por lo que el benchmark depende de evaluadores humanos que comparan el trabajo del modelo con el profesional. Su coherencia conlleva su propia estadística incómoda: el acuerdo entre evaluadores. Una alta concordancia significa que la calificación mide el trabajo; una baja significa que mide a los evaluadores, y la tasa de acierto se convierte solo en una cuestión de gusto con decimales.
+
+<ContextBox label="¿Qué es O*NET?">
+Es la red de información ocupacional, una base de datos del Departamento de Trabajo de Estados Unidos. Desglosa cada oficio en tareas, habilidades y actividades. Para quienes diseñan benchmarks, funciona como un mapa de la economía laboral: al muestrear las ocupaciones, se muestrea el trabajo. GDPVal utiliza este terreno en lugar de bancos de preguntas académicos.
+</ContextBox>
+
+Un número de este benchmark destaca más que cualquier tasa de acierto, y no es una nota, sino un tropiezo: qué ocurre con la calificación cuando las instrucciones se vuelven escuetas.
+
+</Section>
+
+<Section number="04" title="El costo de la <em>instrucción escueta</em>">
+
+<Standfirst>Elimina el contexto de una tarea y la tasa de acierto del modelo cae. La caída es pequeña en papel, pero enorme en significado.</Standfirst>
+
+El experimento de GDPVal es elegante. Se toman las tareas con sus instrucciones completas, se elimina el contexto (ese trasfondo que un colega humano absorbe sin que nadie le explique) y se vuelven a ejecutar. La tasa de acierto baja del <span class="said">47.7 por ciento al 44.3 por ciento</span>: tres puntos, no un colapso. Pero las tareas no cambiaron, solo la información previa, y el costo de esa brecha ya tiene un precio en la misma moneda que el trabajo.
+
+Los humanos obtienen contexto gratis: asisten a reuniones, leen el ambiente y entienden por qué al cliente no le gusta el color azul. Un agente solo sabe lo que se le dice, y explicar es un trabajo: alguien tiene que escribir la instrucción. Los benchmarks dan a los modelos instrucciones más completas que la vida real, por lo que las notas publicadas halagan al producto final; quien escribe la instrucción hace una parte del trabajo del agente, sin sueldo y sin medición.
+
+Un benchmark que ignora la instrucción está midiendo al trabajador equivocado, y el tercer criterio cambia el enfoque: no qué produce el modelo, sino si alguien puede verificarlo.
+
+</Section>
+
+<Section number="05" title="Muestra tus <em>fuentes</em>">
+
+<Standfirst>El benchmark de Stanford califica a los agentes de investigación como los tutores a los alumnos: por la síntesis y por si las citas coinciden con la realidad.</Standfirst>
+
+El tercer criterio es el de casa. DeepScholar-Bench, de Stanford, evalúa la síntesis de investigación: se le da al agente una pregunta que requiere leer varios artículos y se califica su reporte. La evaluación tiene dos colmillos: la calidad de la síntesis y la verificabilidad; es decir, ¿apuntan las citas a trabajos reales y dicen esos trabajos lo que el agente afirma?
+
+<ContextBox label="¿Qué es DeepScholar-Bench?">
+Es un benchmark de Stanford para evaluar agentes de investigación en IA. Asigna preguntas abiertas que exigen revisar diversas fuentes y califica los resultados. Su prueba distintiva es la verificabilidad: si las citas son reales y si el material citado respalda las afirmaciones. El benchmark trata al agente de investigación como a un estudiante de posgrado cuyas notas al pie pueden ser auditadas línea por línea.
+</ContextBox>
+
+Aquí los resultados llegan como el jarro de agua fría de la conferencia: en todas las métricas, <span class="said">la mayoría de los sistemas no logran superar el 19 por ciento</span>. El equipo de casa diseñó este examen, y casi todos los que lo toman reprueban. Las máquinas que duplican su resistencia cada siete meses no pueden, cuatro de cada cinco veces, producir una investigación que supere una auditoría. Es un correctivo necesario para la euforia del cronómetro: las tareas largas son difíciles, pero las tareas verificables son más complejas.
+
+La verificabilidad es lo que convierte a un modelo de lenguaje de un simple charlatán en un instrumento serio. Un agente que inventa citas es peor que no tener agente, porque blanquea el error bajo un barniz de autoridad; la auditoría es el verdadero producto. Es ahí, en la métrica más cercana a la confianza, donde el marcador es menos halagador.
+
+</Section>
+
+<Section number="06" title="Qué observar en el <em>tablero</em>">
+
+<Standfirst>Capacidad, valor, confianza: el sector cambió una cifra por tres. Lo que importa ahora es cuál de las tres se mueve primero.</Standfirst>
+
+La apuesta subyacente es que la era de la nota única terminó. El estatus de un modelo tiene tres coordenadas: cuánto tiempo puede trabajar, qué vale su trabajo y si sus afirmaciones resisten una revisión. Las tres avanzan a ritmos distintos: la resistencia se duplica cada siete meses, el valor económico llega con retraso porque el pago depende de la fiabilidad, y la verificabilidad va a la zaga. A diferencia de un ranking, un tablero te indica dónde está el cuello de botella.
+
+<PullQuote>Incluso si los modelos están resolviendo estas tareas, la fiabilidad no es alta.</PullQuote>
+
+Quedan tres preguntas abiertas. La primera es si la duplicación se mantendrá cuando los horizontes superen la jornada laboral, porque las curvas largas tienden a doblarse. La segunda, si la fiabilidad puede entrenarse tan rápido como el alcance, o si es un problema de distinta naturaleza. La tercera es si alguien creará el cuarto criterio necesario: uno que ponga precio a la instrucción misma, al trabajo de contexto que los humanos siguen haciendo gratis. Hasta entonces, la lectura honesta de los tres marcadores es la misma: las máquinas avanzan hacia el trabajo mucho más rápido de lo que logran ganarse nuestra confianza.
+
+</Section>

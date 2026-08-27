@@ -1,0 +1,17 @@
+{
+  "slug": "seven-month-doubling-agents",
+  "issue": "N° 48",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=8JAqLnTaZu4",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "The lecture argues that the challenge of evaluating AI models on long-horizon, economically valuable tasks requires shifting from simple metrics to multi-dimensional benchmarks that capture capability, reliability, and human-like context acquisition.",
+      "claim_es": "La conferencia sostiene que el reto de evaluar modelos de IA en tareas de largo alcance y valor económico exige abandonar las métricas simples en favor de benchmarks multidimensionales que capten la capacidad, la fiabilidad y la adquisición de contexto humano.",
+      "verificada": "si"
+    }
+  ]
+}
