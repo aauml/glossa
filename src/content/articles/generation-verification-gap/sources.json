@@ -1,0 +1,61 @@
+{
+  "slug": "generation-verification-gap",
+  "issue": "N° 43",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=p7TdPUcPoik",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "The instructor argues that verification techniques and reinforcement learning, particularly process supervision on larger datasets, significantly improve the accuracy of large language models in solving math word problems.",
+      "claim_es": "El autor argumenta que las técnicas de verificación y el aprendizaje por refuerzo, especialmente la supervisión por procesos en grandes conjuntos de datos, mejoran significativamente la precisión de los modelos de lenguaje al resolver problemas matemáticos.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "arxiv.org — The researchers introduced a dataset called GSM8K, consisting of 8.5K high-quality grade school math",
+      "url": "https://arxiv.org/pdf/2110.14168",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The researchers introduced a dataset called GSM8K, consisting of 8.5K high-quality grade school math problems, to evaluate the multi-step mathematical reasoning abilities of large language models. They demonstrated that training separate verifier models to select the highest-ranked solution from multiple candidates improves performance compared to standard finetuning. The study provides empirical ",
+      "claim_es": "Los investigadores presentaron el conjunto GSM8K, que consta de 8,500 problemas matemáticos de primaria de alta calidad, para evaluar las capacidades de razonamiento matemático de varios pasos. Demostraron que entrenar verificadores independientes para elegir la mejor solución entre varias mejora el rendimiento frente al ajuste fino estándar.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "huggingface.co — The GSM8K dataset, developed by OpenAI, has been published on Hugging Face. The dataset contains 8,5",
+      "url": "https://huggingface.co/datasets/openai/gsm8k",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The GSM8K dataset, developed by OpenAI, has been published on Hugging Face. The dataset contains 8,500 high-quality grade school math problems created by human writers, designed to test the multi-step reasoning capabilities of language models.",
+      "claim_es": "El conjunto de datos GSM8K, desarrollado por OpenAI, ha sido publicado en Hugging Face. Contiene 8,500 problemas matemáticos de primaria de alta calidad escritos por humanos, diseñados para probar la capacidad de razonamiento lógico en múltiples pasos de los modelos de lenguaje.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "tensorflow.org — TensorFlow Datasets updated its repository to provide access to the GSM8K dataset. The dataset consi",
+      "url": "https://www.tensorflow.org/datasets/catalog/gsm8k",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "TensorFlow Datasets updated its repository to provide access to the GSM8K dataset. The dataset consists of 8,500 grade school math word problems and includes training and test splits, including versions that incorporate Socratic-style annotations.",
+      "claim_es": "TensorFlow Datasets actualizó su repositorio para facilitar el acceso a GSM8K. El conjunto incluye 8,500 problemas de nivel primaria con sus respectivas divisiones de entrenamiento y prueba, incluyendo versiones que incorporan anotaciones al estilo socrático.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "evalscope.readthedocs.io — The GSM8K (Grade School Math 8K) dataset is presented as a tool for evaluating the multi-step mathem",
+      "url": "https://evalscope.readthedocs.io/en/v1.6.1/benchmarks/gsm8k.html",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The GSM8K (Grade School Math 8K) dataset is presented as a tool for evaluating the multi-step mathematical reasoning of language models. It provides 8.5K human-written word problems requiring 2 to 8 reasoning steps. The documentation details configuration settings for model evaluation, including default few-shot prompting templates and standard metrics.",
+      "claim_es": "El conjunto GSM8K se presenta como una herramienta para evaluar el razonamiento matemático multi-paso en modelos de lenguaje. Proporciona 8.5K problemas escritos por humanos que requieren de 2 a 8 pasos de razonamiento. La documentación detalla las configuraciones para la evaluación de modelos, incluyendo plantillas estándar y métricas de desempeño.",
+      "verificada": "si"
+    }
+  ]
+}

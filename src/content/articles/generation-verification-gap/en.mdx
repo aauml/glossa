@@ -1,0 +1,120 @@
+---
+issue: "N° 43"
+date: "27 August 2026"
+sortDate: "2026-08-27T10:26:16"
+language: en
+track: ai-policy
+title: "Teaching the machine to check its work"
+titleHTML: "Teaching the machine to <em>check</em> its work"
+dek: "Training a second model to judge the first one's math, and to grade every step rather than the final answer, is now beating bigger models and majority voting on the field's standard benchmark."
+dekHTML: "Training a second model to judge the first one's math, and to grade every <em>step</em> rather than the final answer, is now beating bigger models and majority voting on the field's standard benchmark."
+coverDek: "Language models still bluff their way through multi-step arithmetic, and the fix that is working is not a bigger model but a second one trained to grade the first. The newest graders watch every step, learn from cheap noisy labels, and get distilled back into a single small checker. Compute is quietly being rerouted from solving to judging."
+source: "Based on a lecture on verifying language-model reasoning · Stanford University"
+sourceLabel: "N° 43 · a lecture on verifying language-model reasoning · Stanford University"
+topics:
+  - "Large Language Models"
+  - "Mathematical Reasoning"
+  - "Verification"
+  - "GSM8K"
+  - "Reinforcement Learning"
+  - "Weak Supervision"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import QABlock from '../../../components/QABlock.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Ask a large language model to total a grocery list and it may answer with perfect confidence and be wrong. The field's name for this is hallucination, and the remedies on offer were the blunt ones: a bigger model, or more training on worked solutions. A recent lecture at Stanford laid out a different remedy, and the results are hard to wave away. Train a second model to do one narrow job, judging whether the first model's solution is correct, then let it sift a pile of draft answers for the one that holds up. On the benchmark the field uses for grade-school math, that arrangement matched a model thirty times larger. The newest checkers do not even wait for the final answer. They grade every step, they learn from labels that are cheap and noisy rather than gold, and they are then compressed into a single model small enough to run beside the solver it polices.
+</Lede>
+
+<Section number="01" title="The <em>gap</em> between solving and checking">
+
+<Standfirst>Language models bluff through multi-step arithmetic with total confidence, so the field built a benchmark of grade-school word problems to catch them at it.</Standfirst>
+
+The failure mode is not hesitation. Asked a multi-step math problem, a model will often produce a clean, confident, wrong solution, each line plausible, the arithmetic broken somewhere in the middle. The authors of the field's standard benchmark said it formally in 2021: state-of-the-art models <span class="doc">still struggle to robustly perform multi-step mathematical reasoning</span>.
+
+<QABlock speaker="Speaker">
+LLMs can hallucinate and confidently present wrong solutions to the users.
+</QABlock>
+
+<ContextBox label="What is GSM8K?">
+GSM8K is a benchmark of 8,500 grade-school math word problems, written by human problem writers and released in 2021 by researchers at OpenAI. Each problem takes two to eight steps of reasoning, so it tests multi-step logic rather than recall. The standard evaluation split holds 1,319 problems. Because the final answers are easy to check mechanically, the benchmark makes a clean laboratory for reasoning research.
+</ContextBox>
+
+The opening this creates has a name: the generation-verification gap. Sample a model many times on one problem and the correct solution is often somewhere in the pile, even when the model could not produce it reliably on demand. The task stops being knowledge and becomes sorting: find the right answer among the drafts. That is a job for a second model.
+
+</Section>
+
+<Section number="02" title="A second model, paid to <em>doubt</em>">
+
+<Standfirst>The verifier's whole job is one number: the probability that a solution is correct. Trained well, it turns a pile of drafts into an answer.</Standfirst>
+
+The method, set out in 2021 by Karl Cobbe and his co-authors at OpenAI, is mechanical. Sample the generator many times on the same problem, train a verifier to score each candidate, and keep the candidate with the highest score. The verifier's output is a single number: the probability that the solution in front of it is correct. The generator does the thinking; the verifier does the judging.
+
+The payoff was startling. Against ordinary finetuning, meaning extra training on worked-out solutions, the verifier arrangement bought the <span class="doc">equivalent of a thirty-fold increase in model size</span>. And where finetuning's gains flatten, <span class="doc">verification scales more effectively with increased data</span>. A bigger pile of drafts keeps paying.
+
+<ContextBox label="What is an ablation study?">
+An ablation study re-runs an experiment with one element removed or changed, to measure what that element contributes. A system with five design choices gets retrained five ways, each version missing a piece. Whatever degrades was load-bearing; whatever does not was decoration. It is the standard tool for separating the part that works from the parts that came along for the ride.
+</ContextBox>
+
+The ablations in this line of work circle one design question: how fine-grained should the doubt be? A verifier can read a whole solution and score it once, score it sentence by sentence, or score it token by token, a token being the fragment of a word the model actually reads. Each option gets run as its own experiment. Before granularity, though, comes a blunter question of budget: how smart does the judge need to be?
+
+</Section>
+
+<Section number="03" title="Spend the compute on the <em>solver</em>">
+
+<Standfirst>Hold the budget fixed and a big solver with a small judge beats the reverse. The no-training alternative, majority voting, has a ceiling.</Standfirst>
+
+Instinct says the judge should be at least as smart as the solver. The experiments run the comparison directly: hold the total compute fixed, then trade generator size against verifier size. The result is lopsided.
+
+<QABlock speaker="Speaker">
+Using a large generator with a small verifier performs significantly better than using a small generator with a large verifier.
+</QABlock>
+
+The rival method needs no training at all. Majority voting samples the model many times and returns the answer that shows up most. It works, until it doesn't. The failure arrives <span class="said">after around fifty samples per problem</span>: past that point, extra drafts stop adding correct answers. A verifier's advantage is that it reads the drafts instead of counting them.
+
+<ContextBox label="What is majority voting?">
+Majority voting, also called self-consistency, is the simplest way to use extra samples from a model at test time. Run the same problem through the model many times, collect the final answers, and return the one that appears most often. It requires no training, only extra computation whenever the model is used.
+</ContextBox>
+
+Put the findings together and a budget doctrine emerges. Spend on the generator, sample it generously, and let a small, cheap verifier do the sorting. Verification converts inexpensive sampling into accuracy that would otherwise require a much larger model. What it does not do, yet, is look inside the reasoning: the verifier reads a finished solution and cannot say where it went wrong.
+
+</Section>
+
+<Section number="04" title="Grade the <em>steps</em>, not the answer">
+
+<Standfirst>Outcome supervision grades only the final answer. Process supervision grades every step, and finding out whether that matters took eight hundred thousand labels.</Standfirst>
+
+A verifier that scores finished solutions is an outcome reward model, ORM: it sees the answer, never the path. A process reward model, PRM, scores each step instead, so it can point to the exact line where a sound argument turns. Step-level grades also teach. Fed back as training rewards, through PPO, the standard reinforcement-learning algorithm that pushes a model toward whatever scores higher, they shape how the model reasons, not just what it concludes.
+
+<ContextBox label="What are outcome and process supervision?">
+Outcome supervision rewards a model only for a correct final answer, whatever path produced it. Process supervision rewards correct intermediate steps, even when the final answer never lands. The first is cheap, because answers are easy to check automatically. The second is informative but expensive: someone, or something, must grade every step.
+</ContextBox>
+
+The price of the informative kind is counted in labels. For the 2023 process-supervision paper by Lightman and colleagues, human annotators graded individual steps, producing the PRM800K dataset: <span class="said">800,000 step-level labels over 12,000 math problems</span>. To keep the bill survivable, the team labeled by active learning, meaning the system picks the steps where a human grade would teach the most, rather than labeling at random. That choice made the effort <span class="said">2.6 times more data-efficient</span> than random sampling.
+
+<PullQuote>Process supervision is more effective than outcome supervision, but outcome reward also scales with more data.</PullQuote>
+
+Process supervision took the head-to-head: <span class="said">step-level feedback beats answer-level feedback</span> at the same budget. But the hedge attached to that verdict does real work. Outcome rewards keep improving as data grows, and answer labels are nearly free, since answers can be checked mechanically. Step labels cannot, unless someone manufactures them. The next two designs do exactly that, from opposite directions.
+
+</Section>
+
+<Section number="05" title="A committee of <em>weak</em> graders">
+
+<Standfirst>Two papers attack the cost of step labels from opposite ends: manufacture them automatically, or pool checkers too weak to trust alone.</Standfirst>
+
+The first escape from the labeling bill came from Wang and colleagues in 2023. Their Math-Shepherd system <span class="attr">produces step-level labels automatically</span>, taking the human grader out of the loop and bridging expensive supervision to cheap. The labels it makes are noisier than gold. The wager of the newest work is that noisy, properly pooled, is enough.
+
+<ContextBox label="What is weak supervision?">
+Weak supervision is a strategy for training models without gold-standard labels. Instead of paying experts, researchers gather many cheap labeling signals, each unreliable and each wrong in its own way, then combine their votes statistically into usable training labels. The approach was systematized in 2017 by the Snorkel project. Its premise: independent errors cancel, so a crowd of weak labelers can approximate a strong one.
+</ContextBox>
+
+Weaver, from Saad-Falcon and colleagues in 2025, takes that premise literally. Its verifiers are weak on purpose, and no single one is trusted; pooled, the ensemble grades solutions <span class="said">well enough to measurably shrink the generation-verification gap</span>. Then comes the step that makes it practical: distillation. One compact model is trained to imitate the committee's judgments, so the crowd's discernment runs at a single model's price.
+
+The closing results point one way: the verification strategies post <span class="said">real performance gains</span> and deliver <span class="said">more accuracy per unit of compute</span> than simply scaling the solver. What stays open is the contest between the two kinds of supervision, which the data has not settled: outcome rewards scale with data, and answer labels will always be cheaper than step labels, so the process grader must keep earning its bill. The thing to watch is the size of the judge. Every stage of this story has shrunk it, and the gap it polices has shrunk with it.
+
+</Section>

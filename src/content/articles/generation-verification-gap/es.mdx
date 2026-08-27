@@ -1,0 +1,120 @@
+---
+issue: "N.º 43"
+date: "27 ago 2026"
+sortDate: "2026-08-27T10:26:16"
+language: es
+track: ai-policy
+title: "Enseñar a la máquina a supervisar su trabajo"
+titleHTML: "Enseñar a la máquina a <em>supervisar</em> su trabajo"
+dek: "Entrenar un segundo modelo para juzgar los cálculos del primero y calificar paso a paso, en lugar de solo mirar el resultado, ya está superando a modelos más grandes y a las votaciones mayoritarias en los estándares de la industria."
+dekHTML: "Entrenar un segundo modelo para juzgar los cálculos del primero y calificar paso a <em>paso</em>, en lugar de solo mirar el resultado, ya está superando a modelos más grandes y a las votaciones mayoritarias en los estándares de la industria."
+coverDek: "Los modelos de lenguaje todavía intentan salir del paso con aritmética compleja, y la solución que funciona no es un modelo más grande, sino uno secundario entrenado para calificar al primero. Estos evaluadores vigilan cada paso, aprenden de etiquetas ruidosas y económicas, y se comprimen hasta ser pequeños revisores. El poder de cómputo se está desplazando discretamente de la resolución al juicio."
+source: "Basado en una clase sobre la verificación del razonamiento en modelos de lenguaje · Universidad de Stanford"
+sourceLabel: "N° 43 · una clase sobre la verificación del razonamiento en modelos de lenguaje · Univer"
+topics:
+  - "Modelos de Lenguaje Extensos"
+  - "Razonamiento Matemático"
+  - "Verificación"
+  - "GSM8K"
+  - "Aprendizaje por Refuerzo"
+  - "Supervisión Débil"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import QABlock from '../../../components/QABlock.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Si le pides a un modelo de lenguaje que sume una lista de compras, es posible que responda con total seguridad y esté equivocado. En el gremio, a esto lo llaman alucinación, y las soluciones propuestas habían sido hasta ahora medidas contundentes: usar un modelo más grande o entrenarlos con más ejercicios resueltos. Una clase reciente en Stanford expuso un camino distinto, y sus resultados son difíciles de ignorar. Consiste en entrenar a un segundo modelo para una tarea muy específica: juzgar si la solución del primero es correcta, para luego cribar una pila de borradores y encontrar la que sobrevive al análisis. En el examen estándar de matemáticas para primaria, este esquema igualó a un modelo treinta veces más grande. Los nuevos evaluadores ni siquiera esperan al resultado final; califican paso a paso, aprenden de etiquetas baratas y ruidosas en vez de datos perfectos, y se comprimen en un solo modelo lo suficientemente ligero para operar junto al resolutor que vigila.
+</Lede>
+
+<Section number="01" title="La <em>brecha</em> entre resolver y supervisar">
+
+<Standfirst>Los modelos de lenguaje intentan resolver aritmética de varios pasos con absoluta confianza, por lo que el campo creó un examen de problemas escolares para atraparlos en el error.</Standfirst>
+
+El fallo no es la duda. Cuando se le presenta un problema matemático de varios pasos, el modelo suele generar una solución impecable, segura y errónea: cada renglón parece sensato, pero el cálculo se rompe en algún punto. Los autores del estándar de la industria lo señalaron formalmente en 2021: los modelos de vanguardia <span class="doc">aún batallan para ejecutar razonamientos matemáticos robustos en varios pasos</span>.
+
+<QABlock speaker="Speaker">
+Los modelos de lenguaje pueden alucinar y presentar con confianza soluciones falsas a los usuarios.
+</QABlock>
+
+<ContextBox label="¿Qué es GSM8K?">
+Es un conjunto de 8,500 problemas matemáticos de nivel primaria, creados por humanos y publicados en 2021 por investigadores de OpenAI. Cada problema requiere entre dos y ocho pasos lógicos, alejándose de la simple memorización. La evaluación estándar utiliza 1,319 de estos problemas. Como los resultados finales son fáciles de verificar mecánicamente, el conjunto funciona como un laboratorio limpio para investigar el razonamiento.
+</ContextBox>
+
+Esta oportunidad tiene nombre propio: la brecha entre generación y verificación. Si pides a un modelo que resuelva un problema muchas veces, la solución correcta suele estar en el montón, incluso cuando el modelo no logra producirla de forma fiable bajo demanda. La tarea deja de ser conocimiento y se vuelve clasificación: hallar la respuesta correcta entre los borradores. Ese es el trabajo de un segundo modelo.
+
+</Section>
+
+<Section number="02" title="Un segundo modelo, pagado para <em>dudar</em>">
+
+<Standfirst>El trabajo del verificador se reduce a una cifra: la probabilidad de que una solución sea correcta. Bien entrenado, convierte un montón de borradores en una respuesta.</Standfirst>
+
+El método, propuesto en 2021 por Karl Cobbe y sus colaboradores en OpenAI, es mecánico. Se muestrea al generador muchas veces ante el mismo problema, se entrena a un verificador para puntuar cada candidato y se conserva el que obtiene la mayor calificación. La salida del verificador es un número: la probabilidad de que la solución que tiene enfrente sea acertada. El generador piensa, el verificador juzga.
+
+La ganancia fue sorprendente. Frente al ajuste fino convencional —es decir, entrenamiento adicional con soluciones resueltas—, este esquema de verificación aportó <span class="doc">el equivalente a aumentar treinta veces el tamaño del modelo</span>. Y donde las mejoras del ajuste fino se estancan, <span class="doc">la verificación escala con mayor eficacia a medida que aumenta la cantidad de datos</span>. Una pila más grande de borradores sigue siendo rentable.
+
+<ContextBox label="¿Qué es un estudio de ablación?">
+Es un experimento donde se elimina o modifica un elemento para medir cuánto aporta al sistema. Se entrena el mismo modelo en varias versiones, cada una sin una pieza distinta. Lo que empeora el resultado era una pieza clave; lo que no, era accesorio. Es la herramienta estándar para separar lo que realmente funciona de lo que solo acompaña.
+</ContextBox>
+
+Las ablaciones en este campo giran en torno a una duda de diseño: ¿qué tan fina debe ser la duda? Un verificador puede leer la solución completa y puntuarla una vez, hacerlo oración por oración o incluso fragmento a fragmento —un «token» es la unidad mínima que el modelo procesa—. Cada opción se prueba como experimento independiente. Pero antes de la precisión, está la cuestión presupuestaria: ¿qué tan inteligente debe ser el juez?
+
+</Section>
+
+<Section number="03" title="Gastar el cómputo en el <em>resolutor</em>">
+
+<Standfirst>Si fijamos el presupuesto, un resolutor grande con un juez pequeño supera a la combinación inversa. La alternativa sin entrenamiento, el voto mayoritario, tiene un límite.</Standfirst>
+
+La intuición sugiere que el juez debería ser tan inteligente como el resolutor. Los experimentos comparan directamente esto: mantener el cómputo total fijo y compensar el tamaño del generador frente al del verificador. El resultado es desigual.
+
+<QABlock speaker="Speaker">
+Usar un generador grande con un verificador pequeño rinde significativamente mejor que usar un generador pequeño con un verificador grande.
+</QABlock>
+
+El método rival no requiere entrenamiento. La votación mayoritaria muestrea el modelo muchas veces y elige la respuesta que más se repite. Funciona, hasta que deja de hacerlo. El fallo aparece <span class="said">alrededor de los cincuenta muestreos por problema</span>: después de eso, más borradores ya no suman respuestas correctas. La ventaja del verificador es que lee los borradores en lugar de contarlos.
+
+<ContextBox label="¿Qué es la votación mayoritaria?">
+Conocida también como autoconconsistencia, es la forma más sencilla de aprovechar muestras adicionales durante la prueba. Ejecutas el problema muchas veces, recolectas los resultados finales y devuelves el que más veces aparece. No exige entrenamiento, solo más cómputo cada vez que se usa el modelo.
+</ContextBox>
+
+Al conjuntar los hallazgos, emerge una doctrina de presupuesto: invierta en el generador, muestree con generosidad y deje que un verificador pequeño y barato haga la selección. La verificación convierte el muestreo económico en una precisión que, de otro modo, exigiría un modelo mucho más grande. Lo que aún no hace es ver dentro del razonamiento: el verificador lee una solución terminada y no puede decir en qué punto falló.
+
+</Section>
+
+<Section number="04" title="Calificar los <em>pasos</em>, no la respuesta">
+
+<Standfirst>La supervisión por resultado solo califica la respuesta final. La supervisión por proceso califica cada paso, y descubrir si eso importa costó ochocientas mil etiquetas.</Standfirst>
+
+Un verificador que solo puntúa resultados es un modelo de recompensa por resultados (ORM); ve el final, nunca el camino. Un modelo de recompensa por procesos (PRM) califica cada paso, lo que permite señalar la línea exacta donde un argumento coherente se descarrila. Además, las notas paso a paso educan. Si se usan como recompensa en el entrenamiento mediante PPO —el algoritmo estándar de aprendizaje por refuerzo que empuja al modelo a lo que obtiene mayor puntaje—, moldean cómo razona, no solo lo que concluye.
+
+<ContextBox label="¿Qué es la supervisión por resultado y por proceso?">
+La supervisión por resultado premia al modelo solo por la respuesta correcta, sin importar el camino. La supervisión por proceso premia los pasos intermedios correctos, incluso si el resultado final falla. La primera es barata porque los resultados se verifican solos. La segunda es informativa pero costosa: alguien o algo debe evaluar cada paso.
+</ContextBox>
+
+El precio de la supervisión informativa se paga en etiquetas. Para el estudio de 2023 de Lightman y sus colegas, evaluadores humanos calificaron pasos individuales, creando el conjunto PRM800K: <span class="said">800,000 etiquetas a nivel de paso en 12,000 problemas matemáticos</span>. Para mantener el costo manejable, el equipo usó aprendizaje activo: el sistema elige los pasos donde la nota humana enseñará más, en lugar de etiquetar al azar. Esa decisión hizo el esfuerzo <span class="said">2.6 veces más eficiente en el uso de datos</span> que el muestreo aleatorio.
+
+<PullQuote>La supervisión por proceso es más eficaz que la de resultado, pero la recompensa por resultado también escala con más datos.</PullQuote>
+
+La supervisión por proceso ganó el duelo: <span class="said">la retroalimentación por paso supera a la de respuesta</span> con el mismo presupuesto. Pero la salvedad es importante. Las recompensas por resultado mejoran a medida que crecen los datos y las etiquetas de respuesta son casi gratuitas. Las de paso no, a menos que alguien las fabrique. Los siguientes dos diseños hacen precisamente eso, desde extremos opuestos.
+
+</Section>
+
+<Section number="05" title="Un comité de evaluadores <em>débiles</em>">
+
+<Standfirst>Dos estudios atacan el costo de las etiquetas de paso desde extremos opuestos: fabricarlas automáticamente o agrupar evaluadores demasiado débiles para confiar en uno solo.</Standfirst>
+
+La primera vía de escape al gasto de etiquetado vino de Wang y sus colegas en 2023. Su sistema Math-Shepherd <span class="attr">genera etiquetas de paso automáticamente</span>, eliminando al evaluador humano y uniendo la supervisión cara con la barata. Las etiquetas resultantes son más ruidosas que el oro, pero la apuesta de los trabajos recientes es que, bien agrupado, el ruido es suficiente.
+
+<ContextBox label="¿Qué es la supervisión débil?">
+Es una estrategia para entrenar modelos sin etiquetas perfectas. En lugar de pagar expertos, los investigadores reúnen señales de etiquetado baratas, cada una poco fiable y con sus propios errores, y combinan sus votos estadísticamente en etiquetas útiles. La idea, sistematizada en 2017 por el proyecto Snorkel, parte de una premisa: si los errores son independientes, se cancelan, permitiendo que una multitud de evaluadores mediocres se aproxime a uno experto.
+</ContextBox>
+
+Weaver, de Saad-Falcon y su equipo en 2025, lleva esa premisa al extremo. Sus verificadores son deliberadamente débiles y no se confía en ninguno por separado; al agruparlos, el conjunto califica soluciones <span class="said">lo suficientemente bien como para reducir de forma medible la brecha entre generación y verificación</span>. Después llega el paso que lo hace práctico: la destilación. Se entrena un modelo compacto para imitar los juicios del comité, de modo que el discernimiento de la multitud funcione al precio de un solo modelo.
+
+Los resultados apuntan a una conclusión: las estrategias de verificación ofrecen <span class="said">ganancias reales de desempeño</span> y entregan <span class="said">más precisión por unidad de cómputo</span> que simplemente agrandar el resolutor. Lo que queda abierto es la competencia entre los dos tipos de supervisión, algo que los datos aún no resuelven: las recompensas por resultado escalan con los datos y las etiquetas de respuesta siempre serán más baratas, así que el evaluador de procesos deberá seguir justificando su precio. Lo importante a observar es el tamaño del juez. En cada etapa de esta historia, el juez se ha hecho más pequeño, y la brecha que vigila, también.
+
+</Section>
