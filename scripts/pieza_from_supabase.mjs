@@ -351,14 +351,36 @@ process.on('unhandledRejection', async (e) => {
  * minutos hasta que el cupo vuelva.
  */
 async function aparcar(msg) {
-  await avance(3, msg);
+  // Aparcar NO gasta intento: no ha fallado nada de la pieza, falta cupo.
+  await avance(3, msg, { intentos: Number(item?.progress?.intentos ?? 0) });
   try { await soltarTurno(); } catch { /* el turno caduca solo */ }
   console.log(`\n${msg} — la pieza sigue en la cola y se reintenta sola.`);
   process.exit(0);
 }
 
+/**
+ * Cuántas veces se ha intentado ya esta pieza.
+ *
+ * Hace falta desde que la cola reintenta sola: sin contador, una pieza rota de
+ * verdad —un vídeo sin nada que leer, una URL muerta— se relanzaría cada veinte
+ * minutos hasta el fin de los tiempos, gastando una corrida cada vez y tapando
+ * a las que sí pueden salir.
+ */
+const INTENTOS = Number(item?.progress?.intentos ?? 0) + 1;
+const TOPE_INTENTOS = 3;
+
 async function morir(msg) {
-  await avance(0, 'failed', { error: msg });
+  // Al tercer intento se sale de la cola: `state='error'` la saca del turno y
+  // la deja en el panel con su motivo, que es donde alguien puede decidir.
+  const rendirse = INTENTOS >= TOPE_INTENTOS;
+  await avance(0, 'failed', { error: msg, intentos: INTENTOS,
+    ...(rendirse ? { agotada: true } : {}) });
+  if (rendirse) {
+    await sb(`glossa_radar_items?id=eq.${item.id}`, {
+      method: 'PATCH', headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify({ state: 'error', error: `pieza: ${msg}`.slice(0, 300) }) }).catch(() => {});
+    console.error(`Tercer intento fallido: sale de la cola y queda en el panel.`);
+  }
   // Se suelta el turno y se lanza la siguiente: una pieza que falla no puede
   // dejar la cola parada detrás de ella.
   try { await soltarTurno(); await siguienteDeLaCola(item.id); } catch (e) { console.error('  (cola)', e.message); }

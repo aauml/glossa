@@ -17,6 +17,8 @@ on:
 env:
   SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
   SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+  # Para preguntar si la corrida que tiene el turno sigue viva.
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   cola:

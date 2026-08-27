@@ -153,21 +153,11 @@ if (duros.length) {
     console.log(`  publicación relanzada (reintento único): ${p.slug}`);
   }
 
-  // Piezas que murieron antes de escribirse: se relanza la producción entera,
-  // una vez. La marca vive en el propio progress para no depender de columnas.
-  const piezasRotas = await sb(
-    `glossa_radar_items?select=id,title,progress&origin=eq.pieza` +
-    `&progress->>fase=eq.failed&created_at=gte.${new Date(Date.now() - 7 * 864e5).toISOString()}`);
-  for (const p of piezasRotas ?? []) {
-    if (p.progress?.reintentada) continue;
-    await sb(`rpc/glossa_pieza_dispatch`, { method: 'POST', body: JSON.stringify({ item: p.id }) })
-      .catch(e => console.log(`  ✗ relanzar pieza: ${String(e).slice(0, 80)}`));
-    await sb(`glossa_radar_items?id=eq.${p.id}`, {
-      method: 'PATCH', headers: { Prefer: 'return=minimal' },
-      body: JSON.stringify({ progress: { pct: 5, fase: 'relaunched by the watchdog', reintentada: true,
-                                         updated_at: new Date().toISOString() } }) });
-    console.log(`  pieza relanzada (reintento único): ${String(p.title).slice(0, 50)}`);
-  }
+  // Las piezas ya NO se relanzan aquí. Lo hace `glossa-cola-piezas.yml` cada
+  // veinte minutos, que además lleva la cuenta de intentos y respeta el turno.
+  // Tener dos sitios relanzando lo mismo producía dos corridas para la misma
+  // pieza y, peor, este bloque reescribía el progreso entero y borraba esa
+  // cuenta, así que una pieza rota podía reintentarse para siempre.
 }
 
 // ── 2. (retirado) Fuentes que dejaron de traer ────────────────────────────
