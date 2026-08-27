@@ -324,13 +324,23 @@ if (!SECO && !(await turno())) {
 // si el segundo intento la pisara al fallar, el vigilante relanzaría en bucle
 // un fallo determinista — pagándolo cada cuatro horas.
 const REINTENTADA = item?.progress?.reintentada === true;
-const avance = (pct, fase, extra = {}) => SECO ? Promise.resolve() :
+const avance = (pct, fase, extra = {}) => SECO ? Promise.resolve() : Promise.all([
   sb(`glossa_radar_items?id=eq.${ITEM}`, {
     method: 'PATCH', headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({ progress: { pct, fase, ...extra,
       ...(REINTENTADA ? { reintentada: true } : {}),
       updated_at: new Date().toISOString() } }),
-  }).catch(() => {});
+  }).catch(() => {}),
+  // El LATIDO del turno. Cada avance renueva la marca de tiempo, así que un
+  // turno viejo significa de verdad «esta corrida está muerta» y no «lleva un
+  // rato en la parte lenta». Sin esto había que esperar 45 minutos por si
+  // acaso; con esto, doce bastan y la cola no se queda parada por un cadáver.
+  sb('glossa_radar_settings', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify([{ key: 'pieza_lease', value: { run: YO, at: new Date().toISOString() } }]),
+  }).catch(() => {}),
+]).then(() => {});
 
 // Cualquier muerte a partir de aquí deja la barra en «failed» con su motivo:
 // una barra congelada en 45% no le dice a nadie qué pasó ni qué hacer.
