@@ -147,12 +147,25 @@ async function gemini(parts, maxTokens = 4096) {
       // del día: pegar cinco vídeos seguidos lo dispara y esperar lo resuelve.
       // Con dos intentos de cinco segundos moría igual; ahora sube hasta el
       // minuto, que es la ventana que hay que dejar pasar.
+      const cuerpo = await r.text();
+      // La propia respuesta dice QUÉ cupo se agotó. El del minuto se espera; el
+      // del día no se espera dentro de una corrida —faltan horas— y hay que
+      // salir sin romper nada para que la cola lo reintente después.
+      let porDia = false;
+      try {
+        for (const det of JSON.parse(cuerpo).error?.details ?? []) {
+          for (const v of det.violations ?? []) {
+            if (/per_?day|_day|free_tier_requests/i.test(String(v.quotaId ?? v.quotaMetric ?? ''))) porDia = true;
+          }
+        }
+      } catch { /* si no viene detallado, se trata como pasajero */ }
+      if (r.status === 429 && porDia) { const e = new Error('gemini: cupo diario agotado'); e.cupoDiario = true; throw e; }
       const espera = [5000, 20000, 60000, 60000];
       if ((r.status === 503 || r.status === 429) && intento < espera.length) {
         console.log(`  gemini ${r.status} — reintento en ${espera[intento] / 1000} s`);
         await new Promise(x => setTimeout(x, espera[intento])); continue;
       }
-      throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);
+      throw new Error(`gemini ${r.status}: ${cuerpo.slice(0, 200)}`);
     }
     const d = await r.json();
     const tok = d.usageMetadata?.totalTokenCount ?? 0;
@@ -329,6 +342,21 @@ process.on('unhandledRejection', async (e) => {
   await avance(0, 'failed', { error: String(e).slice(0, 300) });
   console.error(String(e)); process.exit(1);
 });
+/**
+ * Sin cupo diario no se falla: se aparca.
+ *
+ * Marcar `failed` sería mentir —no hay nada roto en la pieza— y además la
+ * sacaría de la cola. Se queda `pending` con el motivo a la vista, se suelta el
+ * turno, y `glossa-cola-piezas.yml` la vuelve a intentar sola cada veinte
+ * minutos hasta que el cupo vuelva.
+ */
+async function aparcar(msg) {
+  await avance(3, msg);
+  try { await soltarTurno(); } catch { /* el turno caduca solo */ }
+  console.log(`\n${msg} — la pieza sigue en la cola y se reintenta sola.`);
+  process.exit(0);
+}
+
 async function morir(msg) {
   await avance(0, 'failed', { error: msg });
   // Se suelta el turno y se lanza la siguiente: una pieza que falla no puede
@@ -350,7 +378,12 @@ if (!digest || item.state !== 'digested') {
   const parte = esTexto
     ? { text: `CONTENIDO:\n${String(item.body_text).slice(0, 200_000)}` }
     : { fileData: { fileUri: item.url }, videoMetadata: { fps: 0.1 } };
-  digest = await gemini([{ text: promptDigestPieza(item, esTexto) }, parte], 8192);
+  try {
+    digest = await gemini([{ text: promptDigestPieza(item, esTexto) }, parte], 8192);
+  } catch (e) {
+    if (e.cupoDiario) await aparcar('waiting for the daily Gemini quota (resets at midnight Pacific)');
+    throw e;
+  }
   if (digest.skip) await morir('La fuente no tiene contenido analizable.');
   if (!SECO) await sb(`glossa_radar_items?id=eq.${item.id}`, {
     method: 'PATCH', headers: { Prefer: 'return=minimal' },

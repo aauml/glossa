@@ -1,0 +1,30 @@
+# La cola de piezas sueltas, empujada sola.
+#
+# Una pieza puede quedarse esperando por cosas que se arreglan con el tiempo: el
+# cupo diario de Gemini agotado, otra corrida ocupando el turno, un fallo de red.
+# Nadie debería tener que darle a «retry» a mano, así que esto mira cada veinte
+# minutos y lanza la más antigua si el turno está libre.
+#
+# Cuesta nada cuando no hay nada: mira dos filas y sale. El repositorio es
+# público, así que los minutos de Actions no se pagan.
+name: Glossa cola de piezas (reintento automático)
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'
+  workflow_dispatch:
+
+env:
+  SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+  SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
+jobs:
+  cola:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/piezas_cola.mjs
