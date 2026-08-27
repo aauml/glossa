@@ -1,0 +1,115 @@
+---
+issue: "N° 44"
+date: "27 August 2026"
+sortDate: "2026-08-27T12:19:24"
+language: en
+track: ai-policy
+title: "Give the language model a world to push against"
+titleHTML: "Give the language model a world to <em>push against</em>"
+dek: "A Stanford engineering lecture walks through three ways to teach a language model by feedback rather than text: let it reason with tools, grade its code by running it, and hold its behavior to a written constitution."
+dekHTML: "A Stanford engineering lecture walks through three ways to teach a language model by <em>feedback</em> rather than text: let it reason with tools, grade its code by running it, and hold its behavior to a written constitution."
+coverDek: "Language models were built to predict the next word, and they hit a ceiling: fluent, confident, and wrong with no way to catch it. Three research programs now grade them against something real, a search engine, a code execution, a written constitution. The gains are documented, and so is the finding that a small model grading itself can quietly get worse."
+source: "Based on a lecture on grounding language models in external feedback · Stanford Engineering"
+sourceLabel: "N° 44 · a lecture on grounding language models in external feedback · Stanford Engineeri"
+topics:
+  - "Large Language Models"
+  - "AI Agents"
+  - "Reinforcement Learning"
+  - "Constitutional AI"
+  - "Code Generation"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import QABlock from '../../../components/QABlock.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Ask a language model a hard question and it answers in one breath: fluent, confident, and sometimes wrong, with no way to catch itself. The most interesting idea in machine learning right now is that the fix is not more text. It is a world to push against. Give the model a search engine and let it check its own hunches. Give it a compiler and grade the code it writes. Hand it a short written constitution and let it grade its own manners. Each of these is a working research program, and a Stanford engineering lecture walked through all three as one story. Language models stop being parlor performers and start being agents, the argument goes, the moment their output is graded by something other than more words. The measured gains are real. So, a replication study suggests, are the conditions under which the trick fails.
+</Lede>
+
+<Section number="01" title="Good at <em>language</em>, bad at everything else">
+
+<Standfirst>Language models were trained to continue text, and they got very good at it. The lecture opens on what that skill cannot reach.</Standfirst>
+
+A large language model, LLM for short, is a neural network trained on vast text corpora to do one thing: predict the next word. Scaled to billions of parameters, that single objective yields systems that summarize, translate, answer questions, and write plausible code. On the standard benchmarks of machine reading, they score near the top. The lecture begins from the premise that this is exactly the problem.
+
+<QABlock speaker="Lecturer">
+Language models are really good at solving natural language processing problems. But to make them useful in real-world tasks, they do need to be able to interact with real-world environments, tools, and code.
+</QABlock>
+
+That gap between fluency and usefulness framed a Stanford engineering lecture on grounding: tying a model's output to signals from outside itself. The lecture surveyed three research programs that supply such signals in three currencies. Tools return observations. Code execution returns pass or fail. A written constitution returns judgment. Each program is a published, working system, and each beat a version of the same model left to talk to itself.
+
+<ContextBox label="What is chain-of-thought prompting?">
+Chain-of-thought prompting asks a model to write out intermediate reasoning steps before answering, rather than answering in one jump. Popularized in 2022, it markedly improves accuracy on arithmetic and multi-step problems, since each written step conditions the next. It also leaves a trail a human can read. Its weakness is that the chain stays inside the model's head. A wrong second step produces fluent, confident nonsense thereafter, and nothing in the method checks the steps against the world.
+</ContextBox>
+
+The first program on the syllabus attacked exactly that weakness. If the chain of thought is going to be wrong anyway, let it stop mid-sentence and go find out.
+
+</Section>
+
+<Section number="02" title="The model that <em>looks things up</em>">
+
+<Standfirst>ReAct interleaves the model's reasoning with actions like search and lookup, so the chain of thought must answer to what it finds.</Standfirst>
+
+ReAct, short for reasoning and acting, was published in 2022 by a Google Brain team led by Shunyu Yao. The method alternates two kinds of lines. The model writes a thought, then takes an action: search Wikipedia, open a page, look up a phrase. The result returns as an observation, and the next thought is written in light of it. Reasoning decides what to do. Doing changes what the model knows.
+
+The benchmarks tell the story. HotpotQA asks questions that require combining facts from two pages. FEVER is a fact-verification task. ALFWorld is a text game of household chores; WebShop, a simulated online store. Paired with chain-of-thought, ReAct reached <span class="doc">35.1 percent exact match on HotpotQA</span> and <span class="doc">64.6 percent on FEVER</span>. On the interactive tasks it posted a <span class="doc">71 percent success rate in ALFWorld</span> and <span class="doc">40 percent on WebShop</span>, beating methods that only reason or only act.
+
+As a first exhibit that grounding pays, the numbers hold up. The published record matches them. The deeper gain is factual hygiene. A pure chain of thought can hallucinate a plausible answer; a model that must retrieve first has less room to invent. Yao and his co-author Yuan Cao emphasize a second dividend: the interleaved traces, they write, offer "human-aligned task-solving trajectories that improve interpretability, diagnosability, and controllability."
+
+All of this feedback arrives at inference time, during the answer itself. The model's weights never change, and nothing carries over to the next question. The second program on the syllabus asked what happens when the feedback is allowed to retrain the model, with a compiler as the grader.
+
+</Section>
+
+<Section number="03" title="Graded by the <em>compiler</em>">
+
+<Standfirst>Reinforcement learning from execution feedback trains a code model on whether its programs run and pass tests, not on whether they look right.</Standfirst>
+
+The second program moves from prompting to training, and from trivia to code. CodeContests is a benchmark of competitive programming problems: precise statements, strict limits, and hidden tests that decide success. A model fine-tuned in the ordinary way learns to imitate solutions it has seen. Whether those solutions would run is treated as somebody else's problem.
+
+<QABlock speaker="Lecturer">
+The core of their framework is an iterative feedback loop. They're using both training time and inference-time execution feedback.
+</QABlock>
+
+Under RLEF, reinforcement learning from execution feedback, the model generates candidate programs, runs them against public tests, and collects a reward tied to the outcome. Passing solutions are reinforced. Failures are revised and resubmitted over several rounds, and the loop runs again at test time, so the model debugs rather than accepts a first draft. The reward is not a human opinion; it is the behavior of the program itself. The payoff, as presented, is <span class="said">a higher success rate on CodeContests than standard fine-tuning achieves</span>.
+
+<ContextBox label="What is reinforcement learning?">
+Reinforcement learning trains a system by reward instead of by example. The model takes an action, receives a score, and adjusts to make high scores more likely. The standard algorithm for language models is PPO, proximal policy optimization, which nudges the model toward higher reward in small steps so the chase for score does not wreck its fluency. The hard part is rarely the algorithm. It is finding a reward signal that is cheap, honest, and difficult to game.
+</ContextBox>
+
+Execution feedback works because code is honest: it runs or it does not. Behavior is not like that. There is no compiler for tact, no unit test for whether an assistant should answer a dangerous question. The third program replaced the grader with something stranger.
+
+</Section>
+
+<Section number="04" title="The model that <em>grades itself</em>">
+
+<Standfirst>Anthropic's Constitutional AI replaces paid human rankings with a short written text, then lets the model grade itself against it.</Standfirst>
+
+<ContextBox label="What is RLHF?">
+Reinforcement learning from human feedback, RLHF, is the standard recipe for making a chat model behave. Human contractors read pairs of model answers and rank the better one. Their judgments train a reward model, and the language model is then optimized, usually with PPO, to please it. The method works, but it is slow and expensive. It is also opaque: the values being taught live inside thousands of individual judgments that no one ever wrote down.
+</ContextBox>
+
+Constitutional AI, introduced by Anthropic in December 2022 in a paper led by Yuntao Bai, rewrites that pipeline. Instead of ranked comparisons, the lab writes principles: choose the less harmful answer, refuse to help with weapons, explain the refusal. The model critiques its own draft against that text, revises it, and generates preference data against the same constitution. The final training step is RLAIF, reinforcement learning from AI feedback.
+
+The appeal is compression: ten written sentences doing the work of ten thousand paid judgments. The headline claim is that the method <span class="said">replaces tens of thousands of human labels with roughly ten principles</span>. The published record supports the direction: Anthropic reports finer control over behavior with far fewer annotations, and the constitution, unlike a pile of rankings, can be read.
+
+<PullQuote>Ten written sentences doing the work of ten thousand paid judgments.</PullQuote>
+
+How well the recipe travels is another matter. In a replication posted on arXiv, researchers ran the same workflow on Llama 3-8B, a much smaller model than Anthropic's. Harmlessness improved: the attack success rate fell <span class="doc">40.8 percent</span>. But helpfulness fell <span class="doc">9.8 percent</span> with it, and the model showed early signs of collapse, its self-revisions too weak to learn from. "Our study suggests that like reasoning and math ability, self-improvement is an emergent property," the authors wrote. In other words, scale confers the capacity to grade yourself. The method alone does not.
+
+</Section>
+
+<Section number="05" title="No one grades the <em>grader</em>">
+
+<Standfirst>The question session went where feedback loops are weakest: tasks without graders, proxies that get gamed, and models too small to correct themselves.</Standfirst>
+
+The limits are visible in the record itself. A <span class="doc">40 percent success rate on WebShop</span> means the agent fails most shopping trips. RLEF's gains come from a single benchmark of competitive programming. Constitutional training, transplanted to a smaller model, bought harmlessness at the price of helpfulness and began to fray.
+
+The deeper problem, and the one the audience kept circling, is that feedback must exist before it can help. Code has compilers. Trivia has answer keys. Most tasks people actually want done have neither, and a model optimized against a proxy signal will learn the proxy, not the intent. No constitution or test suite repeals that.
+
+What to watch next is concrete. Agents built on ReAct-style loops are moving from simulated stores to the live web, where observations are messier and actions have costs. On the training side, the replication authors suggest smaller models can still use constitutional methods if the revision step is preprocessed, an engineering patch on what may be a property of scale. And the constitutions themselves will grow: a short text that governs a model's conduct invites the question of who writes it, and who may appeal. None of these loops grades the grader. That part is still ours.
+
+</Section>

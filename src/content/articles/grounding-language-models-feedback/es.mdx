@@ -1,0 +1,115 @@
+---
+issue: "N.º 44"
+date: "27 ago 2026"
+sortDate: "2026-08-27T12:19:24"
+language: es
+track: ai-policy
+title: "Dale al modelo de lenguaje un mundo con el cual chocar"
+titleHTML: "Dale al modelo de lenguaje un mundo con el cual <em>chocar</em>"
+dek: "Una clase de ingeniería en Stanford explora tres vías para enseñar a un modelo de lenguaje mediante retroalimentación en lugar de texto: usar herramientas, evaluar código con compiladores y someterlo a una constitución escrita."
+dekHTML: "Una clase de ingeniería en Stanford explora tres vías para enseñar a un modelo de lenguaje mediante <em>retroalimentación</em> en lugar de texto: usar herramientas, evaluar código con compiladores y someterlo a una constitución escrita."
+coverDek: "Los modelos de lenguaje fueron diseñados para predecir la siguiente palabra y tocaron techo: son elocuentes, seguros y están equivocados sin forma de corregirse. Tres programas de investigación los evalúan hoy contra algo real: un buscador, la ejecución de código o una constitución escrita. Los avances son documentados, pero también lo es el hecho de que un modelo pequeño que se autoevalúa puede degradarse silenciosamente."
+source: "Basado en una clase magistral sobre el anclaje de modelos de lenguaje en retroalimentación externa · Stanford Engineering"
+sourceLabel: "N° 44 · una clase magistral sobre el anclaje de modelos de lenguaje en retroalimentación"
+topics:
+  - "Modelos de lenguaje extensos"
+  - "Agentes de IA"
+  - "Aprendizaje por refuerzo"
+  - "IA constitucional"
+  - "Generación de código"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import QABlock from '../../../components/QABlock.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Si le haces una pregunta difícil a un modelo de lenguaje, responderá de una bocanada: fluido, seguro y, a veces, erróneo, sin manera de advertirlo. La idea más interesante en aprendizaje automático hoy es que la solución no es más texto. Es darle un mundo contra el cual chocar. Dale un buscador para que verifique sus corazonadas. Dale un compilador para que califique su código. Entrégale una breve constitución escrita para que evalúe sus propios modales. Cada una de estas rutas es un programa de investigación activo, y una clase de ingeniería en Stanford las unió todas en un mismo relato. Los modelos de lenguaje dejan de ser artistas de salón para volverse agentes, dice la premisa, en cuanto su resultado es evaluado por algo distinto a más palabras. Las mejoras medidas son reales. También lo son, según sugiere un estudio de replicación, las condiciones bajo las cuales el truco falla.
+</Lede>
+
+<Section number="01" title="Bueno para el <em>lenguaje</em>, malo para todo lo demás">
+
+<Standfirst>Los modelos de lenguaje fueron entrenados para continuar texto y se volvieron expertos en ello. La clase comienza con los límites de esa destreza.</Standfirst>
+
+Un modelo de lenguaje extenso (LLM, por sus siglas en inglés) es una red neuronal entrenada con enormes corpus de texto para hacer algo simple: predecir la siguiente palabra. A escala de miles de millones de parámetros, ese objetivo único genera sistemas que resumen, traducen, responden preguntas y escriben código coherente. En los estándares de lectura automática, obtienen las mejores notas. La premisa de la clase es que, precisamente, ese es el problema.
+
+<QABlock speaker="Profesor">
+Los modelos de lenguaje son muy eficaces resolviendo problemas de procesamiento de lenguaje natural. Pero para que sean útiles en tareas del mundo real, necesitan interactuar con entornos, herramientas y código tangibles.
+</QABlock>
+
+Esa brecha entre la fluidez y la utilidad estructuró la clase en Stanford sobre el anclaje: vincular la salida de un modelo a señales externas. La cátedra revisó tres programas que suministran esas señales mediante tres divisas: las herramientas devuelven observaciones, la ejecución de código devuelve resultados de aprobación y una constitución escrita devuelve juicios. Cada programa es un sistema funcional y documentado, y cada uno superó a las versiones del modelo dejadas a su propia suerte.
+
+<ContextBox label="¿Qué es el prompting de cadena de pensamiento?">
+Esta técnica solicita al modelo desglosar los pasos de razonamiento antes de responder, en lugar de saltar directamente al final. Popularizada en 2022, mejora la precisión en problemas aritméticos y multietapa, pues cada paso escrito condiciona al siguiente. Además, deja un rastro legible para el humano. Su debilidad es que la cadena ocurre dentro de la cabeza del modelo. Un error en el segundo paso genera disparates fluidos y confiados, sin que el método contraste esos pasos contra el mundo real.
+</ContextBox>
+
+El primer programa del temario atacó esa debilidad: si la cadena de pensamiento va a equivocarse de todos modos, que se detenga a mitad de camino y salga a comprobar los hechos.
+
+</Section>
+
+<Section number="02" title="El modelo que <em>consulta fuentes</em>">
+
+<Standfirst>ReAct alterna el razonamiento del modelo con acciones como buscar y consultar, obligando a que la cadena de pensamiento responda a lo que encuentra.</Standfirst>
+
+ReAct, acrónimo de razonar y actuar, fue publicado en 2022 por un equipo de Google Brain liderado por Shunyu Yao. El método alterna dos líneas de trabajo: el modelo escribe un pensamiento y luego ejecuta una acción, como buscar en Wikipedia o consultar una frase. El resultado vuelve como una observación y el siguiente pensamiento se redacta a la luz de ese dato. El razonamiento decide qué hacer; la acción modifica lo que el modelo sabe.
+
+Los indicadores confirman el éxito. HotpotQA plantea preguntas que exigen combinar hechos de distintas fuentes; FEVER es una tarea de verificación de datos; ALFWorld es un juego de tareas domésticas y WebShop un simulador de tienda. Combinado con la cadena de pensamiento, ReAct alcanzó un <span class="doc">35.1 por ciento de aciertos en HotpotQA</span> y un <span class="doc">64.6 por ciento en FEVER</span>. En tareas interactivas, obtuvo un <span class="doc">71 por ciento de éxito en ALFWorld</span> y un <span class="doc">40 por ciento en WebShop</span>, superando a los métodos que solo razonan o solo actúan.
+
+Como primera prueba de que el anclaje rinde frutos, los números se sostienen. El registro publicado los respalda. La ganancia profunda es la higiene factual: una cadena de pensamiento pura puede alucinar una respuesta plausible, pero un modelo obligado a recuperar datos tiene menos margen para inventar. Yao y su coautor Yuan Cao destacan una segunda ventaja: los rastros intercalados ofrecen «trayectorias de resolución alineadas con los humanos que mejoran la interpretabilidad, la capacidad de diagnóstico y el control».
+
+Toda esta retroalimentación ocurre durante la inferencia, mientras se genera la respuesta. Los pesos del modelo no cambian y nada se transfiere a la siguiente pregunta. El segundo programa del temario exploró qué sucede cuando esa retroalimentación se usa para reentrenar al modelo, usando un compilador como evaluador.
+
+</Section>
+
+<Section number="03" title="Evaluado por el <em>compilador</em>">
+
+<Standfirst>El aprendizaje por refuerzo a partir de la ejecución entrena a un modelo de código según si sus programas funcionan y pasan pruebas, no según su aspecto.</Standfirst>
+
+El segundo programa pasa del prompting al entrenamiento, y de las trivias al código. CodeContests es un banco de problemas de programación competitiva: enunciados precisos, límites estrictos y pruebas ocultas que deciden el éxito. Un modelo ajustado convencionalmente aprende a imitar soluciones que ha visto, pero si esas soluciones funcionan es problema de alguien más.
+
+<QABlock speaker="Profesor">
+El núcleo de su marco de trabajo es un ciclo iterativo. Utilizan la retroalimentación de la ejecución tanto durante el entrenamiento como en la inferencia.
+</QABlock>
+
+Bajo RLEF (aprendizaje por refuerzo a partir de retroalimentación de ejecución), el modelo genera candidatos, los ejecuta contra pruebas públicas y obtiene una recompensa según el resultado. Las soluciones exitosas se refuerzan; las fallidas se revisan y se vuelven a enviar. El ciclo se repite durante la prueba, de modo que el modelo depura en lugar de aceptar un primer borrador. La recompensa no es la opinión humana, sino el comportamiento del programa. El beneficio es <span class="said">una tasa de éxito superior en CodeContests que la lograda mediante ajuste fino estándar</span>.
+
+<ContextBox label="¿Qué es el aprendizaje por refuerzo?">
+El aprendizaje por refuerzo entrena sistemas mediante recompensas en lugar de ejemplos. El modelo realiza una acción, recibe un puntaje y se ajusta para maximizar esa nota. El algoritmo estándar es PPO (optimización de políticas proximales), que empuja al modelo hacia mayores recompensas con pequeños cambios para no comprometer su fluidez. Lo difícil raramente es el algoritmo; es hallar una señal de recompensa barata, honesta y difícil de manipular.
+</ContextBox>
+
+La retroalimentación de ejecución funciona porque el código es honesto: funciona o no. El comportamiento no es igual. No existe un compilador para el tacto ni una prueba unitaria para determinar si un asistente debe responder a una pregunta peligrosa. El tercer programa reemplazó al evaluador con algo más extraño.
+
+</Section>
+
+<Section number="04" title="El modelo que <em>se califica a sí mismo</em>">
+
+<Standfirst>La IA constitucional de Anthropic reemplaza los rankings humanos pagados por un texto breve, dejando que el modelo se autoevalúe bajo esas normas.</Standfirst>
+
+<ContextBox label="¿Qué es el RLHF?">
+El aprendizaje por refuerzo a partir de retroalimentación humana (RLHF) es la receta estándar para moderar un chatbot. Contratistas humanos leen pares de respuestas y clasifican la mejor. Sus juicios entrenan un modelo de recompensa y el modelo de lenguaje se optimiza para complacerlo. El método funciona, pero es lento y costoso. Además, es opaco: los valores enseñados viven dentro de miles de juicios individuales que nadie escribió jamás.
+</ContextBox>
+
+La IA constitucional, presentada por Anthropic en diciembre de 2022 en un artículo liderado por Yuntao Bai, reescribe ese proceso. En lugar de comparaciones jerárquicas, el laboratorio redacta principios: elige la respuesta menos dañina, rehúsa ayudar con armas, explica por qué. El modelo critica su propio borrador frente a ese texto, lo revisa y genera datos de preferencia siguiendo la constitución. El paso final es RLAIF, aprendizaje por refuerzo mediante retroalimentación de IA.
+
+El atractivo es la compresión: diez oraciones haciendo el trabajo de diez mil juicios humanos pagados. La pretensión principal es que el método <span class="said">reemplaza decenas de miles de etiquetas humanas con aproximadamente diez principios</span>. El registro publicado respalda la tendencia: Anthropic reporta mayor control sobre el comportamiento con muchas menos anotaciones y la constitución, a diferencia de una montaña de rankings, se puede leer.
+
+<PullQuote>Diez oraciones escritas haciendo el trabajo de diez mil juicios pagados.</PullQuote>
+
+Qué tan bien viaja esta receta es otro asunto. En una replicación en arXiv, investigadores probaron el flujo con Llama 3-8B, un modelo mucho menor que el de Anthropic. La inocuidad mejoró: la tasa de éxito de ataques cayó un <span class="doc">40.8 por ciento</span>. Pero la utilidad cayó un <span class="doc">9.8 por ciento</span> y el modelo mostró signos de colapso, con revisiones propias demasiado débiles para aprender. «Nuestro estudio sugiere que, al igual que el razonamiento y la habilidad matemática, la automejora es una propiedad emergente», escribieron. Es decir, la escala confiere la capacidad de autoevaluarse. El método por sí solo no lo hace.
+
+</Section>
+
+<Section number="05" title="Nadie evalúa al <em>evaluador</em>">
+
+<Standfirst>La sesión de preguntas abordó donde los ciclos de retroalimentación son más débiles: tareas sin evaluadores, indicadores que se manipulan y modelos demasiado pequeños para corregirse.</Standfirst>
+
+Los límites son visibles en los datos. Un <span class="doc">40 por ciento de éxito en WebShop</span> implica que el agente falla en la mayoría de sus compras. Los avances de RLEF provienen de un solo indicador de programación competitiva. La formación constitucional, al trasladarse a un modelo menor, compró inocuidad a precio de utilidad y empezó a desgastarse.
+
+El problema profundo, y sobre el que la audiencia insistió, es que la retroalimentación debe existir antes de ser útil. El código tiene compiladores; las trivias tienen claves de respuesta. La mayoría de las tareas que la gente quiere realizar no tienen ninguna, y un modelo optimizado contra una señal proxy aprenderá el proxy, no la intención. Ninguna constitución o batería de pruebas revoca eso.
+
+Lo que sigue es concreto. Los agentes basados en ciclos tipo ReAct están pasando de tiendas simuladas a la web real, donde las observaciones son caóticas y las acciones tienen costos. Del lado del entrenamiento, los autores de la replicación sugieren que los modelos pequeños aún pueden usar métodos constitucionales si el paso de revisión es preprocesado, un parche de ingeniería sobre lo que quizá es una propiedad de escala. Y las constituciones crecerán: un texto breve que gobierna la conducta de un modelo invita a preguntar quién lo escribe y quién puede apelar. Ninguno de estos ciclos evalúa al evaluador. Esa parte sigue siendo nuestra.
+
+</Section>

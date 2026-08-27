@@ -1,0 +1,61 @@
+{
+  "slug": "grounding-language-models-feedback",
+  "issue": "N° 44",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=Lxh9RF5S-K0",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "The lecturer argues that language models can be made more performant and reliable for real-world, non-text-based tasks by grounding them in external feedback, either by interacting with tools and environments or by training them with human-derived constraints.",
+      "claim_es": "El profesor argumenta que los modelos de lenguaje pueden ser más eficaces y confiables en tareas del mundo real si se anclan en retroalimentación externa, ya sea interactuando con herramientas y entornos o mediante restricciones derivadas de humanos.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "arxiv.org — Researchers replicated the Constitutional AI workflow using the Llama 3-8B model to test if it could",
+      "url": "https://arxiv.org/html/2504.04918v1",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers replicated the Constitutional AI workflow using the Llama 3-8B model to test if it could effectively improve model harmlessness without human labeling. The study found that while the Attack Success Rate decreased by 40.8%, the model experienced a 9.8% drop in helpfulness and displayed signs of model collapse due to insufficient output quality during self-improvement.",
+      "claim_es": "Los investigadores replicaron el flujo de trabajo de la IA constitucional usando el modelo Llama 3-8B para probar si podía mejorar la inocuidad sin etiquetado humano. El estudio halló que, si bien la tasa de éxito de ataques cayó 40.8%, la utilidad bajó 9.8% y el modelo mostró signos de colapso debido a una calidad de salida insuficiente durante la automejora.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "semanticscholar.org — Researchers published a paper on 'Constitutional AI' that outlines a method for training AI assistan",
+      "url": "https://www.semanticscholar.org/paper/Constitutional-AI%3A-Harmlessness-from-AI-Feedback-Bai-Kadavath/3936fd3c6187f606c6e4e2e20b196dbc41cc4654",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers published a paper on 'Constitutional AI' that outlines a method for training AI assistants to be harmless using AI-generated feedback rather than human labels. The paper demonstrates that this approach allows for more precise control over model behavior with significantly fewer human annotations.",
+      "claim_es": "Investigadores publicaron un artículo sobre 'IA constitucional' que describe un método para entrenar asistentes de IA para que sean inofensivos usando retroalimentación generada por IA en lugar de etiquetas humanas. El documento demuestra que esto permite un control preciso sobre el comportamiento del modelo con significativamente menos anotaciones humanas.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "research.google — Google researchers developed the ReAct paradigm, which integrates verbal reasoning traces and task-s",
+      "url": "https://research.google/blog/react-synergizing-reasoning-and-acting-in-language-models",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Google researchers developed the ReAct paradigm, which integrates verbal reasoning traces and task-specific actions for language models. The method was evaluated using benchmarks including HotpotQA, FEVER, ALFWorld, and WebShop, showing improved performance over models using reasoning or acting in isolation. The authors also demonstrated that fine-tuning smaller language models with ReAct trajecto",
+      "claim_es": "Investigadores de Google desarrollaron el paradigma ReAct, que integra trazas de razonamiento verbal y acciones específicas de la tarea para modelos de lenguaje. El método fue evaluado en indicadores como HotpotQA, FEVER, ALFWorld y WebShop, mostrando mejor desempeño frente a modelos que solo razonan o solo actúan. Los autores también demostraron que el ajuste fino de modelos más pequeños con trayectorias ReAct es efectivo.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "scispace.com — The paper introduces the ReAct prompting method, which combines reasoning and acting within language",
+      "url": "https://scispace.com/papers/react-synergizing-reasoning-and-acting-in-language-models-2gdkos0x?references_page=7",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "The paper introduces the ReAct prompting method, which combines reasoning and acting within language models to improve performance on tasks. It demonstrates that integrating thoughts and actions allows models to interact with environments, such as web searching and games, to correct hallucinations and obtain up-to-date information.",
+      "claim_es": "El documento presenta el método de prompting ReAct, que combina razonamiento y acción dentro de los modelos de lenguaje para mejorar su desempeño. Demuestra que integrar pensamientos y acciones permite a los modelos interactuar con entornos, como búsquedas web o juegos, para corregir alucinaciones y obtener información actualizada.",
+      "verificada": "si"
+    }
+  ]
+}
