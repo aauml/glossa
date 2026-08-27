@@ -925,3 +925,19 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 @media (max-width: 720px) {
   .legend-articulo { max-width: 100%; padding-left: 22px; padding-right: 22px; }
 }
+
+/* ── Copiar el enlace, en el teléfono ────────────────────────────────────
+   A 0,34 em de un titular de móvil el icono queda en once píxeles: se ve
+   poco y se acierta menos. En pantalla estrecha pasa a medida fija de 20 px,
+   con más contraste, y con seis píxeles de relleno anulados por un margen
+   negativo — el blanco para el dedo crece sin mover una coma de la línea. */
+@media (max-width: 640px) {
+  .hero-headline .copiar, .weekly .hed .copiar {
+    font-size: 20px; margin-left: .35em; vertical-align: .06em;
+  }
+  .hero-headline .copiar button, .weekly .hed .copiar button {
+    color: var(--muted); opacity: .9;
+    padding: 6px; margin: -6px;
+  }
+  .copiar-ok { font-size: 11px; }
+}

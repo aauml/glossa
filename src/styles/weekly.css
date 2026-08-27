@@ -314,3 +314,7 @@ html { scroll-behavior: smooth; }
 .weekly .hed .copiar button { color: var(--muted); opacity: .55; }
 .weekly .hed .copiar button:hover { opacity: 1; }
 .weekly .hed .copiar button:hover { color: var(--accent); }
+
+/* En el teléfono el icono del titular del número crece igual que el de una
+   pieza: la regla vive en global.css, aquí solo se deja constancia de que el
+   `.weekly .hed` está incluido a propósito. */
