@@ -1413,7 +1413,7 @@ Deno.serve(async (req) => {
         // nadie: se deduce de la cola de publicación, porque «terminado» solo
         // significa algo cuando la página existe de verdad.
         const { data, error } = await db.from('glossa_radar_items')
-          .select('id,title,progress,created_at')
+          .select('id,title,progress,created_at,state')
           .eq('origin', 'pieza').not('progress', 'is', null)
           .gte('created_at', new Date(Date.now() - 24 * 3600_000).toISOString())
           // Doce, no cinco: pegar seis vídeos seguidos es una tarde normal, y
@@ -1439,7 +1439,16 @@ Deno.serve(async (req) => {
               vivo = { url: q.url_en };
             } else if (q?.state === 'error') vivo = { error: q.error };
           }
-          piezas.push({ ...it, vivo });
+          // EL ESTADO MANDA SOBRE LA BARRA. Una pieza que murió anoche dejó su
+          // progreso en «failed», pero sigue en la cola (`pending`) y la cola la
+          // va a reintentar sola: enseñarla como fallada, con su botón de
+          // reintentar, pide a mano algo que ya está hecho. La barra es una
+          // pista; la columna `state` es el hecho.
+          const enCola = it.state === 'pending' && pr.fase === 'failed';
+          const mostrado = enCola
+            ? { ...pr, fase: 'in queue — will retry on its own', pct: pr.pct || 4 }
+            : pr;
+          piezas.push({ ...it, progress: mostrado, vivo });
         }
 
         // El corte del número, con la misma barra. Vive en un ajuste porque su
