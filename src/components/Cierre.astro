@@ -1,0 +1,35 @@
+---
+/**
+ * El pie de una pieza: volver arriba, y volver a la portada.
+ *
+ * Un artículo terminaba en sus fuentes y ahí se acababa el mundo: para seguir
+ * leyendo había que buscar la flecha del navegador o subir a pulso dos mil
+ * palabras. Son los dos únicos sitios a los que se quiere ir desde el final —
+ * el principio de esto, o el principio de todo.
+ *
+ * En texto y no en botones: al final de una lectura, dos enlaces discretos
+ * cierran; dos botones abren otra cosa.
+ */
+const { lang = 'en' } = Astro.props;
+const T = lang === 'es'
+  ? { arriba: 'Volver arriba', casa: 'Todas las lecturas' }
+  : { arriba: 'Back to top',   casa: 'All the readings' };
+const inicio = lang === 'es' ? '/es/' : '/';
+---
+<nav class="cierre" aria-label={T.casa}>
+  <a class="cierre-arriba" href="#" data-arriba>↑ {T.arriba}</a>
+  <a class="cierre-casa" href={inicio}>{T.casa} →</a>
+</nav>
+
+<script is:inline>
+  (function () {
+    var a = document.querySelector('[data-arriba]');
+    if (!a) return;
+    a.addEventListener('click', function (e) {
+      // Sin `#` en la barra de direcciones: el enlace copiado tiene que seguir
+      // siendo el del artículo, no el del artículo con un ancla vacía pegada.
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>

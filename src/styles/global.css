@@ -945,3 +945,21 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   }
   .copiar-ok { font-size: 11px; }
 }
+
+/* ── El pie de una pieza ─────────────────────────────────────────────────
+   Misma columna que el texto, un filete arriba y dos enlaces en los extremos:
+   volver al principio de esto, o al principio de todo. Nada más — al final de
+   una lectura, lo último que hace falta es un menú. */
+.cierre {
+  max-width: 656px; margin: 0 auto; padding: 18px 0 70px;
+  border-top: 0.5px solid var(--rule-soft);
+  display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: calc(11px * var(--reader-scale));
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.cierre a { color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 2px; }
+.cierre a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+@media (max-width: 720px) {
+  .cierre { max-width: 100%; padding-left: 22px; padding-right: 22px; }
+}
