@@ -1,0 +1,142 @@
+---
+issue: "N° 42"
+date: "27 August 2026"
+sortDate: "2026-08-27T09:54:52"
+language: en
+track: thesis
+title: "Give the model another 249 tries"
+titleHTML: "Give the model another <em>249</em> tries"
+dek: "Two researchers who helped build modern language models open their course with the field's big swap: progress used to come from bigger training runs, and now it comes from letting models think longer."
+dekHTML: "Two researchers who helped build modern language models open their course with the field's big swap: progress used to come from bigger training runs, and now it comes from letting models <em>think</em> longer."
+coverDek: "The strongest results in AI no longer come only from building bigger models; they come from giving trained models more time and more tries. Two of the researchers behind that shift open their course by walking through both eras of the field. The catch, which they state plainly, is that somebody still has to pick the right answer out of the crowd."
+source: "Based on the opening lecture of a course on large language models · Aakanksha Chowdhery and Azalia Mirhoseini"
+sourceLabel: "N° 42 · the opening lecture of a course on large language models · Aakanksha Chowdhery a"
+topics:
+  - "Large Language Models"
+  - "Scaling Laws"
+  - "Inference-Time Compute"
+  - "RLHF"
+  - "AI Reasoning"
+  - "AI Agents"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import QABlock from '../../../components/QABlock.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Ask a language model to fix a real bug from a public software repository, and on a single attempt it succeeds about sixteen times in a hundred. Let it try 250 times, and it fixes more than half — a better score than the strongest model in the world manages in one try. Nothing about the model changed between attempts. It simply got more of them. That result sits near the center of the opening lecture of a course on large language models taught by Aakanksha Chowdhery and Azalia Mirhoseini, two researchers whose own work helped produce it. Their account of the field is that its engine has been replaced. For a decade, progress came from training ever larger models on ever larger datasets. Now it comes increasingly from the computation a model is allowed to spend on an answer after training ends. Size still matters. But the newest gains are bought at inference time, one sample, one second, one chain of thought at a time.
+</Lede>
+
+<Section number="01" title="Two guides from <em>inside</em> the lab">
+
+<Standfirst>A course on large language models opens with two of the people who helped make them large.</Standfirst>
+
+The course is about large language models, and the lecturers speak with unusual authority: several of the results they present are their own. The opening lecture moves through the field the way its builders remember it, as a sequence of findings that each changed what was possible. There is a course to run, with grading, a project and the usual logistics; the lecturers get to all of that at the end. First comes the story.
+
+Their vantage is empirical. In their account, progress in language AI has come less from clever ideas than from curves: measured relationships between what goes in (parameters, data, computation) and what comes out. That lens governs everything that follows. A capability matters once it can be plotted; a technique matters once it moves the plot.
+
+The story begins with the straightest line in modern machine learning.
+
+</Section>
+
+<Section number="02" title="The <em>first</em> scaling law">
+
+<Standfirst>The field's first engine was a 2020 finding: a model's error falls on a smooth curve as size, data and compute grow.</Standfirst>
+
+A language model is trained to predict the next word, and its quality is scored as test loss: the average error on text it has never seen. In 2020, Kaplan and colleagues measured that error across many model sizes and found it falls as three things grow together — parameters, training data, compute — along a curve <span class="doc">regular enough to extrapolate</span>.
+
+Predictability turned ambition into engineering. A lab could run small experiments, fit the curve, and forecast the performance of a model a hundred times larger before paying for the run. Training the largest models stopped being a leap and became a budget.
+
+<QABlock speaker="Chowdhery">
+As you scale up the number of parameters in a model, they get better.
+</QABlock>
+
+<ContextBox label="What is a scaling law?">
+A scaling law is a measured relationship between the resources spent on a model and its performance. For language models, the resources are parameters (the internal dials that training adjusts), training data, and compute. The performance measure is test loss: how wrong the model is, on average, when predicting text it has not seen before. The 2020 finding was that these quantities move together along smooth curves. That let labs predict a large model's behavior from small experiments, before committing to a costly training run.
+</ContextBox>
+
+A loss curve predicts how well a model will guess the next word. It says nothing about what the model will suddenly be able to do. The surprises began there.
+
+</Section>
+
+<Section number="03" title="The abilities <em>nobody</em> trained in">
+
+<Standfirst>Beyond a certain size, models do things their smaller versions cannot, and that nobody programmed in.</Standfirst>
+
+Give a large model a task it was never trained for, with two or three worked examples written into the prompt, and it often just does the task. This is few-shot learning: no retraining, no new parameters, only context. Small models mostly cannot do it. Beyond a certain size, they can.
+
+<QABlock speaker="Mirhoseini">
+As the models become larger, not only do we have this kind of predictive scaling-laws property... new kinds of behaviors appear in the model.
+</QABlock>
+
+The most consequential of the new behaviors came from changing the question rather than the model. Asked directly for the answer to a math problem, models often guess. Asked to work through it step by step, they <span class="doc">solve problems that standard prompting cannot</span>. The result traces to a 2022 paper by Wei and colleagues, and it gave the field a new verb: eliciting.
+
+<ContextBox label="What is chain-of-thought prompting?">
+Chain-of-thought prompting asks the model to show its work: to write the intermediate steps of a solution before the final answer. It can be triggered with a few worked examples, or with a phrase as simple as 'let's think step by step.' Breaking a hard problem into steps turns one difficult prediction into several easy ones. The technique costs nothing in training; it spends words at answer time instead. That trade, computation at the moment of answering, becomes central later in the story.
+</ContextBox>
+
+Emergence delivered capability. It did not deliver obedience. A model that can do almost anything still has to be taught to do the thing you asked for.
+
+</Section>
+
+<Section number="04" title="Teaching the model <em>manners</em>">
+
+<Standfirst>A base model completes text; an assistant follows instructions. The distance between them is alignment.</Standfirst>
+
+The first fix is instruction tuning. After pretraining, the model is fine-tuned on pairings of instructions with good responses, across many kinds of tasks. Chung and colleagues scaled that recipe, and the resulting models follow instructions they have never seen phrased before. Systems built for conversation, like the LaMDA model of Thoppilan and colleagues, come out of this pipeline.
+
+The second fix is reinforcement learning from human feedback, or RLHF. People rank the model's answers; the model is tuned until its answers rank well. Together, instruction tuning and RLHF are <span class="said">critical for aligning models with human preferences and instructions</span>.
+
+<ContextBox label="What is RLHF?">
+Reinforcement learning from human feedback is a way to train a model on judgments rather than examples. Human raters compare several of the model's answers to the same prompt and rank them. A second model, the reward model, learns to predict those rankings. The language model is then adjusted so its answers score highly with the reward model. The result is a system tuned toward what people prefer, not just toward what is statistically likely to come next.
+</ContextBox>
+
+Alignment made models helpful and pleasant to use. It did not make them smarter. The next leap came from somewhere other than training: from trying more than once.
+
+</Section>
+
+<Section number="05" title="The <em>second</em> axis">
+
+<Standfirst>Training used to be the expensive part. The new idea is to spend serious computation at the moment of answering.</Standfirst>
+
+Every model carries two budgets. Training is the famous one; inference, the computation spent each time the model answers, used to be the cheap one. That division has broken down. Give a trained model more time, more attempts or more room to work, and its performance rises without a single parameter changing.
+
+The most visible form is the agent that acts in the world. Three systems show the range. Shao and colleagues built one that drafts Wikipedia-style articles from scratch. Lu and colleagues' AI Scientist attempts open-ended scientific research. Yang and colleagues' SWE-agent fixes real software bugs by driving a programmer's tools itself.
+
+<ContextBox label="What is an agentic workflow?">
+An agentic workflow puts a language model in charge of a process rather than a single reply. The model breaks a goal into steps, takes actions (running code, searching the web, editing files), observes the results, and tries again when something fails. Each step is an ordinary model call; the agency comes from the loop around it. Such loops multiply inference compute exactly as repeated attempts do, which is why the two ideas arrive together.
+</ContextBox>
+
+The simplest form of the new axis needs no tools and no loop. It needs only a question, a grader, and 250 tries.
+
+</Section>
+
+<Section number="06" title="Ask the model <em>250 times</em>">
+
+<Standfirst>Coverage, the share of problems solved at least once, keeps rising with the number of attempts.</Standfirst>
+
+The study is Large Language Monkeys, a 2024 paper by Bradley Brown and a team that includes the two lecturers. The method is blunt: sample the model many times on the same problem, and count whether any sample succeeds. On SWE-bench Lite, a benchmark of real issues from public software repositories, a mid-sized coding model solves 15.9 percent of problems with one attempt — and 56 percent with 250. The strongest models in the world, given one try each, manage 43.
+
+<PullQuote>It seems like the models already know a whole lot more than what you get out of them when you just ask them once.</PullQuote>
+
+Nor is the pattern confined to code. On the GSM8K and MATH sets of math word problems, Llama-3 models reach 95 percent coverage (problems solved at least once) when allowed 10,000 samples. And the growth has the same law-like shape as the training curves: coverage rises with sample count along something close to a straight line on the right axes. An inference-time scaling law.
+
+The catch is the one the typewriting monkeys always had. Coverage counts a problem as solved when any attempt succeeds, but somebody has to know which one. Math and code come with graders: proofs check, tests pass or fail. Where no automatic checker exists, the paper itself flags the task of picking the right answer out of the pile as unsolved.
+
+</Section>
+
+<Section number="07" title="Models that think <em>longer</em>">
+
+<Standfirst>OpenAI's o1 turned thinking time into a straight line on a graph, and the field has been redrawing it since.</Standfirst>
+
+OpenAI's o1 is the reasoning model built on that idea: reinforcement learning trains it to produce a long internal chain of thought before it answers. The company's report shows a <span class="doc">log-linear relationship between test-time compute and accuracy</span>. The more computation spent thinking, the higher the score. OpenAI's published figures put o1 in the 89th percentile on Codeforces, a competitive-programming site, and at a 74 percent average pass rate on the AIME, a competition mathematics exam, with one attempt per problem.
+
+Since then the approach has become a crowded field. After DeepSeek released its reasoning model R1 in January 2025, researchers published a wave of test-time techniques: tokens that tell a model to wait and keep thinking, rounds of written self-feedback, backtracking through reasoning trees. One project, s1, reached competitive performance with just 1,000 curated training examples carrying reasoning traces. DeepSeek's own researchers, reviewing their path to R1, dismissed two much-discussed techniques — rewarding each reasoning step, and tree-search planning — as <span class="attr">"unsuccessful attempts"</span>.
+
+How far the reinforcement-learning recipe itself scales remains, by OpenAI's own account, under investigation. The deeper limit is the one the monkeys left behind. Repeated sampling and long reasoning pay best where answers can be checked automatically, and most human questions have no checker. So watch the verifiers. If models learn to grade their own answers in the domains that lack test suites, the second axis opens further. Until then, the straight lines bend where the checking runs out.
+
+</Section>

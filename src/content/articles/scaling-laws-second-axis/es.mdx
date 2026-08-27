@@ -1,0 +1,142 @@
+---
+issue: "N.º 42"
+date: "27 ago 2026"
+sortDate: "2026-08-27T09:54:52"
+language: es
+track: thesis
+title: "Dale otros 249 intentos al modelo"
+titleHTML: "Dale otros <em>249</em> intentos al modelo"
+dek: "Dos investigadores que ayudaron a construir los modelos de lenguaje modernos inician su curso con el gran cambio del sector: el progreso solía depender de entrenamientos más extensos, pero ahora reside en dejar que los modelos piensen más tiempo."
+dekHTML: "Dos investigadores que ayudaron a construir los modelos de lenguaje modernos inician su curso con el gran cambio del sector: el progreso solía depender de entrenamientos más extensos, pero ahora reside en dejar que los modelos <em>piensen</em> más tiempo."
+coverDek: "Los resultados más potentes en IA ya no provienen solo de crear modelos gigantes; surgen de dar a los modelos entrenados más tiempo y más oportunidades. Dos de los investigadores detrás de este giro abren su curso recorriendo ambas eras de la disciplina. El detalle, que admiten con franqueza, es que alguien todavía debe elegir la respuesta correcta entre la multitud."
+source: "Basado en la clase inaugural de un curso sobre grandes modelos de lenguaje · Aakanksha Chowdhery y Azalia Mirhoseini"
+sourceLabel: "N° 42 · la clase inaugural de un curso sobre grandes modelos de lenguaje · Aakanksha Cho"
+topics:
+  - "Grandes modelos de lenguaje"
+  - "Leyes de escala"
+  - "Cómputo en inferencia"
+  - "RLHF"
+  - "Razonamiento de IA"
+  - "Agentes de IA"
+---
+
+import Lede from '../../../components/Lede.astro';
+import Section from '../../../components/Section.astro';
+import Standfirst from '../../../components/Standfirst.astro';
+import QABlock from '../../../components/QABlock.astro';
+import ContextBox from '../../../components/ContextBox.astro';
+import PullQuote from '../../../components/PullQuote.astro';
+
+<Lede>
+Pide a un modelo de lenguaje que corrija un error real de un repositorio de código y, en un solo intento, tendrá éxito unas dieciséis de cada cien veces. Si le permites 250 intentos, corrige más de la mitad: una puntuación superior a la del modelo más potente del mundo en un solo disparo. Nada en el modelo cambió entre intentos; simplemente tuvo más oportunidades. Este resultado es el núcleo de la lección inicial de un curso sobre grandes modelos de lenguaje impartido por Aakanksha Chowdhery y Azalia Mirhoseini, dos investigadores cuyo propio trabajo ayudó a forjar esta realidad. Su versión del sector es que el motor ha sido reemplazado. Durante una década, el progreso dependió de entrenar modelos cada vez más grandes con datos cada vez más masivos. Hoy, el avance proviene del cómputo que se le permite emplear al modelo sobre una respuesta una vez terminado el entrenamiento. El tamaño importa, pero las ganancias más recientes se compran durante la inferencia: una muestra, un segundo, una cadena de pensamiento a la vez.
+</Lede>
+
+<Section number="01" title="Dos guías desde <em>dentro</em> del laboratorio">
+
+<Standfirst>Un curso sobre modelos de lenguaje comienza con dos de las personas que ayudaron a hacerlos grandes.</Standfirst>
+
+El curso versa sobre grandes modelos de lenguaje y los ponentes hablan con una autoridad inusual: varios de los resultados que exponen son suyos. La lección inaugural recorre el campo tal como sus constructores lo recuerdan, como una serie de hallazgos que transformaron las posibilidades. Hay un curso que gestionar, con calificaciones y logística; los docentes llegan a eso al final. Primero, la historia.
+
+Su perspectiva es empírica. En su relato, el progreso en la IA lingüística no ha derivado de ideas ingeniosas, sino de curvas: la relación medida entre lo que ingresa (parámetros, datos, cómputo) y lo que resulta. Esa lente gobierna todo lo demás. Una capacidad importa una vez que puede graficarse; una técnica importa cuando desplaza la curva.
+
+La historia comienza con la línea más recta del aprendizaje automático moderno.
+
+</Section>
+
+<Section number="02" title="La <em>primera</em> ley de escala">
+
+<Standfirst>El primer motor del sector fue un hallazgo de 2020: el error del modelo cae en una curva suave a medida que el tamaño, los datos y el cómputo crecen.</Standfirst>
+
+Un modelo de lenguaje se entrena para predecir la siguiente palabra y su calidad se evalúa como pérdida de prueba: el error promedio en textos nunca antes vistos. En 2020, Kaplan y sus colegas midieron ese error en muchos tamaños de modelos y hallaron que disminuye conforme tres factores crecen en conjunto —parámetros, datos de entrenamiento y cómputo— siguiendo una curva <span class="doc">lo suficientemente regular para extrapolarse</span>.
+
+La predictibilidad convirtió la ambición en ingeniería. Un laboratorio podía ejecutar experimentos pequeños, ajustar la curva y pronosticar el rendimiento de un modelo cien veces mayor antes de pagar por el entrenamiento. Entrenar los modelos más grandes dejó de ser un salto al vacío y se convirtió en una partida presupuestaria.
+
+<QABlock speaker="Chowdhery">
+A medida que escalas el número de parámetros en un modelo, estos mejoran.
+</QABlock>
+
+<ContextBox label="¿Qué es una ley de escala?">
+Es una relación medida entre los recursos dedicados a un modelo y su rendimiento. Para los modelos de lenguaje, los recursos son parámetros (los diales internos que el entrenamiento ajusta), datos de entrenamiento y cómputo. La medida de rendimiento es la pérdida de prueba: qué tan erróneo es el modelo, en promedio, al predecir texto nuevo. El hallazgo de 2020 fue que estas cantidades se mueven juntas sobre curvas suaves, permitiendo predecir el comportamiento de un modelo grande a partir de experimentos pequeños, antes de comprometerse con un entrenamiento costoso.
+</ContextBox>
+
+Una curva de pérdida predice qué tan bien adivinará el modelo la siguiente palabra. No dice nada sobre lo que el modelo será repentinamente capaz de hacer. Ahí comenzaron las sorpresas.
+
+</Section>
+
+<Section number="03" title="Las habilidades que <em>nadie</em> programó">
+
+<Standfirst>Más allá de cierto tamaño, los modelos realizan tareas para las que no fueron diseñados y que nadie les enseñó.</Standfirst>
+
+Dale a un modelo grande una tarea para la que nunca fue entrenado, incluyendo dos o tres ejemplos resueltos en la instrucción, y a menudo simplemente la ejecuta. Esto es aprendizaje de pocos intentos (few-shot): sin reentrenamiento, sin nuevos parámetros, solo contexto. Los modelos pequeños no pueden hacerlo. Superado cierto tamaño, sí pueden.
+
+<QABlock speaker="Mirhoseini">
+A medida que los modelos se vuelven más grandes, no solo obtenemos esta propiedad predictiva de las leyes de escala... también surgen nuevas clases de comportamientos.
+</QABlock>
+
+El más trascendental de estos nuevos comportamientos provino de cambiar la pregunta, no el modelo. Si se les pide directamente la respuesta a un problema matemático, los modelos suelen adivinar. Si se les pide resolverlo paso a paso, <span class="doc">resuelven problemas que la instrucción estándar no logra</span>. El resultado remite a un artículo de 2022 de Wei y colegas, que regaló al sector un nuevo verbo: provocar.
+
+<ContextBox label="¿Qué es la instrucción de cadena de pensamiento?">
+Es pedirle al modelo que muestre su razonamiento: que escriba los pasos intermedios antes de la respuesta final. Se activa con ejemplos resueltos o frases como "pensemos paso a paso". Dividir un problema difícil en pasos convierte una predicción compleja en varias fáciles. La técnica no cuesta nada en el entrenamiento; consume palabras al momento de responder. Ese trueque, cómputo durante la respuesta, se vuelve central más adelante.
+</ContextBox>
+
+La emergencia brindó capacidad, pero no obediencia. Un modelo que puede hacer casi cualquier cosa aún debe ser enseñado a hacer lo que tú le pides.
+
+</Section>
+
+<Section number="04" title="Enseñarle buenos <em>modales</em> al modelo">
+
+<Standfirst>Un modelo base completa texto; un asistente sigue instrucciones. La distancia entre ambos es la alineación.</Standfirst>
+
+El primer ajuste es el ajuste de instrucciones. Tras el preentrenamiento, se afina el modelo con pares de instrucciones y respuestas de calidad en múltiples tareas. Chung y sus colegas escalaron esa receta y los modelos resultantes siguen instrucciones nunca antes formuladas. Sistemas conversacionales como LaMDA, de Thoppilan y colegas, surgen de este flujo.
+
+El segundo ajuste es el aprendizaje por refuerzo con retroalimentación humana (RLHF). Las personas califican las respuestas y el modelo se ajusta hasta que sus respuestas obtienen buenas notas. Juntos, el ajuste de instrucciones y el RLHF son <span class="said">cruciales para alinear los modelos con las preferencias e instrucciones humanas</span>.
+
+<ContextBox label="¿Qué es el RLHF?">
+Es una forma de entrenar un modelo basado en juicios en lugar de ejemplos. Evaluadores humanos comparan varias respuestas del modelo a una misma instrucción y las clasifican. Un segundo modelo, el de recompensa, aprende a predecir esas clasificaciones. Luego, el modelo de lenguaje se ajusta para que sus respuestas puntúen alto en dicho modelo de recompensa. El resultado es un sistema ajustado a lo que las personas prefieren, no solo a lo que es estadísticamente probable.
+</ContextBox>
+
+La alineación hizo que los modelos fueran útiles y agradables, pero no más inteligentes. El siguiente salto no vino del entrenamiento: vino de intentar más de una vez.
+
+</Section>
+
+<Section number="05" title="El <em>segundo</em> eje">
+
+<Standfirst>El entrenamiento solía ser la parte costosa. La nueva idea es invertir cómputo serio al momento de responder.</Standfirst>
+
+Todo modelo tiene dos presupuestos. El entrenamiento es el famoso; la inferencia —el cómputo invertido cada vez que responde— era la parte barata. Esa división se ha roto. Dale a un modelo entrenado más tiempo, más intentos o más espacio para trabajar, y su rendimiento aumenta sin cambiar un solo parámetro.
+
+La forma más visible es el agente que actúa en el mundo. Tres sistemas muestran el alcance. Shao y sus colegas construyeron uno que redacta artículos al estilo Wikipedia desde cero. El "Científico IA" de Lu y sus colegas intenta investigación científica abierta. El SWE-agent de Yang y colegas corrige errores de software reales manejando herramientas de programación por sí mismo.
+
+<ContextBox label="¿Qué es un flujo de trabajo agéntico?">
+Es poner a un modelo de lenguaje al mando de un proceso, no solo de una respuesta. El modelo desglosa una meta en pasos, actúa (ejecuta código, busca en la web, edita archivos), observa resultados y reintenta si algo falla. Cada paso es una llamada común al modelo; la agencia reside en el bucle que lo rodea. Estos bucles multiplican el cómputo de inferencia igual que lo hacen los intentos repetidos, razón por la cual ambas ideas surgen juntas.
+</ContextBox>
+
+La forma más simple de este nuevo eje no necesita herramientas ni bucles. Solo requiere una pregunta, un evaluador y 250 intentos.
+
+</Section>
+
+<Section number="06" title="Pregúntale al modelo <em>250 veces</em>">
+
+<Standfirst>La cobertura —el porcentaje de problemas resueltos al menos una vez— sigue aumentando con el número de intentos.</Standfirst>
+
+El estudio es Large Language Monkeys, un artículo de 2024 de Bradley Brown y un equipo que incluye a los dos docentes. El método es directo: muestrea al modelo muchas veces ante el mismo problema y cuenta si alguno tiene éxito. En SWE-bench Lite, una prueba con problemas reales de software, un modelo de programación de tamaño medio resuelve el 15.9% con un intento, y el 56% con 250. Los modelos más fuertes del mundo, con un solo intento, logran el 43%.
+
+<PullQuote>Parece que los modelos ya saben mucho más de lo que obtienes de ellos cuando solo les preguntas una vez.</PullQuote>
+
+El patrón no se limita al código. En los conjuntos GSM8K y MATH de problemas matemáticos, los modelos Llama-3 alcanzan una cobertura del 95% al permitirles 10,000 muestras. El crecimiento tiene la misma forma que las curvas de entrenamiento: la cobertura aumenta con el conteo de muestras siguiendo una línea casi recta en los ejes correctos. Una ley de escala durante la inferencia.
+
+El detalle es el mismo que siempre tuvieron los monos mecanógrafos. La cobertura marca un problema como resuelto cuando un intento tiene éxito, pero alguien debe saber cuál. Las matemáticas y el código traen evaluadores automáticos. Donde no existe un verificador, el propio artículo señala como problema abierto la tarea de elegir la respuesta correcta de entre la pila.
+
+</Section>
+
+<Section number="07" title="Modelos que piensan <em>más tiempo</em>">
+
+<Standfirst>El modelo o1 de OpenAI convirtió el tiempo de pensamiento en una línea recta y el sector lo ha estado redibujando desde entonces.</Standfirst>
+
+El o1 de OpenAI es el modelo de razonamiento construido bajo esa idea: el aprendizaje por refuerzo lo entrena para producir una larga cadena de pensamiento interna antes de responder. El informe de la empresa muestra una <span class="doc">relación logarítmica lineal entre el cómputo en tiempo de prueba y la precisión</span>. A más cómputo pensado, mayor puntuación. Las cifras publicadas sitúan al o1 en el percentil 89 de Codeforces y con una tasa de acierto del 74% en el examen AIME de matemáticas, con un intento por problema.
+
+Desde entonces, el enfoque se ha abarrotado. Tras el lanzamiento de DeepSeek R1 en enero de 2025, surgieron técnicas de tiempo de prueba: tokens que ordenan al modelo esperar, rondas de auto-retroalimentación y retroceso en árboles de razonamiento. Un proyecto, s1, alcanzó un rendimiento competitivo con solo 1,000 ejemplos de razonamiento curados. Los investigadores de DeepSeek, al revisar su camino hacia R1, descartaron dos técnicas discutidas —premiar cada paso de razonamiento y la búsqueda en árbol— como <span class="attr">"intentos fallidos"</span>.
+
+Hasta dónde escala la receta de aprendizaje por refuerzo sigue, según OpenAI, bajo investigación. El límite más profundo es el que los monos dejaron atrás. El muestreo repetido y el razonamiento largo rinden mejor donde las respuestas pueden verificarse automáticamente, y la mayoría de las preguntas humanas no tienen verificador. Así que atentos a los jueces. Si los modelos aprenden a calificar sus propias respuestas en dominios sin pruebas, el segundo eje se abrirá más. Hasta entonces, las líneas rectas se tuercen donde se acaban las comprobaciones.
+
+</Section>

@@ -1,0 +1,61 @@
+{
+  "slug": "scaling-laws-second-axis",
+  "issue": "N° 42",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "youtube.com",
+      "url": "https://www.youtube.com/watch?v=6YnLB0XbTnI",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "video",
+      "claim_en": "Aakanksha Chowdhery and Azalia Mirhoseini argue that the scaling of large language models is an evolving process that now leverages inference scaling, agentic workflows, and human feedback to achieve significant improvements.",
+      "claim_es": "Aakanksha Chowdhery y Azalia Mirhoseini sostienen que el escalado de los modelos de lenguaje es un proceso evolutivo que ahora aprovecha el escalado en inferencia, los flujos de trabajo agénticos y la retroalimentación humana para lograr mejoras significativas.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-02",
+      "ref": "openai.com — OpenAI has released a new model, o1-preview, which utilizes a reinforcement learning algorithm to pe",
+      "url": "https://openai.com/index/learning-to-reason-with-llms",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "OpenAI has released a new model, o1-preview, which utilizes a reinforcement learning algorithm to perform 'chain of thought' reasoning. The model demonstrated high performance on competitive benchmarks including the AIME math exam, Codeforces programming problems, and the GPQA science benchmark.",
+      "claim_es": "OpenAI ha lanzado o1-preview, un modelo que utiliza un algoritmo de aprendizaje por refuerzo para realizar razonamiento de \"cadena de pensamiento\". El modelo mostró un alto rendimiento en pruebas competitivas como el examen de matemáticas AIME, problemas de programación en Codeforces y el punto de referencia científico GPQA.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-03",
+      "ref": "magazine.sebastianraschka.com — Researchers have released numerous strategies to enhance LLM reasoning capabilities using inference-",
+      "url": "https://magazine.sebastianraschka.com/p/state-of-llm-reasoning-and-inference-scaling",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers have released numerous strategies to enhance LLM reasoning capabilities using inference-time compute scaling, reinforcement learning, and supervised fine-tuning. These methods include techniques like 'wait' tokens for length control, iterative textual feedback, and tree-based backtracking. The report details developments occurring since the January 22, 2025 release of DeepSeek R1.",
+      "claim_es": "Investigadores han publicado numerosas estrategias para mejorar las capacidades de razonamiento de los LLM mediante cómputo en inferencia, aprendizaje por refuerzo y ajuste supervisado. Estos métodos incluyen técnicas como tokens de \"espera\" para control de longitud, retroalimentación textual iterativa y retroceso basado en árboles. El informe detalla los desarrollos posteriores al lanzamiento de DeepSeek R1 el 22 de enero de 2025.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "arxiv.org — Researchers explored repeated sampling as a method to scale inference compute for large language mod",
+      "url": "https://arxiv.org/html/2407.21787v1",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers explored repeated sampling as a method to scale inference compute for large language models. They demonstrated that increasing the number of generated samples improves the fraction of problems solved, often exceeding the performance of stronger models when restricted to single attempts. The study also highlighted a persistent challenge in selecting correct answers from large sample set",
+      "claim_es": "Los investigadores exploraron el muestreo repetido como método para escalar el cómputo de inferencia. Demostraron que aumentar el número de muestras generadas mejora la fracción de problemas resueltos, superando a menudo a modelos más fuertes limitados a un solo intento. El estudio también destacó el desafío persistente de seleccionar respuestas correctas en grandes conjuntos de muestras.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-05",
+      "ref": "deeplearn.org — Researchers explored inference-time compute by increasing the number of generated samples for langua",
+      "url": "https://deeplearn.org/arxiv/514186/large-language-monkeys:-scaling-inference-compute-with-repeated-sampling",
+      "como": "Traído por el pipeline para anclar o contrastar afirmaciones de la fuente",
+      "role": "context",
+      "tipo": "report",
+      "claim_en": "Researchers explored inference-time compute by increasing the number of generated samples for language models. They found that coverage, defined as the fraction of problems solved, scales with the number of samples over four orders of magnitude. The study demonstrated that for tasks with automatic verifiers, such as coding, repeated sampling can significantly improve performance and cost-effective",
+      "claim_es": "Los investigadores exploraron el cómputo en tiempo de inferencia aumentando el número de muestras generadas. Descubrieron que la cobertura —la fracción de problemas resueltos— escala con el número de muestras a lo largo de cuatro órdenes de magnitud. El estudio demostró que, para tareas con verificadores automáticos, como la programación, el muestreo repetido puede mejorar significativamente el rendimiento y la eficiencia de costos.",
+      "verificada": "si"
+    }
+  ]
+}
