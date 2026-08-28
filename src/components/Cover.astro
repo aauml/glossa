@@ -94,6 +94,11 @@ const temas = ((cuerpo?.pieces) ?? [])
 // El rango que cubre, no el domingo suelto: un número trae siete días.
 const fechaNumero = ultimo ? rango(ultimo.week_start, ultimo.week_end, lang) : null;
 
+// El día en que se está mirando la portada, en la hora en la que vive el
+// sistema (D-020: la semana se ancla al domingo del Pacífico).
+const fechaHoy = new Date().toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-GB',
+  { timeZone: 'America/Los_Angeles', day: 'numeric', month: 'long', year: 'numeric' });
+
 // ¿El número que hay es el de ESTA semana o el de la pasada? La portada decía
 // «cada domingo · 16 de agosto» un día 24, y quien lo leía no podía saber si el
 // sitio estaba parado o si simplemente aún no había cortado. El rótulo lo dice.
@@ -120,7 +125,11 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
 <section class="cover">
   <div class="cover-nameplate">
     <h1 class="cover-wordmark">Glossa<span class="wm-dot">.</span></h1>
-    {fechaNumero && <span class="cover-fecha">{fechaNumero}</span>}
+    {/* La fecha de HOY, no la del número. Ahí arriba, junto al nombre, un rango
+        de semana se lee como la fecha del sitio entero: parecía que Glossa era
+        de la semana del 16 al 22 y que llevaba parado desde entonces. La del
+        número ya está abajo, en su bloque, con su rótulo. */}
+    <span class="cover-fecha">{fechaHoy}</span>
   </div>
 
   <div class="cover-head">
