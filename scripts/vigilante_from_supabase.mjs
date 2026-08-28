@@ -252,15 +252,34 @@ for (const f of pausadas ?? []) {
 //     las últimas corridas no ve al que DEJÓ de correr — y GitHub apaga los
 //     horarios de un repo sin actividad.
 const MAL = new Set(['failure', 'cancelled', 'timed_out', 'startup_failure']);
+// Faltaban tres, y por eso el 2026-08-28 nadie vio que `sectores` llevaba diez
+// horas parado con un reloj HORARIO. Un vigilante que no conoce un reloj no
+// puede echarlo de menos.
+//
+// `glossa-cola-piezas.yml` NO entra a propósito: sólo se dispara cuando hay una
+// pieza esperando, así que una semana sin piezas es silencio legítimo y meterlo
+// aquí sería una alarma falsa permanente — que es como un panel se vuelve algo
+// que se ignora.
+//
+// `monitores` baja de 30 a 26: es diario, y 30 × 1,5 daba cuarenta y cinco horas
+// de manga antes de decir nada de un trabajo que debería correr cada veinticuatro.
 const CADENCIA_H = { 'glossa-weekly.yml': 24 * 7, 'glossa-cotejo.yml': 24 * 7,
                      'glossa-reportaje.yml': 24 * 7, 'glossa-traducir.yml': 24 * 7,
-                     'glossa-monitores.yml': 30, 'glossa-consejo.yml': 24 * 7,
+                     'glossa-monitores.yml': 26, 'glossa-consejo.yml': 24 * 7,
+                     'glossa-boletin.yml': 24 * 7, 'glossa-sectores.yml': 3,
                      'glossa-vigilante.yml': 8 };
 
 if (GH) {
   await cargarIntentos();
   for (const [wf, cadencia] of Object.entries(CADENCIA_H)) {
-    if (wf === 'glossa-vigilante.yml') continue;      // no se vigila a sí mismo
+    // El vigilante SÍ se vigila, pero mirando la corrida ANTERIOR: la primera de
+    // la lista es la suya, en curso, y contra ella el hueco sale siempre cero.
+    // Excluirse del todo era el punto ciego más caro que tenía: entre el 26 y el
+    // 28 de agosto durmió tramos de 615, 744 y 790 minutos con una cadencia
+    // declarada de cuatro horas, y no lo dijo porque el único que podía decirlo
+    // era él. Lo que no hace es relanzarse (más abajo): un vigilante que se
+    // reanima solo puede quedarse dando vueltas sin que nadie lo pare.
+    const propio = wf === 'glossa-vigilante.yml';
     try {
       const cab = { Authorization: `Bearer ${GH}`, Accept: 'application/vnd.github+json',
                     'User-Agent': 'glossa-vigilante' };
@@ -287,7 +306,7 @@ if (GH) {
 
       // Dejó de correr del todo. Es el punto ciego que las otras dos reglas no ven,
       // porque no hay ninguna corrida nueva que mirar.
-      const ultima = runs[0];
+      const ultima = propio ? runs[1] : runs[0];
       const horas = ultima ? (Date.now() - new Date(ultima.created_at)) / 36e5 : Infinity;
       // Se le da una cadencia entera de margen desde que existe antes de exigirle
       // haber corrido.
@@ -303,6 +322,7 @@ if (GH) {
         continue;
       }
 
+      if (propio) continue;                            // no se relanza a sí mismo
       if (!hechas.length) continue;
       if (!MAL.has(hechas[0].conclusion)) continue;
 
@@ -371,7 +391,32 @@ for (const u of gasto ?? []) {
   }
 }
 
-// ── 6. El número de la semana ──────────────────────────────────────────────
+// ── 6. La cola ─────────────────────────────────────────────────────────────
+// Esto no existía, y era el punto ciego que dejó pasar lo de agosto: 665
+// elementos sin leer no producían ni una incidencia. Lo que sí saltaba era
+// «presupuesto_al_limite: gemini», que es el SÍNTOMA — la cuota se agota porque
+// entra más de lo que cabe, y sin esta cuenta la causa no se ve por ningún lado.
+//
+// El umbral es el ATRASO, no el montón: mil elementos con capacidad para mil no
+// son un problema, y trescientos con capacidad para cien lo son. Un pico de un
+// día se vacía solo y no debe abrir nada.
+const [cola] = await sb('rpc/glossa_radar_cola', { method: 'POST', body: '{}' }) ?? [];
+if (cola) {
+  const atraso = Number(cola.dias_de_atraso ?? 0);
+  const grave = atraso >= 3;
+  if (atraso >= 1.5) {
+    await anotar({
+      clase: 'cola_creciendo', gravedad: grave ? 'grave' : 'aviso',
+      detalle: `${cola.pendientes} sin leer: entran ${cola.entrada_dia}/día y se leen ` +
+               `${cola.digestion_dia}/día, así que hacen falta ${atraso} días para vaciarla`,
+      evidencia: cola,
+    });
+  } else {
+    console.log(`  · cola: ${cola.pendientes} sin leer, ${atraso} día(s) de atraso — al día`);
+  }
+}
+
+// ── 7. El número de la semana ──────────────────────────────────────────────
 // Solo se pregunta a partir del domingo por la tarde: antes, que no exista es lo
 // normal.
 const hoy = new Date();

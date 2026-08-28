@@ -15,6 +15,13 @@ on:
     - cron: '7 * * * *'
   workflow_dispatch:
 
+# Desde que el reloj de verdad es pg_cron (migración 0064) hay DOS cosas que
+# pueden disparar esto: el horario de GitHub y el empujón de la base. Sin un
+# grupo, dos corridas a la vez clasificarían los mismos temas por duplicado.
+concurrency:
+  group: glossa-sectores
+  cancel-in-progress: false
+
 env:
   SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
   SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
