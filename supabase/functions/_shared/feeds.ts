@@ -209,6 +209,59 @@ function segundosISO(d: string): number {
 
 export type Filtrado = Entrada & { motivo: string };
 
+/**
+ * La criba por secciones, para las fuentes que traen más de lo que se lee.
+ *
+ * YouTube tenía su filtro —la duración, que aparta Shorts y directos— y la
+ * prensa no tenía ninguno: `parsearFeed` devolvía el feed entero y se insertaba
+ * entero. Mientras las fuentes fueron pódcast y análisis dio igual. Al dar de
+ * alta seis diarios generalistas entre el 24 y el 26 de agosto de 2026, la cola
+ * pasó de ~42 elementos al día a ~600, contra una capacidad de digestión de
+ * ~190: 665 pendientes en tres días, creciendo. La cuota de Gemini no se puede
+ * subir —`gemini-3.1-flash-lite` da 500 peticiones al día en el tramo gratuito,
+ * que es de donde salen los topes— así que lo que hay que bajar es la entrada.
+ *
+ * Y hay mucho que bajar sin perder nada: de las cuatrocientas entradas de Fox en
+ * cinco días, 101 eran `outkick-sports`; en El Financiero, espectáculos, deportes
+ * y entretenimiento juntos eran el 29 %.
+ *
+ * **La URL entra en el pajar a propósito**, y es lo que hace que esto funcione: en
+ * la prensa la sección va en la ruta —`/2026/08/25/business/`, `/outkick-sports/`,
+ * `/deportes/2026/`— y el titular no la dice nunca. Filtrar sólo por el título
+ * exigiría adivinar el tema; filtrar por la ruta es leer lo que el propio medio
+ * ya decidió.
+ *
+ * `keywords_excluded` es una lista NEGRA a propósito: con una blanca, la sección
+ * que un medio estrene mañana se caería sola y en silencio. Las dos columnas
+ * existían desde hace tiempo en `glossa_radar_sources`, pero sólo las miraba
+ * `monitores`; el radar insertaba todo. Ver [[glossa-reglas-en-tres-sitios]].
+ */
+export function cribarPorSeccion(
+  entradas: Entrada[],
+  fuente: { keywords_required?: string[] | null; keywords_excluded?: string[] | null },
+): { entradas: Entrada[]; filtrados: Filtrado[] } {
+  const req = (fuente.keywords_required ?? []).map(k => String(k).toLowerCase()).filter(Boolean);
+  const exc = (fuente.keywords_excluded ?? []).map(k => String(k).toLowerCase()).filter(Boolean);
+  if (!req.length && !exc.length) return { entradas, filtrados: [] };
+
+  const dentro: Entrada[] = [];
+  const fuera: Filtrado[] = [];
+  for (const e of entradas) {
+    const pajar = `${e.url} ${e.title}`.toLowerCase();
+    const veta = exc.find(k => pajar.includes(k));
+    if (veta) {
+      fuera.push({ ...e, motivo: `filtrado: «${veta}» no es una sección que este proyecto lea` });
+      continue;
+    }
+    if (req.length && !req.some(k => pajar.includes(k))) {
+      fuera.push({ ...e, motivo: `filtrado: no cae en ninguna sección pedida (${req.join(', ')})` });
+      continue;
+    }
+    dentro.push(e);
+  }
+  return { entradas: dentro, filtrados: fuera };
+}
+
 export async function episodiosYouTube(canalId: string, apiKey: string):
     Promise<{ entradas: Entrada[]; filtrados: Filtrado[] }> {
   const u = new URL('https://www.googleapis.com/youtube/v3/playlistItems');

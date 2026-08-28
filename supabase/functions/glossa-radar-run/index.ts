@@ -12,7 +12,7 @@
 // Nada de aquí se publica. Es material de lectura privado.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { CORS, requireToken } from '../_shared/auth.ts';
-import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube, textoDePagina, buscarEnYouTube } from '../_shared/feeds.ts';
+import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube, textoDePagina, buscarEnYouTube, cribarPorSeccion } from '../_shared/feeds.ts';
 import type { Filtrado } from '../_shared/feeds.ts';
 import { gemini, geminiJson, geminiTokens, MODELO_DIGEST, VIDEO_FPS } from '../_shared/gemini.ts';
 import { promptDigest, promptTemas } from '../_shared/prompts.ts';
@@ -98,6 +98,15 @@ Deno.serve(async (req) => {
           if (!r.ok) throw new Error(`feed ${r.status}`);
           entradas = parsearFeed(await r.text(), src.kind);
         }
+
+        // La criba por secciones, para las dos ramas. YouTube ya venía filtrado
+        // por duración; esto es lo mismo para la prensa, y lo apartado se une a
+        // `filtradas` para que salga por el camino que ya existía: `skipped` con
+        // su motivo, no un silencio.
+        const criba = cribarPorSeccion(entradas, src);
+        entradas = criba.entradas;
+        if (criba.filtrados.length) filtradas = [...filtradas, ...criba.filtrados];
+
         const filas = entradas
           .filter(e => new Date(e.published_at) >= corte)
           .map(e => ({
