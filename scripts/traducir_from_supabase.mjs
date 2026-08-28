@@ -40,7 +40,33 @@ const [w] = await sb(
   `glossa_radar_weekly?select=week_start,week_end,body,state` +
   (semana ? `&week_start=eq.${semana}` : '&body_es=is.null&order=generated_at.desc') + '&limit=1');
 
-if (!w?.body?.pieces?.length) { console.log('No hay ningún número pendiente de traducir.'); process.exit(0); }
+// «No hay nada que traducir» tiene dos causas que se leían igual, y una de ellas
+// es un número sin edición española.
+//
+// Cuando esto colgaba del cron de GitHub —traducir a las 08:45, número a las
+// 07:30— bastaba con que el número arrancara tarde, que es lo normal: el del 23
+// de agosto empezó a las 10:15. Entonces este guion corría PRIMERO, no encontraba
+// número, imprimía esta línea y salía con CÓDIGO 0. Verde en el registro, verde
+// para el vigilante, y el domingo se quedaba en inglés sin que nadie lo supiera.
+//
+// Ahora se distingue: si la semana ya cerró y su número existe pero sin traducir,
+// no encontrarlo es un fallo y se dice como tal. Si de verdad no hay nada
+// pendiente, sigue siendo una salida en paz.
+if (!w?.body?.pieces?.length) {
+  const [ventana] = await sb('rpc/glossa_semana_actual', { method: 'POST', body: '{}' });
+  const debia = !semana && ventana && !ventana.parcial
+    ? (await sb('glossa_radar_weekly?select=week_start,state' +
+                `&week_start=eq.${new Date(ventana.desde).toISOString().slice(0, 10)}` +
+                '&body=not.is.null&body_es=is.null&limit=1'))?.[0]
+    : null;
+  if (debia) {
+    console.error(`La semana del ${debia.week_start} tiene número escrito y SIN traducir, ` +
+                  'y esta consulta no lo ha encontrado. No se sale en verde.');
+    process.exit(1);
+  }
+  console.log('No hay ningún número pendiente de traducir.');
+  process.exit(0);
+}
 console.log(`Traduciendo «${w.body.headline}» · ${w.body.pieces.length} piezas · semana ${w.week_start}`);
 
 // ── Los traductores, en orden de coste ───────────────────────────────────
