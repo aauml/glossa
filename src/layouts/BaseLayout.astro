@@ -31,6 +31,14 @@ const OG_LOCALE = { en: 'en_US', es: 'es_ES' };
 <link rel="canonical" href={canonical} />
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<!-- Para «añadir a la pantalla de inicio». Sin estas cuatro líneas, iOS y
+     Android improvisan: recortan un pantallazo de la página o ponen la inicial
+     sobre un cuadro NEGRO, que es lo contrario de esta marca. El color de tema
+     es el papel, así que la barra del sistema se funde con la página. -->
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="theme-color" content="#F4EDE4" />
+<meta name="apple-mobile-web-app-title" content="Glossa" />
 <link rel="alternate" type="application/rss+xml" title="Glossa — English" href="/rss.xml" />
 <link rel="alternate" type="application/rss+xml" title="Glossa — español" href="/rss-es.xml" />
 
