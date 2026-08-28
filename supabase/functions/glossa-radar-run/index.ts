@@ -183,7 +183,10 @@ Deno.serve(async (req) => {
   // guion de la cola, que mide por ventana, veía su contador quieto y concluía
   // «roto» tras pagar seis lecturas de material del número equivocado. La
   // ventana la da `glossa_semana_actual()`: una definición, tres consumidores.
-  const CAMPOS = 'id,title,author,url,body_text,origin,source_id,glossa_radar_sources(kind)';
+  // `name` no estaba, y `buscarEnYouTube` lo recibe como `programa`: llegaba
+  // vacío en TODAS las llamadas, así que la escalera buscaba con el titular
+  // pelado y no podía comprobar de quién era el vídeo que encontraba.
+  const CAMPOS = 'id,title,author,url,body_text,origin,source_id,glossa_radar_sources(kind,name)';
   const { data: ven } = await sb.rpc('glossa_semana_actual');
   const v = ven?.[0];
   let pend: any[] = [];

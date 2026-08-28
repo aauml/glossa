@@ -301,16 +301,50 @@ export async function episodiosYouTube(canalId: string, apiKey: string):
  * Cuesta 100 unidades de las 10.000 diarias, así que solo se llama cuando todo
  * lo gratis ya falló.
  *
- * Y comprueba que sea EL episodio, no uno del mismo programa: se exige que el
- * título del vídeo comparta la mayoría de las palabras largas con el del
- * episodio. Un vídeo equivocado sería peor que ninguno — se analizaría el
- * contenido de otro y nadie lo notaría.
+ * Y comprueba DOS cosas, porque con una sola se coló lo que el propio comentario
+ * temía. La primera es que sea EL episodio: que el título del vídeo comparta la
+ * mayoría de las palabras largas con el del episodio.
+ *
+ * La segunda es que sea DE QUIEN DICE SER, y faltaba. Un titular de periódico es
+ * corto y lo escribe parecido todo el mundo, así que el solape de títulos
+ * verificaba el TEMA y no la PROCEDENCIA: el 2026-08-28 había 32 artículos
+ * guardados con el `source_id` de un periódico y el contenido del vídeo de otro
+ * —«The Real Winner of the Trade War With Canada» del NYT digerido de un vídeo de
+ * Ben Norton, y una necrológica de Tim Curry digerida de un resumen de *Dinosaur*
+ * de Disney—. El número los pinta con `channel: <el medio>`, así que aquello ponía
+ * en boca del NYT lo que dijo otro. Ahora se exige además que el canal del vídeo
+ * sea el programa.
+ *
+ * Ese segundo filtro es también lo que retira la escalera de la prensa sin
+ * necesidad de una lista de medios: el canal de YouTube de un pódcast se llama
+ * como el pódcast y pasa, y ningún vídeo ajeno se hace pasar por el periódico.
+ * Sin `programa` no se puede comprobar nada, así que no se busca.
  */
 export async function buscarEnYouTube(titulo: string, programa: string, key: string) {
-  const fichas = (t: string) => new Set(
-    t.toLowerCase().replace(/[^a-z0-9áéíóúñü ]/g, ' ').split(/\s+/).filter(w => w.length >= 4));
+  // Los nombres llegan del feed con entidades sin resolver («NYT &gt; Top
+  // Stories») y con acentos que YouTube no siempre repite. Se comparan planos.
+  const llano = (t: string) => t
+    .replace(/&(?:amp|lt|gt|quot|apos|nbsp|#\d+);/g, ' ')
+    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9ñ ]/g, ' ');
+  // Palabras que no distinguen a nadie: si contaran, «The ... News» casaría con
+  // cualquier canal de noticias del mundo.
+  const RUIDO = new Set(['the', 'and', 'for', 'with', 'from', 'podcast', 'official',
+                         'channel', 'show', 'news', 'media', 'live', 'los', 'las',
+                         'del', 'con', 'por', 'para', 'que', 'una', 'uno', 'noticias']);
+  const fichas = (t: string, min = 4) => new Set(
+    llano(t).split(/\s+/).filter(w => w.length >= min && !RUIDO.has(w)));
+
   const suyas = fichas(titulo);
   if (suyas.size < 2) return null;
+
+  // Sin saber de quién es el episodio no hay procedencia que comprobar, y sin eso
+  // esta función solo sabría verificar el tema — que es exactamente como entró la
+  // atribución falsa. Antes esto no se notaba porque quien llama pedía la fuente
+  // sin `name` y `programa` llegaba SIEMPRE vacío: la comprobación que sí existía
+  // se hacía sobre una cadena en blanco.
+  const dueño = fichas(programa, 3);
+  if (!dueño.size) return null;
 
   try {
     const q = encodeURIComponent(`${titulo} ${programa}`.slice(0, 180));
@@ -324,10 +358,17 @@ export async function buscarEnYouTube(titulo: string, programa: string, key: str
       const comunes = [...suyas].filter(w => suyo.has(w)).length;
       // Dos tercios de las palabras del título del episodio. Con menos, es otro
       // episodio del mismo programa y el análisis hablaría de lo que no es.
-      if (comunes / suyas.size >= 0.66) {
-        return { videoId: String(it.id?.videoId ?? ''), titulo: String(it.snippet?.title ?? ''),
-                 canal: String(it.snippet?.channelTitle ?? '') };
-      }
+      if (comunes / suyas.size < 0.66) continue;
+
+      // Y que el canal sea el programa. Se compara contra el conjunto más corto
+      // de los dos: el canal suele añadir coletillas («... Podcast», «... Official»)
+      // y exigir el nombre entero del canal descartaría aciertos buenos.
+      const canal = fichas(String(it.snippet?.channelTitle ?? ''), 3);
+      const propios = [...dueño].filter(w => canal.has(w)).length;
+      if (!propios || propios / Math.min(dueño.size, canal.size) < 0.6) continue;
+
+      return { videoId: String(it.id?.videoId ?? ''), titulo: String(it.snippet?.title ?? ''),
+               canal: String(it.snippet?.channelTitle ?? '') };
     }
     return null;
   } catch { return null; }
