@@ -36,6 +36,25 @@ async function sb(path, init = {}) {
   return txt ? JSON.parse(txt) : null;
 }
 
+// Lo mismo, pero trayéndolo TODO. PostgREST corta en 1.000 filas por respuesta
+// —`max-rows` del servidor—, así que un `limit=2000` no devuelve dos mil: devuelve
+// mil y se calla. Pedir de mil en mil es la única forma de saber que no falta nada.
+//
+// El `order` de quien llame tiene que ser único o la paginación baraja: dos filas
+// con el mismo `published_at` pueden salir en las dos páginas o en ninguna. Por eso
+// las consultas de abajo desempatan por `id`.
+async function sbTodo(path, tope) {
+  const PAGINA = 1000;
+  const out = [];
+  while (out.length < tope) {
+    const trozo = await sb(`${path}&limit=${Math.min(PAGINA, tope - out.length)}&offset=${out.length}`);
+    if (!trozo?.length) break;
+    out.push(...trozo);
+    if (trozo.length < PAGINA) break;
+  }
+  return out;
+}
+
 // ── La semana ────────────────────────────────────────────────────────────
 // La ventana se ancla al DOMINGO, no a «los últimos siete días desde hoy». Con
 // lo segundo, un corte a mano el martes cubría 18→24 y escribía una fila
@@ -158,22 +177,46 @@ if (!cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd')) {
 const CAMPOS_ITEM = 'id,title,author,url,published_at,digest,origin,lang,glossa_radar_sources(name,estado)';
 const arrastreDesde = new Date(desde.getTime() - 21 * 864e5);
 
+// Los topes son una red por si algo se desboca, NO el corte. El corte lo hace
+// `TOPE_TOKENS` unas líneas más abajo, priorizando por `peso` —lo central que es
+// cada episodio en los temas vivos—, que es mejor señal que la fecha.
+//
+// Antes se pedían 500 con `order=published_at.desc`, y eso deshacía justo esa
+// idea: el recorte lo hacía la FECHA antes de que la priorización llegara a
+// mirar nada, y se perdía el principio de la semana entero. El 2026-08-28 la
+// semana en curso llevaba 864 digeridos, así que el domingo se habría escrito
+// con lo de miércoles a sábado y sin domingo, lunes ni martes. Y en silencio.
+const TOPE_SEMANA    = Number(process.env.WEEKLY_MAX_ITEMS || 5000);
+const TOPE_REZAGADOS = Number(process.env.WEEKLY_MAX_REZAGADOS || 800);
+
 const [enSemana, rezagados] = await Promise.all([
-  sb(`glossa_radar_items?select=${CAMPOS_ITEM}` +
+  sbTodo(`glossa_radar_items?select=${CAMPOS_ITEM}` +
      `&state=eq.digested&published_at=gte.${desde.toISOString()}&published_at=lt.${finDia.toISOString()}` +
-     `&order=published_at.desc&limit=500`),
-  sb(`glossa_radar_items?select=${CAMPOS_ITEM}` +
+     `&order=published_at.desc,id.desc`, TOPE_SEMANA),
+  sbTodo(`glossa_radar_items?select=${CAMPOS_ITEM}` +
      `&state=eq.digested&entregado_en=is.null` +
      `&published_at=gte.${arrastreDesde.toISOString()}&published_at=lt.${desde.toISOString()}` +
-     `&order=published_at.desc&limit=120`),
+     `&order=published_at.desc,id.desc`, TOPE_REZAGADOS),
 ]);
 
 // Las piezas sueltas (origin='pieza', 0045) se leen con la misma cola pero NO
 // son material del número: se pegaron para un artículo propio, y mezclarlas
 // aquí desharía justo la separación que se pidió.
 const items = [...(enSemana ?? []), ...(rezagados ?? [])].filter(x => x.origin !== 'pieza');
-if (enSemana?.length === 500) {
-  console.log('  AVISO: la semana superó las 500 filas; entra lo más nuevo y se recorta lo más viejo.');
+// Si alguna vez se toca la red, hay que gritarlo: a partir de ahí el número SÍ
+// estaría recortado por fecha, y un número recortado en silencio se lee igual
+// que uno completo.
+for (const [qué, hay, tope] of [['la semana', enSemana.length, TOPE_SEMANA],
+                                ['el arrastre', rezagados.length, TOPE_REZAGADOS]]) {
+  if (hay < tope) continue;
+  const aviso = `${qué} tocó el tope de ${tope} filas; a partir de ahí el corte lo hace la FECHA, no el peso`;
+  console.log(`  AVISO: ${aviso}`);
+  await sb('glossa_radar_incidencias', {
+    method: 'POST',
+    body: JSON.stringify([{ clase: 'material_recortado', sujeto: 'glossa-weekly.yml',
+                            gravedad: 'grave', detalle: aviso,
+                            evidencia: { traidas: hay, tope, semana: iso(desde) } }]),
+  }).catch(() => {});
 }
 if (rezagados?.length) {
   console.log(`  ${rezagados.length} rezagado(s) de semanas anteriores: se leyeron tarde y no entraron en ningún número`);
