@@ -30,9 +30,47 @@ export async function gemini(modelo: string, body: unknown, intentos = 3) {
   throw new Error(`Gemini ${ultimo}`);
 }
 
+/**
+ * El JSON de una respuesta, aunque venga acompañado.
+ *
+ * Antes esto sólo quitaba las vallas del bloque de código y llamaba a
+ * `JSON.parse` sobre todo lo demás. Basta con que el modelo añada una frase
+ * DETRÁS del objeto —o un segundo bloque— para que reviente con «Unexpected
+ * non-whitespace character after JSON at position 698», y el episodio se queda
+ * en `error` por algo que estaba entero delante de las narices. Tres de los
+ * cuatro elementos atascados el 2026-08-28 eran exactamente eso.
+ *
+ * Así que si el texto entero no parsea, se recorta el primer valor JSON
+ * BALANCEADO y se parsea ese. Se cuenta la profundidad respetando las cadenas y
+ * los escapes, porque una llave dentro de una cita —«dijo "{" y se fue»— cerraría
+ * el objeto antes de tiempo si se contara a lo bruto.
+ *
+ * Lo que NO arregla, a propósito: un objeto mal formado POR DENTRO (una clave sin
+ * comillas). Eso no es recortable y sale como error, que es la verdad; el
+ * vigilante lo archiva a las 48 h. Reintentarlo sería tirar el dado otra vez a
+ * costa de una cuota diaria que ya va justa.
+ */
 export function geminiJson(resp: any) {
   const t = (resp.candidates?.[0]?.content?.parts ?? []).map((p: any) => p.text || '').join('');
-  return JSON.parse(t.replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/, ''));
+  const limpio = t.replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+  try {
+    return JSON.parse(limpio);
+  } catch (e) {
+    const abre = limpio.search(/[[{]/);
+    if (abre < 0) throw e;
+    const cierra = { '{': '}', '[': ']' }[limpio[abre] as '{' | '['];
+    let hondo = 0, enCadena = false, escapado = false;
+    for (let i = abre; i < limpio.length; i++) {
+      const c = limpio[i];
+      if (escapado) { escapado = false; continue; }
+      if (c === '\\' && enCadena) { escapado = true; continue; }
+      if (c === '"') { enCadena = !enCadena; continue; }
+      if (enCadena) continue;
+      if (c === limpio[abre]) hondo++;
+      else if (c === cierra && --hondo === 0) return JSON.parse(limpio.slice(abre, i + 1));
+    }
+    throw e;
+  }
 }
 
 export const geminiTokens = (resp: any) => resp?.usageMetadata?.totalTokenCount ?? 0;
