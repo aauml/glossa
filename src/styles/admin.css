@@ -38,7 +38,16 @@ body.admin {
 .admin-tabs a { color: var(--muted); }
 .admin-tabs a:hover { color: var(--ink); }
 .admin-tabs a.on { color: var(--accent); }
-.admin-salir { color: var(--muted); font-size: 12px; }
+/* Es un <button> dentro de un formulario, así que sin esto el sistema le pone
+   su cápsula —gris en escritorio, AZUL en iOS— junto a unos mandos que son
+   todos texto. Se le quita el fondo y el borde: mismo estilo que el resto. */
+.admin-salir {
+  color: var(--muted); font-size: 12px;
+  font: inherit; font-size: 12px;
+  background: none; border: none; padding: 0; margin: 0;
+  -webkit-appearance: none; appearance: none;
+  cursor: pointer; letter-spacing: inherit;
+}
 .admin-salir:hover { color: var(--accent); }
 
 .admin-main { max-width: 820px; margin: 0 auto; padding: 26px 26px 90px; }
@@ -289,8 +298,11 @@ details.grupo > summary:hover,
 @media (max-width: 640px) {
   .admin-form input, .admin-form textarea, .admin-form select { font-size: 16px; }
 
+  /* `min-width: 0` era mío y era el fallo: la tabla se estrujaba hasta dejar
+     dos letras por renglón en vez de rodar. Con un ancho mínimo, las columnas
+     conservan su medida y lo que se mueve es la caja. */
   .admin-tabla-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  table.admin-tabla { min-width: 0; }
+  table.admin-tabla { min-width: 520px; }
   .admin-sec .admin-tabla td, .admin-sec .admin-tabla th { padding-right: 8px; }
 
   .admin-main, .admin-sec, .admin-nota, .admin-vista, .admin-puerta { overflow-wrap: anywhere; }

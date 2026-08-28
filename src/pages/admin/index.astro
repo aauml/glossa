@@ -122,6 +122,15 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     const d = e.target.closest?.('details[data-visto]');
     if (d?.open) marcarVisto(d.dataset.visto);
   }, true);
+
+  // Y las que vienen ABIERTAS —Sections lo está— nunca disparan ese `toggle`,
+  // así que su negrita era eterna. Se dan por vistas cuando llevan cuatro
+  // segundos delante: lo justo para que se vea qué hay de nuevo en esta visita
+  // y no lo siga estando en la siguiente. Una sola vez por carga: si se marcara
+  // en cada repintado —cada 30 s— nada sería nuevo jamás.
+  setTimeout(() => {
+    for (const d of document.querySelectorAll('details[data-visto][open]')) marcarVisto(d.dataset.visto);
+  }, 4000);
   const cajaMsg = $('in-msg'), resuelto = $('in-resuelto'), alt = $('in-alt');
   const listaQ = $('q-lista'), listaSrc = $('src-lista');
 
@@ -574,7 +583,10 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
   // en un mes todo estaría marcado y la marca no diría nada.
   const recien = (fecha) => !!fecha &&
     (Date.now() - new Date(fecha).getTime()) < 7 * 864e5 &&
-    esNuevo('temas-lista', fecha);
+    // La MISMA clave que guarda el plegable. Preguntaba por «temas-lista» y el
+    // plegable escribía «temas», así que la negrita no se quitaba nunca: se
+    // comparaba contra una fecha que no existía y todo salía nuevo.
+    esNuevo('temas', fecha);
 
   // Qué sectores están desplegados. Vive fuera de la función porque el panel se
   // repinta solo y, si no, cada refresco volvería a cerrarlos en las narices.
