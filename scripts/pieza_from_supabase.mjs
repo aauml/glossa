@@ -25,6 +25,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe, cabeCoste } from '../src/lib/presupuesto.js';
 import { dominio, esChatarra, esReferencia, esPlataforma } from '../src/lib/hallazgos.js';
+import { uriDeVideo } from '../src/lib/video.js';
 import { promptReporte } from './prompts_reportaje.mjs';
 import { promptDigestPieza, promptConsultasPieza, promptPieza, promptPiezaES } from './prompts_pieza.mjs';
 
@@ -61,7 +62,14 @@ async function sb(path, init = {}) {
 // (`state='pending'`) y la corrida que está trabajando la arranca al terminar.
 const LEASE = 'pieza_lease';
 const YO = process.env.GITHUB_RUN_ID || `local-${process.pid}`;
-const MINUTOS = 45;
+// Doce, no cuarenta y cinco. `glossa_piezas_empujar()` (migración 0062) da por
+// muerto un turno a los DOCE minutos sin latido, y aquí seguían cuarenta y
+// cinco. Entre los doce y los cuarenta y cinco quedaba una tierra de nadie: la
+// base lanzaba una corrida cada cinco minutos, la corrida miraba el turno, se
+// creía ocupada y se iba en verde. El 2026-08-29 eso tuvo una pieza seis horas
+// en la barra sin que fallara nada visible. Dos relojes para el mismo turno son
+// un reloj roto.
+const MINUTOS = 12;
 
 async function turno() {
   const [fila] = await sb(`glossa_radar_settings?key=eq.${LEASE}&select=value`) ?? [];
@@ -309,10 +317,20 @@ console.log(`Pieza para: «${item.title}» (${item.origin}, ${item.state})`);
 // cola tal cual está —`pending`— y la corrida que trabaja la arrancará cuando
 // acabe; no se pierde ni se marca como fallada, que sería mentir.
 if (!SECO && !(await turno())) {
-  await sb(`glossa_radar_items?id=eq.${item.id}`, {
-    method: 'PATCH', headers: { Prefer: 'return=minimal' },
-    body: JSON.stringify({ progress: { pct: 3, fase: 'in queue — another piece is being written',
-                                       updated_at: new Date().toISOString() } }) });
+  // No se pisa un «failed», y tampoco el contador de intentos. Antes esta barra
+  // se escribía entera y en bruto: borraba el motivo del fallo anterior —así que
+  // el panel enseñaba «in queue» donde había un error— y reseteaba `intentos`,
+  // con lo que el tope de tres no se alcanzaba nunca. Un fallo real se leía como
+  // una pieza esperando su turno, indefinidamente.
+  const previo = item?.progress ?? {};
+  if (previo.fase !== 'failed') {
+    await sb(`glossa_radar_items?id=eq.${item.id}`, {
+      method: 'PATCH', headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify({ progress: { pct: 3, fase: 'in queue — another piece is being written',
+                                         ...(previo.intentos != null ? { intentos: previo.intentos } : {}),
+                                         ...(previo.reintentada ? { reintentada: true } : {}),
+                                         updated_at: new Date().toISOString() } }) });
+  }
   console.log('Otra corrida está escribiendo una pieza. Esta queda en la cola y se lanzará sola.');
   process.exit(0);
 }
@@ -335,23 +353,42 @@ const avance = (pct, fase, extra = {}) => SECO ? Promise.resolve() : Promise.all
   // turno viejo significa de verdad «esta corrida está muerta» y no «lleva un
   // rato en la parte lenta». Sin esto había que esperar 45 minutos por si
   // acaso; con esto, doce bastan y la cola no se queda parada por un cadáver.
-  sb('glossa_radar_settings', {
-    method: 'POST',
-    headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-    body: JSON.stringify([{ key: 'pieza_lease', value: { run: YO, at: new Date().toISOString() } }]),
-  }).catch(() => {}),
+  //
+  // Salvo al MORIR, y esa excepción no es un detalle: el último acto de una
+  // corrida que se cae era anotar «failed» y, de paso, volver a marcar el turno
+  // como suyo con la hora de ese momento. Un cadáver renovando su propio latido
+  // — que es justo lo que este latido venía a hacer imposible.
+  ...(fase === 'failed' ? [] : [
+    sb('glossa_radar_settings', {
+      method: 'POST',
+      headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify([{ key: 'pieza_lease', value: { run: YO, at: new Date().toISOString() } }]),
+    }).catch(() => {}),
+  ]),
 ]).then(() => {});
 
 // Cualquier muerte a partir de aquí deja la barra en «failed» con su motivo:
 // una barra congelada en 45% no le dice a nadie qué pasó ni qué hacer.
-process.on('uncaughtException', async (e) => {
-  await avance(0, 'failed', { error: String(e).slice(0, 300) });
-  console.error(String(e)); process.exit(1);
-});
-process.on('unhandledRejection', async (e) => {
-  await avance(0, 'failed', { error: String(e).slice(0, 300) });
-  console.error(String(e)); process.exit(1);
-});
+//
+// Y pasan por `morir()`, no por `avance()` a secas. Esa diferencia es la que
+// convirtió un 400 de Gemini en seis horas de cola parada el 2026-08-29:
+// `avance()` sólo pinta la barra, mientras que `morir()` además SUELTA EL TURNO,
+// cuenta el intento y lanza la siguiente de la cola. Sin eso, un fallo por una
+// vía no prevista —aquí, una excepción sin capturar en la llamada a Gemini—
+// dejaba el turno cogido, el contador de intentos en cero (así que el tope de
+// tres no llegaba nunca) y la pieza `pending` para siempre.
+const alMorir = async (e) => {
+  try {
+    await morir(String(e).slice(0, 300));           // suelta turno, cuenta intento, sigue la cola
+  } catch {
+    // Si `morir` aún no existe —una excepción muy temprana— al menos se pinta.
+    await avance(0, 'failed', { error: String(e).slice(0, 300) });
+    console.error(String(e));
+    process.exit(1);
+  }
+};
+process.on('uncaughtException', alMorir);
+process.on('unhandledRejection', alMorir);
 /**
  * Sin cupo diario no se falla: se aparca.
  *
@@ -409,7 +446,7 @@ if (!digest || item.state !== 'digested') {
   await avance(12, esTexto ? 'reading the source' : 'listening to the source');
   const parte = esTexto
     ? { text: `CONTENIDO:\n${String(item.body_text).slice(0, 200_000)}` }
-    : { fileData: { fileUri: item.url }, videoMetadata: { fps: 0.1 } };
+    : { fileData: { fileUri: uriDeVideo(item.url) }, videoMetadata: { fps: 0.1 } };
   try {
     digest = await gemini([{ text: promptDigestPieza(item, esTexto) }, parte], 8192);
   } catch (e) {

@@ -12,7 +12,7 @@
 // Nada de aquí se publica. Es material de lectura privado.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { CORS, requireToken } from '../_shared/auth.ts';
-import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube, textoDePagina, buscarEnYouTube, cribarPorSeccion } from '../_shared/feeds.ts';
+import { parsearFeed, partirInvitado, idDeCanal, episodiosYouTube, textoDePagina, buscarEnYouTube, cribarPorSeccion, uriDeVideo } from '../_shared/feeds.ts';
 import type { Filtrado } from '../_shared/feeds.ts';
 import { gemini, geminiJson, geminiTokens, MODELO_DIGEST, VIDEO_FPS } from '../_shared/gemini.ts';
 import { promptDigest, promptTemas } from '../_shared/prompts.ts';
@@ -306,7 +306,7 @@ Deno.serve(async (req) => {
       const parte = esTexto
         ? { text: `CONTENIDO:\n${String(item.body_text).slice(0, 200_000)}` }
         : {
-            fileData: { fileUri: item.url },
+            fileData: { fileUri: uriDeVideo(String(item.url)) },
             // Solo el vídeo se muestrea: el audio de un podcast no tiene fotogramas.
             //
             // Se mira la URL del ELEMENTO, no el `kind` de su fuente. Un enlace de

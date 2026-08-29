@@ -210,6 +210,17 @@ function segundosISO(d: string): number {
 export type Filtrado = Entrada & { motivo: string };
 
 /**
+ * La URL de un vídeo, en la forma que Gemini sabe abrir. Copia deliberada de
+ * `src/lib/video.js`: el radar corre en Deno y no puede importar de `src/lib/`.
+ * Si cambia una, cambia la otra — el porqué y las medidas están allí.
+ */
+export function uriDeVideo(url: string): string {
+  const t = String(url ?? '');
+  const m = /(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(t);
+  return m ? `https://www.youtube.com/watch?v=${m[1]}` : t;
+}
+
+/**
  * La criba por secciones, para las fuentes que traen más de lo que se lee.
  *
  * YouTube tenía su filtro —la duración, que aparta Shorts y directos— y la
