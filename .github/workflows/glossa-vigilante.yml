@@ -35,6 +35,10 @@ env:
   # Para comprobar si un canal pausado sigue vivo antes de jubilarlo.
   GLOSSA_YOUTUBE_KEY: ${{ secrets.GLOSSA_YOUTUBE_KEY }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # Con las dos, las incidencias graves NUEVAS salen por correo; sin ellas,
+  # solo quedan en el panel y el registro lo dice.
+  GLOSSA_RESEND_KEY: ${{ secrets.GLOSSA_RESEND_KEY }}
+  VIGILANTE_CORREO: ${{ secrets.VIGILANTE_CORREO }}
 
 jobs:
   vigilante:

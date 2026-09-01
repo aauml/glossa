@@ -16,9 +16,10 @@ cuando Arturo le pone su tesis; entonces sigue el camino normal de publicación.
 | Escuchar y analizar | la misma, dos episodios por pasada | cada 15 min |
 | Censar quién cubrió cada tema | `src/lib/gdelt.mjs` + `gnews.mjs`, gratis | dentro del reportaje |
 | Salir a buscar fuera | Action `glossa-reportaje.yml` | sábado 15:00 UTC |
-| Cotejar afirmaciones | Action `glossa-cotejo.yml` | sábado 09:00 UTC |
-| Corregir la calibración | Action `glossa-consejo.yml` | domingo 08:00 UTC |
-| Escribir el número | Action `glossa-weekly.yml` | domingo 10:00 UTC |
+| Cotejar afirmaciones | Action `glossa-cotejo.yml` | domingo 04:00 UTC (sábado 21:00 en LA) |
+| Escribir el número | Action `glossa-weekly.yml` | domingo 08:30 UTC |
+| Corregir la calibración | Action `glossa-consejo.yml` | domingo 10:00 UTC |
+| La edición española | Action `glossa-traducir.yml` | domingo 10:45 UTC |
 | Vigilar todo lo anterior | Action `glossa-vigilante.yml` | cada 4 h |
 | Leer la cola de golpe | Action `glossa-cola.yml` | a mano, desde el panel |
 | Los datos | tablas `glossa_radar_*` | — |

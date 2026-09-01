@@ -435,11 +435,15 @@ for (const tema of temas.slice(0, TEMAS_BARRIDO)) {
     notas = cens.articulos;
     consultadas = cens.consultadas.map(q => ({ q, pais: 'mundo' }));
 
-    // Solo se cae a la reserva si GDELT NO contestó. Si contestó y no había
-    // nada, eso es una respuesta y hay que respetarla: repetir la pregunta en
-    // otro sitio para obtener la que gusta es lo contrario de comprobar.
+    // Solo se cae a la reserva cuando GDELT FALLÓ y no trajo nada. Si contestó
+    // todas las consultas y no había nada, eso es una respuesta y se respeta:
+    // repetir la pregunta en otro sitio para obtener la que gusta es lo
+    // contrario de comprobar. Pero un censo PARCIALMENTE roto —una consulta
+    // vacía y otra fallida— se leía como «nadie fuera» y el tema se llevaba la
+    // urgencia máxima por un fallo de red: si hubo fallos y cero notas, se
+    // pregunta a la reserva antes de declarar la exclusiva.
     if (cens.motivos.length) console.log(`      censo: ${cens.motivos.join(' · ')}`);
-    if (!consultadas.length && cens.fallos) {
+    if (cens.fallos && !notas.length) {
       const g = await barrido(claves, paises, { desde, hasta: finDia, maxConsultas: 14 });
       notas = g.notas; consultadas = g.consultadas; via = 'gnews';
       if (g.motivos?.length) console.log(`      reserva: ${g.motivos.slice(0, 3).join(' · ')}`);

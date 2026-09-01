@@ -20,11 +20,42 @@ import vercel from '@astrojs/vercel';
 // Hubo una versión del panel en Cloudflare Pages con Access (código por correo).
 // Se trajo aquí porque un subdirectorio es más simple que un subdominio, y el
 // código por correo se conserva vía Supabase Auth, que ya estaba en el stack.
+// El sitemap solo indexa rutas prerenderizadas, y el semanal se sirve en vivo:
+// 49 números publicados y ni uno en el sitemap. Se piden a la base en el
+// momento del build (la llave pública solo ve lo publicado, migración 0018) y
+// entran como customPages; publicar un número dispara un rebuild vía deploy
+// hook (weekly_from_supabase.mjs), así que el sitemap se refresca solo. Si la
+// base no contesta en el build, el sitio se construye igual — sin esas rutas,
+// como antes, y con la queja en el registro del build.
+async function rutasDelSemanal() {
+  const URL_SB = process.env.SUPABASE_URL;
+  const ANON = process.env.SUPABASE_ANON_KEY;
+  if (!URL_SB || !ANON) return [];
+  try {
+    const r = await fetch(
+      `${URL_SB.replace(/\/$/, '')}/rest/v1/glossa_radar_weekly` +
+      `?select=week_start,body_es&state=eq.publicado&order=week_start.desc&limit=200`,
+      { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` }, signal: AbortSignal.timeout(10_000) });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const filas = await r.json();
+    return [
+      'https://glossa.ademas.ai/weekly/',
+      ...filas.flatMap(w => [
+        `https://glossa.ademas.ai/weekly/${w.week_start}/`,
+        ...(w.body_es ? [`https://glossa.ademas.ai/es/weekly/${w.week_start}/`] : []),
+      ]),
+    ];
+  } catch (e) {
+    console.error(`[sitemap] el semanal no entra (${String(e).slice(0, 80)})`);
+    return [];
+  }
+}
+
 export default defineConfig({
   // Las tres pestañas viejas se fundieron en una. Un marcador guardado no debe
   // dar 404 por eso.
   site: 'https://glossa.ademas.ai',
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), sitemap({ customPages: await rutasDelSemanal() })],
   adapter: vercel(),
   trailingSlash: 'always',
   build: { format: 'directory' },

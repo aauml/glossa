@@ -5,7 +5,7 @@ name: Glossa consejo (autocorrección con contrapeso)
 # comité es contrapeso y no puede corregir sus propios deberes — quien analiza es
 # Gemini, así que Gemini no vota sobre cómo analizar.
 #
-# Domingo 08:00 UTC: después del cotejo del sábado, que es lo que le da qué
+# Domingo 10:00 UTC: después del cotejo del sábado, que es lo que le da qué
 # medir, y ANTES del número de las 10:00, para que este ya escriba con la
 # corrección puesta si la hubo.
 #
@@ -21,13 +21,14 @@ name: Glossa consejo (autocorrección con contrapeso)
 #
 #   sábado  08:00  reportaje — sale a buscar fuera (cubre ya casi la semana)
 #   sábado  21:00  cotejo    — comprueba afirmaciones contra documentos
-#   domingo 00:30  número    — la semana cerró a medianoche; se escribe
-#   domingo 01:45  español   — la traducción, aparte, para no retrasar nada
-#   domingo 03:00  consejo   — mide la calibración; no urge, va al final
+#   domingo 01:30  número    — la semana cerró a medianoche; se escribe
+#   domingo 03:00  consejo   — mide la calibración; usa la cuenta de Kimi
+#   domingo 03:45  español   — la edición española, con su revisor Kimi, al final
 #
-# Termina sobre las 02:00 y quedan tres horas de colchón. El consejo va DESPUÉS
-# del número a propósito: usa la misma cuenta de Kimi, que admite una petición a
-# la vez, y antes se solapaba con quien sí tiene prisa.
+# Termina sobre las 04:15 y queda colchón hasta las 05:00. Consejo y español van
+# DESPUÉS del número a propósito: los tres usan la misma cuenta de Kimi, que
+# admite una petición a la vez. Estos crons son la red: el conductor de la base
+# (0063) empuja por condición y suele llegar antes.
 
 on:
   schedule:

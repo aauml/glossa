@@ -122,7 +122,13 @@ export function diasHastaReset(ahora, diaReset = 1) {
  * para que una semana con mucha tela no deje a las siguientes sin nada.
  */
 export function reparto({ restantes, dias, otrosPorSemana = 0, reserva = 0.15, minimo = 8, maximo = 120 }) {
-  if (restantes == null) return { semana: maximo, nota: 'sin tope conocido' };
+  // Sin dato del proveedor se asume lo MÍNIMO, no lo máximo: un fallo de la API
+  // de cupo abría el grifo entero (120 búsquedas) justo cuando menos se sabía
+  // cuánto quedaba. Fallar cerrado: la semana trabaja con el mínimo y la nota
+  // lo dice, para que el registro explique el porqué del recorte.
+  if (restantes == null) {
+    return { semana: minimo, nota: 'la API de cupo no contestó: se asume el MÍNIMO, no el máximo' };
+  }
   const semanas = Math.max(1, Math.ceil(dias / 7));
   const paraOtros = Math.min(restantes, otrosPorSemana * semanas);
   const libre = Math.max(0, restantes - paraOtros) * (1 - reserva);

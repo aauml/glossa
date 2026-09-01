@@ -7,9 +7,12 @@ name: Glossa weekly (número semanal)
 # material —Gemini 45 s, GPT-5 104 s, Grok 169 s, Sonnet 170 s, Kimi K2.6 326 s,
 # Kimi K3 952 s— y sólo el más flojo cabía. Un Action tiene seis horas.
 #
-# Domingos 10:00 UTC = 03:00 en California, 02:00 en invierno. De madrugada y a
-# tiempo: el número está escrito cuando empieza el domingo, no el lunes. La
-# semana que cubre es la que acaba de cerrarse, de domingo a sábado.
+# Domingos 08:30 UTC = 01:30 en California en verano y 00:30 en invierno —
+# siempre DOMINGO en LA. El cron anterior (07:30 UTC) caía en sábado 23:30
+# durante el horario de invierno: el guion veía la semana aún abierta,
+# escribía un corte PARCIAL, y el conductor de la base lo daba por número
+# hecho y saltaba a traducirlo. La semana que cubre es la que acaba de
+# cerrarse, de domingo a sábado.
 #
 # Secretos: SUPABASE_SERVICE_KEY (ya existe), MOONSHOT_API_KEY (nuevo).
 
@@ -20,17 +23,18 @@ name: Glossa weekly (número semanal)
 #
 #   sábado  08:00  reportaje — sale a buscar fuera (cubre ya casi la semana)
 #   sábado  21:00  cotejo    — comprueba afirmaciones contra documentos
-#   domingo 00:30  número    — la semana cerró a medianoche; se escribe
-#   domingo 01:45  español   — la traducción, aparte, para no retrasar nada
-#   domingo 03:00  consejo   — mide la calibración; no urge, va al final
+#   domingo 01:30  número    — la semana cerró a medianoche; se escribe
+#   domingo 03:00  consejo   — mide la calibración; usa la cuenta de Kimi
+#   domingo 03:45  español   — la edición española, con su revisor Kimi, al final
 #
-# Termina sobre las 02:00 y quedan tres horas de colchón. El consejo va DESPUÉS
-# del número a propósito: usa la misma cuenta de Kimi, que admite una petición a
-# la vez, y antes se solapaba con quien sí tiene prisa.
+# Termina sobre las 04:15 y queda colchón hasta las 05:00. Consejo y español van
+# DESPUÉS del número a propósito: los tres usan la misma cuenta de Kimi, que
+# admite una petición a la vez. Estos crons son la red: el conductor de la base
+# (0063) empuja por condición y suele llegar antes.
 
 on:
   schedule:
-    - cron: '30 7 * * 0'
+    - cron: '30 8 * * 0'
   workflow_dispatch:
     inputs:
       week_end:
@@ -51,6 +55,9 @@ env:
   SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
   SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
   MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+  # El deploy hook de Vercel: al auto-publicar, un rebuild mete el número en
+  # el sitemap (el RSS ya se sirve en vivo). Sin él, el guion lo dice y sigue.
+  VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
 
 jobs:
   weekly:

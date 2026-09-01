@@ -13,6 +13,8 @@
 //
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, GEMINI_API_KEY.
 
+import { ajustes, uso, apuntar, apuntarLocal, cabe } from '../src/lib/presupuesto.js';
+
 const URL_SB = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY    = process.env.SUPABASE_SERVICE_KEY || '';
 const GEMINI = process.env.GEMINI_API_KEY || '';
@@ -46,6 +48,12 @@ const pendientes = await sb('glossa_radar_topics?select=id,label,description&sec
 if (!pendientes?.length) { console.log('Todos los temas ya tienen sector.'); process.exit(0); }
 console.log(`${pendientes.length} tema(s) sin sector.`);
 
+// Este gasto también es Gemini y también cuenta: corría cada hora contra la
+// API sin `apuntar` ni `cabe`, así que los topes del día se medían contra un
+// número corto y este consumo era invisible en el panel.
+const ajus  = await ajustes(URL_SB, KEY);
+const gasto = await uso(URL_SB, KEY);
+
 // De 40 en 40: un lote enorme invita al modelo a devolver menos filas de las que
 // recibió, y entonces no se sabe cuál se saltó.
 const LOTE = 40;
@@ -74,6 +82,10 @@ for (let i = 0; i < pendientes.length; i += LOTE) {
     '- Use "Other" only when nothing fits. It should be rare.',
   ].join('\n');
 
+  if (!cabe(gasto, ajus, 'gemini', 'cap_gemini_dia')) {
+    console.log('Tope diario de Gemini alcanzado: los temas que quedan esperan a mañana.');
+    break;
+  }
   const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI },
@@ -82,6 +94,8 @@ for (let i = 0; i < pendientes.length; i += LOTE) {
   });
   if (!r.ok) { console.error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`); break; }
   const d = await r.json();
+  await apuntar(URL_SB, KEY, 'gemini', 1, d.usageMetadata?.totalTokenCount ?? 0);
+  apuntarLocal(gasto, 'gemini', 1);
   const txt = (d.candidates?.[0]?.content?.parts ?? []).map(x => x.text || '').join('');
   let sectores;
   try { sectores = JSON.parse(txt.replace(/^\s*```(?:json)?/, '').replace(/```\s*$/, '')).sectors; }

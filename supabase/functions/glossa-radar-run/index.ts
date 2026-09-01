@@ -44,6 +44,14 @@ Deno.serve(async (req) => {
   const calibracion = String(ajus.prompt_calibracion_digest ?? '');
   const gasto = await uso(sb);
   const agotado: string[] = [];
+  // La copia local del contador tiene que contar TODO lo que gasta la pasada:
+  // solo sumaba el digest, y `asignarTemas` —que también paga una llamada— no
+  // tocaba `gasto`, así que el tope se medía contra un número corto.
+  const gastaGeminiLocal = () => {
+    gasto.gemini = { ...(gasto.gemini ?? { proveedor: 'gemini', hoy: 0, semana: 0, mes: 0, coste_mes: 0 }),
+                     hoy: Number(gasto.gemini?.hoy ?? 0) + 1 };
+  };
+  const claveGemini = () => ajus.cap_gemini_dia_radar ? 'cap_gemini_dia_radar' : 'cap_gemini_dia';
 
   // ── 0. Rescatar los atascados ───────────────────────────────────────────
   // Una pasada marca 'running' antes de llamar a Gemini. Si la función muere
@@ -178,7 +186,14 @@ Deno.serve(async (req) => {
     const { data: huerfanos } = await sb.rpc('glossa_radar_sin_temas', { limite: 5 });
     for (const h of huerfanos ?? []) {
       if (queda() < 20_000) break;
-      try { await asignarTemas(sb, h.id, h.digest); (log.clasificados ||= []).push(h.id); }
+      // También esto es Gemini y también respeta el tope: clasificaba hasta
+      // cinco huérfanos por pasada SIN mirar presupuesto, así que el gate del
+      // digest se saltaba por la puerta de al lado.
+      if (!cabe(gasto, ajus, 'gemini', claveGemini())) {
+        if (!agotado.includes('gemini')) agotado.push('gemini');
+        break;
+      }
+      try { await asignarTemas(sb, h.id, h.digest); gastaGeminiLocal(); (log.clasificados ||= []).push(h.id); }
       catch (e) { fallos.push(`temas ${h.id}: ${String(e).slice(0, 80)}`); }
     }
   }
@@ -234,7 +249,7 @@ Deno.serve(async (req) => {
     // El radar lee sin parar y las tareas del fin de semana corren una vez: si
     // comparten cuenta, el que corre siempre se la queda siempre. La diferencia
     // entre los dos topes es la reserva de las que corren una vez.
-    if (!cabe(gasto, ajus, 'gemini', ajus.cap_gemini_dia_radar ? 'cap_gemini_dia_radar' : 'cap_gemini_dia')) {
+    if (!cabe(gasto, ajus, 'gemini', claveGemini())) {
       if (!agotado.includes('gemini')) agotado.push('gemini');
       break;   // lo pendiente sigue pendiente, que es lo que ya pasa cuando no cabe en el tiempo
     }
@@ -324,8 +339,7 @@ Deno.serve(async (req) => {
       });
       const digest = geminiJson(resp);
       await apuntar(sb, 'gemini', 1, geminiTokens(resp));
-      gasto.gemini = { ...(gasto.gemini ?? { proveedor: 'gemini', hoy: 0, semana: 0, mes: 0, coste_mes: 0 }),
-                       hoy: Number(gasto.gemini?.hoy ?? 0) + 1 };
+      gastaGeminiLocal();
 
       if (digest.skip) {
         await sb.from('glossa_radar_items').update({ state: 'skipped', digested_at: new Date().toISOString() }).eq('id', item.id);
@@ -358,7 +372,7 @@ Deno.serve(async (req) => {
 
       // Ya se reservó hueco arriba; y si aun así no llega, la próxima pasada lo
       // recoge en el paso 2, que ahora sí se ejecuta.
-      if (queda() > 10_000) await asignarTemas(sb, item.id, digest);
+      if (queda() > 10_000) { await asignarTemas(sb, item.id, digest); gastaGeminiLocal(); }
       hechos.push(String(item.title).slice(0, 60));
     } catch (e) {
       // Tres desenlaces, no dos.
@@ -388,6 +402,18 @@ Deno.serve(async (req) => {
   if (saltados.length) log.sin_texto = saltados;
   if (fallos.length) log.fallos = fallos;
   log.ms = Date.now() - t0;
+
+  // La respuesta la recibe pg_net, que NO la lee (0016): este registro se
+  // perdía entero — «hoy no se descubrió nada» y «se agotó la cuota» eran
+  // invisibles. Desde la 0066 cada pasada deja su resumen en una tabla que
+  // leen el vigilante (latido del radar) y el panel. Si el insert falla, la
+  // pasada no falla: el registro es memoria, no compuerta.
+  try {
+    await sb.from('glossa_radar_runs').insert({ resumen: log });
+    await sb.from('glossa_radar_runs').delete()
+      .lt('ran_at', new Date(Date.now() - 14 * 864e5).toISOString());
+  } catch (e) { console.error(`glossa_radar_runs: ${String(e).slice(0, 120)}`); }
+
   return new Response(JSON.stringify(log), { headers: CORS });
 });
 

@@ -74,6 +74,11 @@ async function searchTavily(query) {
     body: JSON.stringify({ query, search_depth: 'basic', max_results: 6, include_answer: true }),
   });
   if (!r.ok) throw new Error(`tavily ${r.status}`);
+  // Se apunta como todo lo demás: este gasto no aparecía en glossa_radar_uso,
+  // así que el reparto semanal no lo veía y el /usage real de Tavily bajaba
+  // «solo». Una búsqueda basic cuesta 1 crédito.
+  const { apuntar } = await import('../src/lib/presupuesto.js');
+  await apuntar(URL, KEY, 'tavily', 1).catch(() => {});
   const j = await r.json();
   return {
     answer: j.answer || null,

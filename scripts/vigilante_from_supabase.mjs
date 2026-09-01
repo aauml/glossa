@@ -16,12 +16,17 @@
 // nadie lo lea se «arregla» volviéndose permisivo — que es justo el fallo que
 // nadie ve.
 //
-// Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, GITHUB_TOKEN (opcional).
+// Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, GITHUB_TOKEN (opcional),
+//      GLOSSA_RESEND_KEY + VIGILANTE_CORREO (opcionales: con los dos, las
+//      incidencias graves NUEVAS salen por correo — un tablero que hay que
+//      mirar para enterarse no es vigilancia, y eso incluía a este guion).
 
 const URL_SB = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
 const GH = process.env.GITHUB_TOKEN || '';
 const REPO = process.env.GITHUB_REPOSITORY || 'aauml/glossa';
+const RESEND = process.env.GLOSSA_RESEND_KEY || '';
+const CORREO = process.env.VIGILANTE_CORREO || '';
 if (!URL_SB || !KEY) { console.error('Falta SUPABASE_URL / SUPABASE_SERVICE_KEY'); process.exit(1); }
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
 
@@ -57,12 +62,15 @@ async function registrarIntento(wf, intento, ok) {
 }
 
 /** Abre o refresca una incidencia. Una por clase y sujeto: veinte avisos del
- *  mismo problema no informan mejor que uno que diga desde cuándo pasa. */
+ *  mismo problema no informan mejor que uno que diga desde cuándo pasa.
+ *  Las graves NUEVAS se acumulan para el correo del final. */
+const nuevasGraves = [];
 async function anotar({ clase, sujeto = null, gravedad = 'aviso', detalle, evidencia = null, accion = null }) {
   vistas.add(`${clase}|${sujeto ?? ''}`);
   const previas = await sb(
     `glossa_radar_incidencias?select=id,created_at&abierta=is.true&clase=eq.${clase}` +
     (sujeto ? `&sujeto=eq.${encodeURIComponent(sujeto)}` : '&sujeto=is.null'));
+  if (!previas?.length && gravedad === 'grave') nuevasGraves.push({ clase, sujeto, detalle });
   if (previas?.length) {
     const desde = Math.round((Date.now() - new Date(previas[0].created_at)) / 864e5);
     await sb(`glossa_radar_incidencias?id=eq.${previas[0].id}`, {
@@ -91,7 +99,10 @@ const FALLOS_PAUSA = Number(ajus.vigilante_fallos_para_pausar ?? 3);
 // vuelven solos a la cola. Lo que no encaje en un patrón conocido se anota, con
 // el mensaje agrupado — diez errores iguales son UN problema, no diez.
 const TRANSITORIO = /429|503|high demand|overloaded|timeout|ETIMEDOUT|ECONNRESET|socket hang up/i;
-const fallidos = await sb('glossa_radar_items?select=id,title,error,started_at,created_at&state=eq.error&limit=500');
+// Con `order`: sin él, más de 500 errores devolvían 500 filas ARBITRARIAS y el
+// diagnóstico miraba una muestra sin saberlo (la piedra que el semanal ya
+// documentó con su propio limit).
+const fallidos = await sb('glossa_radar_items?select=id,title,error,started_at,created_at&state=eq.error&order=created_at.desc&limit=500');
 
 const recuperables = (fallidos ?? []).filter(i => TRANSITORIO.test(String(i.error ?? '')));
 if (recuperables.length) {
@@ -269,6 +280,15 @@ const CADENCIA_H = { 'glossa-weekly.yml': 24 * 7, 'glossa-cotejo.yml': 24 * 7,
                      'glossa-boletin.yml': 24 * 7, 'glossa-sectores.yml': 3,
                      'glossa-vigilante.yml': 8 };
 
+// El margen antes de dar por parado un trabajo. Para los diarios, cadencia
+// × 1,5 está bien; para los SEMANALES daba 252 horas — un sábado saltado del
+// reportaje tardaba diez días y medio en decirse, con el número ya escrito sin
+// material de fuera. Se acota a cadencia + un día: un semanal que lleva más de
+// ocho días sin correr se dice al día siguiente, no la semana siguiente.
+const umbralDe = (cadencia) => Math.min(cadencia * 1.5, cadencia + 26);
+
+const ultimaCorrida = {};   // wf → created_at de su corrida más reciente
+
 if (GH) {
   await cargarIntentos();
   for (const [wf, cadencia] of Object.entries(CADENCIA_H)) {
@@ -302,6 +322,7 @@ if (GH) {
         `https://api.github.com/repos/${REPO}/actions/workflows/${wf}/runs?per_page=5`, { headers: cab });
       if (!r.ok) continue;
       const runs = (await r.json()).workflow_runs ?? [];
+      if (runs[0]) ultimaCorrida[wf] = runs[0].created_at;
       const hechas = runs.filter(x => x.status === 'completed');
 
       // Dejó de correr del todo. Es el punto ciego que las otras dos reglas no ven,
@@ -310,8 +331,8 @@ if (GH) {
       const horas = ultima ? (Date.now() - new Date(ultima.created_at)) / 36e5 : Infinity;
       // Se le da una cadencia entera de margen desde que existe antes de exigirle
       // haber corrido.
-      const estrenando = horasDesdeQueExiste < cadencia * 1.2;
-      if (!estrenando && (!ultima || horas > cadencia * 1.5)) {
+      const estrenando = horasDesdeQueExiste < Math.min(cadencia * 1.2, cadencia + 26);
+      if (!estrenando && (!ultima || horas > umbralDe(cadencia))) {
         await anotar({
           clase: 'trabajo_parado', sujeto: wf, gravedad: 'grave',
           detalle: ultima
@@ -372,7 +393,55 @@ if (GH) {
       });
     } catch { /* si GitHub no contesta, no es una anomalía del sistema */ }
   }
+
+  // ── 4b. El conductor de la base, comprobado por su EFECTO ────────────────
+  // `glossa_domingo_empujar` dispara workflows con un PAT del Vault vía pg_net,
+  // que no lee la respuesta: un PAT caducado convierte el conductor en un no-op
+  // que apunta «intento 1, 2, 3» sin que GitHub reciba nada. No se puede leer
+  // el Vault desde aquí, pero sí el efecto: si el estado del domingo dice que
+  // una etapa se disparó hace más de media hora y su workflow no tiene NINGUNA
+  // corrida posterior, el dispatch no llegó.
+  try {
+    const [ed] = await sb('glossa_radar_settings?key=eq.domingo_estado&select=value') ?? [];
+    const WF_DE_ETAPA = { cotejo: 'glossa-cotejo.yml', numero: 'glossa-weekly.yml',
+                          espanol: 'glossa-traducir.yml', consejo: 'glossa-consejo.yml',
+                          boletin: 'glossa-boletin.yml' };
+    for (const [etapa, wf] of Object.entries(WF_DE_ETAPA)) {
+      const marca = ed?.value?.[etapa];
+      if (!marca?.ts || !(Number(marca.n) >= 1)) continue;
+      const ts = new Date(marca.ts).getTime();
+      if (Date.now() - ts < 30 * 60e3) continue;      // recién disparado: tiempo
+      if (Date.now() - ts > 3 * 864e5) continue;      // de otro domingo: viejo
+      const corrida = ultimaCorrida[wf] ? new Date(ultimaCorrida[wf]).getTime() : 0;
+      if (corrida < ts - 15 * 60e3) {
+        await anotar({
+          clase: 'conductor_a_ciegas', sujeto: wf, gravedad: 'grave',
+          detalle: `la base dice que disparó «${etapa}» (${marca.ts}) y GitHub no registra ` +
+                   'ninguna corrida después: el PAT github_dispatch_pat del Vault puede estar caducado',
+          evidencia: { etapa, marca, ultima_corrida: ultimaCorrida[wf] ?? null },
+        });
+      }
+    }
+  } catch (e) { console.log(`  · conductor: no se pudo comprobar (${String(e).slice(0, 60)})`); }
 }
+
+// ── 4c. El latido del radar ────────────────────────────────────────────────
+// pg_cron llama al radar cada 15 minutos y `glossa_radar_tick` se apaga en
+// silencio si falta el token del Vault (raise warning y nada más). Desde la
+// 0066 cada pasada deja su resumen en `glossa_radar_runs`; un silencio largo
+// ahí significa que el reloj de la base está muerto — antes, la primera señal
+// era la cola creciendo, día y medio después.
+try {
+  const [ultima] = await sb('glossa_radar_runs?select=ran_at&order=ran_at.desc&limit=1') ?? [];
+  if (ultima && Date.now() - new Date(ultima.ran_at) > 2 * 3600e3) {
+    await anotar({
+      clase: 'radar_parado', gravedad: 'grave',
+      detalle: `la última pasada del radar fue hace ${Math.round((Date.now() - new Date(ultima.ran_at)) / 36e5)} h ` +
+               'y debería correr cada 15 min: pg_cron apagado, pg_net sin llegar, o el token del Vault caducado',
+      evidencia: { ultima_pasada: ultima.ran_at },
+    });
+  }
+} catch { /* la tabla llega con la 0066; hasta entonces no hay latido que mirar */ }
 
 // ── 5. Presupuestos ────────────────────────────────────────────────────────
 const gasto = await sb('rpc/glossa_radar_presupuesto', { method: 'POST', body: '{}' });
@@ -387,6 +456,23 @@ for (const u of gasto ?? []) {
       gravedad: Number(u[ventana]) >= tope ? 'grave' : 'aviso',
       detalle: `${u[ventana]} de ${tope} (${ventana})`,
       evidencia: { uso: u[ventana], tope, ventana },
+    });
+  }
+}
+
+// La reserva de Gemini (0043) solo funciona si el tope del radar es MENOR que
+// el del día: la diferencia ES la reserva de las tareas del fin de semana. Las
+// migraciones la dejaron invertida una vez (radar 600 > día 400) y se corrigió
+// desde el panel; si vuelve a invertirse, que lo diga alguien.
+{
+  const capDia = Number(ajus.cap_gemini_dia ?? 0);
+  const capRadar = Number(ajus.cap_gemini_dia_radar ?? 0);
+  if (capDia && capRadar && capRadar >= capDia) {
+    await anotar({
+      clase: 'reserva_invertida', sujeto: 'gemini', gravedad: 'grave',
+      detalle: `cap_gemini_dia_radar (${capRadar}) >= cap_gemini_dia (${capDia}): ` +
+               'el radar puede comerse la reserva del fin de semana',
+      evidencia: { cap_gemini_dia: capDia, cap_gemini_dia_radar: capRadar },
     });
   }
 }
@@ -433,14 +519,43 @@ if (hoy.getUTCDay() === 0 && hoy.getUTCHours() >= 14) {
 // ── Cerrar lo que ya no pasa ───────────────────────────────────────────────
 // Una incidencia que sigue abierta es una que sigue pasando. Sin esto, el panel
 // acumularía problemas resueltos y dejaría de mirarse.
-const abiertas = await sb('glossa_radar_incidencias?select=id,clase,sujeto&abierta=is.true');
+//
+// SOLO las propias. Las clases que escriben OTROS guiones —el aviso de material
+// recortado del semanal, el número degradado— no son «algo que el vigilante ya
+// no ve»: no las ve NUNCA, y las cerraba en la primera pasada, a menos de
+// cuatro horas de abiertas. Esas viven una semana y luego sí se barren, para
+// que el panel no acumule historia.
+const AJENAS = new Set(['material_recortado', 'numero_degradado', 'domingo_etapa_agotada']);
+const abiertas = await sb('glossa_radar_incidencias?select=id,clase,sujeto,created_at&abierta=is.true');
 let cerradas = 0;
 for (const i of abiertas ?? []) {
   if (vistas.has(`${i.clase}|${i.sujeto ?? ''}`)) continue;
+  if (AJENAS.has(i.clase) && Date.now() - new Date(i.created_at) < 7 * 864e5) continue;
   await sb(`glossa_radar_incidencias?id=eq.${i.id}`, {
     method: 'PATCH', headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({ abierta: false, cerrada_at: new Date().toISOString() }) });
   cerradas++;
+}
+
+// ── El correo, solo si hay algo grave y NUEVO ──────────────────────────────
+// Las que siguen abiertas ya se avisaron; repetir el correo cada cuatro horas
+// enseña a ignorarlo. Sin las dos claves, se dice — un canal de aviso que
+// falta en silencio es el mismo fallo que esto vigila.
+if (nuevasGraves.length && RESEND && CORREO) {
+  const lineas = nuevasGraves.map(g => `· ${g.clase}${g.sujeto ? ` (${g.sujeto})` : ''}: ${g.detalle}`);
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND}` },
+    body: JSON.stringify({
+      from: 'Glossa vigilante <glossa@ademas.ai>', to: [CORREO],
+      subject: `Glossa: ${nuevasGraves.length} incidencia(s) grave(s) nueva(s)`,
+      text: `${lineas.join('\n')}\n\nEl detalle y los mandos: https://glossa.ademas.ai/admin/`,
+    }),
+  }).catch(e => ({ ok: false, status: String(e).slice(0, 60) }));
+  console.log(r.ok ? `  correo enviado con ${nuevasGraves.length} grave(s) nueva(s)`
+                   : `  ✗ el correo no salió (${r.status}); quedan en el panel`);
+} else if (nuevasGraves.length) {
+  console.log(`  ${nuevasGraves.length} grave(s) nueva(s) SIN correo (falta GLOSSA_RESEND_KEY o VIGILANTE_CORREO): solo en el panel`);
 }
 
 console.log(`\n${vistas.size} incidencia(s) abierta(s) · ${cerradas} cerrada(s) por resolverse solas`);

@@ -48,12 +48,19 @@ if (ajustes.boletin_activo === false) { console.log('El boletín está apagado (
 
 // La semana que acaba de cerrarse: la misma definición que usa todo el sistema.
 const [ventana] = await sb('rpc/glossa_semana_actual', { method: 'POST', body: '{}' });
-// `glossa_semana_actual` da la semana EN CURSO; el boletín va sobre la anterior,
-// que es la que tiene número. Ocho días atrás cae siempre dentro de ella.
-const [semana] = await sb('rpc/glossa_semana_actual', {
-  method: 'POST',
-  body: JSON.stringify({ ref: new Date(new Date(ventana.desde).getTime() - 864e5).toISOString() }),
-});
+// El DOMINGO —el único día en que este guion corre solo— `glossa_semana_actual`
+// ya devuelve la semana que acaba de cerrarse (parcial=false), que es la del
+// número recién escrito: esa ES la semana del boletín. Cualquier otro día
+// devuelve la semana en curso (parcial=true) y entonces sí toca la anterior.
+// La versión previa restaba un día MÁS también el domingo, así que apuntaba a
+// la semana anterior a la del número: o mandaba el número viejo, o salía en
+// verde diciendo «no hay número publicado» con el número nuevo esperando.
+const semana = ventana.parcial
+  ? (await sb('rpc/glossa_semana_actual', {
+      method: 'POST',
+      body: JSON.stringify({ ref: new Date(new Date(ventana.desde).getTime() - 864e5).toISOString() }),
+    }))[0]
+  : ventana;
 const DESDE = new Date(semana.desde), HASTA = new Date(semana.hasta);
 const SEM = semana.desde.slice(0, 10);
 

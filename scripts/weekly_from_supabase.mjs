@@ -311,10 +311,26 @@ const peso = Object.fromEntries((filas ?? []).map(f => [f.item_id, Number(f.peso
 //
 // Se le dan como recuentos, no como índice. Un tema aquí no tiene derecho a una
 // sección; es material para decidir, igual que la concentración de canales.
+// Un RPC que falla no tumba el número, pero tampoco puede degradarlo en
+// SILENCIO: sin temas no hay racimos ni departamentos, sin historial no hay
+// track record, sin partes la ausencia de reportaje deja de ser información.
+// Se sigue degradado Y se deja incidencia — el 409 de una ya abierta se traga,
+// que abierta ya está a la vista.
+const degradado = (bloque) => async (e) => {
+  console.log(`  AVISO: ${bloque} falló (${String(e).slice(0, 80)}) — el número se escribe degradado`);
+  await sb('glossa_radar_incidencias', {
+    method: 'POST', headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify([{ clase: 'numero_degradado', sujeto: bloque, gravedad: 'grave',
+      detalle: `${bloque} falló y el número se escribió sin ese bloque`,
+      evidencia: { error: String(e).slice(0, 200), semana: iso(desde) } }]),
+  }).catch(() => {});
+  return [];
+};
+
 const temas = await sb('rpc/glossa_radar_temas_semana', {
   method: 'POST',
   body: JSON.stringify({ desde: desde.toISOString(), hasta: finDia.toISOString() }),
-}).catch(() => []);
+}).catch(degradado('glossa_radar_temas_semana'));
 
 // ── Qué temas ve el modelo ───────────────────────────────────────────────
 // Los doce mayores, MÁS hasta cuatro que se cuentan en otra lengua.
@@ -406,14 +422,14 @@ const cotejos = await sb(
 // juicio, y es lo único que ninguna lectura del canal puede dar: «de 7
 // afirmaciones comprobadas, ninguna documentada, 1 contradicha».
 const historial = await sb('rpc/glossa_radar_historial_fuentes', { method: 'POST', body: '{}' })
-  .catch(() => []);
+  .catch(degradado('glossa_radar_historial_fuentes'));
 
 // El parte de la salida a buscar. Se lee aunque no haya traído nada: una
 // AUSENCIA no tiene fila en `items`, y «se buscó sobre esto y no había nada
 // fuera» es justo lo que el número no podría decir sin esto.
 const partes = await sb(
   `glossa_radar_reportajes?select=label,entran,hallados,paro,colapsados,dominios_vacios,paises` +
-  `&week_start=eq.${iso(desde)}&limit=50`).catch(() => []);
+  `&week_start=eq.${iso(desde)}&limit=50`).catch(degradado('glossa_radar_reportajes'));
 
 const porClaim = {};
 for (const c of cotejos ?? []) porClaim[`${c.item_id}:${c.claim_idx}`] = c;
@@ -1009,6 +1025,17 @@ if (ajus.auto_publish === true && PARCIAL) {
       body: JSON.stringify({ state: 'publicado', published_at: new Date().toISOString() }),
     });
     console.log(`PUBLICADO en https://glossa.ademas.ai/weekly/${iso(desde)}/`);
+    // El RSS y el sitemap se generan en el build de Vercel leyendo la base:
+    // sin rebuild, el número publicado no entra en ninguno de los dos (49
+    // números invisibles para lectores RSS y buscadores hasta la auditoría del
+    // 2026-08-31). El deploy hook es un secreto del workflow; si falta, se dice.
+    if (process.env.VERCEL_DEPLOY_HOOK) {
+      await fetch(process.env.VERCEL_DEPLOY_HOOK, { method: 'POST' })
+        .then(r => console.log(`Rebuild de Vercel pedido (${r.status}): el número entra en RSS y sitemap.`))
+        .catch(e => console.log(`El deploy hook no contestó (${String(e).slice(0, 60)}); el RSS se refresca en el próximo deploy.`));
+    } else {
+      console.log('Sin VERCEL_DEPLOY_HOOK: el número no entrará en RSS/sitemap hasta el próximo deploy.');
+    }
   }
 } else {
   console.log('Queda en borrador: la publicación automática está apagada.');
