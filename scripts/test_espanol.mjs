@@ -43,6 +43,13 @@ caso('avisa de «está siendo preparada» sin bloquear',
     return reglasDe(r).includes('calco') && !graveDe(r).includes('calco'); })());
 caso('caza «vosotros»',
   graveDe(revisarEspanol(pieza('Como vosotros sabéis, el acuerdo se firmó en marzo.'))).includes('registro'));
+caso('avisa del gerundio encadenado («, matando a cientos») sin bloquear',
+  (() => { const r = revisarEspanol(pieza('Un glaciar colapsó en la frontera, matando a cientos de personas.'));
+    return reglasDe(r).includes('calco') && !graveDe(r).includes('calco'); })());
+caso('no acusa «, cuando llegó»',
+  !reglasDe(revisarEspanol(pieza('El acuerdo se rompió, cuando llegó la contraoferta de Ottawa.'))).includes('calco'));
+caso('caza «entre un amanecer y otro»',
+  graveDe(revisarEspanol(pieza('El partido dejó caer al gobernador entre un amanecer y otro.'))).includes('calco'));
 
 // ── Campos en inglés ────────────────────────────────────────────────────
 caso('caza el title liso en inglés',

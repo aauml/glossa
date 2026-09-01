@@ -56,6 +56,9 @@ Calques of image and idiom — the ones that actually slip through. The same lis
 | is being + participle | «está siendo + participio» («está siendo preparada») | active voice or impersonal «se» |
 | made famous by | «hecho famoso por» | al que hizo famoso |
 | book-length | «de extensión libro» | de la extensión de un libro |
+| result -ing («, killing hundreds») | «gerundio encadenado con coma» («, matando a cientos») | «y mató a cientos» / «que mató a cientos» |
+| between one sunrise and the next | «entre un amanecer y otro» | de la noche a la mañana |
+| the week's deadliest story | «la historia más letal» | la noticia más mortífera |
 
 And the register tells: no «vosotros», no «ordenador», no «móvil», no «coger», no «aparcar»; «computadora», «celular», «estacionar».
 

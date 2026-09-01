@@ -172,17 +172,25 @@ export function promptRevisor(es, en) {
 }
 
 /**
- * El dictamen de Kimi. Devuelve {veredicto, fallos, tok, coste} o null si no
- * hay clave, no hay saldo o el dictamen mismo falla — el revisor nunca tumba
- * una publicación por su propia ausencia.
+ * El dictamen de estilo. Devuelve {veredicto, fallos, tok, coste, casa} o null
+ * si no hay clave, no hay saldo o el dictamen mismo falla — el revisor nunca
+ * tumba una publicación por su propia ausencia.
+ *
+ * `casa`: 'moonshot' (Kimi, el de las piezas) o 'anthropic' (Haiku, el del
+ * SEMANAL desde el 2026-08-31 por decisión de Arturo: el filtro de contenido
+ * de Moonshot bloqueaba el dictamen sobre el material geopolítico del número,
+ * y un revisor que no puede opinar no revisa. Haiku es otra casa —«el que hace
+ * no vota sobre lo que hace» se mantiene: la traducción la hace la cascada—,
+ * cuesta centavos y no filtra este material).
  */
-export async function revisorKimi(es, en, { log = console.log } = {}) {
-  if (!process.env.MOONSHOT_API_KEY) { log('  revisor: sin MOONSHOT_API_KEY — se salta'); return null; }
+export async function revisorKimi(es, en, { log = console.log, casa = 'moonshot' } = {}) {
   const prompt = promptRevisor(es, en);
   if (process.env.REVISOR_DRY === '1') {
-    log(`  REVISOR_DRY · prompt de ${prompt.length} caracteres — se simula «publica»`);
-    return { veredicto: 'publica', fallos: [], tok: 0, coste: 0, dry: true };
+    log(`  REVISOR_DRY · prompt de ${prompt.length} caracteres (${casa}) — se simula «publica»`);
+    return { veredicto: 'publica', fallos: [], tok: 0, coste: 0, casa, dry: true };
   }
+  if (casa === 'anthropic') return revisorHaiku(prompt, log);
+  if (!process.env.MOONSHOT_API_KEY) { log('  revisor: sin MOONSHOT_API_KEY — se salta'); return null; }
   for (let intento = 0; ; intento++) {
     // Sin `temperature`: kimi-k3 solo admite 1 («invalid temperature: only 1
     // is allowed», medido). Holgura de tokens: es un modelo de razonamiento y
@@ -224,7 +232,48 @@ export async function revisorKimi(es, en, { log = console.log } = {}) {
     catch { log('  revisor: dictamen ilegible — se salta'); return null; }
     return { veredicto: dictamen.veredicto === 'corrige' ? 'corrige' : 'publica',
              fallos: Array.isArray(dictamen.fallos) ? dictamen.fallos.slice(0, 12) : [],
-             tok: u.total_tokens ?? 0, coste: ((u.total_tokens ?? 0) / 1e6) * 2.2 };
+             tok: u.total_tokens ?? 0, coste: ((u.total_tokens ?? 0) / 1e6) * 2.2, casa: 'moonshot' };
+  }
+}
+
+/** El dictamen por Haiku. Misma salida que el de Kimi; sin las mañas de
+ *  Moonshot (ni filtro de contenido, ni temperatura fija, ni nonce). */
+async function revisorHaiku(prompt, log) {
+  if (!process.env.ANTHROPIC_API_KEY) { log('  revisor: sin ANTHROPIC_API_KEY — se salta'); return null; }
+  for (let intento = 0; ; intento++) {
+    let r, d;
+    try {
+      r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY,
+                   'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 4096,
+          messages: [{ role: 'user', content: prompt }] }),
+        signal: AbortSignal.timeout(300_000),
+      });
+      d = await r.json();
+    } catch (e) {
+      log(`  revisor (haiku) no pudo: ${String(e.message).slice(0, 90)} — se publica con solo el determinista`);
+      return null;
+    }
+    if (!r.ok) {
+      if ((r.status === 429 || r.status === 529 || r.status === 503) && intento < 3) {
+        const espera = [15, 60, 180][intento] * 1000;
+        log(`  revisor (haiku) ${r.status} — reintento en ${espera / 1000} s`);
+        await new Promise(x => setTimeout(x, espera)); continue;
+      }
+      log(`  revisor (haiku) ${r.status}: ${JSON.stringify(d).slice(0, 160)} — se publica con solo el determinista`);
+      return null;
+    }
+    let dictamen;
+    try { dictamen = jsonDeModelo((d.content ?? []).map(x => x.text || '').join('')); }
+    catch { log('  revisor (haiku): dictamen ilegible — se salta'); return null; }
+    const u = d.usage ?? {};
+    return { veredicto: dictamen.veredicto === 'corrige' ? 'corrige' : 'publica',
+             fallos: Array.isArray(dictamen.fallos) ? dictamen.fallos.slice(0, 12) : [],
+             tok: (u.input_tokens ?? 0) + (u.output_tokens ?? 0),
+             coste: ((u.input_tokens ?? 0) / 1e6) * 1.0 + ((u.output_tokens ?? 0) / 1e6) * 5.0,
+             casa: 'anthropic' };
   }
 }
 
@@ -246,12 +295,14 @@ const dichoRevisor = (fallos) =>
  * @param opts       { en:            el original, para el revisor
  *                     apuntar:       async (casa, llamadas, tok, coste) — contabilidad
  *                     conRevisor:    () => bool — hay saldo y ganas (default true)
+ *                     casaRevisor:   'moonshot' (piezas) | 'anthropic' (semanal)
  *                     log }
  * @returns { es, veredicto: {deterministico, revisor, intentos}, gastado }
  *          o null si toda la cascada agotó sus intentos.
  */
 export async function edicionValidada(prompt, comprobar, opts = {}) {
-  const { en = null, apuntar = async () => {}, conRevisor = () => true, log = console.log } = opts;
+  const { en = null, apuntar = async () => {}, conRevisor = () => true,
+          casaRevisor = 'moonshot', log = console.log } = opts;
   const intentos = [];
   let gastado = 0;
 
@@ -287,9 +338,9 @@ export async function edicionValidada(prompt, comprobar, opts = {}) {
     // ── El dictamen, una sola vuelta por modelo ──────────────────────────
     let revisor = null;
     if (conRevisor()) {
-      revisor = await revisorKimi(r.es, en ?? {}, { log });
+      revisor = await revisorKimi(r.es, en ?? {}, { log, casa: casaRevisor });
       if (revisor) gastado += revisor.coste;
-      if (revisor?.coste) await apuntar('moonshot', 1, revisor.tok, revisor.coste);
+      if (revisor?.coste) await apuntar(revisor.casa, 1, revisor.tok, revisor.coste);
       if (revisor?.veredicto === 'corrige' && revisor.fallos.length) {
         log(`  revisor: corrige (${revisor.fallos.length} fallos) — última vuelta al traductor`);
         for (const f of revisor.fallos.slice(0, 3)) log(`      ${String(f.donde).slice(0, 30)}: ${String(f.que).slice(0, 60)}`);
@@ -305,7 +356,7 @@ export async function edicionValidada(prompt, comprobar, opts = {}) {
     }
 
     return { es: r.es, gastado,
-      veredicto: { deterministico: v, revisor: revisor && { veredicto: revisor.veredicto, fallos: revisor.fallos, dry: revisor.dry }, intentos } };
+      veredicto: { deterministico: v, revisor: revisor && { veredicto: revisor.veredicto, fallos: revisor.fallos, casa: revisor.casa, dry: revisor.dry }, intentos } };
   }
 
   log(`  cascada agotada ($${gastado.toFixed(4)}) — nadie cumplió el contrato`);

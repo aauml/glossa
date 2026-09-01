@@ -18,7 +18,7 @@
 
 import { revisar } from '../src/lib/fusible.js';
 import { promptTraduccion } from './prompts_weekly.mjs';
-import { apuntar, ajustes, uso, cabeCoste } from '../src/lib/presupuesto.js';
+import { apuntar } from '../src/lib/presupuesto.js';
 import { edicionValidada } from './revisor_es.mjs';
 
 const SECO = process.env.TRADUCIR_DRY === '1';
@@ -112,15 +112,16 @@ function comprobar(candidato) {
   return { ok: !fallos.some(f => f.grave), fallos };
 }
 
-// El revisor solo si el tope mensual de Kimi lo permite: sin saldo se publica
-// con solo el determinista, nunca se bloquea el español por el corrector.
-const [ajus, gasto] = await Promise.all([ajustes(URL, KEY), uso(URL, KEY)]);
-const conRevisor = () => cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd');
-
+// El revisor del SEMANAL es Haiku, no Kimi (Arturo, 2026-08-31): el filtro de
+// contenido de Moonshot bloqueaba el dictamen sobre el material geopolítico
+// del número — y así salió el del 2026-08-23 con «entre un amanecer y otro».
+// Sin clave se publica con solo el determinista; nunca se bloquea el español
+// por el corrector.
 const resultado = await edicionValidada(PROMPT, comprobar, {
   en: w.body,
   apuntar: (casa, llamadas, tok, coste) => SECO ? Promise.resolve() : apuntar(URL, KEY, casa, llamadas, tok, coste),
-  conRevisor,
+  conRevisor: () => !!process.env.ANTHROPIC_API_KEY,
+  casaRevisor: 'anthropic',
 });
 
 if (!resultado) {

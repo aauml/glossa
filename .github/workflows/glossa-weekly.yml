@@ -25,12 +25,13 @@ name: Glossa weekly (número semanal)
 #   sábado  21:00  cotejo    — comprueba afirmaciones contra documentos
 #   domingo 01:30  número    — la semana cerró a medianoche; se escribe
 #   domingo 03:00  consejo   — mide la calibración; usa la cuenta de Kimi
-#   domingo 03:45  español   — la edición española, con su revisor Kimi, al final
+#   domingo 03:45  español   — la edición española, con su revisor (Haiku), al final
 #
-# Termina sobre las 04:15 y queda colchón hasta las 05:00. Consejo y español van
-# DESPUÉS del número a propósito: los tres usan la misma cuenta de Kimi, que
-# admite una petición a la vez. Estos crons son la red: el conductor de la base
-# (0063) empuja por condición y suele llegar antes.
+# Termina sobre las 04:15 y queda colchón hasta las 05:00. El consejo va DESPUÉS
+# del número a propósito: comparte la cuenta de Kimi, que admite una petición a
+# la vez (el revisor del español es Haiku desde 2026-08-31 y no compite por
+# ella). Estos crons son la red: el conductor de la base (0063) empuja por
+# condición y suele llegar antes.
 
 on:
   schedule:

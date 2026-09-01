@@ -81,6 +81,17 @@ export const REGLAS_ES = {
     { en: 'book-length', mal: 'de extensión libro', bien: 'de la extensión de un libro',
       re: /\bde extensi[óo]n libro\b/i,
       grave: true },
+    // Los tres siguientes salieron del semanal reeditado el 2026-08-31 y los
+    // señaló Arturo: el determinista no los veía y el revisor no corrió.
+    { en: 'result gerund («, killing hundreds»)', mal: 'gerundio encadenado con coma', bien: '«y» + verbo conjugado, o «que» + verbo',
+      re: /,\s+(?!cuando\b|mando\b|bando\b|comando\b|blando\b|contrabando\b)[a-záéíóúñ]{3,}(?:ando|iendo|yendo)\b\s+\w/i,
+      grave: false },
+    { en: 'between one sunrise and the next', mal: 'entre un amanecer y otro', bien: 'de la noche a la mañana',
+      re: /\bentre un amanecer y (otro|el siguiente)\b/i,
+      grave: true },
+    { en: 'story (news)', mal: 'la historia más', bien: 'la noticia',
+      re: /\bla historia m[áa]s [a-záéíóúñ]+ (de la semana|del d[íi]a|del mes)\b/i,
+      grave: false },
   ],
 
   // Léxico que delata registro peninsular. D-020: español de México.
