@@ -68,3 +68,9 @@ que el conector del móvil permita.
 - **`sortDate` empatados.** 16 piezas comparten hora, así que su orden relativo en la
   portada es arbitrario (estable, pero no intencionado). `npm run check` lo avisa.
   Se arregla dando horas distintas cuando importe el orden.
+- **Ranura del consejo para el español.** El revisor de estilo (Kimi, `revisor_es.mjs`)
+  guarda sus fallos en `fuse_es`; el consejo del domingo podría destilar los recurrentes
+  en una ranura `prompt_calibracion_es` que los prompts interpolen, igual que
+  `prompt_calibracion_digest` calibra el radar. El mecanismo auditado y reversible ya
+  existe en `consejo_from_supabase.mjs`; falta cablearlo. Se decidió NO construirlo aún
+  (2026-08-31): primero medir unas semanas qué señala el revisor de verdad.

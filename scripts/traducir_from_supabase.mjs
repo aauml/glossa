@@ -12,11 +12,16 @@
 //
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, GEMINI_API_KEY, XAI_API_KEY,
 //      ANTHROPIC_API_KEY (los tres traductores de la cascada; basta con que
-//      responda uno).
+//      responda uno), MOONSHOT_API_KEY (el revisor de estilo; sin ella se
+//      publica con solo el determinista). TRADUCIR_DRY=1 corre todo e imprime
+//      el veredicto sin guardar nada.
 
 import { revisar } from '../src/lib/fusible.js';
 import { promptTraduccion } from './prompts_weekly.mjs';
-import { apuntar } from '../src/lib/presupuesto.js';
+import { apuntar, ajustes, uso, cabeCoste } from '../src/lib/presupuesto.js';
+import { edicionValidada } from './revisor_es.mjs';
+
+const SECO = process.env.TRADUCIR_DRY === '1';
 
 const URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
@@ -69,84 +74,10 @@ if (!w?.body?.pieces?.length) {
 }
 console.log(`Traduciendo «${w.body.headline}» · ${w.body.pieces.length} piezas · semana ${w.week_start}`);
 
-// ── Los traductores, en orden de coste ───────────────────────────────────
-//
-// No se elige «el mejor modelo»: se comprueba el resultado. Medido sobre este
-// mismo número, tres vueltas cada uno, NINGUNO conserva las comillas las tres
-// veces —ni Kimi, que costaba diez veces más—. Elegir el mejor seguiría dejando
-// sin español una semana de cada tres.
-//
-// El fusible da un veredicto inmediato y gratis sobre cada intento, así que la
-// respuesta no es un modelo perfecto sino una cascada verificada: se prueba el
-// más barato, se comprueba, y si tocó una cita se pasa al siguiente. Con dos
-// aciertos de cada tres por modelo, tres intentos dan un 96%.
-//
-// Y el orden lo decide el DESPERDICIO, no el precio de tarifa: para el mismo
-// trabajo, Grok sin razonamiento gastó 5.004 tokens de salida, Kimi 41.387 y
-// DeepSeek 32.000 sin llegar a emitir una letra —se los comió pensando—. Un
-// modelo de razonamiento traduciendo es dinero quemado en pensar lo que no hay
-// que pensar.
-const TRADUCTORES = [
-  { n: 'gemini-3.1-flash-lite',       casa: 'gemini' },   // gratis
-  { n: 'grok-4.20-0309-non-reasoning', casa: 'xai'    },   // ~$0.0035
-  { n: 'claude-haiku-4-5-20251001',    casa: 'anthropic' },// ~$0.026
-];
-
-/** El primer objeto JSON completo: algunos modelos añaden texto después. */
-function jsonDeModelo(txt) {
-  const limpio = String(txt).replace(/^\s*```(?:json)?/, '').replace(/```\s*$/, '').trim();
-  const i = limpio.indexOf('{');
-  if (i < 0) throw new SyntaxError('la respuesta no trae ningún objeto');
-  let prof = 0, cadena = false, escape = false;
-  for (let k = i; k < limpio.length; k++) {
-    const c = limpio[k];
-    if (escape) { escape = false; continue; }
-    if (c === '\\') { escape = true; continue; }
-    if (c === '"') { cadena = !cadena; continue; }
-    if (cadena) continue;
-    if (c === '{') prof++;
-    else if (c === '}' && --prof === 0) return JSON.parse(limpio.slice(i, k + 1));
-  }
-  throw new SyntaxError('objeto sin cerrar — la respuesta se truncó');
-}
-
-async function traducirCon(m, prompt) {
-  if (m.casa === 'gemini') {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m.n}:generateContent`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 32000 } }),
-        signal: AbortSignal.timeout(300_000) });
-    const d = await r.json();
-    if (!r.ok) throw new Error(`gemini ${r.status}: ${JSON.stringify(d).slice(0, 120)}`);
-    return { es: jsonDeModelo((d.candidates?.[0]?.content?.parts ?? []).map(x => x.text || '').join('')),
-             tok: d.usageMetadata?.totalTokenCount ?? 0, coste: 0, casa: 'gemini' };
-  }
-  if (m.casa === 'anthropic') {
-    const r = await fetch('https://api.anthropic.com/v1/messages',
-      { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY,
-                                   'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: m.n, max_tokens: 32000, messages: [{ role: 'user', content: prompt }] }),
-        signal: AbortSignal.timeout(300_000) });
-    const d = await r.json();
-    if (!r.ok) throw new Error(`anthropic ${r.status}: ${JSON.stringify(d).slice(0, 120)}`);
-    const u = d.usage ?? {};
-    return { es: jsonDeModelo((d.content ?? []).map(x => x.text || '').join('')),
-             tok: (u.input_tokens ?? 0) + (u.output_tokens ?? 0),
-             coste: (u.input_tokens / 1e6) * 1.0 + (u.output_tokens / 1e6) * 5.0, casa: 'anthropic' };
-  }
-  const r = await fetch('https://api.x.ai/v1/chat/completions',
-    { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.XAI_API_KEY}` },
-      body: JSON.stringify({ model: m.n, max_tokens: 32000, messages: [{ role: 'user', content: prompt }] }),
-      signal: AbortSignal.timeout(300_000) });
-  const d = await r.json();
-  if (!r.ok) throw new Error(`xai ${r.status}: ${JSON.stringify(d).slice(0, 120)}`);
-  const u = d.usage ?? {};
-  return { es: jsonDeModelo(d.choices?.[0]?.message?.content ?? ''),
-           tok: u.total_tokens ?? 0,
-           coste: (u.prompt_tokens / 1e6) * 0.20 + (u.completion_tokens / 1e6) * 0.50, casa: 'xai' };
-}
-
+// La cascada de traductores, el reintento con el fallo dicho y el revisor de
+// estilo (Kimi) viven en `revisor_es.mjs`, compartidos con la pieza suelta.
+// Aquí solo se arma el `comprobar` de este guion: el fusible entero, que en
+// español ya incluye el contrato de `espanol.js`, más la cuenta de piezas.
 const numero = { ...w.body };
 delete numero.sources_index;                    // son ids, no texto que traducir
 const PROMPT = promptTraduccion(numero);
@@ -163,47 +94,52 @@ const [items, cotejos] = await Promise.all([
 ]);
 const indice = w.body.sources_index ?? {};
 
-// ── La cascada ───────────────────────────────────────────────────────────
-let es = null, veredicto = null, gastado = 0;
-for (const m of TRADUCTORES) {
-  const t0 = Date.now();
-  let r;
-  try { r = await traducirCon(m, PROMPT); }
-  catch (e) { console.log(`  ${m.n}: ${String(e.message).slice(0, 90)}`); continue; }
-
-  gastado += r.coste;
-  await apuntar(URL, KEY, r.casa, 1, r.tok, r.coste);
-
-  // Mismas piezas: una traducción que pierde una no es la misma revista, y el
-  // índice de fuentes dejaría de cuadrar.
-  if ((r.es.pieces ?? []).length !== w.body.pieces.length) {
-    console.log(`  ${m.n}: devolvió ${(r.es.pieces ?? []).length} piezas de ${w.body.pieces.length} — se descarta`);
-    continue;
+// ── La cascada, validada y con revisor ───────────────────────────────────
+// `comprobar` es el determinista entero de este guion: la cuenta de piezas
+// (una traducción que pierde una no es la misma revista) y el fusible, que en
+// español corre las voces inventadas MÁS el contrato de `espanol.js` (calcos,
+// campos en inglés, cifras, paridad). Todo lo grave bloquea — antes solo las
+// voces inventadas, y por ahí salieron los calcos publicados.
+function comprobar(candidato) {
+  const fallos = [];
+  if ((candidato.pieces ?? []).length !== w.body.pieces.length) {
+    fallos.push({ regla: 'piezas perdidas',
+      detalle: `devolvió ${(candidato.pieces ?? []).length} piezas de ${w.body.pieces.length}`, grave: true });
   }
-
-  const v = revisar(r.es, { items, cotejos: cotejos ?? [], ids: new Set(Object.keys(indice)),
-                            indice, reportaje_count: 1, lang: 'es', original: w.body });
-  const citas = v.fallos.filter(f => f.grave &&
-    ['voces inventadas'].includes(f.regla));
-
-  console.log(`  ${m.n.padEnd(30)} ${String(Math.round((Date.now() - t0) / 1000)).padStart(3)}s · ` +
-    `${String(r.tok).padStart(6)} tok · $${r.coste.toFixed(4)} · ` +
-    (citas.length ? `✗ ${citas.map(f => f.regla).join(', ')}` : '✓ ninguna voz inventada'));
-  for (const f of citas.slice(0, 2)) console.log(`      ${String(f.detalle).slice(0, 88)}`);
-
-  if (!citas.length) { es = r.es; veredicto = v; break; }
-  // Tocó una cita: se pasa al siguiente. Guardarla sería publicar en español
-  // justo lo que el número en inglés se negó a publicar.
+  const v = revisar(candidato, { items, cotejos: cotejos ?? [], ids: new Set(Object.keys(indice)),
+                                 indice, reportaje_count: 1, lang: 'es', original: w.body });
+  fallos.push(...v.fallos);
+  return { ok: !fallos.some(f => f.grave), fallos };
 }
 
-if (!es) {
-  console.error(`\nNingún traductor marcó bien las citas (gastado $${gastado.toFixed(4)}). ` +
-    `No se guarda nada; el número en inglés no se toca y se reintenta la semana que viene.`);
+// El revisor solo si el tope mensual de Kimi lo permite: sin saldo se publica
+// con solo el determinista, nunca se bloquea el español por el corrector.
+const [ajus, gasto] = await Promise.all([ajustes(URL, KEY), uso(URL, KEY)]);
+const conRevisor = () => cabeCoste(gasto, ajus, 'moonshot', 'cap_moonshot_mes_usd');
+
+const resultado = await edicionValidada(PROMPT, comprobar, {
+  en: w.body,
+  apuntar: (casa, llamadas, tok, coste) => SECO ? Promise.resolve() : apuntar(URL, KEY, casa, llamadas, tok, coste),
+  conRevisor,
+});
+
+if (!resultado) {
+  console.error('\nNingún traductor cumplió el contrato del español. ' +
+    'No se guarda nada; el número en inglés no se toca y se reintenta la semana que viene.');
   process.exit(1);
 }
-console.log(`\nTraducido por el orden de coste · $${gastado.toFixed(4)} en total`);
-for (const f of veredicto.fallos.filter(f => !f.grave).slice(0, 3)) {
+const { es, veredicto, gastado } = resultado;
+console.log(`\nTraducido y revisado · $${gastado.toFixed(4)} en total`);
+for (const f of veredicto.deterministico.fallos.filter(f => !f.grave).slice(0, 5)) {
   console.log(`  · ${f.regla}: ${String(f.detalle).slice(0, 80)}`);
+}
+
+if (SECO) {
+  console.log(`\nTRADUCIR_DRY · no se guarda. Veredicto:`);
+  console.log(JSON.stringify({ deterministico: { ok: veredicto.deterministico.ok,
+    fallos: veredicto.deterministico.fallos.map(f => `${f.grave ? '✗' : '·'} ${f.regla}: ${String(f.detalle).slice(0, 100)}`) },
+    revisor: veredicto.revisor, intentos: veredicto.intentos }, null, 2));
+  process.exit(0);
 }
 
 await sb(`glossa_radar_weekly?week_start=eq.${w.week_start}`, {
@@ -211,7 +147,8 @@ await sb(`glossa_radar_weekly?week_start=eq.${w.week_start}`, {
   body: JSON.stringify({
     body_es: { ...es, sources_index: indice },
     traducido_at: new Date().toISOString(),
-    fuse_es: { ...veredicto, ran_at: new Date().toISOString() },
+    fuse_es: { ...veredicto.deterministico, revisor: veredicto.revisor,
+               intentos: veredicto.intentos, ran_at: new Date().toISOString() },
   }),
 });
 console.log(`\nGuardado · «${es.headline}»`);

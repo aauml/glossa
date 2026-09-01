@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/check_content.mjs",
+    "prebuild": "node scripts/check_content.mjs && node scripts/check_reglas_es.mjs",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "node scripts/check_content.mjs"
+    "check": "node scripts/check_content.mjs && node scripts/check_reglas_es.mjs && node scripts/test_espanol.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.7",

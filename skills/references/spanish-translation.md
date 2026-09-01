@@ -30,6 +30,37 @@ Track-specific guidance:
 - **finance**: quantitative precision is key. Use the correct number-formatting conventions (below). The prose can be crisp and direct — *Papeles de Economía Española*, not a bank report.
 - **geopolitics**: historically grounded, careful with partisan framing. Can be more literary than other tracks. Proper names matter: check transliterations.
 
+## The calque list (shared with the machine)
+
+<!-- REGLAS_ES:inicio — este bloque se comprueba contra src/lib/espanol.js
+     (scripts/check_reglas_es.mjs). Si añades un calco allí, añádelo aquí;
+     el check de CI falla cuando divergen. -->
+
+Calques of image and idiom — the ones that actually slip through. The same list drives both generator prompts (`bloqueReglas()`) and the deterministic validator (`revisarEspanol()`):
+
+| English trigger | Never | Write instead |
+|---|---|---|
+| move | «movimiento» (for a decision) | jugada, gesto, paso, punto de partida |
+| claim | «reclamo» | afirmación, señalamiento |
+| account | «cuenta» (for a telling) | relato, versión |
+| record | «récord» (for a file) | expediente, antecedentes, lo documentado |
+| to address | «direccionar» | atender, abordar |
+| evidence | «evidencia» (meaning proof) | pruebas, indicios |
+| unaccountable | «no rendibles» | que no rinden cuentas |
+| at the level of | «a nivel de» | en el plano de / en |
+| implement | «implementar» | aplicar, poner en marcha |
+| decision-makers | «decisores» | quienes deciden, los responsables |
+| parents | «progenitores» | padres |
+| position oneself | «posicionarse» | pronunciarse, tomar posición |
+| based on | «en base a» | sobre la base de / a partir de |
+| is being + participle | «está siendo + participio» («está siendo preparada») | active voice or impersonal «se» |
+| made famous by | «hecho famoso por» | al que hizo famoso |
+| book-length | «de extensión libro» | de la extensión de un libro |
+
+And the register tells: no «vosotros», no «ordenador», no «móvil», no «coger», no «aparcar»; «computadora», «celular», «estacionar».
+
+<!-- REGLAS_ES:fin -->
+
 ## Bureaucratic calques to avoid
 
 Spanish has a bureaucratic-legal register that seeps into editorial writing through EU translations, legal documents, and institutional press releases. Lecturas is not that register. Some common traps:
@@ -63,30 +94,28 @@ English and Spanish use different long-scale vs. short-scale conventions for lar
 | 1 trillion (10¹²)    | **un billón** (NOT "un trillón")    |
 | 1 quadrillion (10¹⁵) | mil billones                        |
 
-Concrete examples from existing pieces:
+Concrete examples from existing pieces (separators updated to the Mexican convention, 2026-08-31):
 - "$5 trillion in deficit" → "5 billones de dólares de déficit"
-- "$160 billion in interest" → "160.000 millones de dólares en intereses"
-- "$13 billion super-carrier" → "portaaviones de 13.000 millones de dólares"
+- "$160 billion in interest" → "160 mil millones de dólares en intereses"
+- "$13 billion super-carrier" → "portaaviones de 13 mil millones de dólares"
 - "the world's $7 trillion deficit" → "el déficit mundial de 7 billones de dólares"
 
-When in doubt, expand into thousands of millions: "160.000 millones" reads cleanly and removes ambiguity.
+When in doubt, expand into thousands of millions: "160 mil millones" reads cleanly and removes ambiguity. And in the Spanish edition the English figure goes in parentheses the FIRST time the scale word changes: "160 mil millones de dólares (160 billion)".
 
 ## Number formatting
 
-Spanish uses periods for thousands separators and commas for decimals — the opposite of English.
+**Corrected 2026-08-31.** This section prescribed the peninsular convention (periods for thousands, commas for decimals, "20 %") while D-020 mandates Mexican Spanish — whose press writes numbers the other way. The decision that stands (Arturo, 2026-08-31): **Mexican convention**, coherent with D-020 and the reader in Los Angeles.
 
-- English: `13,000,000.50` (thirteen million)
-- Spanish: `13.000.000,50` (the same number)
+- Thousands with commas, decimals with periods: `1,234.56`, `800,000 etiquetas`, `51.7%`.
+- Never "51,7 por ciento", never "160.000 millones".
+- Percentages: "51.7%", no space before the sign.
+- For very large round numbers, prefer the word over the digits: "13 mil millones de dólares" beats "13,000 millones", and both beat "$13,000,000,000".
 
-In editorial Spanish, very large round numbers usually get written out partially:
-- "13.000 millones de dólares" (better than "$13.000.000.000")
-- "13 mil millones" is also acceptable but less editorial
-
-For percentages: "20 %" with a non-breaking space, not "20%". In running prose this usually doesn't matter, but `&nbsp;` between number and % is the formal convention.
+The pieces published before this date follow the old peninsular convention and are not being rewritten — they stay as a record of what the convention was.
 
 ## Place names that change
 
-| English         | Spanish (Iberian editorial)         |
+| English         | Spanish (editorial convention)      |
 |-----------------|-------------------------------------|
 | Beijing         | Pekín                               |
 | Tehran          | Teherán                             |

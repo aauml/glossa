@@ -1,9 +1,13 @@
 ---
-const { label = 'Comparison', title, subtitle, source, leftLabel = '', rightLabel = '', rows = [] } = Astro.props;
+// «Source.» y el rótulo salían en inglés también en las piezas españolas
+// (33 ilustraciones en 21 piezas). Mismo patrón bilingüe que Footnotes.astro.
+const LABEL = { en: 'Comparison', es: 'Comparación' };
+const FUENTE = { en: 'Source.', es: 'Fuente.' };
+const { lang = 'en', label, title, subtitle, source, leftLabel = '', rightLabel = '', rows = [] } = Astro.props;
 ---
 <figure class="exhibit">
   <div class="exhibit-frame">
-    <div class="exhibit-label">{label}</div>
+    <div class="exhibit-label">{label ?? LABEL[lang] ?? LABEL.en}</div>
     {title && <div class="exhibit-title">{title}</div>}
     {subtitle && <div class="exhibit-subtitle">{subtitle}</div>}
     <div class="comparison">
@@ -18,6 +22,6 @@ const { label = 'Comparison', title, subtitle, source, leftLabel = '', rightLabe
         </div>
       ))}
     </div>
-    {source && <div class="exhibit-source" set:html={`<strong>Source.</strong> ${source}`} />}
+    {source && <div class="exhibit-source" set:html={`<strong>${FUENTE[lang] ?? FUENTE.en}</strong> ${source}`} />}
   </div>
 </figure>

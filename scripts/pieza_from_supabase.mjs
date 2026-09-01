@@ -28,6 +28,8 @@ import { dominio, esChatarra, esReferencia, esPlataforma } from '../src/lib/hall
 import { uriDeVideo } from '../src/lib/video.js';
 import { promptReporte } from './prompts_reportaje.mjs';
 import { promptDigestPieza, promptConsultasPieza, promptPieza, promptPiezaES } from './prompts_pieza.mjs';
+import { revisarEspanol, pareceIngles, formatearFechaES } from '../src/lib/espanol.js';
+import { edicionValidada } from './revisor_es.mjs';
 
 const URL_SB = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY    = process.env.SUPABASE_SERVICE_KEY || '';
@@ -259,49 +261,15 @@ async function kimi(prompt, maxTokens = 64000) {
   }
 }
 
-// ── Traducir: la cascada del semanal, no Kimi ────────────────────────────
+// ── Traducir: la cascada compartida, ahora VALIDADA también aquí ─────────
 // Traducir NO es escribir, y pagarle a un modelo de razonamiento por hacerlo
-// es dinero quemado en pensar lo que no hay que pensar — la lección ya estaba
-// medida en traducir_from_supabase.mjs y aquí se copió tarde: la primera
-// versión mandaba la edición española a Kimi K3 (la mitad del costo de la
-// pieza y ~15 min extra). La cascada: Gemini Flash Lite (gratis) → Grok
-// no-reasoning (~$0.004) → Haiku (~$0.03) → Kimi, solo como último recurso.
-const TRADUCTORES = [
-  { n: 'gemini-3.1-flash-lite',        casa: 'gemini' },
-  { n: 'grok-4.20-0309-non-reasoning', casa: 'xai', env: 'XAI_API_KEY' },
-  { n: 'claude-haiku-4-5-20251001',    casa: 'anthropic', env: 'ANTHROPIC_API_KEY' },
-];
-
-async function traducir(prompt) {
-  for (const m of TRADUCTORES) {
-    if (m.env && !process.env[m.env]) continue;
-    try {
-      if (m.casa === 'gemini') return await gemini([{ text: prompt }], 32000);
-      const esAnthropic = m.casa === 'anthropic';
-      const r = await fetch(esAnthropic ? 'https://api.anthropic.com/v1/messages' : 'https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: esAnthropic
-          ? { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }
-          : { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.XAI_API_KEY}` },
-        body: JSON.stringify({ model: m.n, max_tokens: 32000, messages: [{ role: 'user', content: prompt }] }),
-        signal: AbortSignal.timeout(300_000),
-      });
-      const d = await r.json();
-      if (!r.ok) throw new Error(`${m.casa} ${r.status}: ${JSON.stringify(d).slice(0, 120)}`);
-      const u = d.usage ?? {};
-      const tok = esAnthropic ? (u.input_tokens ?? 0) + (u.output_tokens ?? 0) : (u.total_tokens ?? 0);
-      const coste = esAnthropic
-        ? ((u.input_tokens ?? 0) / 1e6) * 1.0 + ((u.output_tokens ?? 0) / 1e6) * 5.0
-        : ((u.prompt_tokens ?? 0) / 1e6) * 0.20 + ((u.completion_tokens ?? 0) / 1e6) * 0.50;
-      await apuntar(URL_SB, KEY, m.casa, 1, tok, coste);
-      return jsonDeModelo(esAnthropic
-        ? (d.content ?? []).map((x) => x.text || '').join('')
-        : d.choices?.[0]?.message?.content ?? '');
-    } catch (e) { console.log(`  traductor ${m.casa} no pudo: ${String(e).slice(0, 90)}`); }
-  }
-  console.log('  cascada agotada — traduce Kimi (último recurso)');
-  return kimi(prompt, 32000);
-}
+// es dinero quemado en pensar lo que no hay que pensar. La cascada vive en
+// revisor_es.mjs, compartida con el semanal, y este guion ya no se queda con
+// el primer modelo que no lance excepción: cada intento pasa por el contrato
+// del español (`revisarEspanol`) y por el revisor de estilo, con reintento al
+// mismo modelo y el fallo dicho. Antes la elección era «el que no dio error
+// HTTP» — en la práctica siempre Gemini Flash Lite, sin que nadie mirara qué
+// devolvió, y por ahí salieron «los agencias» y el 51.7 con coma.
 
 // ── 1 · El elemento ──────────────────────────────────────────────────────
 // Con la fuente que lo trajo: el nombre del canal o del columnista es un DATO
@@ -649,39 +617,63 @@ console.log('Versión española…');
 // Las glosas de las fuentes se traducen CON la pieza: el pie de procedencia lo
 // lee el lector igual que el cuerpo, y cada edición debe enseñar la suya.
 const glosasEN = [digest.thesis, ...reportes.map(r => r.what_happened)].map(x => String(x ?? '').slice(0, 400));
-const es = await traducir(promptPiezaES(en, glosasEN));
-const glosasES = Array.isArray(es.sources_gloss) && es.sources_gloss.length === glosasEN.length
-  ? es.sources_gloss : glosasEN.map(() => null);
-es.slug = en.slug; es.track = en.track;   // por si el modelo los «tradujo»
 
-// El `title` español llegó una vez en INGLÉS mientras el `titleHTML` venía bien
-// traducido: el modelo tradujo la versión con <em> y se saltó la lisa. Nadie lo
-// vio en la página —que pinta el titleHTML— pero el <title> de la pestaña, la
-// tarjeta de compartir y el buscador usan el liso, así que la edición española
-// se anunciaba en inglés por todas partes menos donde se leía.
-if (es.title && en.title && es.title.trim() === en.title.trim() &&
-    es.titleHTML && es.titleHTML.trim() !== en.titleHTML?.trim()) {
-  es.title = es.titleHTML.replace(/<[^>]+>/g, '').trim();
-  console.log(`  el título español venía sin traducir; se toma del titleHTML: «${es.title}»`);
+// El contrato de la edición española, entero: la voz (que hereda del original
+// pero puede reintroducir por su cuenta), el contrato del español de
+// `espanol.js` (calcos, campos en inglés, cifras, paridad estructural) y las
+// glosas del pie — que antes, si venían mal, se rellenaban con null EN
+// SILENCIO y el pie español se quedaba sin glosa. Todo lo grave se le dice al
+// modelo y se reintenta; lo estructural (slug, secciones) ya lo garantiza el
+// original, del que esta edición es copia estructural.
+function comprobarES(cand) {
+  cand.slug = en.slug; cand.track = en.track;   // por si el modelo los «tradujo»
+  // El `title` liso llegó una vez en INGLÉS con el `titleHTML` bien traducido:
+  // la pestaña, la tarjeta de compartir y el buscador usan el liso. Si el liso
+  // parece inglés y el titleHTML no, se deriva de ahí en vez de acusar.
+  const sinHTML = String(cand.titleHTML ?? '').replace(/<[^>]+>/g, '').trim();
+  if (cand.title && sinHTML && pareceIngles(cand.title) && !pareceIngles(sinHTML)) {
+    cand.title = sinHTML;
+    console.log(`  el título español venía sin traducir; se toma del titleHTML: «${cand.title}»`);
+  }
+  const fallos = [];
+  for (const f of validar(cand, 'es')) {
+    if (/slug|falta |<em>|secciones|bloque/.test(f)) continue;
+    fallos.push({ regla: 'voz', detalle: f, grave: true });
+  }
+  if (glosasEN.length && (!Array.isArray(cand.sources_gloss) || cand.sources_gloss.length !== glosasEN.length)) {
+    fallos.push({ regla: 'glosas perdidas',
+      detalle: `sources_gloss trae ${Array.isArray(cand.sources_gloss) ? cand.sources_gloss.length : 0} ` +
+               `glosas y el pie lleva ${glosasEN.length}: el lector español se quedaría sin ellas`, grave: true });
+  }
+  fallos.push(...revisarEspanol(cand, en).fallos);
+  return { ok: !fallos.some(f => f.grave), fallos };
 }
 
-// La edición española NO se validaba: el contrato solo miraba la inglesa. Una
-// traducción hereda la voz del original, pero puede introducirla de nuevo por
-// su cuenta —«según el relato», «la columna sostiene»— y ahí nadie miraba.
-// Solo la voz: el resto del contrato (slug, secciones) ya lo garantiza el
-// original, del que esta edición es una copia estructural.
-{
-  const fallosES = validar(es, 'es').filter(f => !/slug|falta |<em>|secciones|bloque/.test(f));
-  if (fallosES.length) {
-    console.log(`  la edición española rompió la voz (${fallosES.join('; ')}) — un reintento`);
-    const otra = await traducir(promptPiezaES(en, glosasEN) +
-      `\n\nYOUR PREVIOUS ATTEMPT BROKE THE VOICE RULE: ${fallosES.join('; ')}. ` +
-      'State the claim; the mark carries the caution. Fix exactly that.');
-    otra.slug = en.slug; otra.track = en.track;
-    const aun = validar(otra, 'es').filter(f => !/slug|falta |<em>|secciones|bloque/.test(f));
-    if (aun.length) await morir(`La edición española sigue rompiendo la voz: ${aun.join('; ')}`);
-    Object.assign(es, otra);
+let edicion = await edicionValidada(promptPiezaES(en, glosasEN), comprobarES, {
+  en,
+  apuntar: async (casa, llamadas, tok, coste) => {
+    await apuntar(URL_SB, KEY, casa, llamadas, tok, coste);
+    apuntarLocal(gasto, casa, llamadas);
+  },
+  conRevisor: () => quedaKimi(),
+});
+if (!edicion) {
+  // El último recurso histórico —que traduzca el propio Kimi— se conserva,
+  // pero ya no entra sin pasar por el mismo contrato que los demás.
+  console.log('  cascada agotada — traduce Kimi (último recurso)');
+  const cand = await kimi(promptPiezaES(en, glosasEN), 32000);
+  const v = comprobarES(cand);
+  if (!v.ok) {
+    await morir('La edición española no cumplió el contrato con ningún modelo: ' +
+      v.fallos.filter(f => f.grave).map(f => `${f.regla} (${String(f.detalle).slice(0, 60)})`).join('; '));
   }
+  edicion = { es: cand, veredicto: { deterministico: v, revisor: null, intentos: [{ modelo: MODELO_KIMI }] }, gastado: 0 };
+}
+const es = edicion.es;
+const fuseEs = { ...edicion.veredicto, ran_at: new Date().toISOString() };
+const glosasES = es.sources_gloss ?? glosasEN.map(() => null);
+for (const f of fuseEs.deterministico.fallos.filter(f => !f.grave).slice(0, 5)) {
+  console.log(`  · ${f.regla}: ${String(f.detalle).slice(0, 80)}`);
 }
 
 // ── 6 · Armar los MDX (el modelo nunca emite markup) ─────────────────────
@@ -698,9 +690,13 @@ const AHORA = new Date();
 
 function armarMdx(j, lang) {
   const ahora = AHORA;
-  const fecha = ahora.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB',
-    { timeZone: 'America/Los_Angeles', day: 'numeric', month: lang === 'es' ? 'short' : 'long', year: 'numeric' })
-    .replace(/\./g, '');
+  // La fecha española se arma a mano —«25 de agosto de 2026»— porque
+  // toLocaleDateString con mes corto daba «25 ago 2026», sin «de» y con el
+  // mes amputado, y catorce piezas salieron así (alguna con el mes en INGLÉS).
+  const fecha = lang === 'es'
+    ? formatearFechaES(ahora)
+    : ahora.toLocaleDateString('en-GB',
+        { timeZone: 'America/Los_Angeles', day: 'numeric', month: 'long', year: 'numeric' });
   const sortDate = ahora.toLocaleString('sv-SE', { timeZone: 'America/Los_Angeles' }).replace(' ', 'T');
   const numero = lang === 'es' ? issueNo.replace('N° ', 'N.º ') : issueNo;
 
@@ -724,7 +720,13 @@ function armarMdx(j, lang) {
     j.dekHTML ? `dekHTML: ${yamlStr(j.dekHTML)}` : null,
     `coverDek: ${yamlStr(j.coverDek)}`,
     `source: ${yamlStr(j.source || item.url)}`,
-    `sourceLabel: ${yamlStr(`${issueNo} · ${(j.source || item.title).replace(/^Based on |^Basado en /, '').slice(0, 80)}`)}`,
+    // Con el N.º del idioma y truncado en límite de palabra: 22 piezas salieron
+    // con «N° » en la edición española y alguna cortada a mitad de apellido
+    // («…Kelsey Butler · Bloomb»).
+    `sourceLabel: ${yamlStr(`${numero} · ${(() => {
+      const credito = (j.source || item.title).replace(/^Based on |^Basado en /, '');
+      return credito.length > 100 ? credito.slice(0, 100).replace(/\s+\S*$/, '') + '…' : credito;
+    })()}`)}`,
     'topics:',
     ...(j.topics || []).slice(0, 6).map(t => `  - ${yamlStr(t)}`),
     '---',
@@ -803,7 +805,7 @@ const [issue] = await sb('glossa_issues?select=id', {
   body: JSON.stringify([{ slug: en.slug, issue_no: issueNo, track: en.track || 'general',
     mode: 'pieza', status: 'drafting', title_en: en.title, title_es: es.title,
     dek_en: en.dek, dek_es: es.dek, topics: en.topics ?? [], seed_id: seed?.id ?? null,
-    model: MODELO_KIMI }]),
+    model: MODELO_KIMI, fuse_es: fuseEs }]),
 });
 
 await sb('glossa_publish_requests', {

@@ -1,5 +1,9 @@
 ---
-const { label = 'Timeline', title, subtitle, source, events = [], yearStart, yearEnd } = Astro.props;
+// «Source.» y el rótulo salían en inglés también en las piezas españolas
+// (33 ilustraciones en 21 piezas). Mismo patrón bilingüe que Footnotes.astro.
+const LABEL = { en: 'Timeline', es: 'Cronología' };
+const FUENTE = { en: 'Source.', es: 'Fuente.' };
+const { lang = 'en', label, title, subtitle, source, events = [], yearStart, yearEnd } = Astro.props;
 
 // Robust position resolver (same as before).
 const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, sept:8, oct:9, nov:10, dec:11 };
@@ -48,7 +52,7 @@ const items = resolved.map((e, i) => ({
 ---
 <figure class="exhibit">
   <div class="exhibit-frame">
-    <div class="exhibit-label">{label}</div>
+    <div class="exhibit-label">{label ?? LABEL[lang] ?? LABEL.en}</div>
     {title && <div class="exhibit-title">{title}</div>}
     {subtitle && <div class="exhibit-subtitle">{subtitle}</div>}
 
@@ -81,6 +85,6 @@ const items = resolved.map((e, i) => ({
       ))}
     </ol>
 
-    {source && <div class="exhibit-source" set:html={`<strong>Source.</strong> ${source}`} />}
+    {source && <div class="exhibit-source" set:html={`<strong>${FUENTE[lang] ?? FUENTE.en}</strong> ${source}`} />}
   </div>
 </figure>

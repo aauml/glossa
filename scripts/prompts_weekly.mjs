@@ -1,5 +1,11 @@
 // El prompt de la traducción. Vive aquí, con los otros, porque aquí está el
 // criterio — y el criterio de esta es sobre todo QUÉ NO TOCAR.
+//
+// Las reglas de lengua (calcos, cifras, registro mexicano) vienen de
+// `src/lib/espanol.js`: la MISMA lista que interpola el prompt de la pieza y
+// que valida `revisarEspanol`. Una regla que se quiera añadir se añade allí.
+
+import { bloqueReglas } from '../src/lib/espanol.js';
 
 /**
  * El número en español.
@@ -41,29 +47,11 @@ export function promptTraduccion(numero) {
     '  funciona porque conserva la forma inglesa está mal aunque cada palabra sea',
     '  correcta.',
     '',
-    '  Y el calco que de verdad se cuela no es de palabra, es de IMAGEN. Una pieza',
-    '  publicada decía «Es el movimiento inicial de la columna, y es el movimiento',
-    '  de un padre antes que el de un político»: cada palabra correcta, la frase',
-    '  ilegible, porque «move» viajó como «movimiento». Debía ser «Es el punto de',
-    '  partida de la columna, pero antes que un cálculo político, es un gesto de',
-    '  padre». Los que más se escapan:',
-    '      move → jugada, gesto, paso (nunca «movimiento» para una decisión)',
-    '      claim → afirmación, señalamiento (nunca «reclamo»)',
-    '      account → relato, versión (nunca «cuenta»)',
-    '      record → expediente, antecedentes (nunca «récord»)',
-    '      evidence → pruebas, indicios (nunca «evidencia» cuando significa prueba)',
-    '      to address → atender, abordar (nunca «direccionar»)',
-    '',
     '  ANTES DE DEVOLVER, relee tu español con una sola pregunta: ¿alguna frase',
     '  delata que se escribió primero en inglés? La que lo delate se reescribe',
     '  desde su sentido, no desde sus palabras. Ese repaso no es opcional.',
     '',
-    '- **LAS CIFRAS GRANDES LLEVAN SU EQUIVALENTE INGLÉS ENTRE PARÉNTESIS** la',
-    '  primera vez que aparecen. «billion» y «billón» son falsos amigos:',
-    '      $130 billion → 130 mil millones de dólares (130 billion)',
-    '      $5 trillion  → 5 billones de dólares (5 trillion)',
-    '      900 million  → 900 millones (sin paréntesis: la escala no cambia)',
-    '  Solo la primera vez, y solo cuando la palabra de escala cambia.',
+    bloqueReglas(),
     '',
     '- El español ocupa un 15-20 % más que el inglés, así que el tope viaja con él:',
     '  ninguna frase por encima de 40 palabras. Donde el inglés partió una frase en',
@@ -94,21 +82,9 @@ export function promptTraduccion(numero) {
     '- `subject` es la etiqueta del índice: tradúcela, corta, 2-4 palabras.',
     '- `sources` y `sources_index` se copian TAL CUAL. Son ids, no texto.',
     '',
-    '- **Español de México**, no de España. Es una decisión editorial: las fuentes',
-    '  en español de esta publicación son mexicanas y quien la lee está en Los',
-    '  Ángeles — el peninsular sonaría prestado. En la práctica: nada de',
-    '  «vosotros», nada de «coger», «vale», «ordenador» ni «móvil»; el registro',
-    '  sobrio de un diario mexicano, ni coloquial ni acartonado.',
-    '',
-    '- Sin adjetivos de valoración que no estén en el original: si el inglés dice',
-    '  «said», dice «dijo», no «admitió». Una traducción que sube la temperatura',
-    '  está cambiando lo que se afirma.',
-    '',
-    '- Los cargos y las instituciones, en español cuando exista un uso asentado',
-    '  («Secretario del Tesoro»); en su idioma cuando no lo haya.',
-    '',
-    '- No añadas, no resumas, no expliques. Ni una frase que no esté en el',
-    '  original: es la misma pieza en otro idioma, no una versión para otro',
-    '  público.',
+    '- No INVENTES: glosar lo que un lector mexicano necesita es parte de la',
+    '  edición (la regla primera lo permite), pero ninguna afirmación nueva,',
+    '  ninguna cifra nueva, ninguna voz citada que el original no cite. Y no',
+    '  resumas: lo que el original dice, la edición lo dice entero.',
   ].join('\n');
 }

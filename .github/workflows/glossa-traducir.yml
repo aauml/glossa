@@ -9,12 +9,15 @@ name: Glossa traducir (el número en español)
 # cuenta haya soltado el turno. Si falla, el inglés ya está publicado y no se
 # entera nadie más que el registro.
 #
-# Traduce con una CASCADA verificada: Gemini (gratis) → Grok sin razonamiento
-# → Haiku, y el fusible decide después de cada intento. Ninguno conserva las
-# comillas las tres veces —medido—, así que no se elige el mejor modelo: se
-# comprueba el resultado y se pasa al siguiente si tocó una cita.
+# Traduce con una CASCADA verificada (scripts/revisor_es.mjs): Gemini (gratis)
+# → Grok sin razonamiento → Haiku. Cada intento pasa por el fusible entero —que
+# en español incluye el contrato de src/lib/espanol.js: calcos, campos en
+# inglés, cifras, paridad— y un fallo grave se le DICE al mismo modelo antes de
+# pasar al siguiente. Cuando el determinista aprueba, Kimi dictamina como
+# corrector de estilo (centavos); si dice «corrige», una última vuelta.
 #
-# Secretos: SUPABASE_SERVICE_KEY, GEMINI_API_KEY, XAI_API_KEY, ANTHROPIC_API_KEY.
+# Secretos: SUPABASE_SERVICE_KEY, GEMINI_API_KEY, XAI_API_KEY, ANTHROPIC_API_KEY,
+#           MOONSHOT_API_KEY (el revisor; sin él se publica con solo el determinista).
 
 # ── El reloj de la semana ────────────────────────────────────────────────
 # Todo tiene que estar TERMINADO antes de las 5:00 de la mañana en Los Ángeles,
@@ -53,6 +56,7 @@ env:
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
   SEMANA: ${{ inputs.semana }}
 
 jobs:

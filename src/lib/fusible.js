@@ -11,6 +11,8 @@
 // número, junto al botón de publicar, y en la vía automática. Si los tres no dan
 // el mismo veredicto, el fusible no sirve para nada.
 
+import { revisarEspanol } from './espanol.js';
+
 const norm = (s) => String(s ?? '').toLowerCase()
   .replace(/[‘’“”]/g, "'")
   .replace(/\s+/g, ' ')
@@ -125,18 +127,16 @@ export function revisar(issue = {}, contexto = {}) {
   }
 
   // ── El español se juzga con otra vara ───────────────────────────────────
-  // Allí las citas van traducidas y en CURSIVA, sin comillas: una traducción no
-  // puede afirmar ser literal, así que no lleva la marca que lo afirma. Comparar
-  // letra por letra contra un material en inglés no diría nada.
+  // Allí las citas van traducidas y entre comillas latinas «así» (D-020): la
+  // convención ya significa «esto dijo», no «esto sonó así». Comparar letra por
+  // letra contra un material en inglés no diría nada.
   //
-  // Lo que sí se puede comprobar, y es lo que importa: que no se haya INVENTADO
-  // ninguna voz. En español no puede haber más pasajes citados que en el
-  // original, ni comillas sueltas que reclamen literalidad.
+  // Lo que sí se puede comprobar: que no se haya INVENTADO ninguna voz —en
+  // español no puede haber más pasajes citados que en el original— y el
+  // contrato del propio español (calcos, campos en inglés, formato de cifras,
+  // paridad estructural con el original), que vive en `espanol.js` y corre
+  // aquí para que los tres sitios que llaman al fusible den el mismo veredicto.
   if (contexto.lang === 'es') {
-    // Lo único comprobable en otro idioma: que no se haya inventado a nadie.
-    // Comparar letra por letra no diría nada —el material está en inglés— y la
-    // traducción no tiene por qué ser literal: es una decisión editorial, y la
-    // buena es que se lea natural.
     const aqui = textos.flatMap(t => citas(t)).length;
     const alli = contexto.original
       ? textoDelNumero(contexto.original).flatMap(t => citas(t)).length : null;
@@ -145,6 +145,7 @@ export function revisar(issue = {}, contexto = {}) {
         `la traducción entrecomilla ${aqui} pasajes y el original tenía ${alli}: ` +
         `algo que allí era prosa se ha convertido en cita`);
     }
+    for (const f of revisarEspanol(issue, contexto.original ?? null).fallos) fallos.push(f);
     return { ok: !fallos.some(f => f.grave), fallos, citas: aqui };
   }
 

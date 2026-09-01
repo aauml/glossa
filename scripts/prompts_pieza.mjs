@@ -14,6 +14,8 @@
 // modelo que llena un contrato JSON solo puede equivocarse en el contenido,
 // que es donde sí se le quiere dejar libertad.
 
+import { bloqueReglas } from '../src/lib/espanol.js';
+
 /** Digerir la fuente cuando llegó sin pasar por el radar. Adaptación en Node
  *  del promptDigest del radar (que vive en TS de Deno y no se puede importar):
  *  mismas reglas de atribución, misma separación afirmado/atribuido/documentado. */
@@ -252,9 +254,10 @@ export function promptPieza(digest, reportes, piezas, issueNo) {
 
 /**
  * La versión española: artículo paralelo, no traducción palabra a palabra.
- * Registro peninsular — es la convención de la colección de piezas
- * (`references/spanish-translation.md`), a diferencia del semanal, que decidió
- * es-MX en D-020. Se imita la colección, no el semanal.
+ * Registro MEXICANO (D-020), como el semanal y como manda
+ * `references/spanish-translation.md` desde la corrección del 2026-08-25.
+ * Las reglas de lengua (calcos, cifras, registro) vienen de
+ * `src/lib/espanol.js` — la misma lista que valida `revisarEspanol`.
  */
 export function promptPiezaES(piezaEN, glosas = []) {
   return [
@@ -299,37 +302,14 @@ export function promptPiezaES(piezaEN, glosas = []) {
     '  because you kept the English shape, it is wrong even if every word is right.',
     '- Spanish runs 15-20% longer than English, so the cap travels: no sentence',
     '  over 40 words. Where English broke a sentence in two, Spanish may need three.',
-    '- Mexico, editorial: «computadora», «celular»; pretérito perfecto compuesto for',
-    '  events still touching the present («ha dicho»), indefinido for closed ones.',
+    '- Pretérito perfecto compuesto for events still touching the present',
+    '  («ha dicho»), indefinido for closed ones.',
     '- «Angular quotes» for quotations inside prose; translate quoted speech into',
     '  Spanish (readers know the convention means "this is what was said", not',
     '  "these were the exact syllables").',
-    '- LAS CIFRAS GRANDES LLEVAN SU EQUIVALENTE INGLÉS ENTRE PARÉNTESIS la primera',
-    '  vez que aparecen. «billion» y «billón» son falsos amigos y la escala cambia',
-    '  de idioma, así que el lector que oyó la cifra en inglés tiene que poder',
-    '  reconocerla:',
-    '      $130 billion  → 130 mil millones de dólares (130 billion)',
-    '      $5 trillion   → 5 billones de dólares (5 trillion)',
-    '      900 million   → 900 millones (sin paréntesis: aquí las dos escalas coinciden)',
-    '  Solo la PRIMERA vez de cada cifra, y solo cuando la palabra de escala cambia',
-    '  —millones no lo necesita—. Repetirlo en cada mención convierte la prosa en',
-    '  una tabla de conversión.',
-    '- No bureaucratic calques: «aplicar», never «implementar»; «quienes deciden»,',
-    '  never «decisores»; «padres», never «progenitores».',
-    '- AND NO CALQUES OF IMAGE OR IDIOM, which is where this actually fails. The',
-    '  published piece said «Es el movimiento inicial de la columna, y es el',
-    '  movimiento de un padre antes que el de un político» — every word correct,',
-    '  the sentence unreadable, because «move» was carried across as «movimiento».',
-    '  It should have been «Es el punto de partida de la columna, pero antes que un',
-    '  cálculo político, es un gesto de padre.» Same meaning, Spanish shape.',
-    '  Watch these in particular — they are the ones that slip through:',
-    '    move → jugada / gesto / paso (never «movimiento» for a decision)',
-    '    claim → afirmación, señalamiento (never «reclamo»)',
-    '    account → relato, versión (never «cuenta»)',
-    '    record → expediente, antecedentes, lo documentado (never «récord»)',
-    '    the piece / the case for → la pieza, el argumento a favor de',
-    '    to address → atender, abordar (never «direccionar»)',
-    '    evidence → pruebas, indicios (never «evidencia» when it means proof)',
+    '',
+    bloqueReglas(),
+    '',
     '- BEFORE RETURNING, reread your Spanish once with one question: does any',
     '  sentence reveal that it was written in English first? If one does, rewrite',
     '  that sentence from its meaning, not from its words. This pass is not',

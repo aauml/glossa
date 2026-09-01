@@ -29,7 +29,7 @@ function countWords(rawBody) {
 const WPM = 200; // academic-magazine register; Spanish prose with technical density
 const wordCount = countWords(entry.body || '');
 const readingMinutes = Math.max(1, Math.ceil(wordCount / WPM));
-const localeTag = lang === 'es' ? 'es-ES' : 'en-US';
+const localeTag = lang === 'es' ? 'es-MX' : 'en-US';   // es-MX en todo el sitio (D-020)
 const wordCountFormatted = wordCount.toLocaleString(localeTag);
 const wordsLabel = lang === 'es' ? 'palabras' : 'words';
 const readLabel = lang === 'es' ? 'min de lectura' : 'min read';
