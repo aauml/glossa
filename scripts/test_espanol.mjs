@@ -57,6 +57,10 @@ caso('no acusa a un título español con un nombre propio inglés',
   !reglasDe(revisarEspanol(pieza('Prosa.', { title: 'Lo que Breaking Points no quiso decir' }))).includes('campo en inglés'));
 caso('caza el mes inglés en la prosa',
   graveDe(revisarEspanol(pieza('La reunión del 17 May 2026 no llegó a nada.'))).includes('mes en inglés'));
+caso('no confunde «Mar Negro» con el mes',
+  !reglasDe(revisarEspanol(pieza('La flota cruzó el Mar Negro rumbo al Mar del Norte en marzo.'))).includes('mes en inglés'));
+caso('no confunde a Theresa May con el mes',
+  !reglasDe(revisarEspanol(pieza('Theresa May dejó el cargo antes del acuerdo.'))).includes('mes en inglés'));
 
 // ── Cifras (convención mexicana) ────────────────────────────────────────
 caso('caza «51,7 por ciento» (decimal peninsular)',

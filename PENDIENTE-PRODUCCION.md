@@ -74,3 +74,11 @@ que el conector del móvil permita.
   `prompt_calibracion_digest` calibra el radar. El mecanismo auditado y reversible ya
   existe en `consejo_from_supabase.mjs`; falta cablearlo. Se decidió NO construirlo aún
   (2026-08-31): primero medir unas semanas qué señala el revisor de verdad.
+- **El filtro de Moonshot y el revisor del semanal.** El dictamen de estilo
+  (`revisor_es.mjs`) funciona, pero el filtro de contenido de Moonshot marcó
+  «high risk» el prompt del revisor sobre el número del 2026-08-23 (geopolítica,
+  ~130k caracteres) de forma casi sistemática, incluso recortado a solo la
+  edición española. El guion degrada bien —publica con el determinista y lo
+  dice— y las piezas sueltas (prompts mucho menores) no deberían tropezar.
+  Si el patrón se repite varias semanas, plantear otro modelo de revisor para
+  el semanal (Gemini es gratis y no filtra este material).

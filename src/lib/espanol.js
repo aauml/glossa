@@ -96,7 +96,14 @@ export const REGLAS_ES = {
     // Convención mexicana. Lo que se caza es la PENINSULAR en contenido nuevo.
     decimalPeninsular: /\d,\d+\s*(?:%|por ciento)\b/,
     millaresPeninsulares: /\b\d{1,3}(?:\.\d{3}){1,}(?!\d)(?!,\d)/,
-    mesesEN: /\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\b/,
+    // Los meses cortos SOLO en contexto de fecha (junto a un dígito): «Mar» a
+    // secas es el Mar Negro y «May» es Theresa May — los dos saltaron como
+    // falso positivo sobre prosa legítima. Los largos van sin «May» por lo
+    // mismo; «March» o «August» sueltos en prosa española sí delatan calco.
+    mesesEN: new RegExp(
+      '\\b(January|February|March|April|June|July|August|September|October|November|December)\\b' +
+      '|\\b\\d{1,2}(?:st|nd|rd|th)?\\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\\b' +
+      '|\\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\\.?\\s+\\d{1,2}\\b'),
     numeroDeSerie: /N°\s/,          // la edición española escribe «N.º »
   },
 };
