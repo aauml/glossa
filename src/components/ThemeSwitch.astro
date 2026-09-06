@@ -6,10 +6,11 @@
 // del primer pintado (si no, se ve un parpadeo crema antes de oscurecer), y se
 // recuerda en localStorage. Sin elección guardada, crema.
 const { separator = false } = Astro.props;
+const es = /(?:^|\/)es(?:\/|$)/.test(Astro.url.pathname);
 ---
 {separator && <span class="masthead-meta-sep">·</span>}
 <button class="theme-switch" type="button" data-theme-toggle
-        aria-label="Cambiar entre claro y oscuro" aria-pressed="false" title="Claro / oscuro">
+        aria-label={es ? 'Cambiar entre claro y oscuro' : 'Switch between light and dark'} aria-pressed="false" title={es ? 'Claro / oscuro' : 'Light / dark'}>
   <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false">
     <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.1"/>
     <path d="M8 1.5 A6.5 6.5 0 0 1 8 14.5 Z" fill="currentColor"/>

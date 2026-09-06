@@ -375,7 +375,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 .footnotes { margin-top: 56px; padding-top: 24px; border-top: 0.5px solid var(--rule-soft); }
 .footnotes-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 14px; }
 .footnotes ol { padding-left: 22px; font-family: 'Spectral', serif; font-size: calc(14px * var(--reader-scale)); line-height: 1.55; color: var(--ink-soft); }
-.footnotes li { margin-bottom: 0.7em; }
+.footnotes li { margin-bottom: 0.7em; overflow-wrap: anywhere; }
 
 @media (max-width: 640px) {
   .masthead-meta { gap: 8px; }
