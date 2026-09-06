@@ -14,6 +14,7 @@
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, TAVILY_API_KEY, GEMINI_API_KEY.
 
 import { createHash } from 'node:crypto';
+import { sourceIdentity } from '../src/lib/source_identity.mjs';
 import { ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe } from '../src/lib/presupuesto.js';
 import { promptCotejo } from './prompts_cotejo.mjs';
 
@@ -39,10 +40,7 @@ async function sb(path, init = {}) {
 const dominio = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
 // La huella normaliza la URL: mismo documento con distintos parámetros de
 // campaña no debe contarse dos veces.
-const huellaUrl = (u) => {
-  try { const x = new URL(u); return huella(x.hostname.replace(/^www\./, '') + x.pathname.replace(/\/$/, '')); }
-  catch { return huella(u); }
-};
+const huellaUrl = (u) => huella(sourceIdentity(u));
 
 // ── Qué se comprueba ───────────────────────────────────────────────────────
 //
