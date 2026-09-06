@@ -766,12 +766,12 @@ const sourcesJson = {
       tipo: /youtube|youtu\.be/.test(item.url) ? 'video' : (item.body_text ? 'article' : 'link'),
       url: item.url !== 'about:blank' ? item.url : undefined,
       como: 'Fuente ancla — pegada por Arturo en el panel (pieza suelta)',
-      claim_en: glosasEN[0], claim_es: glosasES[0] ?? undefined, verificada: 'si' },
+      claim_en: glosasEN[0], claim_es: glosasES[0] ?? undefined, verificada: 'pendiente', verification_scope: 'generated_claims_require_review' },
     ...reportes.map((r, i) => ({
       id: `src-${String(i + 2).padStart(2, '0')}`, ref: `${r.outlet} — ${r.what_happened?.slice(0, 100)}`,
       role: 'context', tipo: 'report', url: r.url,
       como: 'Traído por el pipeline para anclar o contrastar afirmaciones de la fuente',
-      claim_en: glosasEN[i + 1], claim_es: glosasES[i + 1] ?? undefined, verificada: 'si' })),
+      claim_en: glosasEN[i + 1], claim_es: glosasES[i + 1] ?? undefined, verificada: 'pendiente', verification_scope: 'generated_claims_require_review' })),
   ],
 };
 
