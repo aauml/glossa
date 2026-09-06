@@ -22,12 +22,15 @@
 
   // --- tamaño de texto: UN botón que cicla ---
   var SIZES = ['sm', 'md', 'lg'];
-  var NOMBRE = { sm: 'Small', md: 'Medium', lg: 'Large' };
+  var es = document.documentElement.lang.toLowerCase().startsWith('es');
+  var sizeLabel = es ? 'Tamaño del texto' : 'Text size';
+  var NOMBRE = es ? { sm: 'Pequeño', md: 'Mediano', lg: 'Grande' } : { sm: 'Small', md: 'Medium', lg: 'Large' };
   var btns = document.querySelectorAll('[data-size-cycle]');
   function paint(s){
     btns.forEach(function(b){
       b.dataset.size = s;
-      b.title = 'Text size: ' + (NOMBRE[s] || s);
+      b.title = sizeLabel + ': ' + (NOMBRE[s] || s);
+      b.setAttribute('aria-label', b.title);
     });
   }
   var cur = document.documentElement.getAttribute('data-text-size') || 'md';

@@ -24,14 +24,14 @@ const sources = [...(sidecar.sources ?? []), ...(sidecar.web_only ?? [])];
 const COPY = {
   en: {
     label: 'Sources',
-    note: 'Every claim in this piece was checked against these. Roles: primary carries the argument, support corroborates, context frames, discourse is quoted as position.',
-    verified: { si: 'verified', parcial: 'partly verified', no: 'unverified' },
+    note: 'References used in this piece. Verification status is shown for each source; inclusion alone does not verify every claim. Roles: primary carries the argument, support corroborates, context frames, discourse is quoted as position.',
+    verified: { si: 'verified', parcial: 'partly verified', no: 'unverified', pendiente: 'pending review' },
     roles: { primary: 'primary', support: 'support', context: 'context', discourse: 'discourse' },
   },
   es: {
     label: 'Fuentes',
-    note: 'Cada afirmación de esta pieza se contrastó con estas. Papeles: primaria sostiene el argumento, apoyo corrobora, contexto encuadra, discurso se cita como posición.',
-    verified: { si: 'verificada', parcial: 'verificada en parte', no: 'sin verificar' },
+    note: 'Referencias utilizadas en esta pieza. Cada fuente indica su estado de verificación; incluirla no acredita por sí solo todas las afirmaciones. Papeles: primaria sostiene el argumento, apoyo corrobora, contexto encuadra, discurso se cita como posición.',
+    verified: { si: 'verificada', parcial: 'verificada en parte', no: 'sin verificar', pendiente: 'pendiente de revisión' },
     roles: { primary: 'primaria', support: 'apoyo', context: 'contexto', discourse: 'discurso' },
   },
 };
@@ -60,7 +60,7 @@ const claimOf = (s) => (lang === 'es'
             {s.verificada && (
               <span class={`sources-verified is-${s.verificada}`}>{t.verified[s.verificada] ?? s.verificada}</span>
             )}
-            {s.kb_pk && <span class="sources-kb" title="En el corpus curado (phd-kb)">KB</span>}
+            {s.kb_pk && <span class="sources-kb" title={lang === 'es' ? 'Ficha en la biblioteca; consultar disponibilidad del texto completo' : 'Library entry; check full-text availability'}>KB</span>}
           </div>
           {claimOf(s) && <p class="sources-claim">{claimOf(s)}</p>}
         </li>

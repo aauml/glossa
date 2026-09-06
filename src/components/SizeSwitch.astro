@@ -9,7 +9,8 @@
 // El tamaño actual se ve en la propia letra del botón —crece con él— y se dice
 // en `title`, que es lo que un lector necesita para saber dónde está.
 const { separator = false } = Astro.props;
+const label = /(?:^|\/)es(?:\/|$)/.test(Astro.url.pathname) ? 'Tamaño del texto' : 'Text size';
 ---
 {separator && <span class="masthead-meta-sep">·</span>}
 <button class="text-size-switch" type="button" data-size-cycle
-        aria-label="Text size" title="Text size">A</button>
+        aria-label={label} title={label}>A</button>
