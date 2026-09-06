@@ -80,7 +80,7 @@ export const rango = (inicio, fin, lang = 'en') => {
 // de la misma órbita repitan una cosa NO la asienta.
 export const LEYENDA = `
 <div class="legend">
-  <b>No mark means we checked it. A mark means be careful.</b>
+  <b>Marks show recorded support. An unmarked sentence may still need verification.</b>
   <span><span class="doc">gold</span> corroborated: a document or record backs it</span>
   <span><span class="attr">dotted</span> one source only, nothing else backs it</span>
   <span><span class="said">plain</span> asserted, and nothing we found backs it</span>
@@ -88,7 +88,7 @@ export const LEYENDA = `
 
 export const LEYENDA_ES = `
 <div class="legend">
-  <b>Sin marca quiere decir que lo comprobamos. Con marca, cuidado.</b>
+  <b>Las marcas indican el respaldo registrado. Una frase sin marca puede seguir pendiente de verificación.</b>
   <span><span class="doc">dorado</span> corroborado: hay un documento que lo sostiene</span>
   <span><span class="attr">punteado</span> lo sostiene una sola fuente, y nada más</span>
   <span><span class="said">liso</span> se afirma, y no encontramos nada que lo respalde</span>
