@@ -60,3 +60,17 @@ Tres tablas `glossa_*` en `phd-kb`, RLS habilitado, referencian lo existente (ar
 - Migración 0001: glossa_seeds/issues/issue_sources en phd-kb (additive, RLS).
 - Glossa recolocado como dominio PUB sobre el KB existente.
 ```
+
+### Recuperación de publicación y dependencias (2026-09-06)
+
+El materializador no vuelve a preparar una petición `done`. El workflow omite build,
+push y finalización en ese reintento. La escritura del número debe confirmarse antes
+que el recibo `done`; un fallo tardío no puede degradar un recibo ya terminado.
+Tres pushes rechazados hacen fallar el trabajo, en vez de anunciar una publicación
+que no llegó al repositorio. El despliegue de Vercel sigue siendo posterior al push.
+
+Overrides acotados conservan las versiones principales: `path-to-regexp` 6.3.0
+bajo routing-utils y `fflate` 0.7.5 bajo satori. Corrigen los avisos
+GHSA-9wv6-86v2-598j y GHSA-px8p-9vwx-vf98. Verificar npm audit, npm run check y
+build al actualizar el lockfile; retirar overrides cuando los padres incorporen
+versiones corregidas. Estas reparaciones no alteran los artículos del archivo.

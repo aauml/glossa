@@ -59,6 +59,7 @@ jobs:
         run: node scripts/publish_from_supabase.mjs prepare "$REQUEST_ID"
 
       - name: Install & build (validate)
+        if: steps.prep.outputs.already_done != '1'
         run: |
           npm ci || npm install
           # El build se guarda porque su última línea de error ES el diagnóstico
@@ -71,6 +72,7 @@ jobs:
       # Interpolarlos con ${{ }} dentro de la cadena de `git commit -m` dejaría
       # que un valor con comillas se ejecutase como shell.
       - name: Commit & push
+        if: steps.prep.outputs.already_done != '1'
         id: push
         env:
           ISSUE_NO: ${{ steps.prep.outputs.issue_no }}
@@ -84,11 +86,16 @@ jobs:
           else
             git commit -m "$ISSUE_NO — $SLUG (publicado desde chat)"
             # main puede haber avanzado mientras corría el build.
+            PUSHED=false
             for attempt in 1 2 3; do
-              if git push; then break; fi
+              if git push; then PUSHED=true; break; fi
               echo "push rechazado (intento $attempt) — rebase y reintento"
               git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
             done
+            if [ "$PUSHED" != true ]; then
+              echo "::error::publication commit was not pushed; receipt must not become done"
+              exit 1
+            fi
           fi
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -96,12 +103,12 @@ jobs:
       # push: lee el frontmatter del fichero que acaba de quedar en el repo, así
       # que el titular de la tarjeta es exactamente el que se publicó.
       - name: Draw the share card
-        if: success()
+        if: success() && steps.prep.outputs.already_done != '1'
         continue-on-error: true
         run: node scripts/tarjetas.mjs
 
       - name: Finalize (write urls/status back)
-        if: success()
+        if: success() && steps.prep.outputs.already_done != '1'
         env:
           REQUEST_ID: ${{ steps.rid.outputs.id }}
           COMMIT_SHA: ${{ steps.push.outputs.sha }}

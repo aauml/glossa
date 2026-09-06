@@ -23,5 +23,13 @@
     "@supabase/supabase-js": "^2.112.3",
     "astro": "^7.2.4",
     "satori": "^0.33.4"
+  },
+  "overrides": {
+    "@vercel/routing-utils": {
+      "path-to-regexp": "6.3.0"
+    },
+    "satori": {
+      "fflate": "0.7.5"
+    }
   }
 }

@@ -45,13 +45,16 @@ async function getRow(rid) {
   if (!rows.length) throw new Error(`request not found: ${rid}`);
   return rows[0];
 }
-async function patch(rid, body) {
-  const r = await fetch(`${T}?id=eq.${encodeURIComponent(rid)}`, { method: 'PATCH', headers: H, body: JSON.stringify(body) });
+async function patch(rid, body, filter = '') {
+  const r = await fetch(`${T}?id=eq.${encodeURIComponent(rid)}${filter}`, { method: 'PATCH', headers: H, body: JSON.stringify(body) });
   if (!r.ok) throw new Error(`patch ${r.status}: ${await r.text()}`);
 }
 async function patchIssue(issueId, body) {
   if (!issueId) return;
-  await fetch(`${URL_BASE}/rest/v1/glossa_issues?id=eq.${encodeURIComponent(issueId)}`, { method: 'PATCH', headers: H, body: JSON.stringify(body) });
+  const r = await fetch(`${URL_BASE}/rest/v1/glossa_issues?id=eq.${encodeURIComponent(issueId)}`, { method: 'PATCH', headers: { ...H, Prefer: 'return=representation' }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error(`issue patch ${r.status}: ${await r.text()}`);
+  const rows = await r.json();
+  if (!Array.isArray(rows) || !rows.length) throw new Error('issue update not confirmed');
 }
 async function write(path, content) { await mkdir(dirname(path), { recursive: true }); await writeFile(path, content); }
 
@@ -68,6 +71,11 @@ async function out(key, value) {
 try {
   if (cmd === 'prepare') {
     const row = await getRow(id);
+    if (row.state === 'done') {
+      await out('already_done', '1');
+      console.log('publication already done; retry has no side effects');
+      process.exit(0);
+    }
     if (!row.slug || !row.body_en) throw new Error('row missing slug or body_en');
     if (!SLUG_RE.test(row.slug)) throw new Error(`slug inválido (esperado [a-z0-9-], 2-80): ${JSON.stringify(row.slug).slice(0, 120)}`);
     if (row.issue_no && !ISSUE_NO_RE.test(row.issue_no)) throw new Error(`issue_no inválido (esperado "N° 33"): ${JSON.stringify(row.issue_no).slice(0, 120)}`);
@@ -86,21 +94,22 @@ try {
     const base = `${SITE}/articles/${row.slug}`;
     const url_en = `${base}/en/`;
     const url_es = row.body_es ? `${base}/es/` : null;
-    await patch(id, { state: 'done', commit_sha: arg || null, url_en, url_es, done_at: new Date().toISOString() });
     // `model` solo se toca si el workflow lo declara: mandar null borraría el
     // valor que hubiera escrito la superficie que redactó la pieza.
     const issuePatch = { status: 'published', url_en, url_es, published_at: new Date().toISOString(), updated_at: new Date().toISOString() };
     if (process.env.GLOSSA_MODEL) issuePatch.model = process.env.GLOSSA_MODEL;
     await patchIssue(row.issue_id, issuePatch);
+    // The receipt becomes done only after the issue write is confirmed.
+    await patch(id, { state: 'done', commit_sha: arg || null, url_en, url_es, done_at: new Date().toISOString() });
     console.log(`done ${url_en}`);
   } else if (cmd === 'fail') {
-    await patch(id, { state: 'error', error: (arg || 'workflow failed').slice(0, 2000), done_at: new Date().toISOString() });
-    console.log('marked error');
+    await patch(id, { state: 'error', error: (arg || 'workflow failed').slice(0, 2000), done_at: new Date().toISOString() }, '&state=neq.done');
+    console.log('marked error unless already done');
   } else {
     console.error('unknown cmd'); process.exit(1);
   }
 } catch (e) {
   console.error(String(e));
-  if (cmd === 'prepare') { try { await patch(id, { state: 'error', error: String(e).slice(0, 2000), done_at: new Date().toISOString() }); } catch {} }
+  if (cmd === 'prepare') { try { await patch(id, { state: 'error', error: String(e).slice(0, 2000), done_at: new Date().toISOString() }, '&state=neq.done'); } catch {} }
   process.exit(1);
 }
