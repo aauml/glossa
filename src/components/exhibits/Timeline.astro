@@ -3,7 +3,7 @@
 // (33 ilustraciones en 21 piezas). Mismo patrón bilingüe que Footnotes.astro.
 const LABEL = { en: 'Timeline', es: 'Cronología' };
 const FUENTE = { en: 'Source.', es: 'Fuente.' };
-const { lang = 'en', label, title, subtitle, source, events = [], yearStart, yearEnd } = Astro.props;
+const { lang = (Astro.params.lang === 'es' ? 'es' : 'en'), label, title, subtitle, source, events = [], yearStart, yearEnd } = Astro.props;
 
 // Robust position resolver (same as before).
 const MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, sept:8, oct:9, nov:10, dec:11 };
