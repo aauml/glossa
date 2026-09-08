@@ -50,7 +50,7 @@ const items = resolved.map((e, i) => ({
   _row: i % rows,
 }));
 ---
-<figure class="exhibit">
+<figure class:list={["exhibit", { "timeline-categorical": !allParsed }]}>
   <div class="exhibit-frame">
     <div class="exhibit-label">{label ?? LABEL[lang] ?? LABEL.en}</div>
     {title && <div class="exhibit-title">{title}</div>}

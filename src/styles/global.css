@@ -286,7 +286,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 .timeline-v-event { display: grid; grid-template-columns: 64px 12px 1fr; gap: 0; align-items: start; padding: 12px 0; position: relative; }
 .timeline-v-event::after { content: ''; position: absolute; left: 69px; top: 18px; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; z-index: 1; }
 .timeline-v-year { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.04em; color: var(--muted); padding-top: 4px; }
-.timeline-v-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--ink); font-weight: 500; line-height: 1.4; padding-top: 2px; padding-left: 8px; }
+.timeline-v-label { grid-column: 3; min-width: 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--ink); font-weight: 500; line-height: 1.4; padding-top: 2px; padding-left: 8px; }
 
 /* Document — official-notice mockup */
 .document-mock { position: relative; background: var(--highlight); border: 0.5px solid var(--rule-soft); padding: 28px 32px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
@@ -963,3 +963,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 @media (max-width: 720px) {
   .cierre { max-width: 100%; padding-left: 22px; padding-right: 22px; }
 }
+
+/* Non-date stages need room for complete labels at every viewport. */
+.timeline-categorical .timeline-horizontal { display: none; }
+.timeline-categorical .timeline-vertical { display: block; }
