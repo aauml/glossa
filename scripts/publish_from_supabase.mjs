@@ -46,8 +46,14 @@ async function getRow(rid) {
   return rows[0];
 }
 async function patch(rid, body, filter = '') {
-  const r = await fetch(`${T}?id=eq.${encodeURIComponent(rid)}${filter}`, { method: 'PATCH', headers: H, body: JSON.stringify(body) });
+  const r = await fetch(`${T}?id=eq.${encodeURIComponent(rid)}${filter}`, { method: 'PATCH', headers: { ...H, Prefer: 'return=representation' }, body: JSON.stringify(body) });
   if (!r.ok) throw new Error(`patch ${r.status}: ${await r.text()}`);
+  const rows = await r.json();
+  // A late failure intentionally skips an already completed receipt. Every
+  // state advance must confirm an actual row, not merely a successful HTTP code.
+  if (!Array.isArray(rows) || (rows.length !== 1 && !(filter === '&state=neq.done' && rows.length === 0))) {
+    throw new Error('publication receipt update not confirmed');
+  }
 }
 async function patchIssue(issueId, body) {
   if (!issueId) return;
