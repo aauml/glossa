@@ -70,28 +70,22 @@ export const rango = (inicio, fin, lang = 'en') => {
   return `${dia}–${fecha(fin, lang)}`;
 };
 
-// La leyenda explica una inversión: aquí una marca es una ADVERTENCIA, y la
-// prosa sin marcar es lo asentado. Antes se marcaba todo —cada frase llevaba su
-// etiqueta— y eso obligaba a escribir «X sostiene que…» en cada párrafo, con lo
-// que el número contaba quién había hablado en vez de contar qué pasó.
-//
-// El silencio significa algo, y por eso hay que ganárselo: solo se deja sin
-// marcar lo que el reporteo de fuera o un documento sostienen. Que cinco canales
-// de la misma órbita repitan una cosa NO la asienta.
+// La leyenda describe el respaldo registrado en cada marca. La ausencia
+// de marca no demuestra verificación ni una búsqueda exhaustiva sin resultados.
 export const LEYENDA = `
 <div class="legend">
   <b>Marks show recorded support. An unmarked sentence may still need verification.</b>
-  <span><span class="doc">gold</span> corroborated: a document or record backs it</span>
-  <span><span class="attr">dotted</span> one source only, nothing else backs it</span>
-  <span><span class="said">plain</span> asserted, and nothing we found backs it</span>
+  <span><span class="doc">gold</span> documentary support indicated</span>
+  <span><span class="attr">dotted</span> attributed to a source; independent corroboration not indicated</span>
+  <span><span class="said">plain</span> claim without indicated verified support</span>
 </div>`;
 
 export const LEYENDA_ES = `
 <div class="legend">
   <b>Las marcas indican el respaldo registrado. Una frase sin marca puede seguir pendiente de verificación.</b>
-  <span><span class="doc">dorado</span> corroborado: hay un documento que lo sostiene</span>
-  <span><span class="attr">punteado</span> lo sostiene una sola fuente, y nada más</span>
-  <span><span class="said">liso</span> se afirma, y no encontramos nada que lo respalde</span>
+  <span><span class="doc">dorado</span> respaldo documental indicado</span>
+  <span><span class="attr">punteado</span> atribuido a una fuente; corroboración independiente no indicada</span>
+  <span><span class="said">liso</span> afirmación sin respaldo verificado indicado</span>
 </div>`;
 
 /**
