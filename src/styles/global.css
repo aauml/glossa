@@ -193,7 +193,9 @@ a.inline-link:hover, .article a:not(.masthead-section):not(.masthead-brand):not(
 /* ======== Article body ======== */
 .article { max-width: 620px; margin: 0 auto; padding: 32px 32px 80px; }
 .article p { margin-bottom: 1.3em; font-size: calc(17px * var(--reader-scale)); line-height: 1.7; }
-.article p.lede { font-size: calc(18px * var(--reader-scale)); line-height: 1.6; color: var(--ink); }
+.article .lede { margin-bottom: 1.3em; }
+.article .lede p:last-child { margin-bottom: 0; }
+.article .lede, .article .lede p { font-size: calc(18px * var(--reader-scale)); line-height: 1.6; color: var(--ink); }
 
 
 .section-divider { display: none; }
@@ -384,7 +386,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
   .article { padding: 24px 22px 60px; }
   body { font-size: calc(16px * var(--reader-scale)); }
   .article p { font-size: calc(16px * var(--reader-scale)); }
-  .article p.lede { font-size: calc(17px * var(--reader-scale)); }
+  .article .lede, .article .lede p { font-size: calc(17px * var(--reader-scale)); }
   .qa-text { font-size: calc(15px * var(--reader-scale)); }
   .pull-quote { font-size: calc(18px * var(--reader-scale)); padding: 16px 0 14px; }
   .context-box { padding: 16px 18px 14px; margin: 22px 0; }
