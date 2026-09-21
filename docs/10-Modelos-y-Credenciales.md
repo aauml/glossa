@@ -11,7 +11,7 @@ se quiere llegar, no lo que corre hoy.
 |---|---|---|
 | Análisis y redacción | Anthropic API (Opus) | Claude ejecutando el skill, sin API propia |
 | Carga barata (triaje, ranking) | OpenRouter | no existe |
-| Embeddings del KB | proveedor dedicado y fijo | los pone `thesis-repo`: `vector(384)` vía su edge function `generate-embeddings` |
+| Embeddings del KB | proveedor dedicado y fijo | los pone `thesis-repo`: `kb_chunks` en `vector(1536)` (text-embedding-3); el `vector(384)` de su edge function `generate-embeddings` es de OTRA tabla (`evaluated_items`) |
 | Búsqueda web | Exa (decidido) | Tavily (opcional) + OpenAlex sin clave |
 
 Consecuencias prácticas:
@@ -20,9 +20,12 @@ Consecuencias prácticas:
   `TAVILY_API_KEY`, y es opcional.
 - La columna `glossa_issues.model` existe desde la migración 0001 y solo se escribe si el
   workflow declara `GLOSSA_MODEL`. Si no se va a poblar, retirarla.
-- El KB es **`vector(384)`**, no las 1536 dimensiones nativas de `text-embedding-3`. Antes de
-  dar por bueno "OpenAI text-embedding-3" hay que confirmar con `aauml/thesis` qué modelo lo
-  generó: cambiarlo obliga a reindexar 43.758 chunks.
+- **Corregido (2026-09-01, medido contra la base):** el KB (los chunks del RAG, `kb_chunks`)
+  es **`vector(1536)`** — `text-embedding-3` a dimensión nativa, la duda quedó confirmada. El
+  `vector(384)` que decía aquí es de `evaluated_items` (gte-small), otra tabla y otro pipeline.
+  El conteo de chunks cambia a diario (46.675 al medir); no fijarlo aquí. Ojo: en `aauml/thesis`
+  hay una propuesta abierta de REDUCIR esa dimensión por espacio en disco (su issue 15), así que
+  antes de alinear nada con el KB, la fuente de verdad es la base misma, no este doc.
 
 ## Reparto de modelos (plan)
 
