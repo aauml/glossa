@@ -1,0 +1,18 @@
+{
+  "slug": "krapivnik-poland-frontline",
+  "issue": "N° 50",
+  "sources": [
+    {
+      "id": "src-01",
+      "ref": "Stanislav Krapivnik: EU-Russia War — Poland as the Frontline?",
+      "url": "https://podcasts.apple.com/us/podcast/stanislav-krapivnik-eu-russia-war-poland-as-the-frontline/id1822142909?i=1000791468006&uo=4",
+      "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
+      "role": "primary",
+      "tipo": "article",
+      "claim_en": "Stanislav Krapivnik argues that Poland is being positioned by Western powers as a primary frontline state in a potential direct conflict between the EU/NATO and Russia.",
+      "claim_es": "Stanislav Krapivnik sostiene que las potencias occidentales están utilizando a Polonia como el estado de primera línea en un potencial conflicto directo entre la UE/OTAN y Rusia.",
+      "verificada": "pendiente",
+      "verification_scope": "generated_claims_require_review"
+    }
+  ]
+}
