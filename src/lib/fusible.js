@@ -68,6 +68,9 @@ const comillasDescuadradas = (t) => ((sinSpans(t).match(/"/g) ?? []).length % 2)
 const GENERICOS = new Set(['politics','economy','analysis','geopolitics','media','news',
   'world','business','opinion','commentary','international','current affairs']);
 
+/** Techo de piezas por número. El prompt del semanal lo interpola de aquí. */
+export const MAX_PIEZAS = 8;
+
 /**
  * @param {object} issue      el cuerpo del número
  * @param {object} contexto   { items, cotejos } de la semana
@@ -242,8 +245,12 @@ export function revisar(issue = {}, contexto = {}) {
 
   // ── 5. Estructura ───────────────────────────────────────────────────────
   // Hoy son peticiones al prompt, o sea sugerencias. Esto las convierte en reglas.
-  if (piezas.length < 3 || piezas.length > 7)
-    falla('estructura', `${piezas.length} piezas; se esperan entre 3 y 7`);
+  // El techo es el MISMO número que pide el prompt del semanal («8 pieces at
+  // most», weekly_from_supabase.mjs). Aquí decía 7 mientras el prompt decía 8:
+  // con cuatro departamentos Kimi escribe ocho cada domingo, y así se quedaron
+  // retenidos los números del 30-ago, 6-sep y 13-sep sin que nadie lo viera.
+  if (piezas.length < 3 || piezas.length > MAX_PIEZAS)
+    falla('estructura', `${piezas.length} piezas; se esperan entre 3 y ${MAX_PIEZAS}`);
   if (!issue.headline) falla('estructura', 'sin titular');
   if (!issue.standfirst) falla('estructura', 'sin entrada');
   if ((issue.closing ?? []).length < 3) falla('estructura', 'el cierre tiene menos de tres entradas');

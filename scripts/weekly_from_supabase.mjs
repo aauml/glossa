@@ -15,16 +15,21 @@
 // Env: SUPABASE_URL, SUPABASE_SERVICE_KEY, MOONSHOT_API_KEY.
 
 import https from 'node:https';
-import { ajustes, uso as gastoActual, apuntar, cabeCoste } from '../src/lib/presupuesto.js';
-import { revisar } from '../src/lib/fusible.js';
+import { ajustes, uso as gastoActual, apuntar, cabeCoste, precioChat } from '../src/lib/presupuesto.js';
+import { revisar, MAX_PIEZAS } from '../src/lib/fusible.js';
 
 const URL = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const KEY = process.env.SUPABASE_SERVICE_KEY || '';
-const MOONSHOT = process.env.MOONSHOT_API_KEY || '';
 const MODELO = process.env.WEEKLY_MODEL || 'kimi-k3';
+// La casa sale del nombre del modelo, como en la pieza: `WEEKLY_MODEL=deepseek-v4-pro`
+// basta para medir otro escritor sobre el mismo material.
+const CASA = MODELO.startsWith('deepseek')
+  ? { host: 'api.deepseek.com', path: '/chat/completions',    env: 'DEEPSEEK_API_KEY', casa: 'deepseek' }
+  : { host: 'api.moonshot.ai',  path: '/v1/chat/completions', env: 'MOONSHOT_API_KEY', casa: 'moonshot' };
+const MOONSHOT = process.env[CASA.env] || '';
 
 if (!URL || !KEY) { console.error('Falta SUPABASE_URL / SUPABASE_SERVICE_KEY'); process.exit(1); }
-if (!MOONSHOT)     { console.error('Falta MOONSHOT_API_KEY'); process.exit(1); }
+if (!MOONSHOT)     { console.error(`Falta ${CASA.env}`); process.exit(1); }
 
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
 const iso = d => d.toISOString().slice(0, 10);
@@ -707,7 +712,7 @@ ${d.temas.map(t => `        – ${t.label}${(() => {
   that department's "note", and the page prints the heading with the sentence
   under it. A reader following it needs to know the week was quiet, and an empty
   heading cannot say that by itself.
-  Across the whole issue, 8 pieces at most: it has to be readable on a Sunday.
+  Across the whole issue, ${MAX_PIEZAS} pieces at most: it has to be readable on a Sunday.
 ` : ''}${departamentos?.length ? '' : `- Merge what the week clustered into 4-5 pieces. Thin subjects get folded in, not
   given a section.`} Those clusters are what the classification produced, not a
   contents page: several of them are usually one piece, and the labels are the
@@ -840,7 +845,7 @@ async function pedirAKimi(prompt = PROMPT, intento = 0) {
     const cuerpo = JSON.stringify({ model: MODELO, max_tokens: 64000,
       messages: [{ role: 'user', content: prompt }] });
     const req = https.request({
-      hostname: 'api.moonshot.ai', path: '/v1/chat/completions', method: 'POST',
+      hostname: CASA.host, path: CASA.path, method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(cuerpo),
                  Authorization: `Bearer ${MOONSHOT}` },
     }, res => {
@@ -848,7 +853,7 @@ async function pedirAKimi(prompt = PROMPT, intento = 0) {
       res.setEncoding('utf8');
       res.on('data', c => { b += c; });
       res.on('end', () => (res.statusCode < 300 ? ok(b)
-        : ko(Object.assign(new Error(`moonshot ${res.statusCode}: ${b.slice(0, 400)}`),
+        : ko(Object.assign(new Error(`${CASA.casa} ${res.statusCode}: ${b.slice(0, 400)}`),
                            { status: res.statusCode }))));
     });
     req.on('error', ko);
@@ -890,7 +895,7 @@ const raw = await pedirAKimi();
 let d;
 try { d = JSON.parse(raw); }
 catch {
-  await apuntar(URL, KEY, 'moonshot', 1, 0, 0.05);   // estimación conservadora: no hay usage que leer
+  await apuntar(URL, KEY, CASA.casa, 1, 0, 0.05);   // estimación conservadora: no hay usage que leer
   console.error(`Moonshot devolvió algo que no es JSON (${raw.slice(0, 160)}). La llamada queda apuntada.`);
   process.exit(1);
 }
@@ -904,12 +909,9 @@ if (!txt) {
 }
 txt = txt.replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
 txt = txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1);
-// Precios de Moonshot por millón de tokens, agosto 2026. Si cambian, esta cifra
-// miente en silencio — por eso el tope de verdad se mide contra el saldo de la
-// cuenta y esto solo sirve para verlo venir.
-const COSTE = (uso) => (uso.prompt_tokens ?? 0) / 1e6 * 0.60
-                     + (uso.completion_tokens ?? 0) / 1e6 * 2.50;
-await apuntar(URL, KEY, 'moonshot', 1, uso.total_tokens ?? 0, COSTE(uso));
+// Precios en la tabla común (`PRECIOS`). Aquí decía 0,60/2,50 — el precio de
+// K2 — mientras K3 cuesta 3/15: el gasto apuntado era un quinto del real.
+await apuntar(URL, KEY, CASA.casa, 1, uso.total_tokens ?? 0, precioChat(MODELO, uso));
 
 const numero = JSON.parse(txt);
 const secciones = numero.pieces || [];

@@ -516,6 +516,30 @@ if (hoy.getUTCDay() === 0 && hoy.getUTCHours() >= 14) {
   });
 }
 
+// ── 8. El número retenido ──────────────────────────────────────────────────
+// Que la fila exista no quiere decir que haya salido. Entre agosto y septiembre
+// se escribieron tres números seguidos y el fusible retuvo los tres —el techo
+// de piezas era 7 y el prompt pedía 8— sin que nadie lo supiera: `numero_ausente`
+// solo mira si hay fila. Un borrador oficial con fallos graves más de seis horas
+// después de escrito es algo que Arturo tiene que ver, publicar o tirar.
+{
+  const hace6h = new Date(Date.now() - 6 * 3600_000).toISOString();
+  const retenidos = await sb('glossa_radar_weekly?select=week_start,fuse,generated_at' +
+    `&state=eq.borrador&parcial=is.false&generated_at=lt.${hace6h}`) ?? [];
+  for (const w of retenidos) {
+    const graves = (w.fuse?.fallos ?? []).filter(f => f.grave);
+    if (w.fuse?.ok !== false || !graves.length) continue;
+    const reglas = [...new Set(graves.map(f => f.regla))].join(', ');
+    await anotar({
+      clase: 'numero_retenido', sujeto: w.week_start, gravedad: 'grave',
+      detalle: `el número de la semana del ${w.week_start} está escrito pero el fusible lo retuvo ` +
+               `(${graves.length} fallo(s) grave(s): ${reglas}); espera en /admin/weekly/`,
+      evidencia: { graves: graves.slice(0, 5).map(f => `${f.regla}: ${String(f.detalle).slice(0, 140)}`) },
+      accion: 'publicarlo o borrarlo desde el panel',
+    });
+  }
+}
+
 // ── Cerrar lo que ya no pasa ───────────────────────────────────────────────
 // Una incidencia que sigue abierta es una que sigue pasando. Sin esto, el panel
 // acumularía problemas resueltos y dejaría de mirarse.

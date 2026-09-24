@@ -410,8 +410,15 @@ export async function buscarEnYouTube(titulo: string, programa: string, key: str
   const dueño = fichas(programa, 3);
   if (!dueño.size) return null;
 
+  // Primero título + programa; si eso no da nada, el título solo. El nombre
+  // largo que Apple da al programa («Glenn Diesen - Greater Eurasia Podcast»)
+  // pegado al título dejaba a YouTube sin NINGÚN resultado, mientras que el
+  // título a secas traía el vídeo del canal propio en primer lugar. Buscar sin
+  // el programa no abre la puerta a los resubidos: la guarda del canal de abajo
+  // sigue exigiendo que el canal sea el programa.
+  for (const consulta of [`${titulo} ${programa}`, titulo]) {
   try {
-    const q = encodeURIComponent(`${titulo} ${programa}`.slice(0, 180));
+    const q = encodeURIComponent(consulta.slice(0, 180));
     const r = await fetch(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q=${q}&key=${key}`,
       { signal: AbortSignal.timeout(12_000) });
@@ -434,6 +441,7 @@ export async function buscarEnYouTube(titulo: string, programa: string, key: str
       return { videoId: String(it.id?.videoId ?? ''), titulo: String(it.snippet?.title ?? ''),
                canal: String(it.snippet?.channelTitle ?? '') };
     }
-    return null;
   } catch { return null; }
+  }
+  return null;
 }

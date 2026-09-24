@@ -23,7 +23,7 @@
 //      MOONSHOT_API_KEY, ITEM_ID. Opcional: PIEZA_MODEL, PIEZA_DRY.
 
 import { readFile, readdir } from 'node:fs/promises';
-import { ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe, cabeCoste } from '../src/lib/presupuesto.js';
+import { ajustes, uso as gastoActual, apuntar, apuntarLocal, cabe, cabeCoste, precioChat } from '../src/lib/presupuesto.js';
 import { dominio, esChatarra, esReferencia, esPlataforma } from '../src/lib/hallazgos.js';
 import { uriDeVideo } from '../src/lib/video.js';
 import { promptReporte } from './prompts_reportaje.mjs';
@@ -169,7 +169,18 @@ async function gemini(parts, maxTokens = 4096) {
           }
         }
       } catch { /* si no viene detallado, se trata como pasajero */ }
-      if (r.status === 429 && porDia) { const e = new Error('gemini: cupo diario agotado'); e.cupoDiario = true; throw e; }
+      if (r.status === 429 && porDia) {
+        const e = new Error('gemini: cupo diario agotado'); e.cupoDiario = true;
+        // El cupo «diario» no espera a medianoche: Google lo rellena a goteo y
+        // dice cuándo vuelve a haber hueco (`RetryInfo`, «retry in 28s»). Quien
+        // llama decide si esperar ese hueco o aparcar.
+        try {
+          const ri = (JSON.parse(cuerpo).error?.details ?? []).find(x => /RetryInfo/.test(x['@type'] ?? ''));
+          const s = parseFloat(String(ri?.retryDelay ?? ''));
+          if (Number.isFinite(s)) e.retryMs = Math.ceil(s * 1000);
+        } catch { /* sin pista, se aparca */ }
+        throw e;
+      }
       const espera = [5000, 20000, 60000, 60000];
       if ((r.status === 503 || r.status === 429) && intento < espera.length) {
         console.log(`  gemini ${r.status} — reintento en ${espera[intento] / 1000} s`);
@@ -224,13 +235,13 @@ function kimiCrudo(cuerpo) {
 // precios son los que ya usa la cascada de traducción, para no tener dos
 // verdades sobre lo mismo.
 const CASAS = {
-  kimi:  { host: 'api.moonshot.ai', path: '/v1/chat/completions', env: 'MOONSHOT_API_KEY',
-           precio: (u) => ((u.total_tokens ?? 0) / 1e6) * 2.2, casa: 'moonshot' },
-  grok:  { host: 'api.x.ai',        path: '/v1/chat/completions', env: 'XAI_API_KEY',
-           precio: (u) => ((u.prompt_tokens ?? 0) / 1e6) * 0.20 + ((u.completion_tokens ?? 0) / 1e6) * 0.50,
-           casa: 'xai' },
+  kimi:     { host: 'api.moonshot.ai', path: '/v1/chat/completions', env: 'MOONSHOT_API_KEY', casa: 'moonshot' },
+  grok:     { host: 'api.x.ai',        path: '/v1/chat/completions', env: 'XAI_API_KEY',      casa: 'xai' },
+  deepseek: { host: 'api.deepseek.com', path: '/chat/completions',   env: 'DEEPSEEK_API_KEY', casa: 'deepseek' },
 };
-const CASA = CASAS[MODELO_KIMI.startsWith('grok') ? 'grok' : 'kimi'];
+const CASA = { ...CASAS[MODELO_KIMI.startsWith('grok') ? 'grok'
+                       : MODELO_KIMI.startsWith('deepseek') ? 'deepseek' : 'kimi'],
+               precio: (u) => precioChat(MODELO_KIMI, u) };
 const CLAVE_ESCRITOR = process.env[CASA.env] || '';
 if (!CLAVE_ESCRITOR) { console.error(`Falta ${CASA.env} para escribir con ${MODELO_KIMI}`); process.exit(1); }
 
@@ -403,23 +414,87 @@ async function morir(msg) {
   process.exit(1);
 }
 
+// ── El audio de un episodio, a Gemini ───────────────────────────────────
+//
+// Gemini solo abre por URL los vídeos de YouTube; un MP3 hay que subírselo por
+// la File API (subida reanudable) y esperar a que lo procese. El archivo vive
+// 48 h en Google y no cuenta contra el cupo de peticiones — la digestión sí.
+async function subirAudio(url) {
+  const r = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(180_000) });
+  if (!r.ok) await morir(`El audio del episodio no se pudo bajar (${r.status}).`);
+  const buf = Buffer.from(await r.arrayBuffer());
+  const mime = (r.headers.get('content-type') || '').split(';')[0].trim();
+  const tipo = /^audio\//.test(mime) ? mime : 'audio/mpeg';
+  console.log(`  audio: ${(buf.length / 1e6).toFixed(1)} MB (${tipo})`);
+  const ini = await fetch('https://generativelanguage.googleapis.com/upload/v1beta/files', {
+    method: 'POST',
+    headers: { 'x-goog-api-key': GEMINI, 'X-Goog-Upload-Protocol': 'resumable',
+               'X-Goog-Upload-Command': 'start', 'X-Goog-Upload-Header-Content-Length': String(buf.length),
+               'X-Goog-Upload-Header-Content-Type': tipo, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ file: { display_name: `glossa-${ITEM}` } }),
+  });
+  const destino = ini.headers.get('x-goog-upload-url');
+  if (!ini.ok || !destino) await morir(`Gemini no aceptó la subida del audio (${ini.status}).`);
+  const sub = await fetch(destino, {
+    method: 'POST',
+    headers: { 'X-Goog-Upload-Command': 'upload, finalize', 'X-Goog-Upload-Offset': '0',
+               'Content-Length': String(buf.length) },
+    body: buf,
+  });
+  let f = (await sub.json().catch(() => ({}))).file;
+  if (!f?.uri) await morir(`La subida del audio no devolvió archivo (${sub.status}).`);
+  // Hasta que Google lo procesa, el archivo está PROCESSING y usarlo da 400.
+  for (let i = 0; f.state === 'PROCESSING' && i < 60; i++) {
+    await new Promise(x => setTimeout(x, 5000));
+    f = await (await fetch(`https://generativelanguage.googleapis.com/v1beta/${f.name}`,
+                           { headers: { 'x-goog-api-key': GEMINI } })).json();
+  }
+  if (f.state !== 'ACTIVE') await morir(`Gemini no terminó de procesar el audio (${f.state}).`);
+  return { fileData: { mimeType: f.mimeType || tipo, fileUri: f.uri } };
+}
+
 // ── 2 · Digerir, si el radar no llegó antes ──────────────────────────────
 let digest = item.digest;
 if (!digest || item.state !== 'digested') {
   if (!quedaGemini()) await morir('Sin cuota de Gemini para digerir. Se reintenta mañana.');
-  const esTexto = !!item.body_text;
   const esYoutube = /(?:youtube\.com|youtu\.be)\//.test(String(item.url));
-  if (!esTexto && !esYoutube) await morir('El elemento no trae texto y no es YouTube: no hay nada que leer.');
-  console.log(`Digiriendo (${esTexto ? 'texto' : 'video'})…`);
+  // El audio del episodio, cuando el alta no encontró ni texto ni vídeo (lo
+  // deja `glossa-admin` en `note` como «audio: <url>»).
+  const audio = /^audio:\s*(\S+)/.exec(String(item.note ?? ''))?.[1] ?? null;
+  // Un escaparate de pódcast con cuatro líneas de notas no es el episodio. N° 50
+  // se escribió así: 579 caracteres de biografía y todo lo demás lo puso el
+  // modelo a partir del título. Sin audio ni vídeo, esto no se escribe.
+  const escaparate = /(?:podcasts|music)\.apple\.com|open\.spotify\.com/.test(String(item.url));
+  if (escaparate && !audio && String(item.body_text ?? '').length < 2500)
+    await morir('Solo hay las notas del episodio, no el episodio: sin audio ni vídeo que escuchar, ' +
+                'la pieza se escribiría a partir del título. Pega la transcripción o el enlace de YouTube.');
+  const esTexto = !!item.body_text && !audio;
+  if (!esTexto && !esYoutube && !audio) await morir('El elemento no trae texto y no es YouTube: no hay nada que leer.');
+  console.log(`Digiriendo (${audio ? 'audio' : esTexto ? 'texto' : 'video'})…`);
   await avance(12, esTexto ? 'reading the source' : 'listening to the source');
-  const parte = esTexto
+  const parte = audio ? await subirAudio(audio)
+    : esTexto
     ? { text: `CONTENIDO:\n${String(item.body_text).slice(0, 200_000)}` }
     : { fileData: { fileUri: uriDeVideo(item.url) }, videoMetadata: { fps: 0.1 } };
-  try {
-    digest = await gemini([{ text: promptDigestPieza(item, esTexto) }, parte], 8192);
-  } catch (e) {
-    if (e.cupoDiario) await aparcar('waiting for the daily Gemini quota (resets at midnight Pacific)');
-    throw e;
+  // Con el cupo diario agotado, Google devuelve huecos a goteo (uno cada pocos
+  // minutos) y el radar, que corre cada cuarto de hora, compite por ellos. La
+  // pieza aparcaba cinco minutos y volvía cuando el hueco ya se lo había llevado
+  // otro: N° 50 pasó así 29 minutos. Ahora espera el hueco que Google anuncia,
+  // latiendo para no perder el turno, y solo aparca si en quince minutos no
+  // llega ninguno.
+  const tope = Date.now() + 15 * 60_000;
+  for (;;) {
+    try {
+      digest = await gemini([{ text: promptDigestPieza(item, esTexto) }, parte], 8192);
+      break;
+    } catch (e) {
+      if (!e.cupoDiario) throw e;
+      if (!e.retryMs || e.retryMs > 180_000 || Date.now() + e.retryMs > tope)
+        await aparcar('waiting for the daily Gemini quota (resets at midnight Pacific)');
+      console.log(`  gemini: cupo diario lleno; Google da hueco en ${Math.round(e.retryMs / 1000)} s — se espera`);
+      await avance(12, 'waiting for a free Gemini slot (daily quota nearly spent)');
+      await new Promise(x => setTimeout(x, e.retryMs + 2000));
+    }
   }
   if (digest.skip) await morir('La fuente no tiene contenido analizable.');
   if (!SECO) await sb(`glossa_radar_items?id=eq.${item.id}`, {
@@ -655,7 +730,11 @@ let edicion = await edicionValidada(promptPiezaES(en, glosasEN), comprobarES, {
     await apuntar(URL_SB, KEY, casa, llamadas, tok, coste);
     apuntarLocal(gasto, casa, llamadas);
   },
-  conRevisor: () => quedaKimi(),
+  // Haiku, como el semanal (2026-08-31). Con Kimi el dictamen de N° 50 llegó
+  // «ilegible» tras cinco minutos: el mismo filtro de contenido de Moonshot con
+  // material geopolítico, y la misma pérdida de tiempo para nada.
+  conRevisor: () => !!process.env.ANTHROPIC_API_KEY,
+  casaRevisor: 'anthropic',
 });
 if (!edicion) {
   // El último recurso histórico —que traduzca el propio Kimi— se conserva,

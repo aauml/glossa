@@ -218,3 +218,28 @@ export async function otrosGastos(sb) {
   // Cuando haya semanas, habrá media; hasta entonces, lo que hay.
   return dias >= 7 ? Math.round((otros / dias) * 7) : otros;
 }
+
+// ── Precio de una llamada de chat ──────────────────────────────────────────
+// Dólares por millón de tokens: entrada, entrada en caché y salida. Una tabla
+// y no una cifra por guion: el semanal apuntaba Kimi K3 a 0,60/2,50 y la pieza
+// a 2,2 plano, cuando K3 cuesta 3/15 (septiembre 2026, platform.kimi.ai) — el
+// tope mensual medía un gasto cinco veces menor que el real. Si Moonshot o
+// DeepSeek cambian precios, se cambia AQUÍ y en ningún otro sitio.
+// DeepSeek cobra el doble en hora punta (01-04 y 06-10 UTC, laborables): se
+// apunta el precio de punta, que es el que no sorprende.
+export const PRECIOS = {
+  'kimi-k3':                      { in: 3.00, cache: 0.30,  out: 15.00 },
+  'kimi-k2.6':                    { in: 0.95, cache: 0.16,  out: 4.00 },
+  'deepseek-v4-pro':              { in: 1.32, cache: 0.044, out: 3.96 },
+  'deepseek-v4-flash':            { in: 0.30, cache: 0.006, out: 1.20 },
+  'grok-4.20-0309-non-reasoning': { in: 0.20, cache: 0.20,  out: 0.50 },
+};
+
+/** Coste en dólares de una respuesta con `usage` al estilo OpenAI. */
+export function precioChat(modelo, u = {}) {
+  const p = PRECIOS[modelo] ?? PRECIOS['kimi-k3'];   // desconocido: se apunta caro
+  const cache = u.cached_tokens ?? u.prompt_tokens_details?.cached_tokens
+              ?? u.prompt_cache_hit_tokens ?? 0;
+  const entrada = Math.max(0, (u.prompt_tokens ?? 0) - cache);
+  return (entrada * p.in + cache * p.cache + (u.completion_tokens ?? 0) * p.out) / 1e6;
+}

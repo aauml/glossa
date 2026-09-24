@@ -24,6 +24,7 @@
 //      REVISOR_DRY=1 (imprime el prompt del revisor y simula «publica»).
 
 import { request as httpsRequest } from 'node:https';
+import { precioChat } from '../src/lib/presupuesto.js';
 
 // La cascada, por orden de DESPERDICIO medido (ver traducir_from_supabase.mjs):
 // un modelo de razonamiento traduciendo es dinero quemado en pensar.
@@ -232,7 +233,7 @@ export async function revisorKimi(es, en, { log = console.log, casa = 'moonshot'
     catch { log('  revisor: dictamen ilegible — se salta'); return null; }
     return { veredicto: dictamen.veredicto === 'corrige' ? 'corrige' : 'publica',
              fallos: Array.isArray(dictamen.fallos) ? dictamen.fallos.slice(0, 12) : [],
-             tok: u.total_tokens ?? 0, coste: ((u.total_tokens ?? 0) / 1e6) * 2.2, casa: 'moonshot' };
+             tok: u.total_tokens ?? 0, coste: precioChat(MODELO_REVISOR, u), casa: 'moonshot' };
   }
 }
 
@@ -295,7 +296,7 @@ const dichoRevisor = (fallos) =>
  * @param opts       { en:            el original, para el revisor
  *                     apuntar:       async (casa, llamadas, tok, coste) — contabilidad
  *                     conRevisor:    () => bool — hay saldo y ganas (default true)
- *                     casaRevisor:   'moonshot' (piezas) | 'anthropic' (semanal)
+ *                     casaRevisor:   'anthropic' (piezas y semanal); 'moonshot' queda como opción
  *                     log }
  * @returns { es, veredicto: {deterministico, revisor, intentos}, gastado }
  *          o null si toda la cascada agotó sus intentos.

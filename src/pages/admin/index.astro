@@ -625,14 +625,18 @@ ${t.canales} channels · ${t.elementos} items · last ${esc(String(t.ultimo || '
     const porSector = {};
     for (const t of d.temas) (porSector[t.sector || 'Not sorted yet'] ||= []).push(t);
 
-    // Dentro de cada sector: primero lo elegido, y el resto de lo más reciente a
-    // lo más antiguo. Lo que se mira es lo que acaba de moverse.
+    // Dentro de cada sector funciona como una cola: lo elegido (azul) arriba y
+    // siempre; el resto por orden de llegada, lo más reciente primero, y como
+    // mucho CIEN. Lo que entra empuja fuera lo más viejo — sale de la lista, no
+    // de la base: el clasificador lo sigue usando y, si vuelve a aparecer,
+    // vuelve arriba. Lo nuevo sin leer se distingue en negrita, no por el orden
+    // (Arturo, 2026-09-24).
+    const TOPE_SECTOR = 100;
     for (const k of Object.keys(porSector)) {
-      porSector[k].sort((a, b) =>
-        // 1º lo elegido, 2º lo nuevo sin leer, 3º lo demás por fecha.
-        (b.fijo ? 1 : 0) - (a.fijo ? 1 : 0) ||
-        (recien(b.creado) ? 1 : 0) - (recien(a.creado) ? 1 : 0) ||
-        String(b.ultimo || '').localeCompare(String(a.ultimo || '')));
+      const porFecha = (a, b) => String(b.ultimo || '').localeCompare(String(a.ultimo || ''));
+      const elegidos = porSector[k].filter(t => t.fijo).sort(porFecha);
+      const resto = porSector[k].filter(t => !t.fijo).sort(porFecha).slice(0, TOPE_SECTOR);
+      porSector[k] = [...elegidos, ...resto];
     }
 
     const POR_SECTOR = 12;

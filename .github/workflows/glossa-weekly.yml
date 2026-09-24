@@ -56,6 +56,7 @@ env:
   SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
   SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
   MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+  DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
   # El deploy hook de Vercel: al auto-publicar, un rebuild mete el número en
   # el sitemap (el RSS ya se sirve en vivo). Sin él, el guion lo dice y sigue.
   VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}

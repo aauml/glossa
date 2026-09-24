@@ -10,7 +10,7 @@
 // token, no un JWT de Supabase.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { CORS, requireToken } from '../_shared/auth.ts';
-import { idDeCanal } from '../_shared/feeds.ts';
+import { idDeCanal, buscarEnYouTube } from '../_shared/feeds.ts';
 
 const sb = () => createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -96,6 +96,9 @@ async function mejorFeed(feedUrl: string) {
     return null;
   } catch { return null; }
 }
+
+/** Menos que esto son notas de episodio, no el episodio: se busca el audio. */
+const NOTAS_SUFICIENTES = 2500;
 
 async function resolverEpisodioApple(url: string) {
   const ep = /[?&]i=(\d{5,})/.exec(url)?.[1];
@@ -337,6 +340,10 @@ type Resuelto = {
   feed_url?: string;
   url?: string;
   body_text?: string;
+  /** Procedencia real cuando se leyó otra superficie del mismo episodio. */
+  nota?: string;
+  /** Audio del episodio para que la pieza lo escuche cuando no hay texto. */
+  audio?: string;
   alternativas?: { as: string; kind?: string; label: string; feed_url?: string; name?: string }[];
   aviso?: string;
   saludable?: boolean;
@@ -894,6 +901,36 @@ async function clasificar(texto: string): Promise<Resuelto> {
       // Con `?i=` es UN episodio: se ofrece como elemento —con la pieza suelta
       // delante— y seguir el programa entero queda como alternativa.
       const uno = /[?&]i=\d{5,}/.test(t) ? await resolverEpisodioApple(t) : null;
+      // Las notas de Apple casi nunca son el episodio: N° 50 se escribió con 579
+      // caracteres de biografía y enlaces a Patreon, y todo lo demás lo puso el
+      // modelo a partir del título. Con notas cortas se sube la escalera antes
+      // de encolar nada: el mismo episodio en YouTube (Gemini lo escucha, y la
+      // guarda de `buscarEnYouTube` exige que el canal sea el programa) y, si no
+      // está, el audio del propio episodio.
+      if (uno && uno.texto.length < NOTAS_SUFICIENTES) {
+        const key = Deno.env.get('GLOSSA_YOUTUBE_KEY');
+        const video = key ? await buscarEnYouTube(uno.titulo, uno.programa, key) : null;
+        if (video?.videoId) {
+          return {
+            as: 'elemento', url: `https://www.youtube.com/watch?v=${video.videoId}`, name: uno.titulo,
+            nota: `episodio de Apple Podcasts (${uno.pagina}); se escucha en YouTube: «${video.titulo.slice(0, 80)}» (${video.canal})`,
+            label: `one episode of ${uno.programa} · heard on its YouTube channel (${video.canal})`,
+            vista: [`“${uno.titulo.slice(0, 90)}”`,
+                    'Apple only has short notes; the same episode is on the show’s YouTube channel, which gets listened to in full'],
+            alternativas: [SOLO_PIEZA, { as: 'fuente', kind: 'podcast', label: `follow ${uno.programa}` }],
+          };
+        }
+        if (uno.audio) {
+          return {
+            as: 'elemento', url: uno.pagina, name: uno.titulo,
+            body_text: uno.texto || undefined, audio: uno.audio,
+            label: `one episode of ${uno.programa} · the audio gets listened to`,
+            vista: [`“${uno.titulo.slice(0, 90)}”`,
+                    'Apple only has short notes, so the episode audio itself is what gets heard'],
+            alternativas: [SOLO_PIEZA, { as: 'fuente', kind: 'podcast', label: `follow ${uno.programa}` }],
+          };
+        }
+      }
       if (uno) {
         const hayTexto = uno.texto.length >= 400;
         return {
@@ -1381,6 +1418,9 @@ Deno.serve(async (req) => {
           title: (titulo || cuerpo || '').slice(0, 300) || '(sin título)',
           author: autor,
           body_text: cuerpo,
+          // De dónde salió de verdad (Apple → YouTube) o qué audio escuchar. El
+          // guion de la pieza lee `audio:` de aquí; el radar lo ignora.
+          note: r.audio ? `audio: ${r.audio}` : (r.nota ?? null),
           published_at: new Date().toISOString(),
           state: 'pending',
         }).select('id,title').single();
@@ -1515,23 +1555,41 @@ Deno.serve(async (req) => {
         if (error) throw error;
         // El sector vive en la tabla, no en el RPC: se pega aquí para no tocar
         // una función que ya usan otros.
-        const { data: sec } = await db.from('glossa_radar_topics').select('id,sector');
-        const porId = new Map((sec ?? []).map((x: { id: string; sector: string }) => [x.id, x.sector]));
+        //
+        // Solo los de la lista y por lotes. Antes se pedía la tabla ENTERA sin
+        // paginar: PostgREST corta en mil filas, había 1.463 temas, y los que
+        // no cabían caían en «Other» por el `?? 'Other'` de abajo — 383 temas
+        // falsos en Other contra 21 de verdad.
+        const ids = (data ?? []).map((t: Record<string, unknown>) => String(t.topic_id));
+        const porId = new Map<string, string | null>();
+        for (let i = 0; i < ids.length; i += 300) {
+          const { data: sec, error: eS } = await db.from('glossa_radar_topics')
+            .select('id,sector').in('id', ids.slice(i, i + 300));
+          if (eS) throw eS;
+          for (const x of sec ?? []) porId.set(x.id, x.sector);
+        }
+        // Sin sector todavía NO es «Other»: el panel lo pinta como «Not sorted yet».
         return ok({ temas: (data ?? []).map((t: Record<string, unknown>) =>
-          ({ ...t, sector: porId.get(String(t.topic_id)) ?? 'Other' })) });
+          ({ ...t, sector: porId.get(String(t.topic_id)) ?? null })) });
       }
 
       // Los departamentos del número: cuáles existen y qué te interesa de cada
       // uno. Sustituyen a fijar temas sueltos — un sector no cambia solo, y la
       // lista de temas sí.
       case 'secciones.list': {
-        const [{ data: secs, error }, { data: temas }] = await Promise.all([
-          db.from('glossa_radar_secciones').select('*').order('orden'),
-          db.from('glossa_radar_topics').select('sector').is('merged_into', null),
-        ]);
+        const { data: secs, error } = await db.from('glossa_radar_secciones').select('*').order('orden');
         if (error) throw error;
+        // Paginado: con más de mil temas, una sola consulta contaba solo mil.
+        const temas: { sector: string | null }[] = [];
+        for (let desde = 0; ; desde += 1000) {
+          const { data: trozo, error: eT } = await db.from('glossa_radar_topics')
+            .select('sector').is('merged_into', null).order('id').range(desde, desde + 999);
+          if (eT) throw eT;
+          temas.push(...(trozo ?? []));
+          if ((trozo ?? []).length < 1000) break;
+        }
         const cuenta: Record<string, number> = {};
-        for (const t of temas ?? []) cuenta[t.sector ?? 'Other'] = (cuenta[t.sector ?? 'Other'] ?? 0) + 1;
+        for (const t of temas) cuenta[t.sector ?? 'Other'] = (cuenta[t.sector ?? 'Other'] ?? 0) + 1;
         return ok({ secciones: (secs ?? []).map(s => ({ ...s, temas: cuenta[s.sector] ?? 0 })) });
       }
 
