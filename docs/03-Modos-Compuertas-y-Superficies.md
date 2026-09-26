@@ -16,6 +16,8 @@ La semilla no siempre es una tesis previa; es **la intención humana**, y su pos
 - **Multimedia:** YouTube y pódcast entran por un paso de **ingesta** (transcripción) antes del digest. Al router le da igual un URL, un PDF, un *paste* o un vídeo.
 - **Vigilancia** es la puerta especial: la inicia la máquina, no yo. Radares permanentes (nuevos informes GAO, *Federal Register* sobre IA, demandas que citen un sistema, papers nuevos) que, al detectar algo, mandan un digest: "¿lo convertimos en lectura?". Se implementa con **tareas programadas**.
 
+- **Dialéctica** (definida el 26-sep-2026, coherente con D-042): dos posiciones **reales**, cada una con autor y pasaje citado. La pieza conserva una sola voz editorial: ordena y contrasta, no escenifica un debate ni inventa una segunda perspectiva. Expone cada posición en su versión más fuerte y honesta, señala en qué afirmación divergen y con qué evidencia, y cierra diciendo qué la decidiría o por qué sigue abierta. Requisitos: ambas fuentes `primary` y verificadas en el sidecar; cada posición atribuida y citada al menos una vez; sin equilibrio fabricado. Si una posición no tiene autor real, no es dialéctica: entra como *fuente* o *pregunta*.
+
 Lo invariante en todos los modos: entra una intención humana fechada y hay una compuerta antes de escribir. Lo único que cambia es por dónde empieza a correr el agua.
 
 ## Compuertas (supervisión humana)

@@ -160,6 +160,15 @@ The intake modes above (A/B) decide *how to research*. The **entry mode** decide
 | **vigilancia** | nothing — surveillance pinged | after a digest |
 | **dialectica** | two sources in tension | after a digest |
 
+**What *dialectica* means (decided 2026-09-26, consistent with D-042).** Two real positions, each held by a named author and anchored to a real passage. The piece keeps **one** editorial voice: it does not stage a debate and never invents a second perspective (D-042: several "experts" that are the same model are fabricated plurality). Its job is to state each position in its strongest honest form, show exactly where they diverge — the disputed claim, the evidence each relies on — and say what would settle it. Before publishing:
+
+1. Both sources are in the sidecar with `role: primary` and `verified: si`.
+2. Each position is attributed ("X argues…") and quoted or precisely paraphrased with a page or section pointer at least once.
+3. A closing section names the point of disagreement and what evidence would decide it, or why it stays open.
+4. No manufactured balance: if one position is better supported, say so and why.
+
+If a position has no real author behind it, it is not *dialectica*: use *fuente* or *pregunta*.
+
 **The supervision is the conversation, not a separate approval stop.** Arturo's directive (2026-06-30): *do not* build a draft and then present the EN/ES files asking him to review and approve. By the time he says "publícalo" / "hazme el artículo" / invokes the glossa skill to create, he has **already had the conversation** — the framing and the massaging happened there. So:
 
 - **While the conversation is open** (he's pasting a source, asking, discussing, refining the angle): research KB-first, surface findings, discuss. This *is* the framing/review — pull more sources as needed, ping-pong. Do **not** write the seed or publish yet.
