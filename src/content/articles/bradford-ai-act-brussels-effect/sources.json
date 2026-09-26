@@ -1,0 +1,107 @@
+{
+  "meta": {
+    "historical_registry": {
+      "signature": "pending",
+      "registered_on": "2026-09-08",
+      "original_hashes": {
+        "en": "f12e017aa90ce88d05107e895c9cc920a243ae81e5a34941a3aa4a3e997aa8ca",
+        "es": "fd92867bc34a0fd1a32a420f427ecdbb3f5aabf6a08f960d97cf793e287f9b9e"
+      },
+      "model_provenance": "not_asserted"
+    },
+    "omb_corpus_reconciliation": {
+      "date": "2026-09-10",
+      "scope": "Solo identidad y disponibilidad; verificación parcial conservada.",
+      "document_id": "29ca4b1d-c98d-4b43-8490-d665ea36a9c2",
+      "previous_status": "no_document_linked"
+    }
+  },
+  "slug": "bradford-ai-act-brussels-effect",
+  "issue": "N° 26",
+  "sources": [
+    {
+      "url": "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-2",
+      "role": "support",
+      "scope": "Original Act provision as displayed; no claim of updated consolidated law.",
+      "title": "RIA original de 2024 — artículo 2: ámbito de aplicación",
+      "scholar": "Norma",
+      "respalda": "Alcance territorial y exclusiones del texto original. La página advierte que no incorpora reformas posteriores.",
+      "verificada": "parcial"
+    },
+    {
+      "url": "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-53",
+      "role": "support",
+      "scope": "Original Act provision as displayed; no claim of updated consolidated law.",
+      "title": "RIA original de 2024 — artículo 53: proveedores de modelos de propósito general",
+      "scholar": "Norma",
+      "respalda": "Obligaciones GPAI del texto original, distintas de las adicionales para riesgo sistémico. No se certifica el derecho consolidado actual.",
+      "verificada": "parcial"
+    },
+    {
+      "url": "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-101",
+      "role": "support",
+      "scope": "Original Act provision as displayed; no claim of updated consolidated law.",
+      "title": "RIA original de 2024 — artículo 101: multas a proveedores GPAI",
+      "scholar": "Norma",
+      "respalda": "Techo sancionador para determinadas infracciones en el texto original; no demuestra aplicación efectiva de sanciones.",
+      "verificada": "parcial"
+    },
+    {
+      "url": "https://www.whitehouse.gov/wp-content/uploads/2025/02/M-25-21-Accelerating-Federal-Use-of-AI-through-Innovation-Governance-and-Public-Trust.pdf",
+      "role": "support",
+      "kb_pk": "727d6d43-d676-47df-b6bb-70c85d674e61",
+      "scope": "Memo dated3-Apr-2025, pp1–5: agency duties, scope and exclusions. Not later-policy audit.",
+      "title": "OMB M-25-21 — uso federal de IA, 3 de abril de 2025",
+      "scholar": "Memorando oficial",
+      "respalda": "Páginas 1–5: obligaciones de agencias comprendidas, alcance y exclusiones. Cotejo previo del PDF oficial; corpus oficial asociado con 40 pasajes y vectores. No amplía la comprobación de las afirmaciones del borrador.",
+      "verificada": "parcial",
+      "document_id": "29ca4b1d-c98d-4b43-8490-d665ea36a9c2",
+      "corpus_status": "ingested"
+    },
+    {
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
+      "role": "support",
+      "kb_pk": "e0df9c27-3f53-4550-a49f-a62b9de6e687",
+      "scope": "AI RMF1.0 official description: voluntary framework.",
+      "title": "NIST — Artificial Intelligence Risk Management Framework 1.0",
+      "scholar": "Marco técnico",
+      "respalda": "La descripción oficial identifica el marco como voluntario. Eso no convierte en voluntarias todas las obligaciones de una agencia federal.",
+      "verificada": "parcial",
+      "document_id": "a6c8dd52-58d4-4f5a-af31-07304b21955d",
+      "corpus_status": "ingested"
+    },
+    {
+      "url": "https://scholarship.law.columbia.edu/faculty_scholarship/271/",
+      "role": "primary",
+      "kb_pk": "26fe1c27-2ac7-4efe-8e0e-a8d0a0c0b67c",
+      "scope": "2012 article pp5,12,17–18,25,28,34 read in corpus chunks8,22,32,34,48,54,66. Market/global adoption distinction and three forms of nondivisibility; no empirical evidence of AI-version costs. Publisher catalogue checked; web PDF returned403.",
+      "title": "Anu Bradford — The Brussels Effect (2012)",
+      "scholar": "Doctrina",
+      "respalda": "Páginas 5, 12 y 17–18: condiciones, acceso al mercado y no divisibilidad. Los pasajes leídos no prueban costos ni adopción global de sistemas de IA.",
+      "verificada": "parcial",
+      "document_id": "771b5d49-b360-47ad-9690-96e6f9144a3a",
+      "corpus_status": "ingested"
+    },
+    {
+      "url": "https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-6",
+      "role": "support",
+      "scope": "Original displayed text paragraphs1–4: product AnnexI route distinct from AnnexIII with qualifications. Service Desk explicitly warns amendments are not incorporated; not current consolidation.",
+      "title": "RIA original de 2024 — artículo 6: clasificación de alto riesgo",
+      "scholar": "Norma",
+      "respalda": "Apartados 1–4: vía de productos del Anexo I y usos del Anexo III, con condiciones. No se certifica la consolidación posterior.",
+      "verificada": "parcial"
+    },
+    {
+      "url": "https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/",
+      "role": "support",
+      "kb_pk": "d8052d5e-2c2f-4002-8eec-d85d703f8404",
+      "scope": "Council announcement May7,2026 (updated May18): provisional agreement and further formal adoption steps. Does not establish later law in force.",
+      "title": "Consejo de la UE — acuerdo provisional sobre IA, 7 de mayo de 2026",
+      "scholar": "Comunicado institucional",
+      "respalda": "Anuncio de un acuerdo provisional con pasos formales pendientes. No prueba por sí solo una reforma adoptada ni su entrada en vigor.",
+      "verificada": "parcial",
+      "document_id": "49b228e9-acad-4b11-a681-215968df0c7e",
+      "corpus_status": "ingested"
+    }
+  ]
+}
