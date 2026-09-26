@@ -9,8 +9,67 @@
       "como": "Fuente ancla — pegada por Arturo en el panel (pieza suelta)",
       "role": "primary",
       "tipo": "video",
-      "claim_en": "The lecture argues that the challenge of evaluating AI models on long-horizon, economically valuable tasks requires shifting from simple metrics to multi-dimensional benchmarks that capture capability, reliability, and human-like context acquisition.",
-      "claim_es": "La conferencia sostiene que el reto de evaluar modelos de IA en tareas de largo alcance y valor económico exige abandonar las métricas simples en favor de benchmarks multidimensionales que capten la capacidad, la fiabilidad y la adquisición de contexto humano.",
+      "claim_en": "Stanford Online identifies Aakanksha Chowdhery and the lecture date of November 17, 2025. The piece uses the lecture as a starting point only; unverified quotations were removed and no lecture claim is attributed beyond that.",
+      "claim_es": "Stanford Online identifica a Aakanksha Chowdhery y fecha la clase el 17 de noviembre de 2025. La pieza la usa solo como punto de partida; se retiraron las citas no verificadas y no se le atribuye nada más.",
+      "verificada": "parcial"
+    },
+    {
+      "id": "src-02",
+      "ref": "metr.org",
+      "url": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/",
+      "role": "support",
+      "tipo": "web",
+      "claim_en": "Historical 50%-success task horizon; human duration is the reference. Pullquote warning concerns extrapolation/model uncertainty, not an agent error rate.",
+      "claim_es": "Horizonte histórico con 50% de éxito; tiempo humano como referencia. La cita destacada advierte de incertidumbre de la predicción, no de una tasa de error de agentes.",
+      "verificada": "si",
+      "kb_pk": "b5d75784-e777-4991-8093-25142c453b1f",
+      "kb_status": "corpus_verified",
+      "kb_document_id": "3a952590-a637-4969-922b-b1e6e5a6993f"
+    },
+    {
+      "id": "src-03",
+      "ref": "metr.org",
+      "url": "https://metr.org/",
+      "role": "support",
+      "tipo": "web",
+      "claim_en": "METR organization name.",
+      "claim_es": "Nombre de la organización METR.",
+      "verificada": "si"
+    },
+    {
+      "id": "src-04",
+      "ref": "arxiv.org",
+      "url": "https://arxiv.org/html/2508.20033v1",
+      "role": "support",
+      "tipo": "paper",
+      "claim_en": "Version 1 (27 Aug 2025), Table 2: separate metric scores, none above 0.19 on all; not a report pass rate. Version 2 (9 Feb 2026) reports different figures.",
+      "claim_es": "Versión 1 (27-ago-2025), tabla 2: métricas separadas, ninguna por encima de 0,19 en todas; no es una tasa de informes aprobados. La versión 2 (9-feb-2026) da otras cifras.",
+      "verificada": "si",
+      "kb_pk": "8be339e7-43a8-4a0e-b993-13f2935f3f7b",
+      "kb_status": "archived_outside_thesis_focus",
+      "kb_document_id": null
+    },
+    {
+      "id": "src-05",
+      "ref": "arxiv.org",
+      "url": "https://arxiv.org/html/2510.04374v1",
+      "role": "support",
+      "tipo": "paper",
+      "claim_en": "Appendix A.2.7: GPT-5, shorter prompts, earlier gold subset.",
+      "claim_es": "Apéndice A.2.7: GPT-5, instrucciones más cortas y subconjunto anterior.",
+      "verificada": "si",
+      "kb_pk": "30fd19db-4a40-48ff-a2d5-88b8b671f03f",
+      "kb_status": "archived_outside_thesis_focus",
+      "kb_document_id": null
+    },
+    {
+      "id": "src-06",
+      "ref": "O*NET Resource Center",
+      "url": "https://www.onetcenter.org/overview.html",
+      "role": "support",
+      "tipo": "web",
+      "claim_en": "US occupational information and Department of Labor sponsorship.",
+      "claim_es": "Información ocupacional estadounidense y patrocinio del Departamento de Trabajo.",
       "verificada": "si"
     }
   ]
