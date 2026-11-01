@@ -82,13 +82,13 @@ try {
       console.log('publication already done; retry has no side effects');
       process.exit(0);
     }
-    if (!row.slug || !row.body_en) throw new Error('row missing slug or body_en');
+    if (!row.slug || !(row.body_en?.trim() || row.body_es?.trim())) throw new Error('row missing slug or article body');
     if (!SLUG_RE.test(row.slug)) throw new Error(`slug inválido (esperado [a-z0-9-], 2-80): ${JSON.stringify(row.slug).slice(0, 120)}`);
     if (row.issue_no && !ISSUE_NO_RE.test(row.issue_no)) throw new Error(`issue_no inválido (esperado "N° 33"): ${JSON.stringify(row.issue_no).slice(0, 120)}`);
 
     await patch(id, { state: 'building' });
     const dir = `src/content/articles/${row.slug}`;
-    await write(`${dir}/en.mdx`, row.body_en);
+    if (row.body_en) await write(`${dir}/en.mdx`, row.body_en);
     if (row.body_es) await write(`${dir}/es.mdx`, row.body_es);
     if (row.sources_json) await write(`${dir}/sources.json`, JSON.stringify(row.sources_json, null, 2) + '\n');
     await out('slug', row.slug);
@@ -98,7 +98,7 @@ try {
   } else if (cmd === 'finalize') {
     const row = await getRow(id);
     const base = `${SITE}/articles/${row.slug}`;
-    const url_en = `${base}/en/`;
+    const url_en = row.body_en ? `${base}/en/` : null;
     const url_es = row.body_es ? `${base}/es/` : null;
     // `model` solo se toca si el workflow lo declara: mandar null borraría el
     // valor que hubiera escrito la superficie que redactó la pieza.
@@ -107,7 +107,7 @@ try {
     await patchIssue(row.issue_id, issuePatch);
     // The receipt becomes done only after the issue write is confirmed.
     await patch(id, { state: 'done', commit_sha: arg || null, url_en, url_es, done_at: new Date().toISOString() });
-    console.log(`done ${url_en}`);
+    console.log(`done ${url_es || url_en}`);
   } else if (cmd === 'fail') {
     await patch(id, { state: 'error', error: (arg || 'workflow failed').slice(0, 2000), done_at: new Date().toISOString() }, '&state=neq.done');
     console.log('marked error unless already done');
