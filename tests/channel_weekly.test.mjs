@@ -20,7 +20,7 @@ test('identificadores cortos se restauran sin omitir videos', () => {
   const b = valid(); b.sections[0].item_ids = ['v1', 'v2'];
   assert.deepEqual(restoreIds(b, idMap).sections[0].item_ids, ['video-1', 'video-2']);
   b.sections[0].item_ids = ['v1'];
-  assert.throws(() => restoreIds(b, idMap), /faltan videos/);
+  assert.throws(() => restoreIds(b, idMap), /falta 1 video/);
 });
 
 test('un texto truncado o con cita directa no pasa a publicado', () => {
@@ -43,23 +43,30 @@ test('la estimación crece con el material y usa el modelo elegido', () => {
     input_tokens_details: { cached_tokens: 2000 } }), 0.00282);
 });
 
-test('un corte usa solo los videos fijados al pulsar, aunque haya otro digest', async () => {
+test('un corte integra referencias omitidas y cobra ambas llamadas sin incluir otros digests', async () => {
   const original = globalThis.fetch;
   const calls = [];
   const videos = ['video-1', 'video-2', 'video-3'].map(id => ({ id, title: id,
     url: `https://youtube.com/watch?v=${id}`, published_at: '2026-10-30T12:00:00Z',
     lang: 'es', digest: { thesis: `Análisis de ${id}` } }));
   const output = valid();
-  output.sections[0].item_ids = ['v1', 'v2'];
+  output.sections[0].item_ids = ['v1'];
+  let modelCalls = 0;
   globalThis.fetch = async (url, init = {}) => {
     calls.push({ url: String(url), init });
     let data = null;
     if (String(url).includes('glossa_radar_items')) data = videos;
     else if (String(url).includes('glossa_channel_weeklies') && init.method === 'PATCH')
       data = init.headers?.Prefer === 'return=representation' ? [{ id: 'cut-1' }] : null;
-    else if (String(url).includes('api.openai.com')) data = { status: 'completed',
-      usage: { input_tokens: 100, output_tokens: 200, total_tokens: 300 },
-      output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(output) }] }] };
+    else if (String(url).includes('api.openai.com')) {
+      modelCalls++;
+      const text = modelCalls === 1 ? output : { updates: [{ section_index: 0,
+        append_text: 'El segundo video examina otra perspectiva del asunto y aporta preguntas que quedan abiertas.',
+        add_item_ids: ['v2'] }] };
+      data = { status: 'completed',
+        usage: { input_tokens: 100, output_tokens: 200, total_tokens: 300 },
+        output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(text) }] }] };
+    }
     return { ok: true, text: async () => data == null ? '' : JSON.stringify(data) };
   };
   try {
@@ -73,5 +80,7 @@ test('un corte usa solo los videos fijados al pulsar, aunque haya otro digest', 
       .find(b => b?.state === 'publicado');
     assert.deepEqual(published.items.map(x => x.id), ['video-1', 'video-2']);
     assert.deepEqual(published.body.sections[0].item_ids, ['video-1', 'video-2']);
+    assert.equal(modelCalls, 2);
+    assert.equal(published.actual_cost_usd, 0.00022);
   } finally { globalThis.fetch = original; }
 });
