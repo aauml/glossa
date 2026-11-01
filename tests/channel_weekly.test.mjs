@@ -64,10 +64,11 @@ test('un corte usa solo los videos fijados al pulsar, aunque haya otro digest', 
   };
   try {
     await generate({ id: 'cut-1', source_key: 'source-1', source_name: 'Canal',
-      cut_start: '2026-10-25T07:00:00Z', cut_end: '2026-11-01T07:00:00Z',
+      cut_start: '2026-10-25T07:00:00+00:00', cut_end: '2026-11-01T07:00:00+00:00',
       mode: 'manual', item_ids: ['video-1', 'video-2'] }, {});
     const read = calls.find(c => c.url.includes('glossa_radar_items'));
     assert.match(read.url, /digested_at=gte\./);
+    assert.match(read.url, /%2B00%3A00/);
     const published = calls.map(c => c.init.body && JSON.parse(c.init.body))
       .find(b => b?.state === 'publicado');
     assert.deepEqual(published.items.map(x => x.id), ['video-1', 'video-2']);

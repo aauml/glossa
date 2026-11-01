@@ -114,8 +114,8 @@ export async function generate(cut, settings) {
   const source = { id: cut.source_key, name: cut.source_name };
   try {
   const all = await sb(`glossa_radar_items?select=id,title,url,published_at,lang,digest` +
-    `&source_id=eq.${source.id}&state=eq.digested&digested_at=gte.${cut.cut_start}` +
-    `&digested_at=lt.${cut.cut_end}&order=digested_at.asc&limit=1000`);
+    `&source_id=eq.${source.id}&state=eq.digested&digested_at=gte.${encodeURIComponent(cut.cut_start)}` +
+    `&digested_at=lt.${encodeURIComponent(cut.cut_end)}&order=digested_at.asc&limit=1000`);
   const selected = new Set(cut.item_ids);
   const items = (all || []).filter(x => selected.has(x.id));
   if (all?.length === 1000 || items.length !== selected.size)
