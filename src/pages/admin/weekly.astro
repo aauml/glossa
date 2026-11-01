@@ -140,8 +140,8 @@ const piezas = await articlesByLang('en');
     if (d.error) { el.textContent = d.error; return; }
     if (!d.issues.length) { el.textContent = 'No channel Glossas yet.'; return; }
     el.innerHTML = `<div class="admin-tabla-scroll"><table class="admin-tabla">${d.issues.map(i => `<tr>
-      <td>${esc(i.source_name)}</td><td>${esc(i.week_start)} → ${esc(i.week_end)}</td>
-      <td>${i.state === 'publicado' ? `<a href="/channels/${esc(i.source_key)}/${esc(i.week_start)}/" target="_blank" rel="noopener">read</a>` : esc(i.error || i.state)}</td>
+      <td>${esc(i.source_name)}</td><td>${esc(i.cut_start)} → ${esc(i.cut_end)}</td>
+      <td>${i.state === 'publicado' ? `<a href="/channels/${esc(i.source_key)}/${esc(i.id)}/" target="_blank" rel="noopener">read published Glossa ↗</a>` : esc(i.error || i.state)}</td>
       <td>${i.item_count ?? 0} videos</td>
       <td>estimate $${Number(i.estimated_cost_usd || 0).toFixed(3)} · actual $${Number(i.actual_cost_usd || 0).toFixed(3)}</td>
     </tr>`).join('')}</table></div>`;

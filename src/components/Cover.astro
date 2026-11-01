@@ -65,18 +65,26 @@ const t = COPY[lang];
 // título y entradilla— y la página principal sale igual. Un teaser no puede
 // tumbar la portada.
 let ultimo = null;
+let ultimoCanal = null;
 try {
   const URL_SB = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
   const ANON   = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
   if (URL_SB && ANON) {
-    const r = await fetch(
-      `${URL_SB}/rest/v1/glossa_radar_weekly?select=week_start,week_end,body,body_es` +
-      `&state=eq.publicado&order=week_start.desc&limit=1`,
-      { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` },
-        signal: AbortSignal.timeout(4000) });
-    if (r.ok) [ultimo = null] = await r.json();
+    const headers = { apikey: ANON, Authorization: `Bearer ${ANON}` };
+    const paths = [
+      'glossa_radar_weekly?select=week_start,week_end,body,body_es&state=eq.publicado&order=week_start.desc&limit=1',
+      'glossa_channel_weeklies?select=id,source_key,source_name,published_at,body,item_count&state=eq.publicado&order=published_at.desc&limit=1',
+    ];
+    const results = await Promise.allSettled(paths.map(async path => {
+      const r = await fetch(`${URL_SB}/rest/v1/${path}`, {
+        headers, signal: AbortSignal.timeout(4000),
+      });
+      return r.ok ? (await r.json())[0] || null : null;
+    }));
+    if (results[0].status === 'fulfilled') ultimo = results[0].value;
+    if (results[1].status === 'fulfilled') ultimoCanal = results[1].value;
   }
-} catch { ultimo = null; }
+} catch { ultimo = null; ultimoCanal = null; }
 
 // Los temas son el campo `subject` de cada pieza —«Iran sanctions», «Strait of
 // Hormuz», «Mexico politics»—, no su titular.
@@ -202,6 +210,22 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
       </div>
     </div>
   </div>
+
+  {ultimoCanal && (
+    <div class="cover-channel">
+      <div class="cover-channel-rail">
+        <span class="cover-weekly-tag">{lang === 'es' ? 'Glosa por canal' : 'Channel reading'}</span>
+        <span class="cover-channel-meta">{ultimoCanal.source_name} · {ultimoCanal.item_count} videos</span>
+        <a class="cover-weekly-archivo" href="/channels/">{lang === 'es' ? 'Todas las glosas' : 'All channel readings'}</a>
+      </div>
+      <div class="cover-weekly-cuerpo">
+        <span class="cover-channel-meta">{lang === 'es' ? 'Última publicación' : 'Latest publication'} · {new Date(ultimoCanal.published_at).toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-GB', { timeZone: 'America/Los_Angeles', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+        <a class="cover-weekly-numero" href={`/channels/${ultimoCanal.source_key}/${ultimoCanal.id}/`}>
+          {ultimoCanal.body?.title || ultimoCanal.source_name}
+        </a>
+      </div>
+    </div>
+  )}
 
   {featured && (
     <a class="article-card featured" href={href(featured)} data-topics={keyOf(featured)}>
