@@ -374,7 +374,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       const q = await api('channel-weekly.estimate', { id: b.dataset.w });
       if (q.error) { msg(cajaMsg, q.error, false); b.disabled = false; return; }
       const note = q.truncated ? 'This channel has 1,000+ videos; generation will be held.'
-        : `About ${q.videos} videos in the last seven days. Estimated writing cost: ~$${Number(q.estimated_cost_usd).toFixed(3)} per week (DeepSeek V4 Pro; actual cost varies).`;
+        : `About ${q.videos} videos in the last seven days. Estimated writing cost: ~$${Number(q.estimated_cost_usd).toFixed(3)} per week (GPT-6 Luna, high reasoning; actual cost varies).`;
       if (!confirm(`Generate and automatically publish a weekly Glossa for this channel?\n\n${note}\n\nMaximum estimated cost: $0.75 per channel and week.`)) {
         b.disabled = false; return;
       }

@@ -1657,9 +1657,9 @@ Deno.serve(async (req) => {
           .gte('published_at', since).limit(1000);
         if (error) throw error;
         const chars = JSON.stringify(items ?? []).length;
-        // Techo conservador: precio de punta DeepSeek V4 Pro, sin descuento de caché.
+        // Estimación conservadora con el límite de salida de Luna, sin descuento de caché.
         const estimate = items?.length
-          ? ((Math.ceil(chars / 4) + 1500) * 1.32 + 5000 * 3.96) / 1e6 : 0;
+          ? ((Math.ceil(chars / 4) + 1500) * 0.10 + 16000 * 0.50) / 1e6 : 0;
         return ok({ name: source.name, videos: items?.length ?? 0,
           estimated_cost_usd: Math.round(estimate * 10000) / 10000,
           truncated: items?.length === 1000 });

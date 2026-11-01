@@ -18,15 +18,21 @@ workflow vuelve a estimar con el material exacto de la semana cerrada y aplica
 un techo conservador por bytes antes de llamar al modelo. El límite inicial es
 **USD 0,75 por canal y semana**, configurable con
 `CHANNEL_WEEKLY_MAX_USD` o `cap_glosa_canal_usd`. Registra el costo real que
-devuelve la API. El escritor inicial es `deepseek-v4-pro`; la tarifa está en
+devuelve la API. El escritor inicial es `gpt-6-luna` con razonamiento `high`;
+la tarifa está en
 `src/lib/presupuesto.js`.
 
 La publicación se bloquea si el modelo trunca la respuesta, falta estructura,
 una sección cita un identificador ajeno al canal o aparecen citas directas que
-el digest no puede verificar. El texto se identifica como generado por IA y
+el digest no puede verificar. También exige que cada video de la semana esté
+referenciado al menos una vez. El texto se identifica como generado por IA y
 no atribuye una tesis humana a Arturo. Un fallo queda visible en **Articles →
 Channel Glossas** y no crea una página pública. Un fallo no se reintenta
 automáticamente: una llamada pudo haberse cobrado antes de perder el recibo.
+
+La elección del modelo proviene de una [prueba comparativa](17-Comparativa-Modelos-Canal.md)
+con material real de tres canales. El estimado del panel usa el máximo de salida
+configurado, por lo que suele superar el costo real.
 
 ## Orden de despliegue
 

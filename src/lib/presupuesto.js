@@ -228,6 +228,7 @@ export async function otrosGastos(sb) {
 // DeepSeek cobra el doble en hora punta (01-04 y 06-10 UTC, laborables): se
 // apunta el precio de punta, que es el que no sorprende.
 export const PRECIOS = {
+  'gpt-6-luna':                  { in: 0.10, cache: 0.01, out: 0.50 },
   'kimi-k3':                      { in: 3.00, cache: 0.30,  out: 15.00 },
   'kimi-k2.6':                    { in: 0.95, cache: 0.16,  out: 4.00 },
   'deepseek-v4-pro':              { in: 1.32, cache: 0.044, out: 3.96 },
@@ -238,8 +239,8 @@ export const PRECIOS = {
 /** Coste en dólares de una respuesta con `usage` al estilo OpenAI. */
 export function precioChat(modelo, u = {}) {
   const p = PRECIOS[modelo] ?? PRECIOS['kimi-k3'];   // desconocido: se apunta caro
-  const cache = u.cached_tokens ?? u.prompt_tokens_details?.cached_tokens
+  const cache = u.cached_tokens ?? u.input_tokens_details?.cached_tokens ?? u.prompt_tokens_details?.cached_tokens
               ?? u.prompt_cache_hit_tokens ?? 0;
-  const entrada = Math.max(0, (u.prompt_tokens ?? 0) - cache);
-  return (entrada * p.in + cache * p.cache + (u.completion_tokens ?? 0) * p.out) / 1e6;
+  const entrada = Math.max(0, (u.input_tokens ?? u.prompt_tokens ?? 0) - cache);
+  return (entrada * p.in + cache * p.cache + (u.output_tokens ?? u.completion_tokens ?? 0) * p.out) / 1e6;
 }

@@ -20,8 +20,8 @@ jobs:
     env:
       SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
       SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-      CHANNEL_WEEKLY_MODEL: deepseek-v4-pro
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      CHANNEL_WEEKLY_MODEL: gpt-6-luna
       CHANNEL_WEEKLY_MAX_USD: '0.75'
     steps:
       - uses: actions/checkout@v5
