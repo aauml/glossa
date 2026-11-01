@@ -36,10 +36,20 @@ const byId = new Map(items.map(i => [i.id, i]));
     <p class="lead">{b.lead}</p>
     <p class="method">Texto generado por IA a partir de los análisis de {issue.item_count} videos de este canal. Los enlaces permiten comprobar el material original; esta glosa no atribuye una tesis a Arturo.</p>
     {b.sections.map(s => <section>
-      <h2>{s.heading}</h2><p>{s.text}</p>
-      <p class="sources">Videos: {s.item_ids.map((id, n) => byId.get(id) && <>
-        {n > 0 && ' · '}<a href={byId.get(id).url} target="_blank" rel="noopener noreferrer">{byId.get(id).title}</a>
-      </>)}</p>
+      <h2>{s.heading}</h2>
+      {Array.isArray(s.entries) ? <>
+        {s.intro && <p class="section-intro">{s.intro}</p>}
+        {s.entries.map(e => <article class="video-entry">
+          <h3>{e.heading}</h3>
+          <p>{e.text}</p>
+          {byId.get(e.item_id) && <p class="sources"><a href={byId.get(e.item_id).url} target="_blank" rel="noopener noreferrer">Ver video original: {byId.get(e.item_id).title}</a></p>}
+        </article>)}
+      </> : <>
+        <p>{s.text}</p>
+        <p class="sources">Videos: {s.item_ids.map((id, n) => byId.get(id) && <>
+          {n > 0 && ' · '}<a href={byId.get(id).url} target="_blank" rel="noopener noreferrer">{byId.get(id).title}</a>
+        </>)}</p>
+      </>}
     </section>)}
     <p class="closing">{b.closing}</p>
     <details><summary>Todos los videos de este corte ({items.length})</summary>
@@ -55,6 +65,10 @@ const byId = new Map(items.map(i => [i.id, i]));
   h1{font: 3rem/1.12 'Fraunces Variable',Georgia,serif;margin:.6rem 0 1.7rem}
   .lead{font-size:1.25rem}.method{border-block:1px solid var(--rule-soft);padding:1rem 0;margin:2rem 0}
   section{margin:3rem 0}h2{font:2rem 'Fraunces Variable',Georgia,serif;margin-bottom:.8rem}
+  .section-intro{color:var(--ink-soft);font-size:1.1rem}
+  .video-entry{margin:2rem 0;padding-top:1rem;border-top:1px solid var(--rule-soft)}
+  .video-entry h3{font:1.4rem/1.2 'Fraunces Variable',Georgia,serif;margin:0 0 .7rem}
+  .video-entry p{margin:.6rem 0}
   .sources{margin-top:1rem}.closing{border-top:1px solid var(--rule-soft);padding-top:2rem}
   details{margin-top:3rem}ol{padding-left:1.5rem}li{margin:.5rem 0}
 </style>

@@ -1670,7 +1670,7 @@ Deno.serve(async (req) => {
         const chars = JSON.stringify(items ?? []).length;
         // Estimación conservadora con el límite de salida de Luna, sin descuento de caché.
         const estimate = items?.length
-          ? ((Math.ceil(chars / 4) + 1500) * 0.10 + 16000 * 0.50) / 1e6 : 0;
+          ? ((Math.ceil(chars / 4) + 1500) * 0.10 + 24000 * 0.50) / 1e6 : 0;
         if (b.op === 'channel-weekly.cut') {
           if (!items?.length) return bad('Todavía no hay videos nuevos analizados en este intervalo');
           if (items.length === 1000) return bad('El corte supera 999 videos; no se puede garantizar la cobertura');
