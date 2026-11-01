@@ -4,18 +4,19 @@ import '../../../../styles/fonts.css';
 import '../../../../styles/global.css';
 import WeeklyMasthead from '../../../../components/WeeklyMasthead.astro';
 
-const { source, week } = Astro.params;
+const { source, cut } = Astro.params;
 const base = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
 const key = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 if (!base || !key) return new Response('Archive unavailable', { status: 503 });
-if (!/^[0-9a-f-]{36}$/i.test(source ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(week ?? ''))
+if (!/^[0-9a-f-]{36}$/i.test(source ?? '') || !/^[0-9a-f-]{36}$/i.test(cut ?? ''))
   return new Response(null, { status: 404 });
-const r = await fetch(`${base}/rest/v1/glossa_channel_weeklies?select=source_name,week_start,week_end,body,items,item_count&source_key=eq.${source}&week_start=eq.${week}&state=eq.publicado&limit=1`,
+const r = await fetch(`${base}/rest/v1/glossa_channel_weeklies?select=source_name,cut_start,cut_end,mode,body,items,item_count&source_key=eq.${source}&id=eq.${cut}&state=eq.publicado&limit=1`,
   { headers: { apikey: key, Authorization: `Bearer ${key}` } });
 if (!r.ok) return new Response('Archive unavailable', { status: 503 });
 const issue = (await r.json())[0];
 if (!issue) return new Response(null, { status: 404 });
 const b = issue.body;
+const when = new Date(issue.cut_end).toLocaleString('es-MX', { timeZone: 'America/Los_Angeles', dateStyle: 'medium', timeStyle: 'short' });
 const items = Array.isArray(issue.items) ? issue.items : [];
 const byId = new Map(items.map(i => [i.id, i]));
 ---
@@ -25,12 +26,12 @@ const byId = new Map(items.map(i => [i.id, i]));
   <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{b.title} · Glossa</title>
   <meta name="description" content={b.lead.slice(0, 170)} />
-  <link rel="canonical" href={`https://glossa.ademas.ai/channels/${source}/${week}/`} />
+  <link rel="canonical" href={`https://glossa.ademas.ai/channels/${source}/${cut}/`} />
 </head>
 <body>
   <WeeklyMasthead lang="es" />
   <main class="channel-read">
-    <p class="eyebrow"><a href="/channels/">Glosas por canal</a> · {issue.source_name} · {issue.week_start}–{issue.week_end}</p>
+    <p class="eyebrow"><a href="/channels/">Glosas por canal</a> · {issue.source_name} · {issue.mode === 'manual' ? 'Corte solicitado' : 'Corte semanal'} · {when}</p>
     <h1>{b.title}</h1>
     <p class="lead">{b.lead}</p>
     <p class="method">Texto generado por IA a partir de los análisis de {issue.item_count} videos de este canal. Los enlaces permiten comprobar el material original; esta glosa no atribuye una tesis a Arturo.</p>
@@ -41,7 +42,7 @@ const byId = new Map(items.map(i => [i.id, i]));
       </>)}</p>
     </section>)}
     <p class="closing">{b.closing}</p>
-    <details><summary>Todos los videos de la semana ({items.length})</summary>
+    <details><summary>Todos los videos de este corte ({items.length})</summary>
       <ol>{items.map(i => <li><a href={i.url} target="_blank" rel="noopener noreferrer">{i.title}</a></li>)}</ol>
     </details>
   </main>

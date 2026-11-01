@@ -7,7 +7,7 @@ import WeeklyMasthead from '../../components/WeeklyMasthead.astro';
 const base = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
 const key = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 if (!base || !key) return new Response('Archive unavailable', { status: 503 });
-const r = await fetch(`${base}/rest/v1/glossa_channel_weeklies?select=source_key,source_name,week_start,week_end,body,item_count&state=eq.publicado&order=week_start.desc&limit=60`,
+const r = await fetch(`${base}/rest/v1/glossa_channel_weeklies?select=id,source_key,source_name,cut_start,cut_end,mode,body,item_count&state=eq.publicado&order=cut_end.desc&limit=60`,
   { headers: { apikey: key, Authorization: `Bearer ${key}` } });
 if (!r.ok) return new Response('Archive unavailable', { status: 503 });
 const issues = await r.json();
@@ -17,18 +17,18 @@ const issues = await r.json();
 <head>
   <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Glosas por canal · Glossa</title>
-  <meta name="description" content="Lecturas semanales de los videos de cada canal elegido." />
+  <meta name="description" content="Lecturas de los videos de cada canal elegido, por corte o semanales." />
   <link rel="canonical" href="https://glossa.ademas.ai/channels/" />
 </head>
 <body>
   <WeeklyMasthead lang="es" />
   <main class="channel-read">
     <p class="eyebrow">Glossa · por canal</p>
-    <h1>Una semana, una voz</h1>
-    <p>Lecturas automáticas de los videos de cada canal seleccionado, con enlaces a todo el material de la semana.</p>
+    <h1>Una voz, cada corte</h1>
+    <p>Lecturas automáticas o solicitadas en el momento, con enlaces a todos los videos incluidos.</p>
     {issues.length ? <ul>{issues.map(i => <li>
-      <a href={`/channels/${i.source_key}/${i.week_start}/`}>{i.body?.title || i.source_name}</a>
-      <small>{i.source_name} · {i.week_start}–{i.week_end} · {i.item_count} videos</small>
+      <a href={`/channels/${i.source_key}/${i.id}/`}>{i.body?.title || i.source_name}</a>
+      <small>{i.source_name} · {i.mode === 'manual' ? 'Corte solicitado' : 'Corte semanal'} · {new Date(i.cut_end).toLocaleString('es-MX', { timeZone: 'America/Los_Angeles', dateStyle: 'medium', timeStyle: 'short' })} · {i.item_count} videos</small>
     </li>)}</ul> : <p>Todavía no hay glosas por canal.</p>}
   </main>
 </body>

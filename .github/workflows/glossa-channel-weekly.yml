@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: '0 16 * * 0'
   workflow_dispatch:
+    inputs:
+      cut_id:
+        description: 'UUID del corte manual creado en el panel. Vacío = cierre semanal.'
+        required: false
 
 permissions:
   contents: read
@@ -23,6 +27,7 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       CHANNEL_WEEKLY_MODEL: gpt-6-luna
       CHANNEL_WEEKLY_MAX_USD: '0.75'
+      CHANNEL_CUT_ID: ${{ github.event.inputs.cut_id }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

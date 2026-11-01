@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compactRefs, estimateCost, restoreIds, validateGlossa } from '../scripts/channel_weekly.mjs';
+import { compactRefs, estimateCost, generate, restoreIds, validateGlossa } from '../scripts/channel_weekly.mjs';
 import { precioChat } from '../src/lib/presupuesto.js';
 
 const valid = () => ({ title: 'La semana de este canal',
@@ -41,4 +41,36 @@ test('la estimación crece con el material y usa el modelo elegido', () => {
   assert.ok(estimateCost(80000, 'kimi-k3') > estimateCost(80000, 'gpt-6-luna'));
   assert.equal(precioChat('gpt-6-luna', { input_tokens: 10000, output_tokens: 4000,
     input_tokens_details: { cached_tokens: 2000 } }), 0.00282);
+});
+
+test('un corte usa solo los videos fijados al pulsar, aunque haya otro digest', async () => {
+  const original = globalThis.fetch;
+  const calls = [];
+  const videos = ['video-1', 'video-2', 'video-3'].map(id => ({ id, title: id,
+    url: `https://youtube.com/watch?v=${id}`, published_at: '2026-10-30T12:00:00Z',
+    lang: 'es', digest: { thesis: `Análisis de ${id}` } }));
+  const output = valid();
+  output.sections[0].item_ids = ['v1', 'v2'];
+  globalThis.fetch = async (url, init = {}) => {
+    calls.push({ url: String(url), init });
+    let data = null;
+    if (String(url).includes('glossa_radar_items')) data = videos;
+    else if (String(url).includes('glossa_channel_weeklies') && init.method === 'PATCH')
+      data = init.headers?.Prefer === 'return=representation' ? [{ id: 'cut-1' }] : null;
+    else if (String(url).includes('api.openai.com')) data = { status: 'completed',
+      usage: { input_tokens: 100, output_tokens: 200, total_tokens: 300 },
+      output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(output) }] }] };
+    return { ok: true, text: async () => data == null ? '' : JSON.stringify(data) };
+  };
+  try {
+    await generate({ id: 'cut-1', source_key: 'source-1', source_name: 'Canal',
+      cut_start: '2026-10-25T07:00:00Z', cut_end: '2026-11-01T07:00:00Z',
+      mode: 'manual', item_ids: ['video-1', 'video-2'] }, {});
+    const read = calls.find(c => c.url.includes('glossa_radar_items'));
+    assert.match(read.url, /digested_at=gte\./);
+    const published = calls.map(c => c.init.body && JSON.parse(c.init.body))
+      .find(b => b?.state === 'publicado');
+    assert.deepEqual(published.items.map(x => x.id), ['video-1', 'video-2']);
+    assert.deepEqual(published.body.sections[0].item_ids, ['video-1', 'video-2']);
+  } finally { globalThis.fetch = original; }
 });

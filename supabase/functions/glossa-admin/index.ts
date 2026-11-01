@@ -1647,22 +1647,51 @@ Deno.serve(async (req) => {
           weekly_gloss_enabled: flags.get(s.id) === true })) });
       }
 
-      case 'channel-weekly.estimate': {
+      case 'channel-weekly.estimate':
+      case 'channel-weekly.cut': {
         const { data: source, error: es } = await db.from('glossa_radar_sources')
           .select('id,kind,name').eq('id', b.id).single();
         if (es || source?.kind !== 'youtube') return bad('canal YouTube no encontrado');
-        const since = new Date(Date.now() - 7 * 864e5).toISOString();
+        const { data: windows, error: ew } = await db.rpc('glossa_semana_actual');
+        if (ew || !windows?.[0]) throw ew ?? new Error('No se pudo determinar la semana');
+        const { data: last, error: el } = await db.from('glossa_channel_weeklies')
+          .select('cut_end').eq('source_key', source.id)
+          .in('state', ['queued', 'running', 'publicado', 'error'])
+          .order('cut_end', { ascending: false }).limit(1);
+        if (el) throw el;
+        const now = new Date().toISOString();
+        const since = new Date(last?.[0]?.cut_end ?? windows[0].desde).toISOString();
+        if (Date.parse(since) >= Date.parse(now)) return bad('No hay un intervalo nuevo para cortar');
         const { data: items, error } = await db.from('glossa_radar_items')
-          .select('digest').eq('source_id', source.id).eq('state', 'digested')
-          .gte('published_at', since).limit(1000);
+          .select('id,digest').eq('source_id', source.id).eq('state', 'digested')
+          .gte('digested_at', since).lt('digested_at', now)
+          .order('digested_at', { ascending: true }).limit(1000);
         if (error) throw error;
         const chars = JSON.stringify(items ?? []).length;
         // Estimación conservadora con el límite de salida de Luna, sin descuento de caché.
         const estimate = items?.length
           ? ((Math.ceil(chars / 4) + 1500) * 0.10 + 16000 * 0.50) / 1e6 : 0;
+        if (b.op === 'channel-weekly.cut') {
+          if (!items?.length) return bad('Todavía no hay videos nuevos analizados en este intervalo');
+          if (items.length === 1000) return bad('El corte supera 999 videos; no se puede garantizar la cobertura');
+          if (estimate > 0.75) return bad('El costo estimado supera el límite por corte');
+          const { data: cut, error: ec } = await db.from('glossa_channel_weeklies').insert({
+            source_key: source.id, source_id: source.id, source_name: source.name,
+            cut_start: since, cut_end: now, mode: 'manual', state: 'queued',
+            item_ids: items.map(x => x.id), item_count: items.length,
+            estimated_cost_usd: estimate, model: 'gpt-6-luna',
+          }).select('id,cut_start,cut_end,item_count,estimated_cost_usd').single();
+          if (ec) return bad(ec.code === '23505' ? 'Ya existe un corte para este intervalo' : ec.message);
+          const { error: ed } = await db.rpc('glossa_channel_cut_dispatch', { cut_id: cut.id });
+          if (ed) {
+            await db.from('glossa_channel_weeklies').update({ state: 'error', error: ed.message }).eq('id', cut.id);
+            return bad(`Corte guardado pero no se pudo lanzar: ${ed.message}`);
+          }
+          return ok({ cut });
+        }
         return ok({ name: source.name, videos: items?.length ?? 0,
           estimated_cost_usd: Math.round(estimate * 10000) / 10000,
-          truncated: items?.length === 1000 });
+          truncated: items?.length === 1000, cut_start: since, cut_end: now });
       }
       case 'channel-weekly.toggle': {
         const { data, error } = await db.from('glossa_radar_sources')
@@ -1671,10 +1700,25 @@ Deno.serve(async (req) => {
         if (error) throw error;
         return ok({ source: data });
       }
+      case 'channel-weekly.retry': {
+        const { data: cut, error: ec } = await db.from('glossa_channel_weeklies')
+          .select('id,state,item_count,estimated_cost_usd').eq('id', b.id).eq('state', 'error').single();
+        if (ec || !cut) return bad('Corte fallido no encontrado');
+        const { data: claimed, error: eu } = await db.from('glossa_channel_weeklies')
+          .update({ state: 'queued', error: null }).eq('id', cut.id).eq('state', 'error')
+          .select('id').single();
+        if (eu || !claimed) return bad('Otro proceso ya reintentó este corte');
+        const { error: ed } = await db.rpc('glossa_channel_cut_dispatch', { cut_id: cut.id });
+        if (ed) {
+          await db.from('glossa_channel_weeklies').update({ state: 'error', error: ed.message }).eq('id', cut.id);
+          return bad(`No se pudo relanzar: ${ed.message}`);
+        }
+        return ok({ cut: { id: cut.id, item_count: cut.item_count } });
+      }
       case 'channel-weekly.list': {
         const { data, error } = await db.from('glossa_channel_weeklies')
-          .select('source_key,source_name,week_start,week_end,state,item_count,estimated_cost_usd,actual_cost_usd,error')
-          .order('week_start', { ascending: false }).limit(40);
+          .select('id,source_key,source_name,cut_start,cut_end,mode,state,item_count,estimated_cost_usd,actual_cost_usd,error')
+          .order('cut_end', { ascending: false }).limit(40);
         if (error) throw error;
         return ok({ issues: data ?? [] });
       }
