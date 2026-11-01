@@ -48,7 +48,22 @@ export function restoreIds(body, idMap) {
     entries: s.entries.map(e => ({ ...e, item_id: idMap.get(e.item_id) })) })) };
 }
 
-export function validateGlossa(body, ids, { allowMissing = false } = {}) {
+const META_PROSE = /\b(?:digest|resumen|invitad[oa]s?|presentador(?:a|es)?|host|segmento)\b|en este video/i;
+
+export function styleIssues(body) {
+  const issues = [];
+  if (META_PROSE.test(body.lead)) issues.push({ kind: 'lead', text: body.lead });
+  body.sections.forEach((s, section_index) => {
+    if (META_PROSE.test(s.intro)) issues.push({ kind: 'intro', section_index, text: s.intro });
+    s.entries.forEach(e => {
+      if (META_PROSE.test(e.text)) issues.push({ kind: 'entry', item_id: e.item_id, text: e.text });
+    });
+  });
+  if (META_PROSE.test(body.closing)) issues.push({ kind: 'closing', text: body.closing });
+  return issues;
+}
+
+export function validateGlossa(body, ids, { allowMissing = false, allowStyle = false } = {}) {
   if (!body || typeof body !== 'object') throw new Error('respuesta no es un objeto');
   if (typeof body.title !== 'string' || body.title.length < 10 || body.title.length > 140)
     throw new Error('título ausente o inválido');
@@ -73,6 +88,8 @@ export function validateGlossa(body, ids, { allowMissing = false } = {}) {
     throw new Error(`${missingCount === 1 ? 'falta 1 video' : `faltan ${missingCount} videos`} del corte`);
   if (typeof body.closing !== 'string' || body.closing.length < 40 || body.closing.length > 1800)
     throw new Error('cierre ausente o inválido');
+  if (!allowStyle && styleIssues(body).length)
+    throw new Error('la prosa aún contiene referencias al proceso o al elenco');
   // No hay citas directas: el radar conserva textos breves y en varias lenguas.
   const prose = [body.title, body.lead, ...body.sections.flatMap(s =>
     [s.heading, s.intro, ...s.entries.flatMap(e => [e.heading, e.text])]), body.closing].join(' ');
@@ -146,8 +163,8 @@ Canal: ${source.name}\nMaterial: ${payload}`;
   // Un token no puede representar menos de un byte. Reservamos también margen
   // para una única reparación si la glosa omite referencias.
   const price = PRECIOS[MODEL];
-  const hardUpper = ((2 * Buffer.byteLength(prompt, 'utf8') + 20000) * price.in +
-    (OUTPUT_TOKENS + 8000) * price.out) / 1e6;
+  const hardUpper = ((3 * Buffer.byteLength(prompt, 'utf8') + 30000) * price.in +
+    (OUTPUT_TOKENS + 8000 + 16000) * price.out) / 1e6;
   if (estimate > limit || hardUpper > limit)
     throw new Error(`${source.name}: costo posible $${hardUpper.toFixed(3)} supera el límite $${limit}; no se llamó al modelo`);
   if (!rewrite) await update(cut, { estimated_cost_usd: estimate, model: MODEL });
@@ -179,7 +196,7 @@ Canal: ${source.name}\nMaterial: ${payload}`;
     return JSON.parse(cleaned);
   };
   let draft = await ask(prompt, OUTPUT_TOKENS);
-  validateGlossa(draft, new Set(idMap.keys()), { allowMissing: true });
+  validateGlossa(draft, new Set(idMap.keys()), { allowMissing: true, allowStyle: true });
   const cited = new Set(draft.sections.flatMap(s => s.entries.map(e => e.item_id)));
   const missing = [...idMap.keys()].filter(id => !cited.has(id));
   if (missing.length) {
@@ -199,6 +216,30 @@ Canal: ${source.name}\nMaterial: ${payload}`;
     }
     if (attached.length !== missing.length || new Set(attached).size !== missing.length)
       throw new Error('reparación dejó videos sin integrar');
+  }
+  const issues = styleIssues(draft);
+  if (issues.length) {
+    console.log(`${source.name}: puliendo ${issues.length} pasajes con metacomentarios`);
+    const stylePrompt = `Reescribe SOLO los pasajes indicados para que entren directo en las ideas. Elimina referencias al digest, al resumen, al video como formato, al segmento, al host, al invitado o al presentador. Conserva TODOS los hechos, atribuciones, dudas y límites; no agregues nada. Cada entrada debe seguir teniendo sustancia, sin frases genéricas. Devuelve SOLO JSON: {"updates":[{"kind":"entry","item_id":"v1","text":"Texto revisado"}]}. Para intro usa section_index; para lead y closing no añadas otro identificador. Debe haber exactamente una actualización por pasaje y conservar su kind e identificador.\nPASAJES: ${JSON.stringify(issues)}`;
+    const revision = await ask(stylePrompt, 16000);
+    if (!Array.isArray(revision.updates)) throw new Error('revisión de estilo sin actualizaciones');
+    const keyOf = x => `${x.kind}:${x.section_index ?? ''}:${x.item_id ?? ''}`;
+    const wanted = new Set(issues.map(keyOf));
+    const seen = new Set();
+    for (const u of revision.updates) {
+      const key = keyOf(u);
+      if (!wanted.has(key) || seen.has(key) || typeof u.text !== 'string' || META_PROSE.test(u.text))
+        throw new Error('revisión de estilo incompleta o inválida');
+      seen.add(key);
+      if (u.kind === 'lead') draft.lead = u.text;
+      else if (u.kind === 'closing') draft.closing = u.text;
+      else if (u.kind === 'intro') draft.sections[u.section_index].intro = u.text;
+      else {
+        const entry = draft.sections.flatMap(s => s.entries).find(e => e.item_id === u.item_id);
+        entry.text = u.text;
+      }
+    }
+    if (seen.size !== wanted.size) throw new Error('revisión de estilo dejó pasajes pendientes');
   }
   const body = restoreIds(draft, idMap);
     await update(cut, { state: 'publicado', body,

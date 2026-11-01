@@ -23,6 +23,11 @@ test('cada video tiene una sola entrada propia', () => {
   assert.throws(() => validateGlossa(b, new Set(['video-1', 'video-2'])), /falta 1 video/);
 });
 
+test('la glosa publicada no habla del resumen ni del elenco', () => {
+  const b = valid(); b.sections[0].entries[0].text = `El resumen indica un dato. ${passage.repeat(2)}`;
+  assert.throws(() => validateGlossa(b, new Set(['video-1', 'video-2'])), /referencias al proceso/);
+});
+
 test('identificadores cortos se restauran sin omitir videos', () => {
   const items = [{ id: 'video-1' }, { id: 'video-2' }];
   const { material, idMap } = compactRefs(items);
@@ -61,6 +66,7 @@ test('un corte integra referencias omitidas y cobra ambas llamadas sin incluir o
     lang: 'es', digest: { thesis: `Análisis de ${id}` } }));
   const output = valid();
   output.sections[0].entries = [{ ...output.sections[0].entries[0], item_id: 'v1' }];
+  output.sections[0].entries[0].text = `El resumen indica un dato. ${passage.repeat(2)}`;
   let modelCalls = 0;
   globalThis.fetch = async (url, init = {}) => {
     calls.push({ url: String(url), init });
@@ -70,8 +76,9 @@ test('un corte integra referencias omitidas y cobra ambas llamadas sin incluir o
       data = init.headers?.Prefer === 'return=representation' ? [{ id: 'cut-1' }] : null;
     else if (String(url).includes('api.openai.com')) {
       modelCalls++;
-      const text = modelCalls === 1 ? output : { entries: [{ section_index: 0,
-        item_id: 'v2', heading: 'El segundo ángulo', text: passage.repeat(2) }] };
+      const text = modelCalls === 1 ? output : modelCalls === 2
+        ? { entries: [{ section_index: 0, item_id: 'v2', heading: 'El segundo ángulo', text: passage.repeat(2) }] }
+        : { updates: [{ kind: 'entry', item_id: 'v1', text: `El dato abre una pregunta. ${passage.repeat(2)}` }] };
       data = { status: 'completed',
         usage: { input_tokens: 100, output_tokens: 200, total_tokens: 300 },
         output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(text) }] }] };
@@ -89,7 +96,7 @@ test('un corte integra referencias omitidas y cobra ambas llamadas sin incluir o
       .find(b => b?.state === 'publicado');
     assert.deepEqual(published.items.map(x => x.id), ['video-1', 'video-2']);
     assert.deepEqual(published.body.sections[0].entries.map(e => e.item_id), ['video-1', 'video-2']);
-    assert.equal(modelCalls, 2);
-    assert.equal(published.actual_cost_usd, 0.00022);
+    assert.equal(modelCalls, 3);
+    assert.equal(published.actual_cost_usd, 0.00033);
   } finally { globalThis.fetch = original; }
 });
