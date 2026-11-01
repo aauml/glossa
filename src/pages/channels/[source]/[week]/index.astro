@@ -1,0 +1,59 @@
+---
+export const prerender = false;
+import '../../../../styles/fonts.css';
+import '../../../../styles/global.css';
+import WeeklyMasthead from '../../../../components/WeeklyMasthead.astro';
+
+const { source, week } = Astro.params;
+const base = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
+const key = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+if (!base || !key) return new Response('Archive unavailable', { status: 503 });
+if (!/^[0-9a-f-]{36}$/i.test(source ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(week ?? ''))
+  return new Response(null, { status: 404 });
+const r = await fetch(`${base}/rest/v1/glossa_channel_weeklies?select=source_name,week_start,week_end,body,items,item_count&source_key=eq.${source}&week_start=eq.${week}&state=eq.publicado&limit=1`,
+  { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+if (!r.ok) return new Response('Archive unavailable', { status: 503 });
+const issue = (await r.json())[0];
+if (!issue) return new Response(null, { status: 404 });
+const b = issue.body;
+const items = Array.isArray(issue.items) ? issue.items : [];
+const byId = new Map(items.map(i => [i.id, i]));
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{b.title} · Glossa</title>
+  <meta name="description" content={b.lead.slice(0, 170)} />
+  <link rel="canonical" href={`https://glossa.ademas.ai/channels/${source}/${week}/`} />
+</head>
+<body>
+  <WeeklyMasthead lang="es" />
+  <main class="channel-read">
+    <p class="eyebrow"><a href="/channels/">Glosas por canal</a> · {issue.source_name} · {issue.week_start}–{issue.week_end}</p>
+    <h1>{b.title}</h1>
+    <p class="lead">{b.lead}</p>
+    <p class="method">Texto generado por IA a partir de los análisis de {issue.item_count} videos de este canal. Los enlaces permiten comprobar el material original; esta glosa no atribuye una tesis a Arturo.</p>
+    {b.sections.map(s => <section>
+      <h2>{s.heading}</h2><p>{s.text}</p>
+      <p class="sources">Videos: {s.item_ids.map((id, n) => byId.get(id) && <>
+        {n > 0 && ' · '}<a href={byId.get(id).url} target="_blank" rel="noopener noreferrer">{byId.get(id).title}</a>
+      </>)}</p>
+    </section>)}
+    <p class="closing">{b.closing}</p>
+    <details><summary>Todos los videos de la semana ({items.length})</summary>
+      <ol>{items.map(i => <li><a href={i.url} target="_blank" rel="noopener noreferrer">{i.title}</a></li>)}</ol>
+    </details>
+  </main>
+</body>
+</html>
+<style>
+  .channel-read{max-width:43rem;margin:4rem auto;padding:0 2rem 6rem}
+  .eyebrow,.method,.sources,summary{font: .8rem/1.6 'IBM Plex Sans',sans-serif;color:var(--muted)}
+  .eyebrow a,.sources a,details a{color:var(--accent);text-decoration:underline}
+  h1{font: 3rem/1.12 'Fraunces Variable',Georgia,serif;margin:.6rem 0 1.7rem}
+  .lead{font-size:1.25rem}.method{border-block:1px solid var(--rule-soft);padding:1rem 0;margin:2rem 0}
+  section{margin:3rem 0}h2{font:2rem 'Fraunces Variable',Georgia,serif;margin-bottom:.8rem}
+  .sources{margin-top:1rem}.closing{border-top:1px solid var(--rule-soft);padding-top:2rem}
+  details{margin-top:3rem}ol{padding-left:1.5rem}li{margin:.5rem 0}
+</style>

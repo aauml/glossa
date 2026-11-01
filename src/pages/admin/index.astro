@@ -344,18 +344,47 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <div class="admin-tabla-scroll"><table class="admin-tabla" style="margin-top:6px">
         ${filas.map(s => `<tr class="${s.active ? '' : 'off'}">
           <td>${esc(s.name)}${flecha(s.feed_url, s.name)}</td>
+          ${k === 'youtube' ? `<td class="admin-nota" data-channel-cost="${s.id}">${s.weekly_gloss_enabled ? 'estimating weekly cost…' : ''}</td>` : ''}
           <td style="text-align:right;font-variant-numeric:tabular-nums">${
             s.pendientes ? `<strong>${s.pendientes}</strong>` : '—'}</td>
           <td style="text-align:right;color:var(--muted);font-variant-numeric:tabular-nums">${
             s.procesados_7d || '—'}</td>
           <td style="color:var(--muted);white-space:nowrap">${esc(hace(s.last_checked_at))}</td>
           <td style="white-space:nowrap">
+            ${k === 'youtube' ? `<button class="admin-btn sec" data-w="${s.id}" data-e="${s.weekly_gloss_enabled ? '0' : '1'}"
+              title="A weekly reading made only from this channel's videos">${s.weekly_gloss_enabled ? 'weekly on' : 'weekly off'}</button>&nbsp;` : ''}
             <button class="admin-btn sec" data-t="${s.id}" data-a="${s.active ? '0' : '1'}"
               >${s.active ? 'pause' : 'activate'}</button>
             &nbsp;<button class="admin-btn sec" data-d="${s.id}" data-n="${esc(s.name)}" data-c="${s.leidos_total || 0}">remove</button>
           </td></tr>`).join('')}</table></div></details>`;
     }).join('');
+    for (const s of d.sources.filter(s => s.kind === 'youtube' && s.weekly_gloss_enabled)) {
+      api('channel-weekly.estimate', { id: s.id }).then(q => {
+        const cell = listaSrc.querySelector(`[data-channel-cost="${s.id}"]`);
+        if (cell) cell.textContent = q.error ? 'estimate unavailable'
+          : `~$${Number(q.estimated_cost_usd).toFixed(3)} / week · ${q.videos} videos`;
+      });
+    }
   }
+
+  delegar(listaSrc, '[data-w]', async (b) => {
+    b.disabled = true;
+    const enabled = b.dataset.e === '1';
+    if (enabled) {
+      const q = await api('channel-weekly.estimate', { id: b.dataset.w });
+      if (q.error) { msg(cajaMsg, q.error, false); b.disabled = false; return; }
+      const note = q.truncated ? 'This channel has 1,000+ videos; generation will be held.'
+        : `About ${q.videos} videos in the last seven days. Estimated writing cost: ~$${Number(q.estimated_cost_usd).toFixed(3)} per week (DeepSeek V4 Pro; actual cost varies).`;
+      if (!confirm(`Generate and automatically publish a weekly Glossa for this channel?\n\n${note}\n\nMaximum estimated cost: $0.75 per channel and week.`)) {
+        b.disabled = false; return;
+      }
+    }
+    const r = await api('channel-weekly.toggle', { id: b.dataset.w, enabled });
+    if (r.error) msg(cajaMsg, r.error, false);
+    else msg(cajaMsg, enabled ? 'Weekly channel Glossa enabled. The first issue will appear after the week closes.'
+      : 'Weekly channel Glossa stopped.', true);
+    pintarFuentes();
+  });
 
   delegar(listaSrc, '[data-t]', async (b) => {
     b.disabled = true;

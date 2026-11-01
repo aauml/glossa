@@ -1,0 +1,31 @@
+name: Glossa por canal (semanal)
+
+# Domingo después de cerrar la semana en Los Ángeles y después del radar.
+on:
+  schedule:
+    - cron: '0 16 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: glossa-channel-weekly
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SUPABASE_URL: https://wtwuvrtmadnlezkbesqp.supabase.co
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      CHANNEL_WEEKLY_MODEL: deepseek-v4-pro
+      CHANNEL_WEEKLY_MAX_USD: '0.75'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node scripts/channel_weekly.mjs

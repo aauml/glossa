@@ -1639,7 +1639,44 @@ Deno.serve(async (req) => {
         // serían veinte viajes para pintar una tabla.
         const { data, error } = await db.rpc('glossa_radar_fuentes_panel');
         if (error) throw error;
-        return ok({ sources: data ?? [] });
+        const { data: selected, error: eSelected } = await db.from('glossa_radar_sources')
+          .select('id,weekly_gloss_enabled').eq('kind', 'youtube');
+        if (eSelected) throw eSelected;
+        const flags = new Map((selected ?? []).map(s => [s.id, s.weekly_gloss_enabled]));
+        return ok({ sources: (data ?? []).map((s: Record<string, unknown>) => ({ ...s,
+          weekly_gloss_enabled: flags.get(s.id) === true })) });
+      }
+
+      case 'channel-weekly.estimate': {
+        const { data: source, error: es } = await db.from('glossa_radar_sources')
+          .select('id,kind,name').eq('id', b.id).single();
+        if (es || source?.kind !== 'youtube') return bad('canal YouTube no encontrado');
+        const since = new Date(Date.now() - 7 * 864e5).toISOString();
+        const { data: items, error } = await db.from('glossa_radar_items')
+          .select('digest').eq('source_id', source.id).eq('state', 'digested')
+          .gte('published_at', since).limit(1000);
+        if (error) throw error;
+        const chars = JSON.stringify(items ?? []).length;
+        // Techo conservador: precio de punta DeepSeek V4 Pro, sin descuento de caché.
+        const estimate = items?.length
+          ? ((Math.ceil(chars / 4) + 1500) * 1.32 + 5000 * 3.96) / 1e6 : 0;
+        return ok({ name: source.name, videos: items?.length ?? 0,
+          estimated_cost_usd: Math.round(estimate * 10000) / 10000,
+          truncated: items?.length === 1000 });
+      }
+      case 'channel-weekly.toggle': {
+        const { data, error } = await db.from('glossa_radar_sources')
+          .update({ weekly_gloss_enabled: b.enabled === true })
+          .eq('id', b.id).eq('kind', 'youtube').select('id,weekly_gloss_enabled').single();
+        if (error) throw error;
+        return ok({ source: data });
+      }
+      case 'channel-weekly.list': {
+        const { data, error } = await db.from('glossa_channel_weeklies')
+          .select('source_key,source_name,week_start,week_end,state,item_count,estimated_cost_usd,actual_cost_usd,error')
+          .order('week_start', { ascending: false }).limit(40);
+        if (error) throw error;
+        return ok({ issues: data ?? [] });
       }
 
       case 'queue.list': {

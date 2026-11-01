@@ -1,0 +1,42 @@
+---
+export const prerender = false;
+import '../../styles/fonts.css';
+import '../../styles/global.css';
+import WeeklyMasthead from '../../components/WeeklyMasthead.astro';
+
+const base = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
+const key = import.meta.env.SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+if (!base || !key) return new Response('Archive unavailable', { status: 503 });
+const r = await fetch(`${base}/rest/v1/glossa_channel_weeklies?select=source_key,source_name,week_start,week_end,body,item_count&state=eq.publicado&order=week_start.desc&limit=60`,
+  { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+if (!r.ok) return new Response('Archive unavailable', { status: 503 });
+const issues = await r.json();
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Glosas por canal · Glossa</title>
+  <meta name="description" content="Lecturas semanales de los videos de cada canal elegido." />
+  <link rel="canonical" href="https://glossa.ademas.ai/channels/" />
+</head>
+<body>
+  <WeeklyMasthead lang="es" />
+  <main class="channel-read">
+    <p class="eyebrow">Glossa · por canal</p>
+    <h1>Una semana, una voz</h1>
+    <p>Lecturas automáticas de los videos de cada canal seleccionado, con enlaces a todo el material de la semana.</p>
+    {issues.length ? <ul>{issues.map(i => <li>
+      <a href={`/channels/${i.source_key}/${i.week_start}/`}>{i.body?.title || i.source_name}</a>
+      <small>{i.source_name} · {i.week_start}–{i.week_end} · {i.item_count} videos</small>
+    </li>)}</ul> : <p>Todavía no hay glosas por canal.</p>}
+  </main>
+</body>
+</html>
+<style>
+  .channel-read{max-width:42rem;margin:4rem auto;padding:0 2rem 5rem}
+  .eyebrow,small{font: .75rem 'IBM Plex Sans',sans-serif;color:var(--muted);letter-spacing:.06em}
+  h1{font: 3rem 'Fraunces Variable',Georgia,serif;margin:.5rem 0 1rem}
+  ul{list-style:none;margin-top:3rem} li{border-top:1px solid var(--rule-soft);padding:1rem 0}
+  li a{display:block;color:var(--accent);font-size:1.3rem} small{display:block;margin-top:.3rem}
+</style>

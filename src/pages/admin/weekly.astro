@@ -37,6 +37,12 @@ const piezas = await articlesByLang('en');
     <div id="wk-lista"><span class="admin-vacio">loading…</span></div>
   </section>
 
+  <section class="admin-sec">
+    <h2>Channel Glossas</h2>
+    <p class="admin-nota">One automatic reading per selected YouTube channel and week. Estimated and actual writing costs are shown below.</p>
+    <div id="ch-lista"><span class="admin-vacio">loading…</span></div>
+  </section>
+
   <!-- El único ajuste que gobierna el número, y por eso vive aquí y no en el
        Feed: si el domingo se publica solo o espera a que lo mires. -->
   <label class="admin-nota" style="display:flex;gap:9px;align-items:baseline;margin:26px 0">
@@ -128,6 +134,19 @@ const piezas = await articlesByLang('en');
       </tr>`).join('')}</table>`;
   }
 
+  async function pintarCanales() {
+    const d = await api('channel-weekly.list');
+    const el = $('ch-lista');
+    if (d.error) { el.textContent = d.error; return; }
+    if (!d.issues.length) { el.textContent = 'No channel Glossas yet.'; return; }
+    el.innerHTML = `<div class="admin-tabla-scroll"><table class="admin-tabla">${d.issues.map(i => `<tr>
+      <td>${esc(i.source_name)}</td><td>${esc(i.week_start)} → ${esc(i.week_end)}</td>
+      <td>${i.state === 'publicado' ? `<a href="/channels/${esc(i.source_key)}/${esc(i.week_start)}/" target="_blank" rel="noopener">read</a>` : esc(i.error || i.state)}</td>
+      <td>${i.item_count ?? 0} videos</td>
+      <td>estimate $${Number(i.estimated_cost_usd || 0).toFixed(3)} · actual $${Number(i.actual_cost_usd || 0).toFixed(3)}</td>
+    </tr>`).join('')}</table></div>`;
+  }
+
   delegar($('wk-lista'), '[data-del]', async (b) => {
     if (!confirm(`Delete the issue of ${b.dataset.del}?\n\nIf it is published, its page disappears from the site. ` +
                  `The material it read stays in the database. This cannot be undone.`)) return;
@@ -150,6 +169,6 @@ const piezas = await articlesByLang('en');
       : 'The issue will wait for you.'), !r.error);
   };
 
-  pintarBorrador(); pintarLista();
+  pintarBorrador(); pintarLista(); pintarCanales();
 </script>
 </AdminLayout>

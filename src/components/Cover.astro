@@ -182,6 +182,7 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
         <span class="cover-weekly-title">{t.weekly.title}</span>
         <span class="cover-weekly-cadencia">{t.weekly.tag}</span>
         <a class="cover-weekly-archivo" href={hrefArchivo}>{t.weekly.archivo}</a>
+        <a class="cover-weekly-archivo" href="/channels/">{lang === 'es' ? 'Por canal' : 'By channel'}</a>
       </div>
       <div class="cover-weekly-cuerpo">
         <span class="cover-weekly-tag">
