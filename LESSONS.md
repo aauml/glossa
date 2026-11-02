@@ -1153,3 +1153,9 @@ elemento, que estaba a una consulta.
 
 _Applies to:_ toda acción destructiva sobre trabajo en curso. La regla barata es
 mirar QUÉ se cancela, no cuándo empezó.
+
+### 1-nov-2026 · Un enlace a una colección conserva su idioma y su filtro
+
+_Applies to: deployment / hosting · Astro · publication pipeline_
+
+Una preferencia de idioma sirve al entrar por la portada genérica, pero no debe sustituir una URL explícita con ancla: /es/#tesis debe conservar español y el filtro. La clasificación de Tesis proviene del campo track, no de inferirla por título ni de confundirla con los temas. Comprobar con un navegador que ya tiene otra preferencia guardada, y probar que Todos vuelve a mostrar la colección completa.

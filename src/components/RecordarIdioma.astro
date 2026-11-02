@@ -14,6 +14,8 @@ const { lang } = Astro.props;
 <script is:inline define:vars={{ lang }}>
 (function () {
   try {
+    // A shared collection/anchor is an explicit destination, including its language.
+    if (location.hash) return;
     var q = localStorage.getItem('glossa-lang');
     if (!q || q === lang) return;
     // `replace`, no `assign`: volver atrás debe llevar al sitio de donde
