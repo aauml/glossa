@@ -2,6 +2,8 @@ export function initCollectionFilters(root = document, location = window.locatio
   const buttons = [...root.querySelectorAll('.cover-filter .f')];
   const cards = [...root.querySelectorAll('.article-card[data-topics]')];
   const empty = root.querySelector('.cover-empty');
+  const count = root.querySelector('.cover-count');
+  const supplements = [...root.querySelectorAll('.cover-weekly-wrap, .cover-channel')];
   function apply(button, updateUrl = true) {
     const track = button.dataset.track;
     const topic = button.dataset.t;
@@ -16,6 +18,8 @@ export function initCollectionFilters(root = document, location = window.locatio
       if (matches) shown++;
     });
     if (empty) empty.hidden = shown !== 0;
+    if (count) count.textContent = shown + ' ' + (shown === 1 ? count.dataset.one : count.dataset.many);
+    supplements.forEach(item => { item.hidden = track === 'thesis'; });
     if (updateUrl && (track === 'thesis' || location.hash === '#tesis')) {
       history.replaceState(null, '', location.pathname + location.search + (track === 'thesis' ? '#tesis' : ''));
     }

@@ -169,7 +169,7 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
       su derecha; lo que no cabe se alcanza deslizando, sin empujar la portada
       hacia abajo. */}
   <div class="cover-filter">
-    <span class="cover-count">{articles.length} {articles.length === 1 ? t.piece : t.pieces} · 2026</span>
+    <span class="cover-count" data-one={t.piece} data-many={t.pieces}>{articles.length} {articles.length === 1 ? t.piece : t.pieces} · 2026</span>
     <div class="filter-topics" id="filter">
       <button class="f on" data-t="all" aria-pressed="true">{t.all}</button>
       {articles.some(a => a.data.track === 'thesis') && <button class="f" data-track="thesis" aria-pressed="false">{trackLabel('thesis', lang)}</button>}

@@ -167,7 +167,7 @@ a.inline-link:hover, .article a:not(.masthead-section):not(.masthead-brand):not(
 .article-card.featured .featured-tag { font-family: 'IBM Plex Sans', sans-serif; font-size: calc(9px * var(--reader-scale)); letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
 .article-card.featured .article-card-title { font-family: 'Fraunces Variable', 'Fraunces', 'Spectral', serif; font-weight: 500; font-size: calc(clamp(28px, 4.4vw, 40px) * var(--reader-scale)); line-height: 1.12; letter-spacing: -0.015em; }
 .article-card.featured .article-card-dek { font-size: calc(clamp(16px, 1.9vw, 18px) * var(--reader-scale)); }
-.article-card[hidden] { display: none; }
+.article-card[hidden], .cover-weekly-wrap[hidden], .cover-channel[hidden] { display: none; }
 
 .placeholder-card { border-top: 0.5px dashed var(--rule-soft); padding: 18px 0; text-align: left; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
 
