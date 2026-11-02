@@ -981,3 +981,7 @@ h2.section-title em { font-style: italic; font-weight: 500; }
 /* Non-date stages need room for complete labels at every viewport. */
 .timeline-categorical .timeline-horizontal { display: none; }
 .timeline-categorical .timeline-vertical { display: block; }
+
+/* Collection labels stay distinct from the subject tags of each article. */
+.article-track { display: inline-block; padding: .15em .6em; border: 1px solid var(--rule-soft); border-radius: 4px; color: var(--accent); text-decoration: none; }
+.article-track:hover, .article-track:focus-visible { text-decoration: underline; }

@@ -1,6 +1,7 @@
 ---
 import { fecha, rango } from '../lib/weekly.js';
 import { articlesByLang, topTopics } from '../lib/collection.js';
+import { trackLabel } from '../lib/tracks.js';
 
 // Portada compartida por las dos lenguas. Antes solo existía en inglés y la
 // lógica vivía inline en index.astro, así que una portada española habría sido
@@ -160,7 +161,7 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
   </div>
 </section>
 
-<section class="contents">
+<section class="contents" id="tesis">
   {/* Los filtros, en el raíl de la retícula y en UNA línea que se desliza.
       Ocupaban tres renglones a ancho completo —más alto que el bloque del
       semanal— para una utilidad que casi nunca se toca. Ahora el recuento va a
@@ -170,7 +171,8 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
   <div class="cover-filter">
     <span class="cover-count">{articles.length} {articles.length === 1 ? t.piece : t.pieces} · 2026</span>
     <div class="filter-topics" id="filter">
-      <button class="f on" data-t="all">{t.all}</button>
+      <button class="f on" data-t="all" aria-pressed="true">{t.all}</button>
+      {articles.some(a => a.data.track === 'thesis') && <button class="f" data-track="thesis" aria-pressed="false">{trackLabel('thesis', lang)}</button>}
       {topics.map(x => <button class="f" data-t={x}>{x}</button>)}
     </div>
   </div>
@@ -228,7 +230,7 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
   )}
 
   {featured && (
-    <a class="article-card featured" href={href(featured)} data-topics={keyOf(featured)}>
+    <a class="article-card featured" href={href(featured)} data-topics={keyOf(featured)} data-track={featured.data.track}>
       {/* La misma retícula del semanal: los datos en el raíl izquierdo y el
           texto en la columna ancha. Antes cada tarjeta apilaba todo a la
           izquierda y dejaba media página en blanco. */}
@@ -236,7 +238,7 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
         <span class="featured-tag">{t.featured}</span>
         <span class="article-card-number">{featured.data.issue}</span>
         <span class="article-card-date">{featured.data.date}</span>
-        {featured.data.track && featured.data.track !== 'general' && <span class="article-card-track">{featured.data.track}</span>}
+        {featured.data.track && featured.data.track !== 'general' && <span class="article-card-track">{trackLabel(featured.data.track, lang)}</span>}
       </div>
       <div class="article-card-cuerpo">
         <h2 class="article-card-title" set:html={featured.data.titleHTML} />
@@ -250,11 +252,11 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
 
   <div id="list">
     {rest.map((a) => (
-      <a class="article-card" href={href(a)} data-topics={keyOf(a)}>
+      <a class="article-card" href={href(a)} data-topics={keyOf(a)} data-track={a.data.track}>
         <div class="article-card-rail">
           <span class="article-card-number">{a.data.issue}</span>
           <span class="article-card-date">{a.data.date}</span>
-          {a.data.track && a.data.track !== 'general' && <span class="article-card-track">{a.data.track}</span>}
+          {a.data.track && a.data.track !== 'general' && <span class="article-card-track">{trackLabel(a.data.track, lang)}</span>}
         </div>
         <div class="article-card-cuerpo">
           <h2 class="article-card-title" set:html={a.data.titleHTML} />
@@ -309,23 +311,7 @@ const href = (a) => `/articles/${a.slug}/${lang}/`;
   </span>
 </footer>
 
-<script is:inline>
-  (function () {
-    var btns = document.querySelectorAll('.cover-filter .f');
-    var cards = document.querySelectorAll('.article-card[data-topics]');
-    var empty = document.querySelector('.cover-empty');
-    btns.forEach(function (b) {
-      b.addEventListener('click', function () {
-        var t = b.dataset.t;
-        btns.forEach(function (x) { x.classList.toggle('on', x === b); });
-        var shown = 0;
-        cards.forEach(function (c) {
-          var has = t === 'all' || ('|' + c.dataset.topics + '|').indexOf('|' + t + '|') > -1;
-          if (has) { c.removeAttribute('hidden'); shown++; } else { c.setAttribute('hidden', ''); }
-        });
-        // Antes, un filtro sin resultados dejaba la lista en blanco sin explicar por qué.
-        if (empty) { if (shown === 0) empty.removeAttribute('hidden'); else empty.setAttribute('hidden', ''); }
-      });
-    });
-  })();
+<script>
+  import { initCollectionFilters } from '../lib/cover_filters.js';
+  initCollectionFilters();
 </script>

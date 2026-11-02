@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import { trackLabel, thesisCollectionUrl } from '../lib/tracks.js';
 import ArticleMasthead from '../components/ArticleMasthead.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
 import Sources from '../components/Sources.astro';
@@ -44,6 +45,7 @@ const alternates = langs.map(code => ({ lang: code, href: `/articles/${slug}/${c
     <h1 class="hero-headline" set:html={(data.titleHTML || data.title) + botonCopiar(lang)} />
     <p class="hero-dek" set:html={data.dekHTML || data.dek} />
     <div class="hero-meta">
+      {data.track === 'thesis' && <><a class="article-track" href={thesisCollectionUrl(lang)}>{trackLabel(data.track, lang)}</a><span class="hero-meta-bar"></span></>}
       <span>{data.issue}</span>
       <span class="hero-meta-bar"></span>
       <span>{data.date}</span>
