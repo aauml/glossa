@@ -19,7 +19,10 @@ const sidecar = doc?.default ?? doc ?? {};
 // entre `sources` y `web_only` (las que no están en el KB). Un componente de
 // procedencia que descarta fuentes en silencio es peor que no tenerlo, así que
 // se leen las dos listas. El esquema canónico es una sola `sources`.
-const sources = [...(sidecar.sources ?? []), ...(sidecar.web_only ?? [])];
+// An independently revised language can use a different set of references.
+// An explicit empty list must remain empty; older sidecars keep their fallback.
+const sources = sidecar.sources_by_language?.[lang]
+  ?? [...(sidecar.sources ?? []), ...(sidecar.web_only ?? [])];
 
 const COPY = {
   en: {
@@ -53,7 +56,7 @@ const claimOf = (s) => (lang === 'es'
       {sources.map((s) => (
         <li class="sources-item">
           <div class="sources-ref">
-            {s.url ? <a href={s.url} rel="noopener noreferrer">{s.ref}</a> : s.ref}
+            {s.url ? <a href={s.url} rel="noopener noreferrer">{s.ref ?? s.title}</a> : (s.ref ?? s.title)}
           </div>
           <div class="sources-meta">
             {s.role && <span class="sources-role">{t.roles[s.role] ?? s.role}</span>}

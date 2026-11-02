@@ -1,240 +1,254 @@
 {
   "meta": {
     "model": "GPT-6 (Codex)",
-    "candidato": {
-      "id": "2d345a19-2602-568c-a5d9-3893cded8091",
-      "angle": "Complementar la lectura indicada en esta tarjeta para comprender: Prevenir daños no resuelve si desplegar la tecnología.. Explicar con ejemplos y contexto respaldados en fuentes, manteniendo el alcance y los límites de esta lectura.",
-      "model": "arturo",
-      "title": "Lectura de Kaminski (2023) «Regulating the Risks of AI»",
-      "prompt": "Fuente principal: Kaminski (2023) «Regulating the Risks of AI» (319e45b2-c2eb-4830-be83-29b4777ab93a). Sección 1.1, bloque: El problema: RIA vinculante ↔ NIST voluntario. Pregunta: ¿Cómo contrasta la literatura el carácter vinculante del EU AI Act (RIA, Arts. 11-14) frente al carácter voluntario del NIST AI RMF, y por qué la OMB M-25-21 convierte esa asimetría en un problema federal real?. Preparar una lectura anotada que explique esta obra y la contraste con el contexto del bloque. Distinguir sus afirmaciones de los comentarios y límites. No redactar prosa de tesis ni afirmar que Arturo leyó la obra. Enfoque de Arturo: Complementar la lectura indicada en esta tarjeta para comprender: Prevenir daños no resuelve si desplegar la tecnología.. Explicar con ejemplos y contexto respaldados en fuentes, manteniendo el alcance y los límites de esta lectura.",
-      "status": "proposed",
-      "sources": [
-        {
-          "pk": "419c9d88-589b-481a-9643-e21d27aa798c",
-          "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0) – NIST AI 100-1"
-        },
-        {
-          "pk": "57681429-7445-4c2a-aef6-d897fc57eb1a",
-          "title": "Reglamento (UE) 2024/1689 del Parlamento Europeo y del Consejo (Ley de IA)"
-        },
-        {
-          "pk": "3524b0ed-a7cc-4a11-a2fd-a3be61d338e8",
-          "title": "OMB M-25-21: Accelerating Federal Use of AI through Innovation, Governance, and Public Trust"
-        },
-        {
-          "pk": "77f83ca4-6eda-4cf9-851c-49d8af005ea4",
-          "title": "OMB M-25-21 and M-25-22: Federal Agency AI Use and Procurement — Departure from Explicit NIST RMF References"
-        },
-        {
-          "pk": "319e45b2-c2eb-4830-be83-29b4777ab93a",
-          "title": "Kaminski (2023) «Regulating the Risks of AI»",
-          "reading_context": {
-            "why": "Antes de comparar reglas y controles, aclara qué significa regular riesgos y qué decisiones puede dejar fuera.",
-            "stop": "Guardar una nota con argumento, reserva y cita verificable.",
-            "limit": "La obra examina modelos y propuestas de su época. Prevenir daños no resuelve por sí solo si debe desplegarse una tecnología.",
-            "parts": [
-              "Lee la introducción. Si ya puedes explicar el argumento y su reserva, recupera tu nota y continúa; no releas el artículo entero."
-            ],
-            "card_id": "comparar-kam",
-            "section": "1.1",
-            "source_pk": "319e45b2-c2eb-4830-be83-29b4777ab93a",
-            "understand": "Prevenir daños no resuelve si desplegar la tecnología.",
-            "completion_key": "1.1:comparar-kam:c95b9b334463baa6"
-          }
-        }
-      ],
-      "batch_id": "2d345a19-2602-568c-a5d9-3893cded8091",
-      "copied_at": null,
-      "rationale": "Antes de comparar reglas y controles, aclara qué significa regular riesgos y qué decisiones puede dejar fuera.",
-      "work_slug": "tesis",
-      "created_at": "2026-11-01T17:49:19.565806+00:00",
-      "source_pks": [
-        "319e45b2-c2eb-4830-be83-29b4777ab93a",
-        "419c9d88-589b-481a-9643-e21d27aa798c",
-        "57681429-7445-4c2a-aef6-d897fc57eb1a",
-        "3524b0ed-a7cc-4a11-a2fd-a3be61d338e8",
-        "77f83ca4-6eda-4cf9-851c-49d8af005ea4"
-      ],
-      "article_seq": null,
-      "chapter_num": 1,
-      "section_num": "1.1",
-      "section_title": "Planteamiento del problema"
+    "editorial_revision": {
+      "date": "2026-11-02",
+      "language": "es",
+      "authorization": "Explicit user request to create and publish this revision after discussing the explanatory voice. Code publication route; not a dashboard signature.",
+      "verification": "Source passages checked by the writing agent, with mechanical and rendered-page checks recorded separately. No new independent model review claimed.",
+      "length_policy": "adaptive_to_reading_objective",
+      "api_cost_usd": 0,
+      "body_sha256": "b9f936136ad7149e133122e77f5ff4228c97e8402528e5d00471afbe6b18e35a",
+      "english_edition": "Earlier body retained, with a notice linking the new Spanish edition.",
+      "english_prior_sha256": "1e65f0c5a1566cde55f69a7f354c3e465baa86ceced145bcd8f829471a5734d3"
     },
-    "editorial": {
-      "trace": [
-        {
-          "model": "openai/gpt-6.1-sol@high",
-          "receipt": "f7001edde6e81f6c36922e43747780297273de1401c1ee715cdfe44cc59a3758",
-          "cost_usd": 0.307494,
-          "operation": "review",
-          "input_hash": "3d92a3c51f92f3827b5c41531f671a10a0b8ed28bda83aa7490d703577822dff",
-          "reviewed_pair_hash": "a852df7fcee2ece54f60a7618942459d8d6817cbc05fdf3f8396e6df19093661"
-        }
-      ],
-      "render": {
-        "errors": [],
-        "passed": true,
-        "rendered": {
-          "en": {
-            "language": "en",
-            "sections": 6,
-            "lead_characters": 301,
-            "article_characters": 17927
+    "previous_edition": {
+      "model": "GPT-6 (Codex)",
+      "candidato": {
+        "id": "2d345a19-2602-568c-a5d9-3893cded8091",
+        "angle": "Complementar la lectura indicada en esta tarjeta para comprender: Prevenir daños no resuelve si desplegar la tecnología.. Explicar con ejemplos y contexto respaldados en fuentes, manteniendo el alcance y los límites de esta lectura.",
+        "model": "arturo",
+        "title": "Lectura de Kaminski (2023) «Regulating the Risks of AI»",
+        "prompt": "Fuente principal: Kaminski (2023) «Regulating the Risks of AI» (319e45b2-c2eb-4830-be83-29b4777ab93a). Sección 1.1, bloque: El problema: RIA vinculante ↔ NIST voluntario. Pregunta: ¿Cómo contrasta la literatura el carácter vinculante del EU AI Act (RIA, Arts. 11-14) frente al carácter voluntario del NIST AI RMF, y por qué la OMB M-25-21 convierte esa asimetría en un problema federal real?. Preparar una lectura anotada que explique esta obra y la contraste con el contexto del bloque. Distinguir sus afirmaciones de los comentarios y límites. No redactar prosa de tesis ni afirmar que Arturo leyó la obra. Enfoque de Arturo: Complementar la lectura indicada en esta tarjeta para comprender: Prevenir daños no resuelve si desplegar la tecnología.. Explicar con ejemplos y contexto respaldados en fuentes, manteniendo el alcance y los límites de esta lectura.",
+        "status": "proposed",
+        "sources": [
+          {
+            "pk": "419c9d88-589b-481a-9643-e21d27aa798c",
+            "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0) – NIST AI 100-1"
           },
-          "es": {
-            "language": "es",
-            "sections": 6,
-            "lead_characters": 252,
-            "article_characters": 19771
-          }
-        },
-        "pair_hash": "a852df7fcee2ece54f60a7618942459d8d6817cbc05fdf3f8396e6df19093661",
-        "inspection": {
-          "passed": true,
-          "result": {
-            "en": {
-              "issue": "N° 51",
-              "title": "Kaminski on AI risk regulation: binding, voluntary, and the question of deployment",
-              "counts": {
-                "Lede": 1,
-                "Section": 6,
-                "Orientation": 1
-              },
-              "language": "en",
-              "sortDate": "2026-11-01T17:49:19"
-            },
-            "es": {
-              "issue": "N.º 51",
-              "title": "Kaminski sobre la regulación de riesgos de la IA: normas vinculantes, voluntarias y la pregunta del despliegue",
-              "counts": {
-                "Lede": 1,
-                "Section": 6,
-                "Orientation": 1
-              },
-              "language": "es",
-              "sortDate": "2026-11-01T17:49:19"
+          {
+            "pk": "57681429-7445-4c2a-aef6-d897fc57eb1a",
+            "title": "Reglamento (UE) 2024/1689 del Parlamento Europeo y del Consejo (Ley de IA)"
+          },
+          {
+            "pk": "3524b0ed-a7cc-4a11-a2fd-a3be61d338e8",
+            "title": "OMB M-25-21: Accelerating Federal Use of AI through Innovation, Governance, and Public Trust"
+          },
+          {
+            "pk": "77f83ca4-6eda-4cf9-851c-49d8af005ea4",
+            "title": "OMB M-25-21 and M-25-22: Federal Agency AI Use and Procurement — Departure from Explicit NIST RMF References"
+          },
+          {
+            "pk": "319e45b2-c2eb-4830-be83-29b4777ab93a",
+            "title": "Kaminski (2023) «Regulating the Risks of AI»",
+            "reading_context": {
+              "why": "Antes de comparar reglas y controles, aclara qué significa regular riesgos y qué decisiones puede dejar fuera.",
+              "stop": "Guardar una nota con argumento, reserva y cita verificable.",
+              "limit": "La obra examina modelos y propuestas de su época. Prevenir daños no resuelve por sí solo si debe desplegarse una tecnología.",
+              "parts": [
+                "Lee la introducción. Si ya puedes explicar el argumento y su reserva, recupera tu nota y continúa; no releas el artículo entero."
+              ],
+              "card_id": "comparar-kam",
+              "section": "1.1",
+              "source_pk": "319e45b2-c2eb-4830-be83-29b4777ab93a",
+              "understand": "Prevenir daños no resuelve si desplegar la tecnología.",
+              "completion_key": "1.1:comparar-kam:c95b9b334463baa6"
             }
           }
-        },
-        "lock_sha256": "5f1059b3c6b7a572633a3e0a34510fe1c4479754cca1dd4fb66722e34089ea1a",
-        "failure_kind": null,
-        "input_sha256": {
-          "en": "1e65f0c5a1566cde55f69a7f354c3e465baa86ceced145bcd8f829471a5734d3",
-          "es": "57e524b577b29c4092666f34a585bc875fe929393876a6edae11152eae3177bd"
-        },
-        "output_sha256": {
-          "en": "55e5529e419be655c609a053b82b56b44bbf213fbd005f028e343bfa0910fba2",
-          "es": "14ced94a88d016967927b3ee946c30d68ddd50d1d3dabcb275e4c917db1f39c5"
-        },
-        "build_exit_code": 0,
-        "renderer_commit": "6d9ab9820997fcdbeea52953f266282fc63fb0c4",
-        "verifier_sha256": "4dd759d2c854a1a3fae1e52089a55b6138a8f1fdd9e0eee155229e178a19b134",
-        "build_log_sha256": "b80b8cd82df8d538395f7897a70624d4a5d97b3a95cee38f02204d1c9ab01432",
-        "requested_renderer_commit": "6d9ab9820997fcdbeea52953f266282fc63fb0c4"
+        ],
+        "batch_id": "2d345a19-2602-568c-a5d9-3893cded8091",
+        "copied_at": null,
+        "rationale": "Antes de comparar reglas y controles, aclara qué significa regular riesgos y qué decisiones puede dejar fuera.",
+        "work_slug": "tesis",
+        "created_at": "2026-11-01T17:49:19.565806+00:00",
+        "source_pks": [
+          "319e45b2-c2eb-4830-be83-29b4777ab93a",
+          "419c9d88-589b-481a-9643-e21d27aa798c",
+          "57681429-7445-4c2a-aef6-d897fc57eb1a",
+          "3524b0ed-a7cc-4a11-a2fd-a3be61d338e8",
+          "77f83ca4-6eda-4cf9-851c-49d8af005ea4"
+        ],
+        "article_seq": null,
+        "chapter_num": 1,
+        "section_num": "1.1",
+        "section_title": "Planteamiento del problema"
       },
-      "review": {
-        "issues": [
+      "editorial": {
+        "trace": [
           {
-            "kind": "readability",
-            "reason": "«Pymes» aparece por primera vez sin desarrollo, pese a la regla editorial de explicar las siglas especializadas.",
-            "repair": "Escribir «Las pequeñas y medianas empresas —pymes— pueden usar un formulario simplificado».",
-            "excerpt": "Dentro de su ámbito aplicable, los artículos 11–14 especifican requisitos. El 11 exige documentación técnica antes de introducir el sistema en el mercado o ponerlo en servicio, mantenida actualizada. Las pymes pueden usar un formulario simplificado. El 12 exige que los sistemas permitan técnicamente registrar eventos de forma automática durante su ciclo de vida, para facilitar la trazabilidad. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))",
-            "language": "es",
-            "severity": "editorial"
-          },
-          {
-            "kind": "style",
-            "reason": "La repetición «riesgo previsto del uso previsto» entorpece el cierre del párrafo.",
-            "repair": "Sustituir por «Las prácticas deberían ser proporcionales al riesgo previsto para el uso contemplado».",
-            "excerpt": "Para esos usos de alto impacto comprendidos en el memorando, las agencias deben probar antes del despliegue y evaluar el impacto. La sección 4(b)(ii)(C) incluye efectos potenciales de usar y no usar IA. Aborda así la pregunta del despliegue en el papel; no prueba decisiones reales. La evaluación se actualiza periódicamente. La revisa alguien de la propia agencia que no participó en el desarrollo. Aceptar el riesgo exige firma. Otras prácticas incluyen monitoreo, capacitación, supervisión humana y, cuando proceda, revisión humana oportuna y posibilidad de apelar impactos negativos. Las prácticas deberían ser proporcionales al riesgo previsto del uso previsto. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))",
-            "language": "es",
-            "severity": "editorial"
+            "model": "openai/gpt-6.1-sol@high",
+            "receipt": "f7001edde6e81f6c36922e43747780297273de1401c1ee715cdfe44cc59a3758",
+            "cost_usd": 0.307494,
+            "operation": "review",
+            "input_hash": "3d92a3c51f92f3827b5c41531f671a10a0b8ed28bda83aa7490d703577822dff",
+            "reviewed_pair_hash": "a852df7fcee2ece54f60a7618942459d8d6817cbc05fdf3f8396e6df19093661"
           }
         ],
-        "readable": true,
-        "bilingual_parity": true,
-        "editorial_quality": 4,
-        "evidence_supported": true
-      },
-      "run_id": "37b3dfb9-610c-4258-a060-6190312b07ee",
-      "routing": {
-        "basis": "Two-case Glossa benchmark 2026-11-01; provisional routing, no universal winner.",
-        "tiers": [
-          [
-            "anthropic/claude-sonnet-5-5@high",
-            "openai/gpt-6.1-sol@high"
+        "render": {
+          "errors": [],
+          "passed": true,
+          "rendered": {
+            "en": {
+              "language": "en",
+              "sections": 6,
+              "lead_characters": 301,
+              "article_characters": 17927
+            },
+            "es": {
+              "language": "es",
+              "sections": 6,
+              "lead_characters": 252,
+              "article_characters": 19771
+            }
+          },
+          "pair_hash": "a852df7fcee2ece54f60a7618942459d8d6817cbc05fdf3f8396e6df19093661",
+          "inspection": {
+            "passed": true,
+            "result": {
+              "en": {
+                "issue": "N° 51",
+                "title": "Kaminski on AI risk regulation: binding, voluntary, and the question of deployment",
+                "counts": {
+                  "Lede": 1,
+                  "Section": 6,
+                  "Orientation": 1
+                },
+                "language": "en",
+                "sortDate": "2026-11-01T17:49:19"
+              },
+              "es": {
+                "issue": "N.º 51",
+                "title": "Kaminski sobre la regulación de riesgos de la IA: normas vinculantes, voluntarias y la pregunta del despliegue",
+                "counts": {
+                  "Lede": 1,
+                  "Section": 6,
+                  "Orientation": 1
+                },
+                "language": "es",
+                "sortDate": "2026-11-01T17:49:19"
+              }
+            }
+          },
+          "lock_sha256": "5f1059b3c6b7a572633a3e0a34510fe1c4479754cca1dd4fb66722e34089ea1a",
+          "failure_kind": null,
+          "input_sha256": {
+            "en": "1e65f0c5a1566cde55f69a7f354c3e465baa86ceced145bcd8f829471a5734d3",
+            "es": "57e524b577b29c4092666f34a585bc875fe929393876a6edae11152eae3177bd"
+          },
+          "output_sha256": {
+            "en": "55e5529e419be655c609a053b82b56b44bbf213fbd005f028e343bfa0910fba2",
+            "es": "14ced94a88d016967927b3ee946c30d68ddd50d1d3dabcb275e4c917db1f39c5"
+          },
+          "build_exit_code": 0,
+          "renderer_commit": "6d9ab9820997fcdbeea52953f266282fc63fb0c4",
+          "verifier_sha256": "4dd759d2c854a1a3fae1e52089a55b6138a8f1fdd9e0eee155229e178a19b134",
+          "build_log_sha256": "b80b8cd82df8d538395f7897a70624d4a5d97b3a95cee38f02204d1c9ab01432",
+          "requested_renderer_commit": "6d9ab9820997fcdbeea52953f266282fc63fb0c4"
+        },
+        "review": {
+          "issues": [
+            {
+              "kind": "readability",
+              "reason": "«Pymes» aparece por primera vez sin desarrollo, pese a la regla editorial de explicar las siglas especializadas.",
+              "repair": "Escribir «Las pequeñas y medianas empresas —pymes— pueden usar un formulario simplificado».",
+              "excerpt": "Dentro de su ámbito aplicable, los artículos 11–14 especifican requisitos. El 11 exige documentación técnica antes de introducir el sistema en el mercado o ponerlo en servicio, mantenida actualizada. Las pymes pueden usar un formulario simplificado. El 12 exige que los sistemas permitan técnicamente registrar eventos de forma automática durante su ciclo de vida, para facilitar la trazabilidad. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))",
+              "language": "es",
+              "severity": "editorial"
+            },
+            {
+              "kind": "style",
+              "reason": "La repetición «riesgo previsto del uso previsto» entorpece el cierre del párrafo.",
+              "repair": "Sustituir por «Las prácticas deberían ser proporcionales al riesgo previsto para el uso contemplado».",
+              "excerpt": "Para esos usos de alto impacto comprendidos en el memorando, las agencias deben probar antes del despliegue y evaluar el impacto. La sección 4(b)(ii)(C) incluye efectos potenciales de usar y no usar IA. Aborda así la pregunta del despliegue en el papel; no prueba decisiones reales. La evaluación se actualiza periódicamente. La revisa alguien de la propia agencia que no participó en el desarrollo. Aceptar el riesgo exige firma. Otras prácticas incluyen monitoreo, capacitación, supervisión humana y, cuando proceda, revisión humana oportuna y posibilidad de apelar impactos negativos. Las prácticas deberían ser proporcionales al riesgo previsto del uso previsto. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))",
+              "language": "es",
+              "severity": "editorial"
+            }
           ],
-          [
-            "anthropic/claude-opus-5-5@medium",
-            "openai/gpt-6.1-sol@high"
-          ]
-        ],
-        "reason": "Desarrollar una explicación con contexto amplio de la lectura.",
-        "cap_usd": 4,
-        "profile": "explanation",
-        "referee": null,
-        "signals": {
-          "source_count": 5,
-          "evidence_chars": 73327,
-          "comparison_requested": false,
-          "legal_or_framework_scope": false
+          "readable": true,
+          "bilingual_parity": true,
+          "editorial_quality": 4,
+          "evidence_supported": true
         },
-        "version": "glossa-adaptive-20261101-v1",
-        "estimated_usd": [
-          1,
-          2.5
-        ],
-        "estimate_scope": "EN+ES, draft/review/repair; prepared sources; not a fixed quote or quality guarantee"
-      },
-      "cost_usd": 0.307494,
-      "pair_hash": "a852df7fcee2ece54f60a7618942459d8d6817cbc05fdf3f8396e6df19093661",
-      "input_hash": "da2e55a6f49001ba9659779800b018c4ee8c61b6df55a861447dd409ba4e3fb4",
-      "request_cost_usd": 6.213289300000001,
-      "source_correction": {
-        "model": "GPT-6 (Codex)",
-        "policy": "source-checked-correction-v1",
-        "reason": "Resolve all six issues of the retained complete review: exact EU exclusions, original OMB 4(a)(i) deadline/reporting clause, deadline parity and two editorial repetitions. Independent approval remains pending; total cap unchanged.",
-        "pair_hash": "a852df7fcee2ece54f60a7618942459d8d6817cbc05fdf3f8396e6df19093661",
-        "request_id": "2d345a19-2602-568c-a5d9-3893cded8091",
-        "api_cost_usd": 0,
-        "length_policy": "reading-objective-length-v1",
-        "parent_run_id": "7ed16da8-5356-4165-9aa1-cc5a7a231b6a",
-        "parent_pair_hash": "e4f4f964832bd94c0f8de974760aabea440c915c0257b0a912ab35f2415a7010",
-        "original_locators": [
-          {
-            "label": "Annex III 1(a): remote biometric identification, permitted uses and verification exclusion",
-            "chunk_id": "0997e4e7-cf3f-4951-a072-987c983685a5",
-            "text_md5": "697c441d6f4ca30bef39c1e6f5955496",
-            "document_id": "388da45c-40e1-49e1-bc61-bafe9a206abb",
-            "document_sha256": "e29a2ec945d7176509d20ccd183054786fced1462b7fc4c0072c078abcd2657b"
+        "run_id": "37b3dfb9-610c-4258-a060-6190312b07ee",
+        "routing": {
+          "basis": "Two-case Glossa benchmark 2026-11-01; provisional routing, no universal winner.",
+          "tiers": [
+            [
+              "anthropic/claude-sonnet-5-5@high",
+              "openai/gpt-6.1-sol@high"
+            ],
+            [
+              "anthropic/claude-opus-5-5@medium",
+              "openai/gpt-6.1-sol@high"
+            ]
+          ],
+          "reason": "Desarrollar una explicación con contexto amplio de la lectura.",
+          "cap_usd": 4,
+          "profile": "explanation",
+          "referee": null,
+          "signals": {
+            "source_count": 5,
+            "evidence_chars": 73327,
+            "comparison_requested": false,
+            "legal_or_framework_scope": false
           },
-          {
-            "label": "OMB M-25-21 Section 4(a)(i), complete deadline and reporting clause with neighboring original context retained",
-            "chunk_id": "7431f354-f5b2-4c50-a891-e6475ebf9dd9",
-            "text_md5": "8de95e5cf34f0443f84b59e9852659e5",
-            "document_id": "29ca4b1d-c98d-4b43-8490-d665ea36a9c2",
-            "document_sha256": "2786b2f1c4cfb9039a32054392bb0ceb3b15e8ed8315e7726161a1400da03031"
+          "version": "glossa-adaptive-20261101-v1",
+          "estimated_usd": [
+            1,
+            2.5
+          ],
+          "estimate_scope": "EN+ES, draft/review/repair; prepared sources; not a fixed quote or quality guarantee"
+        },
+        "cost_usd": 0.307494,
+        "pair_hash": "a852df7fcee2ece54f60a7618942459d8d6817cbc05fdf3f8396e6df19093661",
+        "input_hash": "da2e55a6f49001ba9659779800b018c4ee8c61b6df55a861447dd409ba4e3fb4",
+        "request_cost_usd": 6.213289300000001,
+        "source_correction": {
+          "model": "GPT-6 (Codex)",
+          "policy": "source-checked-correction-v1",
+          "reason": "Resolve all six issues of the retained complete review: exact EU exclusions, original OMB 4(a)(i) deadline/reporting clause, deadline parity and two editorial repetitions. Independent approval remains pending; total cap unchanged.",
+          "pair_hash": "a852df7fcee2ece54f60a7618942459d8d6817cbc05fdf3f8396e6df19093661",
+          "request_id": "2d345a19-2602-568c-a5d9-3893cded8091",
+          "api_cost_usd": 0,
+          "length_policy": "reading-objective-length-v1",
+          "parent_run_id": "7ed16da8-5356-4165-9aa1-cc5a7a231b6a",
+          "parent_pair_hash": "e4f4f964832bd94c0f8de974760aabea440c915c0257b0a912ab35f2415a7010",
+          "original_locators": [
+            {
+              "label": "Annex III 1(a): remote biometric identification, permitted uses and verification exclusion",
+              "chunk_id": "0997e4e7-cf3f-4951-a072-987c983685a5",
+              "text_md5": "697c441d6f4ca30bef39c1e6f5955496",
+              "document_id": "388da45c-40e1-49e1-bc61-bafe9a206abb",
+              "document_sha256": "e29a2ec945d7176509d20ccd183054786fced1462b7fc4c0072c078abcd2657b"
+            },
+            {
+              "label": "OMB M-25-21 Section 4(a)(i), complete deadline and reporting clause with neighboring original context retained",
+              "chunk_id": "7431f354-f5b2-4c50-a891-e6475ebf9dd9",
+              "text_md5": "8de95e5cf34f0443f84b59e9852659e5",
+              "document_id": "29ca4b1d-c98d-4b43-8490-d665ea36a9c2",
+              "document_sha256": "2786b2f1c4cfb9039a32054392bb0ceb3b15e8ed8315e7726161a1400da03031"
+            }
+          ],
+          "parent_input_hash": "76d033fc1aa2b19745d3f53048eaa2bc7076ffd42b5cf706cd340ad869bb4438",
+          "review_output_policy": "counted-correction-review-v1",
+          "review_metadata_policy": "author-withheld-v1"
+        },
+        "budget_authorization": {
+          "date": "2026-11-01",
+          "scope": "request_total_including_prior_receipts",
+          "cap_usd": 6.5,
+          "decision": "D-118",
+          "request_id": "2d345a19-2602-568c-a5d9-3893cded8091",
+          "authorization": "Tras la pregunta concreta de elevar el tope total de US$6 a US$6,50, Arturo respondió: ‘Finaliza y que que se en automatico todo, recisado.’ Autoriza completar la revisión y el borrador automático de esta solicitud hasta US$6,50 TOTAL, incluidos US$5,9057953 ya registrados; no autoriza firmar/publicar ni eleva el límite de otras solicitudes.",
+          "previous_authorization": {
+            "cap_usd": 6,
+            "authorization": "Arturo aceptó elevar a US$6 el total de esta solicitud: ‘Si, pero no deberia de ser tanto, ones normal?’. Incluye US$2.7356238 previos; no es un gasto adicional de US$6 ni firma de publicación."
           }
-        ],
-        "parent_input_hash": "76d033fc1aa2b19745d3f53048eaa2bc7076ffd42b5cf706cd340ad869bb4438",
-        "review_output_policy": "counted-correction-review-v1",
-        "review_metadata_policy": "author-withheld-v1"
-      },
-      "budget_authorization": {
-        "date": "2026-11-01",
-        "scope": "request_total_including_prior_receipts",
-        "cap_usd": 6.5,
-        "decision": "D-118",
-        "request_id": "2d345a19-2602-568c-a5d9-3893cded8091",
-        "authorization": "Tras la pregunta concreta de elevar el tope total de US$6 a US$6,50, Arturo respondió: ‘Finaliza y que que se en automatico todo, recisado.’ Autoriza completar la revisión y el borrador automático de esta solicitud hasta US$6,50 TOTAL, incluidos US$5,9057953 ya registrados; no autoriza firmar/publicar ni eleva el límite de otras solicitudes.",
-        "previous_authorization": {
-          "cap_usd": 6,
-          "authorization": "Arturo aceptó elevar a US$6 el total de esta solicitud: ‘Si, pero no deberia de ser tanto, ones normal?’. Incluye US$2.7356238 previos; no es un gasto adicional de US$6 ni firma de publicación."
         }
-      }
-    },
-    "guia_version": 3,
-    "fact_check_status": "independently_reviewed_against_supplied_passages_not_signed"
+      },
+      "guia_version": 3,
+      "fact_check_status": "independently_reviewed_against_supplied_passages_not_signed"
+    }
   },
   "sources": [
     {
@@ -292,7 +306,8 @@
         }
       },
       "document_sha256": "babe2391b823bfa4e6a306d33143b6a24b99c2d6c6a5c4944e515019516cadd9",
-      "verification_scope": "exact_editorial_artifact_and_supplied_passages"
+      "verification_scope": "exact_editorial_artifact_and_supplied_passages",
+      "ref": "Regulating the Risks of AI"
     },
     {
       "id": "419c9d88-589b-481a-9643-e21d27aa798c",
@@ -349,7 +364,8 @@
         }
       },
       "document_sha256": "9e78d8ef58e61c0ffe375fd812267130e99113584ccb8584203919b66bd5cbbe",
-      "verification_scope": "exact_editorial_artifact_and_supplied_passages"
+      "verification_scope": "exact_editorial_artifact_and_supplied_passages",
+      "ref": "Artificial Intelligence Risk Management Framework (AI RMF 1.0) – NIST AI 100-1"
     },
     {
       "id": "57681429-7445-4c2a-aef6-d897fc57eb1a",
@@ -601,7 +617,8 @@
         }
       },
       "document_sha256": "e29a2ec945d7176509d20ccd183054786fced1462b7fc4c0072c078abcd2657b",
-      "verification_scope": "exact_editorial_artifact_and_supplied_passages"
+      "verification_scope": "exact_editorial_artifact_and_supplied_passages",
+      "ref": "Reglamento (UE) 2024/1689 del Parlamento Europeo y del Consejo (Ley de IA)"
     },
     {
       "id": "3524b0ed-a7cc-4a11-a2fd-a3be61d338e8",
@@ -743,7 +760,8 @@
         }
       },
       "document_sha256": "2786b2f1c4cfb9039a32054392bb0ceb3b15e8ed8315e7726161a1400da03031",
-      "verification_scope": "exact_editorial_artifact_and_supplied_passages"
+      "verification_scope": "exact_editorial_artifact_and_supplied_passages",
+      "ref": "OMB M-25-21: Accelerating Federal Use of AI through Innovation, Governance, and Public Trust"
     },
     {
       "id": "77f83ca4-6eda-4cf9-851c-49d8af005ea4",
@@ -820,7 +838,108 @@
         }
       },
       "document_sha256": "25179ac502be8ce76d6ea95249ba9ed810a530ad7698a1e42664bc8139aaf212",
-      "verification_scope": "exact_editorial_artifact_and_supplied_passages"
+      "verification_scope": "exact_editorial_artifact_and_supplied_passages",
+      "ref": "OMB M-25-21 and M-25-22: Federal Agency AI Use and Procurement — Departure from Explicit NIST RMF References"
     }
-  ]
+  ],
+  "sources_by_language": {
+    "es": [
+      {
+        "id": "319e45b2-c2eb-4830-be83-29b4777ab93a",
+        "url": "https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf",
+        "role": "primary",
+        "kb_pk": "319e45b2-c2eb-4830-be83-29b4777ab93a",
+        "title": "Regulating the Risks of AI",
+        "chunks": [
+          {
+            "id": "1d8e44f2-17f1-4e27-acd4-aec2d0fc2e12",
+            "text_md5": "8ea51fc86843a10e9215ef9510cbe6d7",
+            "chunk_index": 0
+          },
+          {
+            "id": "55ad9dde-5301-4217-b683-31c35e8c36cb",
+            "text_md5": "1e699b30c4713d4750368e0298964ee0",
+            "chunk_index": 11
+          },
+          {
+            "id": "54f0581a-1c60-4c9c-bef9-3d8136fa3c8e",
+            "text_md5": "0de3fd85f406325f961c87f1b02d5cb5",
+            "chunk_index": 10
+          },
+          {
+            "id": "08ace56b-9b5b-420c-bda1-8a2ddb6e44a2",
+            "text_md5": "203483a69f8280d78b3bb32641f974fe",
+            "chunk_index": 18
+          },
+          {
+            "id": "7115d7ab-b2fa-4088-ac57-a360299145ba",
+            "text_md5": "2c25e20dade9d10f800db9240c4d6f54",
+            "chunk_index": 6
+          },
+          {
+            "id": "42763e4a-c119-4e51-bb76-6332886fc815",
+            "text_md5": "d2b9d3743e4e11ffcf6a33b75eb13338",
+            "chunk_index": 17
+          }
+        ],
+        "scholar": "Kaminski, Margot E. (2023)",
+        "claim_en": "Source evidence reviewed against this draft.",
+        "claim_es": "Introducción, pp. 1350–1354, especialmente p. 1352: adopción presupuesta y daños difíciles de cuantificar. P. 1367: utilidad de la prevención ex ante. Pp. 1384–1386: la gestión también puede incluir retirada y otras herramientas. Las escenas de la cámara son ejemplos editoriales hipotéticos.",
+        "verificada": "si",
+        "document_id": "d6b3c471-b2ef-4dd9-a306-06fc7b5cd610",
+        "bibliography": {
+          "document": {
+            "title": "Regulating the Risks of AI",
+            "authors": "Kaminski, Margot E."
+          },
+          "catalogue": {
+            "url": "https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf",
+            "title": "Regulating the Risks of AI",
+            "scholar": "Kaminski, Margot E. (2023)"
+          }
+        },
+        "document_sha256": "babe2391b823bfa4e6a306d33143b6a24b99c2d6c6a5c4944e515019516cadd9",
+        "verification_scope": "Cited passages checked for this Spanish revision; not a certification of the entire work, legal currency or real-world implementation.",
+        "ref": "Margot E. Kaminski · Regulating the Risks of AI · Boston University Law Review 103 (2023), 1347–1411"
+      },
+      {
+        "id": "419c9d88-589b-481a-9643-e21d27aa798c",
+        "url": "https://doi.org/10.6028/NIST.AI.100-1",
+        "role": "primary",
+        "kb_pk": "419c9d88-589b-481a-9643-e21d27aa798c",
+        "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0) – NIST AI 100-1",
+        "chunks": [
+          {
+            "id": "83810320-7b3c-4927-8785-d4bacb709df4",
+            "chunk_index": 15,
+            "text_md5": "784225eb0d416961ab474d6468c61bad"
+          },
+          {
+            "id": "6a28be68-55ec-4bf3-b4f9-02c1df148320",
+            "chunk_index": 51,
+            "text_md5": "c95ab40a4b1f299610d8be93a40f29b8"
+          }
+        ],
+        "scholar": "NIST (2023)",
+        "claim_en": "Source evidence reviewed against this draft.",
+        "claim_es": "Versión 1.0: p. 8, riesgo residual; p. 32, MANAGE 1.1, decisión de continuar, MANAGE 1.4, riesgos residuales documentados, y MANAGE 2.1, alternativas sin IA. El marco es voluntario; su existencia no acredita una aplicación concreta.",
+        "verificada": "si",
+        "document_id": "83dbd7fe-0f68-4486-82b4-45f50863cf2c",
+        "bibliography": {
+          "document": {
+            "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0) – NIST AI 100-1",
+            "authors": "NIST"
+          },
+          "catalogue": {
+            "url": "https://doi.org/10.6028/NIST.AI.100-1",
+            "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0) – NIST AI 100-1",
+            "scholar": "NIST (2023)"
+          }
+        },
+        "document_sha256": "9e78d8ef58e61c0ffe375fd812267130e99113584ccb8584203919b66bd5cbbe",
+        "verification_scope": "Cited passages checked for this Spanish revision; not a certification of the entire work, legal currency or real-world implementation.",
+        "ref": "NIST · Artificial Intelligence Risk Management Framework (AI RMF 1.0) · NIST AI 100-1 (2023)"
+      }
+    ]
+  }
 }

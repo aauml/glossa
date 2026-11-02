@@ -1,142 +1,83 @@
 ---
 issue: "N.º 51"
-date: '1 de noviembre de 2026'
+date: '2 de noviembre de 2026'
 sortDate: "2026-11-01T17:49:19"
-title: 'Kaminski sobre la regulación de riesgos de la IA: normas vinculantes, voluntarias y la pregunta del despliegue'
-titleHTML: 'Kaminski sobre la regulación de riesgos de la IA: normas vinculantes, voluntarias y la pregunta del despliegue'
-dek: 'Lectura guiada de Kaminski (2023). Tratar los daños de la IA como riesgos deja abierta la pregunta de si desplegar un sistema. El reglamento europeo, el marco del NIST y un memorando federal de 2025 muestran adónde va esa pregunta.'
-coverDek: 'Prevenir un daño no resuelve si una tecnología debe desplegarse.'
-topics: ['Gobernanza de la IA', 'regulación de riesgos', 'NIST AI RMF', 'Reglamento de IA de la UE', 'OMB M-25-21']
+title: 'Kaminski: prevenir el daño y decidir qué riesgo aceptar'
+titleHTML: 'Kaminski: prevenir el daño y decidir <em>qué riesgo aceptar</em>'
+dek: 'Una tecnología puede mejorar y seguir planteando una decisión difícil. Kaminski ayuda a entender por qué evaluar sus riesgos también exige preguntarse si conviene utilizarla. El marco del NIST permite precisar esa diferencia.'
+coverDek: 'Qué significa prevenir, qué riesgo permanece y quién decide si una tecnología debe usarse.'
+topics: ['Gobernanza de la IA', 'regulación de riesgos', 'NIST AI RMF']
 language: 'es'
 track: 'thesis'
 ---
 import Lede from '../../../components/Lede.astro';
-import Orientation from '../../../components/Orientation.astro';
 import Section from '../../../components/Section.astro';
 import ContextBox from '../../../components/ContextBox.astro';
 
 <Lede>
-Kaminski (2023) pregunta qué cambia al llamar «riesgos» a los daños de la IA. Su argumento permite examinar cómo un memorando federal de 2025 traslada parte del contraste entre lo vinculante y lo voluntario al gobierno estadounidense. ([Kaminski 2023](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+Una tecnología puede equivocarse menos y seguir planteando una decisión difícil. Mejorar su funcionamiento aporta razones para utilizarla. Todavía hace falta explicar para qué se usará, quién soportará sus errores y por qué ese riesgo resulta aceptable. Esta distancia entre reducir un daño y justificar una decisión atraviesa el argumento de Margot E. Kaminski sobre la regulación de la inteligencia artificial.
 </Lede>
 
-<Orientation lang="es">
-La lectura asignada es la introducción de [Kaminski (2023)](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf). Detente cuando puedas enunciar su argumento, su reserva y una cita verificable. Lo demás es contexto, no tarea: el caso de Tempe, el reglamento de la UE, el marco del NIST (la agencia estadounidense de normas) y el memorando de la OMB (la oficina presupuestaria de la Casa Blanca). Kaminski escribió antes de ese memorando. Y analiza un proyecto de ley europeo, no su texto final.
-</Orientation>
+<Section number="01" title="Lo que cambia al hablar de riesgos">
 
-<Section number="1" title="La tesis de la lectura asignada">
+Imaginemos una comprobación de identidad mediante comparación facial. Una persona se presenta ante una cámara, el programa compara su rostro con una fotografía y no encuentra la coincidencia esperada. Hay que comprobar su identidad de otra manera. Es un ejemplo hipotético: sirve para seguir el razonamiento, sin describir un incidente ni los procedimientos reales de un sistema determinado.
 
-Kaminski parte de una convergencia. Los legisladores de Estados Unidos y de la Unión Europea recurrieron a la regulación de riesgos, es decir, reglas que evalúan y reducen daños, para gobernar la IA. Ella no la considera inevitable ni neutral. Plantear los daños como riesgos es una elección cargada de valores. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+Antes de ponerlo en uso, quienes lo preparan podrían probar distintas cámaras, condiciones de luz y fotografías. La idea es descubrir problemas antes de que afecten a las personas. Ese es el sentido de una intervención *ex ante*: actuar por anticipado. Una evaluación previa permite cambiar el diseño o reconsiderar su utilización a tiempo.
 
-Su reserva es la que conviene guardar. La introducción (p. 1352) dice, en traducción al español, que la regulación de riesgos “por lo general supone que una tecnología se adoptará pese a sus daños”. El resumen (p. 1347), también traducido aquí, es más completo. La regulación de riesgos tiende a corregir los problemas de la tecnología para que pueda usarse, “en lugar de contemplar que a veces quizá no sea apropiado usarla en absoluto”. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+Una reclamación después de un perjuicio sería, en cambio, una intervención *ex post*: actuar después del hecho relevante. Las dos pueden complementarse. La prevención intenta evitar el daño; una vía posterior permite responder cuando la prevención resulta insuficiente. La existencia de una evaluación previa, por sí sola, no explica qué ocurriría con la reclamación de una persona.
 
-Hay otros costos. La regulación de riesgos puede ocultar daños difíciles de cuantificar y poblaciones marginadas. Puede disfrazar decisiones políticas como técnicas. Kaminski también admite evaluaciones cualitativas. Conservar la responsabilidad jurídica tampoco garantiza indemnización: muchos daños de la IA pueden escapar al derecho de daños. Su marco permite identificar el tipo de regulación usado y sus límites. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+Kaminski reconoce el valor de prevenir. En [*Regulating the Risks of AI*](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf#page=21), explica que actuar antes puede influir en el diseño y evitar daños, en lugar de esperar a compensarlos. Su reserva aparece al examinar qué preguntas pasan al primer plano cuando todo se organiza como gestión de riesgos.
 
-</Section>
+En el ejemplo, la conversación podría concentrarse en reducir las comprobaciones fallidas. Es una tarea necesaria. Pero, si ocupa toda la atención, la decisión de utilizar comparación facial empieza a quedar implícita. Se discute cómo mejorarla mientras recibe menos atención la posibilidad de resolver esa tarea de otra manera.
 
-<Section number="2" title="Un ancla: Tempe, 2018">
-
-Este caso viene de la Parte I del artículo, fuera de la introducción asignada. En marzo de 2018, un auto autónomo de Uber en Tempe, Arizona, no detectó a una peatona. Alertó a su conductora de respaldo apenas 0.2 segundos antes del impacto. El auto mató a Elaine Herzberg, de 49 años. Uber había reducido los operadores de seguridad de dos por auto a uno. No tenía una política para vigilar el uso del celular. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
-
-Ilustración imaginada, no de Kaminski: un regulador podría exigir pruebas, turnos rediseñados y monitoreo. Kaminski sí reporta que los investigadores, ella incluida, valoran la regulación ex ante, esto es, reglas aplicadas antes del uso. Puede prevenir daños en lugar de solo compensarlos. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
-
-Lo que queda abierto es la pregunta del despliegue. Este planteamiento es una ayuda de lectura, no son palabras de Kaminski ni una descripción exhaustiva. Pregunta uno: ¿cómo hacemos más seguro este sistema? Pregunta dos: ¿debería operar en vías públicas? La regulación de riesgos por lo general supone la adopción, aunque las prohibiciones precautorias pueden impedir el uso. Reflexiona: ¿cuál responde el documento rector de un sistema que estudies? ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+Ese desplazamiento es el que Kaminski invita a reconocer. En la [introducción, página 1352](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf#page=6), advierte que regular riesgos suele presuponer la adopción de la tecnología pese a sus daños. Habla de una tendencia. Su argumento deja espacio para herramientas que permiten restringir o impedir determinados usos.
 
 </Section>
 
-<Section number="3" title="El lado voluntario y Kaminski sobre el proyecto europeo">
+<Section number="02" title="El riesgo que queda después de mejorar">
 
-Kaminski ubica el Marco de Gestión de Riesgos de IA del NIST (AI RMF) en el extremo blando. En sus palabras, es sin más autorregulación: orientación voluntaria, no ley impuesta desde arriba. El propio NIST dice que el Marco pretende ser voluntario, respetuoso de los derechos, no sectorial y agnóstico respecto del caso de uso. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf); [NIST](https://doi.org/10.6028/NIST.AI.100-1))
+Supongamos que una cámara nueva reduce las comprobaciones fallidas. Esa medida es una forma de *mitigación*: reduce la probabilidad de un problema o la gravedad de sus consecuencias. Una comprobación alternativa también podría mitigar el perjuicio de un fallo, aunque no mejorara el programa de comparación. El punto es el efecto sobre la persona.
 
-Que sea voluntario no significa que descarte detener un sistema. El Núcleo tiene cuatro funciones: Gobernar, Mapear, Medir y Gestionar. Gestionar puede significar desplegar un sistema tal cual, desplegarlo con más pruebas y controles, o retirarlo. No desplegar es una opción, aunque el Marco por sí solo no obliga a elegirla. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+Puede quedar un *riesgo residual*, el que permanece después de tratar el riesgo. Así lo define el [Marco de Gestión de Riesgos de IA, versión 1.0, página 8](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf#page=13). Lo publicó el NIST, el Instituto Nacional de Estándares y Tecnología de Estados Unidos. La expresión permite nombrar algo sencillo: haber tomado medidas no significa haber eliminado toda posibilidad de daño.
 
-Del lado europeo, Kaminski analiza el proyecto de 2021. Describe un armazón de seguridad de productos: prohibiciones, evaluaciones de conformidad (verificaciones de que un sistema cumple requisitos) y gestión de riesgos durante el ciclo de vida. Para sistemas de alto riesgo que afectan sobre todo derechos fundamentales, se apoyaba en la autoevaluación. Reporta que no contenía derechos individuales. Son afirmaciones sobre el proyecto. También advierte que una herramienta jurídica con el mismo nombre no es necesariamente la misma. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+En nuestro ejemplo, algunas comprobaciones podrían seguir fallando. Para una persona, repetir el trámite podría ser una molestia pequeña. Para otra, bajo circunstancias diferentes, la demora podría tener consecuencias serias. Son posibilidades del ejemplo, no resultados medidos. Ayudan a ver por qué contar errores y valorar sus consecuencias son tareas relacionadas, pero distintas.
 
-</Section>
+El promedio tampoco responde quién soporta el problema. Una evaluación podría mostrar una mejora general y todavía necesitar preguntas sobre cómo se distribuyen los fallos. Importaría saber si recaen repetidamente en las mismas personas y qué ocurre cuando suceden. Para responder harían falta datos de ese uso concreto.
 
-<Section number="4" title="El reglamento europeo final: qué obliga y a quién">
+Aquí aparece el carácter *normativo* de la decisión: intervienen criterios sobre lo que se considera aceptable. En este sentido, «normativo» no significa necesariamente que exista una ley. Significa que hay una valoración. Una medición informa cuánto falla el sistema; aceptar el riesgo restante exige razones sobre sus consecuencias, sus alternativas y las personas afectadas.
 
-El texto europeo aportado es la versión oficial española del Reglamento (UE) 2024/1689. Las descripciones se refieren a esa versión. El considerando 26 pide normas vinculantes y proporcionadas basadas en riesgos. El 27 llama no vinculantes a los principios éticos de 2019. La distinción se refiere al carácter jurídico de los instrumentos; no demuestra cumplimiento real. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El alcance precede a la comparación. El artículo 2 vincula la cobertura con la UE. Incluye a proveedores que introducen sistemas en su mercado o los ponen allí en servicio, estén donde estén. También cubre a responsables del despliegue situados en la UE y a proveedores y responsables de terceros países cuyos resultados se usan en ella. Otros actores comprendidos son importadores, distribuidores, ciertos fabricantes de productos, representantes autorizados y personas afectadas situadas en la UE. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-Se excluyen los fines exclusivamente militares, de defensa y seguridad nacional. Las exclusiones relativas a investigación tienen condiciones propias. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El artículo 2(6) excluye sistemas o modelos desarrollados y puestos en servicio específicamente con la investigación y el desarrollo científicos como única finalidad. Usar para investigar un sistema que por lo demás está comprendido no lo excluye automáticamente. El artículo 2(8) excluye por separado actividades de investigación, prueba y desarrollo anteriores a la introducción en el mercado o puesta en servicio, sujetas al Derecho de la UE aplicable. Las pruebas en condiciones reales no quedan cubiertas por esa exclusión de actividades. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El artículo 2(4) excluye, bajo condiciones, a autoridades públicas de terceros países y organizaciones internacionales. Deben usar IA en acuerdos o cooperación internacionales para garantizar el cumplimiento del Derecho y cooperar judicialmente con la UE o sus Estados miembros. Se exigen garantías suficientes de protección de derechos y libertades fundamentales. El artículo 2(10) excluye obligaciones de responsables del despliegue que sean personas físicas con usos puramente personales y no profesionales. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El artículo 2(12) excluye sistemas divulgados con licencias libres y de código abierto. La excepción no cubre sistemas introducidos en el mercado o puestos en servicio como sistemas de alto riesgo, o comprendidos en los artículos 5 o 50. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El artículo 6 establece dos vías de alto riesgo. Una combina un producto del anexo I, o su componente de seguridad, con una evaluación de conformidad obligatoria por terceros. La otra abarca los usos enumerados en el anexo III. El artículo 6(3) permite excluir un uso del anexo III si no plantea un riesgo importante para salud, seguridad o derechos fundamentales, también al no influir sustancialmente en las decisiones. Además, debe cumplir alguna de las condiciones enumeradas de tareas limitadas. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-La elaboración de perfiles de personas prevalece sobre esa excepción. El proveedor que la invoque debe documentar su evaluación y registrar el sistema. Esta guía no clasifica un sistema concreto. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El artículo 2(2) limita además la vía de productos del anexo I, sección B. Solo se les aplican el artículo 6(1), los artículos 102–109 y el 112. El 57 rige solo en la medida en que los requisitos se hayan integrado en la legislación sectorial enumerada. Así, el alto riesgo no hace universales los artículos 11–14. Estas condiciones delimitan la comparación. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-Dentro de su ámbito aplicable, los artículos 11–14 especifican requisitos. El 11 exige documentación técnica antes de introducir el sistema en el mercado o ponerlo en servicio, mantenida actualizada. Las pymes pueden usar un formulario simplificado. El 12 exige que los sistemas permitan técnicamente registrar eventos de forma automática durante su ciclo de vida, para facilitar la trazabilidad. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El artículo 13 exige transparencia para que los responsables del despliegue interpreten y usen correctamente los resultados, con instrucciones de uso. El 14 exige supervisión humana eficaz, proporcional al riesgo, la autonomía y el contexto. Su apartado 4 contempla no usar el sistema, invalidar resultados o detenerlo, según resulte adecuado y proporcionado. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El artículo 14(5) aborda los sistemas de identificación biométrica remota del anexo III, punto 1(a), cuando su uso esté legalmente permitido. Esa categoría excluye la verificación biométrica cuya única finalidad sea confirmar que alguien es quien afirma ser. El responsable del despliegue no puede actuar ni decidir basándose en una identificación antes de que al menos dos personas la hayan verificado y confirmado por separado. Deben tener la competencia, formación y autoridad necesarias. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-La excepción se refiere a fines de garantía del cumplimiento del Derecho (actuaciones de justicia penal), migración, control fronterizo y asilo. Exige que el Derecho de la Unión o nacional considere desproporcionada la verificación separada por al menos dos personas. No es una simple recomendación de involucrar a otra persona. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El artículo 16 impone obligaciones de cumplimiento a proveedores de sistemas de alto riesgo. Los artículos 13 y 14 conectan proveedores y responsables del despliegue mediante transparencia y supervisión. Esas dos disposiciones no establecen por sí mismas un derecho individual a explicación o recurso. Esto no demuestra que tales derechos estén ausentes del resto del reglamento. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-El texto aportado de 2024 fija la aplicación general el 2 de agosto de 2026. El artículo 113 aplaza el artículo 6(1) y sus obligaciones correspondientes hasta el 2 de agosto de 2027; otras disposiciones se aplican antes. El artículo 111 trata de forma distinta los sistemas ordinarios de alto riesgo introducidos en el mercado o puestos en servicio antes del 2 de agosto de 2026. Sus operadores quedan sujetos solo si desde entonces hay cambios significativos de diseño, sin perjuicio de las prohibiciones del artículo 5. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-Hay plazos distintos para sistemas anteriores. Proveedores y responsables de sistemas de alto riesgo destinados a autoridades públicas deben adoptar las medidas de cumplimiento necesarias a más tardar el 2 de agosto de 2030. Los componentes de IA de los sistemas informáticos de gran magnitud del anexo X tienen otro plazo. Si se introdujeron en el mercado o pusieron en servicio antes del 2 de agosto de 2027, deben cumplir a más tardar el 31 de diciembre de 2030, sin perjuicio del artículo 5. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-Estas son las fechas del texto aportado. La guía no evalúa reformas posteriores ni establece la aplicabilidad actual a un sistema concreto. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es))
-
-Ayuda de lectura, no equivalencia. Las disposiciones europeas seleccionadas destacan documentación y diseño, vinculados a prácticas de despliegue. El RMF organiza la gestión de riesgos. Ambos implican actividad organizacional continua. El contraste es de fuerza jurídica y énfasis, no una oposición entre diseño y práctica organizacional. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es)) ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+Kaminski también advierte que el encuadre del riesgo puede dejar fuera daños difíciles de cuantificar y poblaciones marginadas. El peligro consiste en que lo fácil de medir acabe representando todo lo que importa. En la escena de la cámara, medir aciertos sería útil. Para justificar el uso seguiría haciendo falta examinar el resto de la experiencia.
 
 </Section>
 
-<Section number="5" title="Por qué el memorando de la OMB traslada el contraste al gobierno">
+<Section number="03" title="NIST mantiene abierta la decisión de uso">
 
-M-25-21 es un memorando de la OMB a las agencias federales. Penti reporta que se emitió el 3 de abril de 2025 con su complemento de adquisiciones, M-25-22. Según ella, ambos sustituyen directrices de la era Biden del 28 de marzo y el 24 de septiembre de 2024. No restringen directamente a la industria privada, aunque los contratos pueden trasladar requisitos a proveedores. El memorando rige el uso de IA de las propias agencias y no crea derechos ni obligaciones para el público. ([Penti](https://www.ropesgray.com/en/insights/alerts/2025/04/white-house-issues-guidance-on-use-and-procurement-of-artificial-intelligence-technology); [OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
+El marco del NIST ofrece un matiz importante. Se conoce como *AI RMF*, por sus siglas en inglés. La versión 1.0, publicada en 2023, incluye entre sus decisiones si debe continuar el desarrollo o el *despliegue* del sistema, es decir, su puesta en uso.
 
-La cobertura sigue la definición de agencia de 44 U.S.C. § 3502(1), incluidas agencias reguladoras independientes; no abarca todo órgano federal. Alcanza IA nueva y existente desarrollada, usada o adquirida por las agencias comprendidas o en su nombre. Los requisitos se aplican a la funcionalidad de IA, no al sistema informático entero que la incorpora. La definición de sistema de IA excluye productos comerciales comunes con IA integrada, como procesadores de texto. Algunas obligaciones solo rigen para las agencias identificadas por la Ley de Directores Financieros. Otras leyes y políticas aplicables de la OMB siguen vigentes. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
+Esa decisión aparece en [MANAGE 1.1, página 32](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf#page=37). «MANAGE» nombra la función de gestionar; el número identifica una indicación concreta. En esa misma página, MANAGE 2.1 incorpora alternativas viables que no utilicen IA. MANAGE 1.4 contempla documentar los riesgos negativos residuales.
 
-IA de alto impacto es aquella cuyo resultado es base principal de decisiones o acciones con efecto jurídico, material, vinculante o significativo. Califican seis ámbitos: derechos civiles, libertades o privacidad; acceso a educación, vivienda, seguros, crédito, empleo u otros programas; acceso a recursos o servicios gubernamentales críticos. También califican salud y seguridad; infraestructura crítica o seguridad pública; y activos o recursos estratégicos, incluidos bienes de alto valor e información federal sensible o clasificada. Un uso califica con o sin supervisión humana. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
+Volvamos a la cámara. Una evaluación que siguiera esa lógica podría comparar la solución propuesta con otra forma viable de comprobar la identidad. También tendría que considerar qué riesgos permanecen. La decisión podría favorecer la tecnología, exigir cambios o llevar a reconsiderarla. La comparación abre esas posibilidades; no anticipa cuál sería la respuesta correcta para un caso real.
 
-La sección 6 presume de alto impacto algunas categorías. Concluir lo contrario exige documentación escrita al director de IA de la agencia (CAIO). ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
+Este matiz importa al leer a Kaminski. La gestión de riesgos puede contener herramientas para cuestionar el uso. El problema que ella señala es la tendencia a darlo por supuesto. Leer ambos textos permite mantener juntas la advertencia y la posibilidad de responder a ella, sin convertirlas en una contradicción artificial.
 
-Para esos usos de alto impacto comprendidos en el memorando, las agencias deben probar antes del despliegue y evaluar el impacto. La sección 4(b)(ii)(C) incluye efectos potenciales de usar y no usar IA. Aborda así la pregunta del despliegue en el papel; no prueba decisiones reales. La evaluación se actualiza periódicamente. La revisa alguien de la propia agencia que no participó en el desarrollo. Aceptar el riesgo exige firma. Otras prácticas incluyen monitoreo, capacitación, supervisión humana y, cuando proceda, revisión humana oportuna y posibilidad de apelar impactos negativos. Las prácticas deberían ser proporcionales al riesgo previsto del uso previsto. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-El memorando también ordena acelerar la adopción eficaz de IA que contribuya a la misión de la agencia y eliminar barreras burocráticas innecesarias. Esa orientación favorable a la adopción convive con las salvaguardas. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-La sección 4(a)(i) concede 365 días desde la emisión para documentar la implementación de las prácticas mínimas de alto impacto. Las agencias deben estar preparadas para informar a la OMB mediante revisiones periódicas, el inventario anual de usos o a petición. Por separado, la sección 4(b) exige pruebas y evaluación de impacto antes del despliegue; la 4(a) aborda cese, dispensas y exenciones de pilotos. Aquí no se han comprobado cambios posteriores de política. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-Las funciones de IA de alto impacto que incumplan las prácticas mínimas deben cesar de forma segura hasta cumplirlas, salvo dispensas o exenciones para pilotos aplicables. Por separado, el memorando exige cesar cuando la mitigación adecuada sea imposible. El CAIO, coordinado con funcionarios pertinentes, puede dispensar requisitos mediante determinación escrita y evaluación de riesgos específica del sistema y contexto. Debe concluir que cumplir aumentaría los riesgos generales para la seguridad o derechos, o impediría inaceptablemente operaciones críticas. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-La facultad de dispensar no puede delegarse. Las dispensas se registran centralmente, se recertifican anualmente y se reevalúan ante cambios significativos de condiciones o contexto. Se informa a la OMB dentro de los 30 días de concederlas o revocarlas. Las agencias deben publicar un resumen y justificación de cada determinación y dispensa, en la medida compatible con la ley y las políticas generales del gobierno, o informar públicamente que no hay ninguna activa. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-Las exenciones para pilotos requieren escala y duración limitadas, certificación del CAIO y registro central. Deben aplicarse las prácticas mínimas cuando sea viable. Donde sea posible, los participantes deben poder entrar y salir con aviso suficiente para decidir informadamente. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-Las secciones 4(a) y 4(b) no se aplican a la Comunidad de Inteligencia. La IA usada como componente de un Sistema de Seguridad Nacional queda fuera del memorando. También se excluyen los usos de investigación básica o aplicada, salvo investigación para desarrollar aplicaciones concretas de IA para las agencias. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-La sección 1(b) excluye además la regulación de IA ajena a las agencias. Excluye evaluar aplicaciones concretas porque su proveedor es objeto actual o potencial de actuaciones regulatorias, policiales o de seguridad nacional. La nota 7 distingue usar IA para realizar una actuación de cumplimiento: ese uso no queda excluido por este motivo. También excluye desarrollar métricas, métodos y estándares de prueba para uso general del público o del gobierno. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-Sobre el NIST, Penti reporta que en la era Biden se alentaba a las agencias a usar el RMF. Dice que las nuevas directrices se apartan de disposiciones relativas al NIST en M-24-10 y M-24-18. Se alienta a cada agencia a crear sus propias prácticas. Los contratistas pueden enfrentar requisitos distintos por agencia, sin el efecto armonizador del NIST. Algunos principios del RMF siguen en la base. Los memorandos anteriores no están entre las fuentes aportadas. ([Penti](https://www.ropesgray.com/en/insights/alerts/2025/04/white-house-issues-guidance-on-use-and-procurement-of-artificial-intelligence-technology))
-
-Comentario, no fuente. Kaminski contrastó un marco voluntario con un modelo europeo propuesto que pretendía imponer requisitos vinculantes. El instrumento finalmente adoptado que aquí se comenta es el Reglamento (UE) 2024/1689, con ámbito y calendario propios. M-25-21 lleva una versión de esa asimetría a la práctica federal. En ese memorando conviven prácticas obligatorias para las agencias y un marco voluntario; según Penti, el vínculo entre ambos se aflojó. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-Los detonantes también difieren. El reglamento europeo y el memorando usan categorías diferentes. El alto impacto de la OMB depende del efecto de un resultado. No son equivalentes. Esto es política de agencia, no un derecho individual exigible. Un requisito en el papel no prueba su cumplimiento. ([EUR-Lex](https://eur-lex.europa.eu/eli/reg/2024/1689/oj?locale=es); [OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
-
-La sección 7 limita el concepto de riesgo del memorando a riesgos derivados del uso de IA que afecten resultados de decisiones o acciones. Excluye ciertos riesgos asociados, como los de privacidad, seguridad y confidencialidad de los datos de entrenamiento o entrada. Esa definición más estrecha no elimina deberes de protección de datos establecidos por otras leyes y políticas aplicables. ([OMB](https://www.whitehouse.gov/wp-content/uploads/2025/04/M-25-21.pdf))
+El AI RMF fue concebido para uso voluntario. Eso describe la naturaleza del marco; no determina por sí solo todas las obligaciones jurídicas de quien lo utiliza. Tampoco basta con citarlo para demostrar cómo actuó una organización. Para conocer una decisión concreta habría que examinar sus razones y la evidencia de lo que hizo.
 
 </Section>
 
-<Section number="6" title="Qué guardar y qué sigue abierto">
+<Section number="04" title="De la evaluación a una decisión explicable">
 
-Guarda el argumento (enmarcar los daños como riesgos supone una elección de valores), su reserva (se suele asumir la adopción) y la cita verificable de la introducción. ([Kaminski](https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf))
+Imaginemos ahora dos documentos sobre la misma cámara. Uno contiene resultados de pruebas y registra una reducción de errores. El otro explica por qué se eligió esa solución, qué alternativas se consideraron y cómo se tratarán las consecuencias que aún puedan producirse. Cada documento aporta información distinta. El segundo permite entender mejor qué se decidió a partir del primero.
 
-<ContextBox label="Lo que esta lectura no establece">
-No demuestra que las afirmaciones de Kaminski sobre el proyecto, como la ausencia de derechos individuales, describan el texto europeo final. No confirma aplicabilidad más allá del texto aportado. No muestra cómo aplican las agencias M-25-21, con qué frecuencia conceden dispensas ni si cumplen. El relato histórico de M-24-10 y M-24-18 depende de Penti; aquí no se han verificado sus originales independientemente. Penti ofrece una lectura de despacho, no el memorando. Nada aquí implica que no existan otras comparaciones.
+Esto ayuda a precisar la *contestabilidad*: la posibilidad de cuestionar una decisión y buscar su revisión. Como idea general, conocer las razones y la evidencia facilita formular una objeción concreta. Aun así, tener documentos no garantiza una vía efectiva para reclamar. También importa quién puede acceder a ellos, ante quién se plantea la objeción y qué respuesta puede obtener.
+
+La evaluación aporta razones para decidir. Después hay que explicar qué se hace con ellas. En la escena hipotética, la mejora de la cámara podría ser relevante, mientras que la elección de usarla seguiría dependiendo del propósito, las alternativas y las consecuencias. Una decisión bien explicada permite examinar esa relación.
+
+La pregunta que deja esta lectura es exigente: qué permite pasar de «hemos reducido el riesgo» a «tenemos razones suficientes para utilizar esta tecnología». Kaminski ayuda a reconocer ese paso. NIST ofrece herramientas para hacerlo explícito. El resultado de aplicarlas sigue necesitando evidencia de cada caso.
+
+</Section>
+
+<ContextBox label="Comentario sobre la tarjeta">
+Mi lectura es que la introducción de Kaminski aporta una distinción útil para esta etapa: prevenir daños y justificar el uso son problemas conectados, cada uno con sus propias preguntas. NIST permite concretarla. El ejemplo de comparación facial puede ayudar a pensar después en TVS, el Servicio de Verificación de Viajeros, sin adelantar conclusiones sobre sus controles reales. Aquí la ampliación sirve para comprender esa distinción; no añade tareas a la lectura indicada.
 </ContextBox>
 
-Coda. Un texto vinculante puede exigir que un sistema pueda detenerse. Uno voluntario también puede contemplarlo. La diferencia está en quién puede exigir esa detención. La pregunta de Kaminski sobrevive a ambos: ¿quién decide si se despliega?
-
-</Section>
+*Edición española revisada el 2 de noviembre de 2026. La edición inglesa conserva el texto anterior. Elaboración asistida por IA a partir de las fuentes indicadas; los ejemplos son hipotéticos y las conexiones explicativas son una elaboración editorial.*

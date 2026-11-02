@@ -74,3 +74,17 @@ bajo routing-utils y `fflate` 0.7.5 bajo satori. Corrigen los avisos
 GHSA-9wv6-86v2-598j y GHSA-px8p-9vwx-vf98. Verificar npm audit, npm run check y
 build al actualizar el lockfile; retirar overrides cuando los padres incorporen
 versiones corregidas. Estas reparaciones no alteran los artículos del archivo.
+
+### Revisiones editoriales por idioma (2026-11-02)
+
+Una revisión puede cambiar solo la edición española. El sidecar admite
+`sources_by_language.es` o `.en` para mostrar las referencias de esa edición;
+si no existe la clave del idioma, se usan `sources` y `web_only` como antes.
+Una lista explícitamente vacía no hereda referencias de otra edición.
+`Sources` usa `ref`, o `title` como alternativa, para evitar enlaces sin texto.
+
+Conservar los metadatos de revisión del texto anterior como historial, sin
+atribuir su veredicto al nuevo cuerpo. La edición conservada debe enlazar la
+revisión y avisar que todavía no es su traducción. La publicación por Code
+registra la orden explícita del usuario y su recibo propio; no reutiliza ni
+simula la firma del tablero sobre un artefacto anterior.
